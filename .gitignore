@@ -1,3 +1,6 @@
+# Not auto-generated
+.vimlocal
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
