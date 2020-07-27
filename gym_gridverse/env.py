@@ -1,29 +1,42 @@
 import abc
-from dataclasses import dataclass
+import enum
 from typing import Dict, Optional, Tuple
 
-import gym
-import numpy as np
+from .spaces import (
+    ActionSpace,
+    Observation,
+    ObservationSpace,
+    State,
+    StateSpace,
+)
 
 
-@dataclass
-class RLData:
-    """Dataclass to represent states and observations"""
+class Actions(enum.Enum):
+    MOVE_FORWARD = 0
+    MOVE_BACKWARD = enum.auto()
+    MOVE_LEFT = enum.auto()
+    MOVE_RIGHT = enum.auto()
 
-    grid: np.ndarray
-    array: np.ndarray
+    TURN_LEFT = enum.auto()
+    TURN_RIGHT = enum.auto()
+
+    ACTUATE = enum.auto()
+
+    PICK = enum.auto()
+    DROP = enum.auto()
 
 
-State = RLData
-Observation = RLData
-Feedback = Tuple[Observation, float, bool, Dict]
+class Environment(metaclass=abc.ABCMeta):
+    def __init__(
+        self,
+        state_space: StateSpace,
+        action_space: ActionSpace,
+        observation_space: ObservationSpace,
+    ):
+        self.state_space = state_space
+        self.action_space = action_space
+        self.observation_space = observation_space
 
-
-class Environment(gym.Env, metaclass=abc.ABCMeta):
-    """Environment"""
-
-    def __init__(self):
-        super().__init__()
         self.state: Optional[State] = None
 
     @abc.abstractmethod
@@ -31,13 +44,13 @@ class Environment(gym.Env, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def functional_step(self, state: State, action: int) -> Feedback:
+    def functional_step(
+        self, state: State, action: int
+    ) -> Tuple[Observation, float, bool, Dict]:
         raise NotImplementedError
 
     def functional_observation(self, state: State) -> Observation:
-        observation_grid = ...  # TODO implement slicing and observation-masking
-        observation_array = state.array
-        return Observation(grid=observation_grid, array=observation_array)
+        raise NotImplementedError
 
     @property
     def observation(self):
@@ -47,8 +60,12 @@ class Environment(gym.Env, metaclass=abc.ABCMeta):
         self.state = self.functional_reset()
         return self.observation
 
-    def step(self, action: int) -> Feedback:
+    def step(self, action: int) -> Tuple[Observation, float, bool, Dict]:
         self.state, reward, done, info = self.functional_step(
             self.state, action
         )
         return self.observation, reward, done, info
+
+
+class CompactEnvironment(Environment):
+    raise NotImplementedError
