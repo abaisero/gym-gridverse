@@ -16,7 +16,7 @@ Gridworld domains in the gym interface
 
 ## Action:
 
-* turn left/right 
+* turn left/right
 * move left/right/forward/backward
 * pick up & down
 * actuate
@@ -35,7 +35,7 @@ Gridworld domains in the gym interface
             1. cell type
             1. cell status
             1. cell color
-    * non-spatial features 
+    * non-spatial features
         * contains:
             * Direction
             * Type of holding object
@@ -65,7 +65,7 @@ Gridworld domains in the gym interface
     * States: [ height x width x channels ]
     * Observations: [ height x width x channels ]
         * agent POV
-    * Action: int: 
+    * Action: int:
 * Objects do not stack
 * Limited state features out of grid to agent direction and holding of object
 
@@ -103,6 +103,7 @@ Gridworld domains in the gym interface
 * `actuate()`: state -> state (domain specific?)
 * `update()`: state -> state (domain specific?)
 * `transparent`
+* Register to automatically assign ID
 
 ```python
 class door():
@@ -114,7 +115,7 @@ class cell_object():
     @property
     def status() -> int:
         # e.g. door: return open/closed/locked
-    
+
     def shared_property():
     # or
     def color():
@@ -126,6 +127,8 @@ class button():
 
 ## Environments
 
+* Our own implementation
+* Provide wrapper to Gym environment
 * `GymEnvironment(gym_api)` base base base class environment
     * API: functional
 * `SimpleMiniGrid` <- all the specifications so far
