@@ -25,9 +25,9 @@ class GridObject(metaclass=abc.ABCMeta):
     object_types: List[GridObject] = []
     type_index: int
 
-    def __init_subclass__(cls, *, noregister=False, **kwargs):
+    def __init_subclass__(cls, *, register=True, **kwargs):
         super().__init_subclass__(**kwargs)
-        if not noregister:
+        if register:
             cls.type_index = len(GridObject.object_types)
             GridObject.object_types.append(cls)
 

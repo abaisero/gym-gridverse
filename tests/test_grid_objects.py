@@ -14,7 +14,7 @@ class TestGridObject(unittest.TestCase):
         """ Grid Objects can be _not_ registered """
 
         class DummyObject(  # pylint: disable=abstract-method
-            GridObject, noregister=True
+            GridObject, register=False
         ):
             """ Some dummy grid objet that is _not_ registered """
 
