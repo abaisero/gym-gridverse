@@ -9,7 +9,7 @@ from gym_gridverse.grid_object import Colors, Floor, GridObject
 class TestGridObject(unittest.TestCase):
     def test_no_registration(self):
         class DummyObject(  # pylint: disable=abstract-method
-            GridObject, noregister=True
+            GridObject, register=False
         ):
             pass
 
