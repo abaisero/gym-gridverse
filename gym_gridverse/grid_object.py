@@ -1,7 +1,9 @@
 """ Every cell in the grid is represented by a grid objects """
+from __future__ import annotations
 
 import abc
 import enum
+from typing import List
 
 import numpy as np
 
@@ -19,10 +21,20 @@ class Colors(enum.Enum):
 class GridObject(metaclass=abc.ABCMeta):
     """ A cell in the grid """
 
+    # registry as list/mapping int -> GridObject
+    object_types: List[GridObject] = []
+
+    def __init_subclass__(cls, *, noregister=False, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if not noregister:
+            cls._object_type = len(GridObject.object_types)
+            GridObject.object_types.append(cls)
+
     @property
     def object_type(self) -> int:
         """ Returns the type of the object """
-        return self._type  # NOTE: magically assumed set through registration
+        # NOTE: magically assumed set through registration
+        return type(self)._object_type
 
     @property
     @abc.abstractmethod
@@ -64,11 +76,6 @@ class GridObject(metaclass=abc.ABCMeta):
 
 class Floor(GridObject):
     """ Most basic object in the grid, represents empty cell """
-
-    _type = 0  # TODO: set automatically through registration
-
-    def __init__(self):
-        pass
 
     @property
     def state(self) -> int:
