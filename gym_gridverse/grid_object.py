@@ -3,9 +3,16 @@ from __future__ import annotations
 
 import abc
 import enum
-from typing import List
+import random
+from typing import TYPE_CHECKING, List
 
 import numpy as np
+
+from gym_gridverse.geometry import get_manhattan_boundary
+
+if TYPE_CHECKING:
+    from gym_gridverse.env import Actions
+    from gym_gridverse.state import State
 
 
 class Colors(enum.Enum):
@@ -57,11 +64,11 @@ class GridObject(metaclass=abc.ABCMeta):
         """ Whether the object blocks the agent """
 
     @abc.abstractmethod
-    def step(self, state) -> None:  # TODO: state annotate?
+    def step(self, state: State, action: Actions) -> None:
         """ Optional behavior of the object """
 
     @abc.abstractmethod
-    def actuate(self, state) -> None:  # TODO: state annotate?
+    def actuate(self, state: State) -> None:
         """ The (optional) behavior upon actuation """
 
     def as_array(self):
@@ -92,10 +99,10 @@ class Floor(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def step(self, state) -> None:
+    def step(self, state: State, action: Actions) -> None:
         pass
 
-    def actuate(self, state) -> None:
+    def actuate(self, state: State) -> None:
         pass
 
 
@@ -122,10 +129,10 @@ class Wall(GridObject):
     def blocks(self) -> bool:
         return True
 
-    def step(self, state) -> None:
+    def step(self, state: State, action: Actions) -> None:
         pass
 
-    def actuate(self, state) -> None:
+    def actuate(self, state: State) -> None:
         pass
 
 
@@ -152,10 +159,10 @@ class Goal(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def step(self, state) -> None:
+    def step(self, state: State, action: Actions) -> None:
         pass
 
-    def actuate(self, state) -> None:
+    def actuate(self, state: State) -> None:
         pass
 
 
@@ -175,14 +182,14 @@ class Door(GridObject):
 
     """
 
-    class State(enum.Enum):
+    class Status(enum.Enum):
         """ open, closed or locked """
 
         OPEN = 0
         CLOSED = enum.auto()
         LOCKED = enum.auto()
 
-    def __init__(self, state: State, color: Colors):
+    def __init__(self, state: Status, color: Colors):
         self._color = color
         self._state = state
 
@@ -196,7 +203,7 @@ class Door(GridObject):
 
     @property
     def transparent(self) -> bool:
-        return self._state == self.State.OPEN
+        return self._state == self.Status.OPEN
 
     @property
     def can_be_picked_up(self) -> bool:
@@ -204,13 +211,13 @@ class Door(GridObject):
 
     @property
     def blocks(self) -> bool:
-        return not self._state == self.State.OPEN
+        return self._state != self.Status.OPEN
 
-    def step(self, state) -> None:
+    def step(self, state: State, action: Actions) -> None:
         pass
 
-    def actuate(self, state) -> None:
-        """ Attempts to open door 
+    def actuate(self, state: State) -> None:
+        """ Attempts to open door
 
         When not holding correct key with correct color:
             `open` or `closed` -> `open`
@@ -224,28 +231,26 @@ class Door(GridObject):
         if self.is_open:
             return
         if not self.locked:
-            self._state = self.State.OPEN
+            self._state = self.Status.OPEN
         else:
             try:
-                # TODO: test through type index or isinstance?
                 if (
                     isinstance(state.agent.obj, Key)
                     and state.agent.obj.color == self.color
                 ):
-                    self._state = self.State.OPEN
-                # TODO: disappear key?
+                    self._state = self.Status.OPEN
             except:
-                pass
+                pass  # door is locked but agent does not hold the correct
 
     @property
     def is_open(self) -> bool:
         """ returns whether the door is opened """
-        return self._state == self.State.OPEN
+        return self._state == self.Status.OPEN
 
     @property
     def locked(self) -> bool:
         """ returns whether the door is locked """
-        return self._state == self.State.LOCKED
+        return self._state == self.Status.LOCKED
 
 
 class Key(GridObject):
@@ -275,8 +280,68 @@ class Key(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def step(self, state) -> None:  # TODO: state annotate?
+    def step(self, state: State, action: Actions) -> None:
         pass
 
-    def actuate(self, state) -> None:  # TODO: state annotate?
+    def actuate(self, state: State) -> None:
+        pass
+
+
+class MovingObstacle(GridObject):
+    """An obstacle to be avoided that moves in the grid"""
+
+    def __init__(self):
+        """Moving obstacles have no special status or color"""
+
+    @property
+    def state_index(self) -> int:
+        return 0
+
+    @property
+    def color(self) -> Colors:
+        return Colors.NONE
+
+    @property
+    def transparent(self) -> bool:
+        return True
+
+    @property
+    def can_be_picked_up(self) -> bool:
+        return False
+
+    @property
+    def blocks(self) -> bool:
+        return False
+
+    def step(self, state: State, action: Actions) -> None:
+        """Moves randomly
+
+        Moves only to cells containing _Floor_ objects, and will do so with
+        random walk. In current implementation can only move 1 cell
+        non-diagonally. If (and only if) no open cells are available will it
+        stay put
+
+        Args:
+            state ([TODO:type]): current state
+            action (Actions): action taken by agent (ignored)
+        """
+
+        cur_pos = state.grid.get_position(self)
+
+        proposed_next_positions = get_manhattan_boundary(cur_pos, distance=1)
+
+        # Filter on next position is Floor and in grid
+        proposed_next_positions = [
+            x
+            for x in proposed_next_positions
+            if x in state.grid and isinstance(state.grid[x], Floor)
+        ]
+
+        if not proposed_next_positions:
+            return
+
+        next_position = random.choice(proposed_next_positions)
+        state.grid.swap(cur_pos, next_position)
+
+    def actuate(self, state: State) -> None:
         pass

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import enum
-from typing import NamedTuple
+from typing import List, NamedTuple
 
 
 class Shape(NamedTuple):
@@ -30,6 +30,33 @@ class _2D_Point(NamedTuple):
 
 class Position(_2D_Point):
     pass
+
+
+def get_manhattan_boundary(pos: Position, distance: int) -> List[Position]:
+    """Returns the cells (excluding pos) with Manhattan distance of pos
+
+    For distance = 1, will return the left, upper, right and lower cell of
+    position. For longer distances, the extended boundary is returned:
+
+    E.g. for distance = 2 the cells denoted by 'x' are returned:
+
+      x
+     x x
+    x   x
+     x x
+      x
+
+    TODO: test
+
+    Args:
+        pos (Position): The center of the return boundary (excluded)
+        distance (int): The distance of the boundary returned
+
+    Returns:
+        List[Position]: List of positions (excluding pos) representing the boundary
+    """
+    assert distance > 0
+    return []
 
 
 class DeltaPosition(_2D_Point):

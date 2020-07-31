@@ -1,10 +1,12 @@
 """ Tests Grid Object behavior and properties """
+import copy
 import unittest
 
 import gym_gridverse.state as state
 import numpy as np
+from gym_gridverse.geometry import Position
 from gym_gridverse.grid_object import (Colors, Door, Floor, Goal, GridObject,
-                                       Key, Wall)
+                                       Key, MovingObstacle, Wall)
 
 
 class TestGridObject(unittest.TestCase):
@@ -22,7 +24,7 @@ class TestGridObject(unittest.TestCase):
 
 
 def simple_state_without_object() -> state.State:
-    """ Returns a 2x2 (empty) grid with an agent without an item 
+    """ Returns a 2x2 (empty) grid with an agent without an item
 
     TODO: Orientation?
     """
@@ -38,7 +40,7 @@ class TestFloor(unittest.TestCase):
     def test_registration(self):
         """ Tests the registration as a Grid Object """
         self.assertIn(Floor, GridObject.object_types)
-        self.assertEqual(Floor.type_index, 0)
+        self.assertEqual(Floor.type_index, 0)  # pylint: disable=no-member
 
     def test_properties(self):
         """ Basic stupid tests for floor grid object """
@@ -63,14 +65,13 @@ class TestWall(unittest.TestCase):
     def test_registration(self):
         """ Tests the registration as a Grid Object """
         self.assertIn(Wall, GridObject.object_types)
-        self.assertEqual(Wall.type_index, 1)
+        self.assertEqual(Wall.type_index, 1)  # pylint: disable=no-member
 
     def test_properties(self):
         """ Basic property tests """
 
         wall = Wall()
 
-        self.assertEqual(wall.type_index, 1)
         self.assertFalse(wall.transparent)
         self.assertTrue(wall.blocks)
         self.assertEqual(wall.color, Colors.NONE)
@@ -89,7 +90,7 @@ class TestGoal(unittest.TestCase):
     def test_registration(self):
         """ Tests the registration as a Grid Object """
         self.assertIn(Goal, GridObject.object_types)
-        self.assertEqual(Goal.type_index, 2)
+        self.assertEqual(Goal.type_index, 2)  # pylint: disable=no-member
 
     def test_properties(self):
         """ Basic property tests """
@@ -114,7 +115,7 @@ class TestKey(unittest.TestCase):
     def test_registration(self):
         """ Tests the registration as a Grid Object """
         self.assertIn(Key, GridObject.object_types)
-        self.assertEqual(Key.type_index, 4)
+        self.assertEqual(Key.type_index, 4)  # pylint: disable=no-member
 
     def test_properties(self):
         """ Basic property tests """
@@ -138,19 +139,19 @@ class TestDoor(unittest.TestCase):
     def test_registration(self):
         """ Tests the registration as a Grid Object """
         self.assertIn(Door, GridObject.object_types)
-        self.assertEqual(Door.type_index, 3)
+        self.assertEqual(Door.type_index, 3)  # pylint: disable=no-member
 
     def test_open_door_properties(self):
         """ Basic property tests """
 
         color = Colors.GREEN
 
-        open_door = Door(Door.State.OPEN, color)
+        open_door = Door(Door.Status.OPEN, color)
 
         self.assertTrue(open_door.transparent)
         self.assertEqual(open_door.color, color)
         self.assertFalse(open_door.can_be_picked_up)
-        self.assertEqual(open_door.state_index, Door.State.OPEN.value)
+        self.assertEqual(open_door.state_index, Door.Status.OPEN.value)
         self.assertTrue(open_door.is_open)
         self.assertFalse(open_door.locked)
         self.assertFalse(open_door.blocks)
@@ -165,12 +166,12 @@ class TestDoor(unittest.TestCase):
 
         color = Colors.NONE
 
-        closed_door = Door(Door.State.CLOSED, color)
+        closed_door = Door(Door.Status.CLOSED, color)
 
         self.assertFalse(closed_door.transparent)
         self.assertEqual(closed_door.color, color)
         self.assertFalse(closed_door.can_be_picked_up)
-        self.assertEqual(closed_door.state_index, Door.State.CLOSED.value)
+        self.assertEqual(closed_door.state_index, Door.Status.CLOSED.value)
         self.assertFalse(closed_door.is_open)
         self.assertFalse(closed_door.locked)
         self.assertTrue(closed_door.blocks)
@@ -185,12 +186,12 @@ class TestDoor(unittest.TestCase):
 
         color = Colors.NONE
 
-        locked_door = Door(Door.State.LOCKED, color)
+        locked_door = Door(Door.Status.LOCKED, color)
 
         self.assertFalse(locked_door.transparent)
         self.assertEqual(locked_door.color, color)
         self.assertFalse(locked_door.can_be_picked_up)
-        self.assertEqual(locked_door.state_index, Door.State.LOCKED.value)
+        self.assertEqual(locked_door.state_index, Door.Status.LOCKED.value)
         self.assertFalse(locked_door.is_open)
         self.assertTrue(locked_door.locked)
         self.assertTrue(locked_door.blocks)
@@ -204,15 +205,15 @@ class TestDoor(unittest.TestCase):
         """ Testing the simple FNS of the door """
 
         color = Colors.GREEN
-        state = None
+        s = None
 
-        door = Door(Door.State.CLOSED, color)
+        door = Door(Door.Status.CLOSED, color)
         self.assertFalse(door.is_open)
 
-        door.actuate(state)
+        door.actuate(s)
         self.assertTrue(door.is_open)
 
-        door.actuate(state)
+        door.actuate(s)
         self.assertTrue(door.is_open)
 
     def test_opening_door_with_key(self):
@@ -221,23 +222,74 @@ class TestDoor(unittest.TestCase):
         color = Colors.BLUE
 
         # Agent holding wrong key
-        state = simple_state_without_object()
-        state.agent.obj = Key(Colors.YELLOW)
+        s = simple_state_without_object()
+        s.agent.obj = Key(Colors.YELLOW)
 
-        door = Door(Door.State.LOCKED, color)
+        door = Door(Door.Status.LOCKED, color)
         self.assertFalse(door.is_open)
 
-        door.actuate(state)
+        door.actuate(s)
         self.assertFalse(door.is_open)
 
-        state.agent.obj = Key(color)
+        s.agent.obj = Key(color)
         self.assertFalse(door.is_open)
 
-        door.actuate(state)
+        door.actuate(s)
         self.assertTrue(door.is_open)
 
-        door.actuate(state)
+        door.actuate(s)
         self.assertTrue(door.is_open)
+
+
+class TestMovingObstacles(unittest.TestCase):
+    """Tests the moving obstacles"""
+
+    def test_registration(self):
+        """ Tests the registration as a Grid Object """
+        self.assertIn(MovingObstacle, GridObject.object_types)
+        self.assertEqual(
+            MovingObstacle.type_index, 5  # pylint: disable=no-member
+        )
+
+    def test_basic_properties(self):
+        """Tests basic properties of the moving obstacle"""
+
+        obstacle = MovingObstacle()
+
+        self.assertTrue(obstacle.transparent)
+        self.assertFalse(obstacle.blocks)
+        self.assertEqual(obstacle.color, Colors.NONE)
+        self.assertFalse(obstacle.can_be_picked_up)
+        self.assertEqual(obstacle.state_index, 0)
+
+        expected_arr_represtation = np.array([5, 0, 0])
+        np.testing.assert_array_equal(
+            obstacle.as_array(), expected_arr_represtation
+        )
+
+    def test_obstacle_movement(self):
+        """Test the 'step' behavior of the obstacle"""
+
+        obs = MovingObstacle()
+
+        # allow for just 1 next step
+        s = simple_state_without_object()
+
+        s.grid[Position(1, 0)] = obs
+        s.grid[Position(1, 1)] = copy.deepcopy(obs)
+        obs.step(s, action=None)
+
+        self.assertEqual(s.grid.get_position(obs), Position(0, 0))
+
+        s = simple_state_without_object()
+
+        s.grid[Position(1, 1)] = obs
+        obs.step(s, action=None)
+
+        self.assertTrue(
+            s.grid.get_position(obs) == Position(0, 1)
+            or s.grid.get_position(obs) == Position(1, 0)
+        )
 
 
 if __name__ == '__main__':

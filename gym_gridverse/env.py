@@ -2,13 +2,8 @@ import abc
 import enum
 from typing import Dict, Optional, Tuple
 
-from .spaces import (
-    ActionSpace,
-    Observation,
-    ObservationSpace,
-    State,
-    StateSpace,
-)
+from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
+from gym_gridverse.state import Observation, State
 
 
 class Actions(enum.Enum):
