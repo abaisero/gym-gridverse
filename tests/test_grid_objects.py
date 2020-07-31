@@ -58,6 +58,8 @@ class TestFloor(unittest.TestCase):
             floor.as_array(), expected_arr_represtation
         )
 
+        self.assertEqual(floor.render_as_char(), ' ')
+
 
 class TestWall(unittest.TestCase):
     """ Basic stupid tests for wall grid object """
@@ -82,6 +84,8 @@ class TestWall(unittest.TestCase):
         np.testing.assert_array_equal(
             wall.as_array(), expected_arr_represtation
         )
+
+        self.assertEqual(wall.render_as_char(), 'W')
 
 
 class TestGoal(unittest.TestCase):
@@ -108,6 +112,8 @@ class TestGoal(unittest.TestCase):
             goal.as_array(), expected_arr_represtation
         )
 
+        self.assertEqual(goal.render_as_char(), 'G')
+
 
 class TestKey(unittest.TestCase):
     """ Basic stupid tests for Key grid object """
@@ -131,6 +137,8 @@ class TestKey(unittest.TestCase):
 
         expected_arr_represtation = np.array([4, 0, color.value])
         np.testing.assert_array_equal(key.as_array(), expected_arr_represtation)
+
+        self.assertEqual(key.render_as_char(), 'K')
 
 
 class TestDoor(unittest.TestCase):
@@ -161,6 +169,8 @@ class TestDoor(unittest.TestCase):
             open_door.as_array(), expected_arr_represtation
         )
 
+        self.assertEqual(open_door.render_as_char(), '_')
+
     def test_closed_door_properties(self):
         """ Basic property tests """
 
@@ -181,6 +191,8 @@ class TestDoor(unittest.TestCase):
             closed_door.as_array(), expected_arr_represtation
         )
 
+        self.assertEqual(closed_door.render_as_char(), 'd')
+
     def test_locked_door_properties(self):
         """ Basic property tests """
 
@@ -200,6 +212,8 @@ class TestDoor(unittest.TestCase):
         np.testing.assert_array_equal(
             locked_door.as_array(), expected_arr_represtation
         )
+
+        self.assertEqual(locked_door.render_as_char(), 'D')
 
     def test_opening_door(self):
         """ Testing the simple FNS of the door """
@@ -266,6 +280,8 @@ class TestMovingObstacles(unittest.TestCase):
         np.testing.assert_array_equal(
             obstacle.as_array(), expected_arr_represtation
         )
+
+        self.assertEqual(obstacle.render_as_char(), '*')
 
     def test_obstacle_movement(self):
         """Test the 'step' behavior of the obstacle"""

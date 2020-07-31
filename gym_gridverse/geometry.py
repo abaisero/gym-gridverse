@@ -32,6 +32,35 @@ class Position(_2D_Point):
     pass
 
 
+class DeltaPosition(_2D_Point):
+    pass
+
+
+class Orientation(enum.Enum):
+    N = 0
+    S = enum.auto()
+    E = enum.auto()
+    W = enum.auto()
+
+    def as_delta_position(self, dist: int = 1) -> DeltaPosition:
+        if self is Orientation.N:
+            delta_position = DeltaPosition(-dist, 0)
+
+        elif self is Orientation.S:
+            delta_position = DeltaPosition(dist, 0)
+
+        elif self is Orientation.E:
+            delta_position = DeltaPosition(0, dist)
+
+        elif self is Orientation.W:
+            delta_position = DeltaPosition(0, -dist)
+
+        else:
+            assert False
+
+        return delta_position
+
+
 def get_manhattan_boundary(pos: Position, distance: int) -> List[Position]:
     """Returns the cells (excluding pos) with Manhattan distance of pos
 
@@ -70,32 +99,3 @@ def get_manhattan_boundary(pos: Position, distance: int) -> List[Position]:
         Position(pos.y - i, pos.x - distance + i) for i in range(distance)
     )
     return boundary
-
-
-class DeltaPosition(_2D_Point):
-    pass
-
-
-class Orientation(enum.Enum):
-    N = 0
-    S = enum.auto()
-    E = enum.auto()
-    W = enum.auto()
-
-    def as_delta_position(self, dist: int = 1) -> DeltaPosition:
-        if self is Orientation.N:
-            delta_position = DeltaPosition(-dist, 0)
-
-        elif self is Orientation.S:
-            delta_position = DeltaPosition(dist, 0)
-
-        elif self is Orientation.E:
-            delta_position = DeltaPosition(0, dist)
-
-        elif self is Orientation.W:
-            delta_position = DeltaPosition(0, -dist)
-
-        else:
-            assert False
-
-        return delta_position

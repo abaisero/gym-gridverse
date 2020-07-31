@@ -75,6 +75,10 @@ class GridObject(metaclass=abc.ABCMeta):
         """ A (3,) array representation of the object """
         return np.array([self.type_index, self.state_index, self.color.value])
 
+    @abc.abstractmethod
+    def render_as_char(self) -> str:
+        """ A single char representation of the object"""
+
 
 class Floor(GridObject):
     """ Most basic object in the grid, represents empty cell """
@@ -104,6 +108,9 @@ class Floor(GridObject):
 
     def actuate(self, state: State) -> None:
         pass
+
+    def render_as_char(self) -> str:
+        return " "
 
 
 class Wall(GridObject):
@@ -135,6 +142,9 @@ class Wall(GridObject):
     def actuate(self, state: State) -> None:
         pass
 
+    def render_as_char(self) -> str:
+        return "W"
+
 
 class Goal(GridObject):
     """ The (second) most basic object in the grid: blocking cell """
@@ -164,6 +174,9 @@ class Goal(GridObject):
 
     def actuate(self, state: State) -> None:
         pass
+
+    def render_as_char(self) -> str:
+        return "G"
 
 
 class Door(GridObject):
@@ -252,6 +265,13 @@ class Door(GridObject):
         """ returns whether the door is locked """
         return self._state == self.Status.LOCKED
 
+    def render_as_char(self) -> str:
+        return {
+            self.Status.OPEN: "_",
+            self.Status.CLOSED: "d",
+            self.Status.LOCKED: "D",
+        }.get(self._state)
+
 
 class Key(GridObject):
     """ A key opens a door with the same color """
@@ -285,6 +305,9 @@ class Key(GridObject):
 
     def actuate(self, state: State) -> None:
         pass
+
+    def render_as_char(self) -> str:
+        return "K"
 
 
 class MovingObstacle(GridObject):
@@ -345,3 +368,6 @@ class MovingObstacle(GridObject):
 
     def actuate(self, state: State) -> None:
         pass
+
+    def render_as_char(self) -> str:
+        return "*"
