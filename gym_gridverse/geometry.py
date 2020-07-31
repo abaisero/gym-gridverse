@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import enum
 from typing import NamedTuple
 
@@ -29,3 +31,21 @@ class Orientation(enum.Enum):
     S = enum.auto()
     E = enum.auto()
     W = enum.auto()
+
+    def as_delta_position(self, dist: int = 1) -> DeltaPosition:
+        if self is Orientation.N:
+            delta_position = DeltaPosition(-dist, 0)
+
+        elif self is Orientation.S:
+            delta_position = DeltaPosition(dist, 0)
+
+        elif self is Orientation.E:
+            delta_position = DeltaPosition(0, dist)
+
+        elif self is Orientation.W:
+            delta_position = DeltaPosition(0, -dist)
+
+        else:
+            assert False
+
+        return delta_position
