@@ -270,25 +270,27 @@ class TestMovingObstacles(unittest.TestCase):
     def test_obstacle_movement(self):
         """Test the 'step' behavior of the obstacle"""
 
-        obs = MovingObstacle()
+        obs_1 = MovingObstacle()
+        obs_2 = MovingObstacle()
 
         # allow for just 1 next step
         s = simple_state_without_object()
 
-        s.grid[Position(1, 0)] = obs
-        s.grid[Position(1, 1)] = copy.deepcopy(obs)
-        obs.step(s, action=None)
+        s.grid[Position(1, 0)] = obs_1
+        s.grid[Position(1, 1)] = obs_2
+        obs_1.step(s, action=None)
 
-        self.assertEqual(s.grid.get_position(obs), Position(0, 0))
+        self.assertEqual(s.grid.get_position(obs_1), Position(0, 0))
 
+        # two possible moves out of corner
         s = simple_state_without_object()
 
-        s.grid[Position(1, 1)] = obs
-        obs.step(s, action=None)
+        s.grid[Position(1, 1)] = obs_1
+        obs_1.step(s, action=None)
 
         self.assertTrue(
-            s.grid.get_position(obs) == Position(0, 1)
-            or s.grid.get_position(obs) == Position(1, 0)
+            s.grid.get_position(obs_1) == Position(0, 1)
+            or s.grid.get_position(obs_1) == Position(1, 0)
         )
 
 
