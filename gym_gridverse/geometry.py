@@ -42,11 +42,9 @@ def get_manhattan_boundary(pos: Position, distance: int) -> List[Position]:
 
       x
      x x
-    x   x
+    x . x
      x x
       x
-
-    TODO: test
 
     Args:
         pos (Position): The center of the return boundary (excluded)
@@ -56,7 +54,22 @@ def get_manhattan_boundary(pos: Position, distance: int) -> List[Position]:
         List[Position]: List of positions (excluding pos) representing the boundary
     """
     assert distance > 0
-    return []
+
+    boundary: List[Position] = []
+    # from top, adding points clockwise in 4 straight lines
+    boundary.extend(
+        Position(pos.y - distance + i, pos.x + i) for i in range(distance)
+    )
+    boundary.extend(
+        Position(pos.y + i, pos.x + distance - i) for i in range(distance)
+    )
+    boundary.extend(
+        Position(pos.y + distance - i, pos.x - i) for i in range(distance)
+    )
+    boundary.extend(
+        Position(pos.y - i, pos.x - distance + i) for i in range(distance)
+    )
+    return boundary
 
 
 class DeltaPosition(_2D_Point):
