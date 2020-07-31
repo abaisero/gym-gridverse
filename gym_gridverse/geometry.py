@@ -4,7 +4,17 @@ import enum
 from typing import NamedTuple
 
 
-class Coordinates_2D(NamedTuple):
+class Shape(NamedTuple):
+    """
+    2D shape which follow matrix notation: first index indicates number of
+    rows, and second index indicates number of columns.
+    """
+
+    height: int
+    width: int
+
+
+class _2D_Point(NamedTuple):
     """
     2D coordinates which follow matrix notation: first index indicates rows
     from top to bottom, and second index indicates columns from left to right.
@@ -18,11 +28,11 @@ class Coordinates_2D(NamedTuple):
 # aliasing Position with DeltaPosition
 
 
-class Position(Coordinates_2D):
+class Position(_2D_Point):
     pass
 
 
-class DeltaPosition(Coordinates_2D):
+class DeltaPosition(_2D_Point):
     pass
 
 

@@ -1,37 +1,62 @@
-from typing import Tuple
+from typing import Iterator, Optional
 
 import numpy as np
 
-from .grid_object import GridObject
+from .geometry import Orientation, Position, Shape
+from .grid_object import Floor, GridObject
 
 
 class Grid:
     def __init__(self, height: int, width: int):
         self.height = height
         self.width = width
-        self.__grid = np.empty(self.shape, dtype=object)
+        self._grid = np.array(
+            [[Floor() for _ in range(width)] for _ in range(height)],
+        )
 
     @property
-    def shape(self) -> Tuple[int, int]:
-        return self.height, self.width
+    def shape(self) -> Shape:
+        return Shape(self.height, self.width)
 
-    def is_proper(self) -> bool:
-        #  pylint: disable=not-an-iterable
-        return all(x is not None for x in self.__grid.flat)
+    def __contains__(self, position: Position) -> bool:
+        return 0 <= position.y < self.height and 0 <= position.x < self.width
 
-    # TODO what type is position?
-    def __getitem__(self, position: Tuple[int, int]):
-        return self.__grid[position]
+    def _check_contains(self, position: Position):
+        if position not in self:
+            raise ValueError(f'Position {position} ')
 
-    def __setitem__(self, position: Tuple[int, int], obj: GridObject):
+    def positions(self) -> Iterator[Position]:
+        for indices in iter(np.indices(self.shape).reshape(2, -1).T):
+            yield Position(*indices)
+
+    def get_position(self, x: GridObject) -> Position:
+        for position in self.positions():
+            if self[position] is x:
+                return position
+
+        raise ValueError(f'GridObject {x} not found')
+
+    def __getitem__(self, position: Position) -> GridObject:
+        return self._grid[position]
+
+    def __setitem__(self, position: Position, obj: GridObject):
         if not isinstance(obj, GridObject):
             TypeError('grid can only contain entities')
+        self._grid[position] = obj
 
-        self.__grid[position] = obj
+    def swap(self, p: Position, q: Position):
+        self._check_contains(p)
+        self._check_contains(q)
+        self[p], self[q] = self[q], self[p]
 
 
 class Agent:
-    def __init__(self, position, orientation, obj: GridObject):
+    def __init__(
+        self,
+        position: Position,
+        orientation: Orientation,
+        obj: Optional[GridObject] = None,
+    ):
         self.position = position
         self.orientation = orientation
         self.obj = obj
