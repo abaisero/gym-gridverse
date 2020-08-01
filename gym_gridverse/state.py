@@ -14,6 +14,19 @@ class Grid:
             [[Floor() for _ in range(width)] for _ in range(height)],
         )
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Grid):
+            return NotImplemented
+
+        if self.shape != other.shape:
+            return False
+
+        for pos in self.positions():
+            if self[pos] != other[pos]:
+                return False
+
+        return True
+
     @property
     def shape(self) -> Shape:
         return Shape(self.height, self.width)

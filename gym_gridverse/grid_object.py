@@ -75,6 +75,13 @@ class GridObject(metaclass=abc.ABCMeta):
         """ A (3,) array representation of the object """
         return np.array([self.type_index, self.state_index, self.color.value])
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, GridObject):
+            return NotImplemented
+
+        # TODO test equality for various gridobjects
+        return (self.as_array() == other.as_array()).all()
+
 
 class Hidden(GridObject):
     """ object representing an unobservable cell """
