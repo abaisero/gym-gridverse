@@ -2,7 +2,7 @@ import unittest
 
 from gym_gridverse.geometry import Area, Orientation, Position
 from gym_gridverse.grid_object import Floor, Hidden, Wall
-from gym_gridverse.state import Agent, Grid
+from gym_gridverse.state import Agent, Grid, State
 
 
 class TestGrid(unittest.TestCase):
@@ -217,6 +217,40 @@ class TestAgent(unittest.TestCase):
 
         agent = Agent(Position(1, 2), Orientation.W)
         self.assertEqual(agent.get_pov_area(), Area(-2, -4, 4, 2))
+
+
+class TestState(unittest.TestCase):
+    def test_observation(self):
+        grid = Grid(10, 10)
+        grid[Position(5, 5)] = Wall()
+
+        agent = Agent(Position(7, 7), Orientation.N)
+        state = State(grid, agent)
+        observation = state.observation()
+        self.assertIs(observation.agent, state.agent)
+        self.assertTupleEqual(observation.grid.shape, (7, 7))
+        self.assertIsInstance(observation.grid[Position(4, 1)], Wall)
+
+        agent = Agent(Position(3, 3), Orientation.S)
+        state = State(grid, agent)
+        observation = state.observation()
+        self.assertIs(observation.agent, state.agent)
+        self.assertTupleEqual(observation.grid.shape, (7, 7))
+        self.assertIsInstance(observation.grid[Position(4, 1)], Wall)
+
+        agent = Agent(Position(7, 3), Orientation.E)
+        state = State(grid, agent)
+        observation = state.observation()
+        self.assertIs(observation.agent, state.agent)
+        self.assertTupleEqual(observation.grid.shape, (7, 7))
+        self.assertIsInstance(observation.grid[Position(4, 1)], Wall)
+
+        agent = Agent(Position(3, 7), Orientation.W)
+        state = State(grid, agent)
+        observation = state.observation()
+        self.assertIs(observation.agent, state.agent)
+        self.assertTupleEqual(observation.grid.shape, (7, 7))
+        self.assertIsInstance(observation.grid[Position(4, 1)], Wall)
 
 
 if __name__ == '__main__':

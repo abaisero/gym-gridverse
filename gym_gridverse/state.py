@@ -143,8 +143,21 @@ class State:
         self.grid = grid
         self.agent = agent
 
+    def observation(self) -> Observation:
+        area = self.agent.get_pov_area()
+        grid = self.grid.subgrid(area).change_orientation(
+            self.agent.orientation
+        )
+
+        # TODO hide objects according to object transparency
+
+        return Observation(grid, self.agent)
+
 
 class Observation:
     def __init__(self, grid: Grid, agent: Agent):
         self.grid = grid
         self.agent = agent
+
+        # TODO observation should not have entire agent;  only observable part
+        # (i.e. held object, but not position and orientation)
