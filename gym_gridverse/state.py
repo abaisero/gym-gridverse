@@ -87,6 +87,17 @@ class Grid:
 
         return subgrid
 
+    def change_orientation(self, orientation: Orientation) -> Grid:
+        times = {
+            Orientation.N: 0,
+            Orientation.S: 2,
+            Orientation.E: 1,
+            Orientation.W: 3,
+        }
+        objects = np.rot90(self._grid, times[orientation]).tolist()
+        objects = deepcopy(objects)
+        return Grid.from_objects(objects)
+
 
 class Agent:
     def __init__(

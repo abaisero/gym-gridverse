@@ -1,6 +1,6 @@
 import unittest
 
-from gym_gridverse.geometry import Area, Position
+from gym_gridverse.geometry import Area, Orientation, Position
 from gym_gridverse.grid_object import Floor, Hidden, Wall
 from gym_gridverse.state import Grid
 
@@ -138,6 +138,58 @@ class TestGrid(unittest.TestCase):
             ]
         )
         self.assertEqual(subgrid, subgrid_expected)
+
+    def test_change_orientation(self):
+        # checkerboard pattern
+        grid = Grid.from_objects(
+            [
+                [Wall(), Floor(), Wall(), Floor()],
+                [Floor(), Wall(), Floor(), Wall()],
+                [Wall(), Floor(), Wall(), Floor()],
+            ]
+        )
+
+        grid_N = grid.change_orientation(Orientation.N)
+        grid_N_expected = Grid.from_objects(
+            [
+                [Wall(), Floor(), Wall(), Floor()],
+                [Floor(), Wall(), Floor(), Wall()],
+                [Wall(), Floor(), Wall(), Floor()],
+            ]
+        )
+        self.assertEqual(grid_N, grid_N_expected)
+
+        grid_S = grid.change_orientation(Orientation.S)
+        grid_S_expected = Grid.from_objects(
+            [
+                [Floor(), Wall(), Floor(), Wall()],
+                [Wall(), Floor(), Wall(), Floor()],
+                [Floor(), Wall(), Floor(), Wall()],
+            ]
+        )
+        self.assertEqual(grid_S, grid_S_expected)
+
+        grid_E = grid.change_orientation(Orientation.E)
+        grid_E_expected = Grid.from_objects(
+            [
+                [Floor(), Wall(), Floor()],
+                [Wall(), Floor(), Wall()],
+                [Floor(), Wall(), Floor()],
+                [Wall(), Floor(), Wall()],
+            ]
+        )
+        self.assertEqual(grid_E, grid_E_expected)
+
+        grid_W = grid.change_orientation(Orientation.W)
+        grid_W_expected = Grid.from_objects(
+            [
+                [Wall(), Floor(), Wall()],
+                [Floor(), Wall(), Floor()],
+                [Wall(), Floor(), Wall()],
+                [Floor(), Wall(), Floor()],
+            ]
+        )
+        self.assertEqual(grid_W, grid_W_expected)
 
 
 if __name__ == '__main__':
