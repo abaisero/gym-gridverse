@@ -39,6 +39,10 @@ class _2D_Point(NamedTuple):
     y: int
     x: int
 
+    @staticmethod
+    def add(p1, p2):
+        return Position(p1[0] + p2[0], p1[1] + p2[1])
+
 
 # using inheritance to allow checking semantic types with isinstance without
 # aliasing Position with DeltaPosition

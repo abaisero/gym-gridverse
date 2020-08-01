@@ -1,11 +1,8 @@
+import random
 import unittest
 
-from gym_gridverse.geometry import (
-    DeltaPosition,
-    Orientation,
-    Position,
-    get_manhattan_boundary,
-)
+from gym_gridverse.geometry import (DeltaPosition, Orientation, Position,
+                                    get_manhattan_boundary)
 from gym_gridverse.state import Grid
 
 
@@ -64,3 +61,19 @@ class TestNeighborhoods(unittest.TestCase):
         self.assertIn(Position(5, 2), manhat_boundary)
         self.assertIn(Position(4, 1), manhat_boundary)
         self.assertIn(Position(3, 2), manhat_boundary)
+
+
+class TestPosition(unittest.TestCase):
+    def test_add(self):
+        x1 = random.randint(-5, 10)
+        x2 = random.randint(-5, 10)
+        y1 = random.randint(-5, 10)
+        y2 = random.randint(-5, 10)
+
+        p1 = Position(x1, y1)
+        p2 = Position(x2, y2)
+
+        x3 = x1 + x2
+        y3 = y1 + y2
+
+        self.assertEqual(Position(x3, y3), Position.add(p1, p2))
