@@ -49,6 +49,11 @@ Gridworld domains in the gym interface
 * Encoding of hidden cells
 * Agent POV
 
+Different modalities:
+1. deterministic mode 1: exactly like gym-minigrid
+1. deterministic mode 2: still deterministic, but uses more realistic notions of whether an object is hidden or not (minigrid is a bit weird in this regard) 
+1. stochastic mode: probability of an object being seen is proportional to the fraction of a cell being in the agent's direct view;  allows to truly stochastic observations
+
 ## Wrappers
 
 * Map cell status properties to unique number per type
