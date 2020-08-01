@@ -12,6 +12,7 @@ from gym_gridverse.grid_object import (
     Hidden,
     Key,
     MovingObstacle,
+    NoneGridObject,
     Wall,
 )
 from gym_gridverse.info import Agent, Grid
@@ -35,9 +36,10 @@ class TestGridObject(unittest.TestCase):
         """ Test registration of type indices """
 
         # pylint: disable=no-member
-        self.assertEqual(len(GridObject.object_types), 7)
+        self.assertEqual(len(GridObject.object_types), 8)
         self.assertCountEqual(
             [
+                NoneGridObject.type_index,
                 Hidden.type_index,
                 Floor.type_index,
                 Wall.type_index,
@@ -49,15 +51,17 @@ class TestGridObject(unittest.TestCase):
             range(len(GridObject.object_types)),
         )
 
-        self.assertIs(GridObject.object_types[Hidden.type_index], Hidden)
-        self.assertIs(GridObject.object_types[Floor.type_index], Floor)
-        self.assertIs(GridObject.object_types[Wall.type_index], Wall)
-        self.assertIs(GridObject.object_types[Goal.type_index], Goal)
-        self.assertIs(GridObject.object_types[Door.type_index], Door)
-        self.assertIs(GridObject.object_types[Key.type_index], Key)
-        self.assertIs(
-            GridObject.object_types[MovingObstacle.type_index], MovingObstacle
-        )
+        for obj_cls in [
+            NoneGridObject,
+            Hidden,
+            Floor,
+            Wall,
+            Goal,
+            Door,
+            Key,
+            MovingObstacle,
+        ]:
+            self.assertIs(GridObject.object_types[obj_cls.type_index], obj_cls)
 
 
 def simple_state_without_object() -> State:
@@ -69,6 +73,31 @@ def simple_state_without_object() -> State:
         Grid(height=2, width=2),
         Agent(position=(0, 0), orientation=None, obj=Floor()),
     )
+
+
+class TestNoneGridObject(unittest.TestCase):
+    """ Basic stupid tests for none grid object """
+
+    def test_registration(self):
+        """ Tests the registration as a Grid Object """
+        self.assertIn(NoneGridObject, GridObject.object_types)
+
+    def test_properties(self):
+        """ Basic stupid tests for none grid object """
+
+        none = NoneGridObject()
+
+        self.assertEqual(none.color, Colors.NONE)
+        self.assertEqual(none.state_index, 0)
+
+        expected_arr_represtation = np.array(
+            [NoneGridObject.type_index, 0, 0]  # pylint: disable=no-member
+        )
+        np.testing.assert_array_equal(
+            none.as_array(), expected_arr_represtation
+        )
+
+        self.assertEqual(none.render_as_char(), ' ')
 
 
 class TestHidden(unittest.TestCase):

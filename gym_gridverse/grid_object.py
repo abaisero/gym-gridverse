@@ -87,6 +87,39 @@ class GridObject(metaclass=abc.ABCMeta):
         return (self.as_array() == other.as_array()).all()
 
 
+class NoneGridObject(GridObject):
+    """ object representing the absence of an object """
+
+    @property
+    def state_index(self) -> int:
+        return 0
+
+    @property
+    def color(self) -> Colors:
+        return Colors.NONE
+
+    @property
+    def transparent(self) -> bool:  # type: ignore
+        assert RuntimeError('should never be called')
+
+    @property
+    def can_be_picked_up(self) -> bool:  # type: ignore
+        assert RuntimeError('should never be called')
+
+    @property
+    def blocks(self) -> bool:  # type: ignore
+        assert RuntimeError('should never be called')
+
+    def step(self, state: State, action: Actions) -> None:
+        assert RuntimeError('should never be called')
+
+    def actuate(self, state: State) -> None:
+        assert RuntimeError('should never be called')
+
+    def render_as_char(self) -> str:
+        return " "
+
+
 class Hidden(GridObject):
     """ object representing an unobservable cell """
 
