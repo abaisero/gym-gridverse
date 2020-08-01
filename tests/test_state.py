@@ -2,7 +2,7 @@ import unittest
 
 from gym_gridverse.geometry import Area, Orientation, Position
 from gym_gridverse.grid_object import Floor, Hidden, Wall
-from gym_gridverse.state import Grid
+from gym_gridverse.state import Agent, Grid
 
 
 class TestGrid(unittest.TestCase):
@@ -190,6 +190,33 @@ class TestGrid(unittest.TestCase):
             ]
         )
         self.assertEqual(grid_W, grid_W_expected)
+
+
+class TestAgent(unittest.TestCase):
+    def test_get_pov_area(self):
+        agent = Agent(Position(0, 0), Orientation.N)
+        self.assertEqual(agent.get_pov_area(), Area(-6, -3, 0, 3))
+
+        agent = Agent(Position(0, 0), Orientation.S)
+        self.assertEqual(agent.get_pov_area(), Area(0, -3, 6, 3))
+
+        agent = Agent(Position(0, 0), Orientation.E)
+        self.assertEqual(agent.get_pov_area(), Area(-3, 0, 3, 6))
+
+        agent = Agent(Position(0, 0), Orientation.W)
+        self.assertEqual(agent.get_pov_area(), Area(-3, -6, 3, 0))
+
+        agent = Agent(Position(1, 2), Orientation.N)
+        self.assertEqual(agent.get_pov_area(), Area(-5, -1, 1, 5))
+
+        agent = Agent(Position(1, 2), Orientation.S)
+        self.assertEqual(agent.get_pov_area(), Area(1, -1, 7, 5))
+
+        agent = Agent(Position(1, 2), Orientation.E)
+        self.assertEqual(agent.get_pov_area(), Area(-2, 2, 4, 8))
+
+        agent = Agent(Position(1, 2), Orientation.W)
+        self.assertEqual(agent.get_pov_area(), Area(-2, -4, 4, 2))
 
 
 if __name__ == '__main__':

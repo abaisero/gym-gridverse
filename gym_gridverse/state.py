@@ -110,6 +110,33 @@ class Agent:
         self.orientation = orientation
         self.obj = obj
 
+    def get_pov_area(self) -> Area:
+        # TODO make area_size an environment parameter
+        area_size = 7
+
+        y0, x0 = self.position
+
+        if self.orientation is Orientation.N:
+            y0 -= area_size - 1
+            x0 -= area_size // 2
+
+        elif self.orientation is Orientation.S:
+            x0 -= area_size // 2
+
+        elif self.orientation is Orientation.E:
+            y0 -= area_size // 2
+
+        elif self.orientation is Orientation.W:
+            y0 -= area_size // 2
+            x0 -= area_size - 1
+
+        else:
+            assert False
+
+        y1 = y0 + area_size - 1
+        x1 = x0 + area_size - 1
+        return Area(y0, x0, y1, x1)
+
 
 class State:
     def __init__(self, grid: Grid, agent: Agent):
