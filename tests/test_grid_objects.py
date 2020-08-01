@@ -84,9 +84,7 @@ class TestHidden(unittest.TestCase):
         hidden = Hidden()
 
         self.assertFalse(hidden.transparent)
-        self.assertTrue(hidden.blocks)
         self.assertEqual(hidden.color, Colors.NONE)
-        self.assertFalse(hidden.can_be_picked_up)
         self.assertEqual(hidden.state_index, 0)
 
         expected_arr_represtation = np.array(

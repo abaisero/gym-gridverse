@@ -103,12 +103,12 @@ class Hidden(GridObject):
         return False
 
     @property
-    def can_be_picked_up(self) -> bool:
-        return False
+    def can_be_picked_up(self) -> bool:  # type: ignore
+        assert RuntimeError('should never be called')
 
     @property
-    def blocks(self) -> bool:
-        return True
+    def blocks(self) -> bool:  # type: ignore
+        assert RuntimeError('should never be called')
 
     def step(self, state: State, action: Actions) -> None:
         pass
