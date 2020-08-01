@@ -96,7 +96,7 @@ class Hidden(GridObject):
 
     @property
     def transparent(self) -> bool:
-        return True
+        return False
 
     @property
     def can_be_picked_up(self) -> bool:
@@ -104,7 +104,7 @@ class Hidden(GridObject):
 
     @property
     def blocks(self) -> bool:
-        return False
+        return True
 
     def step(self, state: State, action: Actions) -> None:
         pass

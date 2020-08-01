@@ -55,8 +55,8 @@ class TestHidden(unittest.TestCase):
 
         floor = Hidden()
 
-        self.assertTrue(floor.transparent)
-        self.assertFalse(floor.blocks)
+        self.assertFalse(floor.transparent)
+        self.assertTrue(floor.blocks)
         self.assertEqual(floor.color, Colors.NONE)
         self.assertFalse(floor.can_be_picked_up)
         self.assertEqual(floor.state_index, 0)
