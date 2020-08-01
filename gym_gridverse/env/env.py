@@ -43,7 +43,7 @@ class Environment(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def functional_step(
-        self, state: State, action: int
+        self, state: State, action: Actions
     ) -> Tuple[State, float, bool, Dict]:
         raise NotImplementedError
 
@@ -54,12 +54,8 @@ class Environment(metaclass=abc.ABCMeta):
         self.state = self.functional_reset()
         return self.functional_observation(self.state)
 
-    def step(self, action: int) -> Tuple[Observation, float, bool, Dict]:
+    def step(self, action: Actions) -> Tuple[Observation, float, bool, Dict]:
         self.state, reward, done, info = self.functional_step(
             self.state, action
         )
         return self.functional_observation(self.state), reward, done, info
-
-
-class CompactEnvironment(Environment):
-    raise NotImplementedError

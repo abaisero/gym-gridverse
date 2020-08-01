@@ -76,6 +76,26 @@ class Orientation(enum.Enum):
 
         return delta_position
 
+    def rotate_left(self):
+        rotations = {
+            self.N: self.W,
+            self.W: self.S,
+            self.S: self.E,
+            self.E: self.N,
+        }
+
+        return rotations[self]
+
+    def rotate_right(self):
+        rotations = {
+            self.N: self.E,
+            self.E: self.S,
+            self.S: self.W,
+            self.W: self.N,
+        }
+
+        return rotations[self]
+
 
 def get_manhattan_boundary(pos: Position, distance: int) -> List[Position]:
     """Returns the cells (excluding pos) with Manhattan distance of pos

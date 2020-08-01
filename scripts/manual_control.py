@@ -23,7 +23,6 @@ def get_user_action() -> Actions:
 
 def manually_control():
 
-    # Initialize environment
     domain: Environment = 0
 
     while True:
