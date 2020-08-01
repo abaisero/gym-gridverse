@@ -1,7 +1,6 @@
 """ Tests Grid Object behavior and properties """
 import unittest
 
-import gym_gridverse.state as state
 import numpy as np
 from gym_gridverse.geometry import Position
 from gym_gridverse.grid_object import (
@@ -15,6 +14,8 @@ from gym_gridverse.grid_object import (
     MovingObstacle,
     Wall,
 )
+from gym_gridverse.info import Agent, Grid
+from gym_gridverse.state import State
 
 
 class TestGridObject(unittest.TestCase):
@@ -31,14 +32,14 @@ class TestGridObject(unittest.TestCase):
         self.assertNotIn(DummyObject, GridObject.object_types)
 
 
-def simple_state_without_object() -> state.State:
+def simple_state_without_object() -> State:
     """ Returns a 2x2 (empty) grid with an agent without an item
 
     TODO: Orientation?
     """
-    return state.State(
-        state.Grid(height=2, width=2),
-        state.Agent(position=(0, 0), orientation=None, obj=Floor()),
+    return State(
+        Grid(height=2, width=2),
+        Agent(position=(0, 0), orientation=None, obj=Floor()),
     )
 
 
