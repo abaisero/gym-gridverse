@@ -1,9 +1,11 @@
 import abc
 import enum
-from typing import Dict, Optional, Tuple
+from typing import Dict, Tuple
 
+from gym_gridverse.observation import Observation
+from gym_gridverse.observation_factory import MinigridObservationFactory
 from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
-from gym_gridverse.state import Observation, State
+from gym_gridverse.state import State
 
 
 class Actions(enum.Enum):
@@ -32,7 +34,8 @@ class Environment(metaclass=abc.ABCMeta):
         self.action_space = action_space
         self.observation_space = observation_space
 
-        self.state: Optional[State] = None
+        self.observation_factory = MinigridObservationFactory()
+        self.state = self.functional_reset()
 
     @abc.abstractmethod
     def functional_reset(self) -> State:
@@ -41,25 +44,21 @@ class Environment(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def functional_step(
         self, state: State, action: int
-    ) -> Tuple[Observation, float, bool, Dict]:
+    ) -> Tuple[State, float, bool, Dict]:
         raise NotImplementedError
 
     def functional_observation(self, state: State) -> Observation:
-        raise NotImplementedError
-
-    @property
-    def observation(self):
-        return self.functional_observation(self.state)
+        return self.observation_factory.observation(state)
 
     def reset(self):
         self.state = self.functional_reset()
-        return self.observation
+        return self.functional_observation(self.state)
 
     def step(self, action: int) -> Tuple[Observation, float, bool, Dict]:
         self.state, reward, done, info = self.functional_step(
             self.state, action
         )
-        return self.observation, reward, done, info
+        return self.functional_observation(self.state), reward, done, info
 
 
 class CompactEnvironment(Environment):
