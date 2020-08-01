@@ -76,6 +76,36 @@ class GridObject(metaclass=abc.ABCMeta):
         return np.array([self.type_index, self.state_index, self.color.value])
 
 
+class Hidden(GridObject):
+    """ object representing an unobservable cell """
+
+    @property
+    def state_index(self) -> int:
+        return 0
+
+    @property
+    def color(self) -> Colors:
+        return Colors.NONE
+
+    @property
+    def transparent(self) -> bool:
+        return True
+
+    @property
+    def can_be_picked_up(self) -> bool:
+        return False
+
+    @property
+    def blocks(self) -> bool:
+        return False
+
+    def step(self, state: State, action: Actions) -> None:
+        pass
+
+    def actuate(self, state: State) -> None:
+        pass
+
+
 class Floor(GridObject):
     """ Most basic object in the grid, represents empty cell """
 
