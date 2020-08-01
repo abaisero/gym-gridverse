@@ -79,6 +79,46 @@ class GridObject(metaclass=abc.ABCMeta):
     def render_as_char(self) -> str:
         """ A single char representation of the object"""
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, GridObject):
+            return NotImplemented
+
+        # TODO test equality for various gridobjects
+        return (self.as_array() == other.as_array()).all()
+
+
+class Hidden(GridObject):
+    """ object representing an unobservable cell """
+
+    @property
+    def state_index(self) -> int:
+        return 0
+
+    @property
+    def color(self) -> Colors:
+        return Colors.NONE
+
+    @property
+    def transparent(self) -> bool:
+        return False
+
+    @property
+    def can_be_picked_up(self) -> bool:
+        return False
+
+    @property
+    def blocks(self) -> bool:
+        return True
+
+    def step(self, state: State, action: Actions) -> None:
+        pass
+
+    def actuate(self, state: State) -> None:
+        pass
+
+    def render_as_char(self) -> str:
+        return "H"
+
 
 class Floor(GridObject):
     """ Most basic object in the grid, represents empty cell """

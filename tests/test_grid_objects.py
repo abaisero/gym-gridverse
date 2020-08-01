@@ -1,12 +1,12 @@
 """ Tests Grid Object behavior and properties """
-import copy
 import unittest
 
-import gym_gridverse.state as state
 import numpy as np
 from gym_gridverse.geometry import Position
 from gym_gridverse.grid_object import (Colors, Door, Floor, Goal, GridObject,
-                                       Key, MovingObstacle, Wall)
+                                       Hidden, Key, MovingObstacle, Wall)
+from gym_gridverse.info import Agent, Grid
+from gym_gridverse.state import State
 
 
 class TestGridObject(unittest.TestCase):
@@ -23,15 +23,42 @@ class TestGridObject(unittest.TestCase):
         self.assertNotIn(DummyObject, GridObject.object_types)
 
 
-def simple_state_without_object() -> state.State:
+def simple_state_without_object() -> State:
     """ Returns a 2x2 (empty) grid with an agent without an item
 
     TODO: Orientation?
     """
-    return state.State(
-        state.Grid(height=2, width=2),
-        state.Agent(position=(0, 0), orientation=None, obj=Floor()),
+    return State(
+        Grid(height=2, width=2),
+        Agent(position=(0, 0), orientation=None, obj=Floor()),
     )
+
+
+class TestHidden(unittest.TestCase):
+    """ Basic stupid tests for floor grid object """
+
+    def test_registration(self):
+        """ Tests the registration as a Grid Object """
+        self.assertIn(Hidden, GridObject.object_types)
+        self.assertEqual(Hidden.type_index, 0)  # pylint: disable=no-member
+
+    def test_properties(self):
+        """ Basic stupid tests for hidden grid object """
+
+        hidden = Hidden()
+
+        self.assertFalse(hidden.transparent)
+        self.assertTrue(hidden.blocks)
+        self.assertEqual(hidden.color, Colors.NONE)
+        self.assertFalse(hidden.can_be_picked_up)
+        self.assertEqual(hidden.state_index, 0)
+
+        expected_arr_represtation = np.array([0, 0, 0])
+        np.testing.assert_array_equal(
+            hidden.as_array(), expected_arr_represtation
+        )
+
+        self.assertEqual(hidden.render_as_char(), 'H')
 
 
 class TestFloor(unittest.TestCase):
@@ -40,7 +67,7 @@ class TestFloor(unittest.TestCase):
     def test_registration(self):
         """ Tests the registration as a Grid Object """
         self.assertIn(Floor, GridObject.object_types)
-        self.assertEqual(Floor.type_index, 0)  # pylint: disable=no-member
+        self.assertEqual(Floor.type_index, 1)  # pylint: disable=no-member
 
     def test_properties(self):
         """ Basic stupid tests for floor grid object """
@@ -53,7 +80,7 @@ class TestFloor(unittest.TestCase):
         self.assertFalse(floor.can_be_picked_up)
         self.assertEqual(floor.state_index, 0)
 
-        expected_arr_represtation = np.array([0, 0, 0])
+        expected_arr_represtation = np.array([1, 0, 0])
         np.testing.assert_array_equal(
             floor.as_array(), expected_arr_represtation
         )
@@ -67,7 +94,7 @@ class TestWall(unittest.TestCase):
     def test_registration(self):
         """ Tests the registration as a Grid Object """
         self.assertIn(Wall, GridObject.object_types)
-        self.assertEqual(Wall.type_index, 1)  # pylint: disable=no-member
+        self.assertEqual(Wall.type_index, 2)  # pylint: disable=no-member
 
     def test_properties(self):
         """ Basic property tests """
@@ -80,7 +107,7 @@ class TestWall(unittest.TestCase):
         self.assertFalse(wall.can_be_picked_up)
         self.assertEqual(wall.state_index, 0)
 
-        expected_arr_represtation = np.array([1, 0, 0])
+        expected_arr_represtation = np.array([2, 0, 0])
         np.testing.assert_array_equal(
             wall.as_array(), expected_arr_represtation
         )
@@ -94,7 +121,7 @@ class TestGoal(unittest.TestCase):
     def test_registration(self):
         """ Tests the registration as a Grid Object """
         self.assertIn(Goal, GridObject.object_types)
-        self.assertEqual(Goal.type_index, 2)  # pylint: disable=no-member
+        self.assertEqual(Goal.type_index, 3)  # pylint: disable=no-member
 
     def test_properties(self):
         """ Basic property tests """
@@ -107,38 +134,12 @@ class TestGoal(unittest.TestCase):
         self.assertFalse(goal.can_be_picked_up)
         self.assertEqual(goal.state_index, 0)
 
-        expected_arr_represtation = np.array([2, 0, 0])
+        expected_arr_represtation = np.array([3, 0, 0])
         np.testing.assert_array_equal(
             goal.as_array(), expected_arr_represtation
         )
 
         self.assertEqual(goal.render_as_char(), 'G')
-
-
-class TestKey(unittest.TestCase):
-    """ Basic stupid tests for Key grid object """
-
-    def test_registration(self):
-        """ Tests the registration as a Grid Object """
-        self.assertIn(Key, GridObject.object_types)
-        self.assertEqual(Key.type_index, 4)  # pylint: disable=no-member
-
-    def test_properties(self):
-        """ Basic property tests """
-
-        color = Colors.YELLOW
-        key = Key(color)
-
-        self.assertTrue(key.transparent)
-        self.assertFalse(key.blocks)
-        self.assertEqual(key.color, color)
-        self.assertTrue(key.can_be_picked_up)
-        self.assertEqual(key.state_index, 0)
-
-        expected_arr_represtation = np.array([4, 0, color.value])
-        np.testing.assert_array_equal(key.as_array(), expected_arr_represtation)
-
-        self.assertEqual(key.render_as_char(), 'K')
 
 
 class TestDoor(unittest.TestCase):
@@ -147,7 +148,7 @@ class TestDoor(unittest.TestCase):
     def test_registration(self):
         """ Tests the registration as a Grid Object """
         self.assertIn(Door, GridObject.object_types)
-        self.assertEqual(Door.type_index, 3)  # pylint: disable=no-member
+        self.assertEqual(Door.type_index, 4)  # pylint: disable=no-member
 
     def test_open_door_properties(self):
         """ Basic property tests """
@@ -164,7 +165,7 @@ class TestDoor(unittest.TestCase):
         self.assertFalse(open_door.locked)
         self.assertFalse(open_door.blocks)
 
-        expected_arr_represtation = np.array([3, 0, color.value])
+        expected_arr_represtation = np.array([4, 0, color.value])
         np.testing.assert_array_equal(
             open_door.as_array(), expected_arr_represtation
         )
@@ -186,7 +187,7 @@ class TestDoor(unittest.TestCase):
         self.assertFalse(closed_door.locked)
         self.assertTrue(closed_door.blocks)
 
-        expected_arr_represtation = np.array([3, 1, color.value])
+        expected_arr_represtation = np.array([4, 1, color.value])
         np.testing.assert_array_equal(
             closed_door.as_array(), expected_arr_represtation
         )
@@ -208,7 +209,7 @@ class TestDoor(unittest.TestCase):
         self.assertTrue(locked_door.locked)
         self.assertTrue(locked_door.blocks)
 
-        expected_arr_represtation = np.array([3, 2, color.value])
+        expected_arr_represtation = np.array([4, 2, color.value])
         np.testing.assert_array_equal(
             locked_door.as_array(), expected_arr_represtation
         )
@@ -255,6 +256,30 @@ class TestDoor(unittest.TestCase):
         self.assertTrue(door.is_open)
 
 
+class TestKey(unittest.TestCase):
+    """ Basic stupid tests for Key grid object """
+
+    def test_registration(self):
+        """ Tests the registration as a Grid Object """
+        self.assertIn(Key, GridObject.object_types)
+        self.assertEqual(Key.type_index, 5)  # pylint: disable=no-member
+
+    def test_properties(self):
+        """ Basic property tests """
+
+        color = Colors.YELLOW
+        key = Key(color)
+
+        self.assertTrue(key.transparent)
+        self.assertFalse(key.blocks)
+        self.assertEqual(key.color, color)
+        self.assertTrue(key.can_be_picked_up)
+        self.assertEqual(key.state_index, 0)
+
+        expected_arr_represtation = np.array([5, 0, color.value])
+        np.testing.assert_array_equal(key.as_array(), expected_arr_represtation)
+
+
 class TestMovingObstacles(unittest.TestCase):
     """Tests the moving obstacles"""
 
@@ -262,7 +287,7 @@ class TestMovingObstacles(unittest.TestCase):
         """ Tests the registration as a Grid Object """
         self.assertIn(MovingObstacle, GridObject.object_types)
         self.assertEqual(
-            MovingObstacle.type_index, 5  # pylint: disable=no-member
+            MovingObstacle.type_index, 6  # pylint: disable=no-member
         )
 
     def test_basic_properties(self):
@@ -276,7 +301,7 @@ class TestMovingObstacles(unittest.TestCase):
         self.assertFalse(obstacle.can_be_picked_up)
         self.assertEqual(obstacle.state_index, 0)
 
-        expected_arr_represtation = np.array([5, 0, 0])
+        expected_arr_represtation = np.array([6, 0, 0])
         np.testing.assert_array_equal(
             obstacle.as_array(), expected_arr_represtation
         )
