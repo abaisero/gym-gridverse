@@ -1,9 +1,12 @@
-from typing import Iterator, Optional
+from __future__ import annotations
+
+from copy import deepcopy
+from typing import Iterator, Optional, Sequence
 
 import numpy as np
 
-from .geometry import Orientation, Position, Shape
-from .grid_object import Floor, GridObject
+from .geometry import Area, Orientation, Position, Shape
+from .grid_object import Floor, GridObject, Hidden
 
 
 class Grid:
@@ -13,6 +16,17 @@ class Grid:
         self._grid = np.array(
             [[Floor() for _ in range(width)] for _ in range(height)],
         )
+
+    @staticmethod
+    def from_objects(objects: Sequence[Sequence[GridObject]]) -> Grid:
+        # verifies correct lengths
+        array = np.array(objects)
+
+        grid = Grid(*array.shape)
+        for pos in grid.positions():
+            grid[pos] = array[pos]
+
+        return grid
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Grid):
@@ -61,6 +75,17 @@ class Grid:
         self._check_contains(p)
         self._check_contains(q)
         self[p], self[q] = self[q], self[p]
+
+    def subgrid(self, area: Area) -> Grid:
+        subgrid = Grid(area.height, area.width)
+
+        for pos_to in subgrid.positions():
+            pos_from = Position(pos_to.y + area.y0, pos_to.x + area.x0)
+            subgrid[pos_to] = (
+                deepcopy(self[pos_from]) if pos_from in self else Hidden()
+            )
+
+        return subgrid
 
 
 class Agent:

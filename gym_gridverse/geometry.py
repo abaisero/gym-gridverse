@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import enum
+from dataclasses import dataclass
 from typing import List, NamedTuple
 
 
@@ -12,6 +13,21 @@ class Shape(NamedTuple):
 
     height: int
     width: int
+
+
+class Area(NamedTuple):
+    y0: int
+    x0: int
+    y1: int
+    x1: int
+
+    @property
+    def height(self):
+        return self.y1 - self.y0 + 1
+
+    @property
+    def width(self):
+        return self.x1 - self.x0 + 1
 
 
 class _2D_Point(NamedTuple):
