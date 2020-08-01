@@ -19,7 +19,14 @@ class Grid:
 
     @staticmethod
     def from_objects(objects: Sequence[Sequence[GridObject]]) -> Grid:
-        # verifies correct lengths
+        """constructor from matrix of GridObjects
+
+        Args:
+            objects (Sequence[Sequence[GridObject]]): initialized grid objects
+        Returns:
+            Grid: Grid containing those objects
+        """
+        # verifies input is shaped as a matrix
         array = np.array(objects)
 
         grid = Grid(*array.shape)
@@ -46,9 +53,11 @@ class Grid:
         return Shape(self.height, self.width)
 
     def __contains__(self, position: Position) -> bool:
+        """checks if position is in the grid"""
         return 0 <= position.y < self.height and 0 <= position.x < self.width
 
     def _check_contains(self, position: Position):
+        """raises value error if position is not in the grid"""
         if position not in self:
             raise ValueError(f'Position {position} ')
 
@@ -72,11 +81,22 @@ class Grid:
         self._grid[position] = obj
 
     def swap(self, p: Position, q: Position):
+        """swap the objects at two positions"""
         self._check_contains(p)
         self._check_contains(q)
         self[p], self[q] = self[q], self[p]
 
     def subgrid(self, area: Area) -> Grid:
+        """returns grid sliced at a given area
+
+        Cells included in the area but outside of the grid are represented as
+        Hidden objects.
+
+        Args:
+            area (Area): The area to be sliced
+        Returnd:
+            Grid: New instance, sliced appropriately
+        """
         subgrid = Grid(area.height, area.width)
 
         for pos_to in subgrid.positions():
@@ -88,6 +108,23 @@ class Grid:
         return subgrid
 
     def change_orientation(self, orientation: Orientation) -> Grid:
+        """returns grid as seen from someone facing the given direction
+
+        E.g. for orientation E, the grid
+
+        AB
+        CD
+
+        becomes
+
+        BD
+        AC
+
+        Args:
+            orientation (Orientation): The orientation of the viewer
+        Returns:
+            Grid: New instance rotated appropriately
+        """
         times = {
             Orientation.N: 0,
             Orientation.S: 2,
