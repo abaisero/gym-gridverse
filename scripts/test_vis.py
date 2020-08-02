@@ -1,6 +1,6 @@
-from gym_gridverse.geometry import Orientation
+from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid_object import Colors, Door, Key, MovingObstacle
-from gym_gridverse.state import Agent, Grid, Position, State
+from gym_gridverse.state import Agent, Grid, State
 from gym_gridverse.visualize import str_render_state
 
 grid = Grid(2, 3)

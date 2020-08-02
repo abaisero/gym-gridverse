@@ -7,11 +7,11 @@ from typing import List
 
 from termcolor import colored
 
+from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid_object import Colors, GridObject, Wall
-from gym_gridverse.state import Grid, Orientation, State
+from gym_gridverse.state import Grid, State
 
 COLORS_TO_TERMCOLOR = {
-    Colors.NONE: 'black',
     Colors.RED: 'red',
     Colors.GREEN: 'green',
     Colors.BLUE: 'blue',
