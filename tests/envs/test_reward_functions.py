@@ -2,6 +2,7 @@ import unittest
 
 from gym_gridverse.envs.reward_functions import (
     bump_moving_obstacle,
+    getting_closer,
     living_reward,
     reach_goal,
 )
@@ -90,6 +91,37 @@ class TestBumpMovingObstacle(unittest.TestCase):
         next_state = make_moving_obstacle_state(agent_on_obstacle=False)
         self.assertEqual(
             bump_moving_obstacle(None, None, next_state, reward=-10.0,), 0.0,
+        )
+
+
+class TestGettingCloser(unittest.TestCase):
+    def test_getting_closer(self):
+        state_on_goal = make_goal_state(agent_on_goal=True)
+        state_off_goal = make_goal_state(agent_on_goal=False)
+
+        self.assertEqual(
+            getting_closer(
+                state_off_goal, None, state_off_goal, object_type=Goal
+            ),
+            0.0,
+        )
+        self.assertEqual(
+            getting_closer(
+                state_off_goal, None, state_on_goal, object_type=Goal
+            ),
+            1.0,
+        )
+        self.assertEqual(
+            getting_closer(
+                state_on_goal, None, state_off_goal, object_type=Goal
+            ),
+            -1.0,
+        )
+        self.assertEqual(
+            getting_closer(
+                state_on_goal, None, state_on_goal, object_type=Goal
+            ),
+            0.0,
         )
 
 

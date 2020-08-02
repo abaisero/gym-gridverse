@@ -1,6 +1,9 @@
 from typing import Callable, Type
 
+import more_itertools as mitt
+
 from gym_gridverse.envs import Actions
+from gym_gridverse.geometry import DistanceFunction, Position
 from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle
 from gym_gridverse.state import State
 
@@ -108,4 +111,49 @@ def bump_moving_obstacle(
         object_type=MovingObstacle,
         reward_on=reward,
         reward_off=0.0,
+    )
+
+
+def getting_closer(
+    state: State,
+    action: Actions,  # pylint: disable=unused-argument
+    next_state: State,
+    *,
+    distance_function: DistanceFunction = Position.manhattan_distance,
+    object_type: Type[GridObject],
+    reward_closer: float = 1.0,
+    reward_further: float = -1.0,
+) -> float:
+    """reward for getting closer or further to object
+
+    Args:
+        state (`State`):
+        action (`Actions`):
+        next_state (`State`):
+        distance_function (`DistanceFunction`):
+        object_type: (`Type[GridObject]`): type of unique object in grid
+        reward_closer (`float`): reward for when agent gets closer to object
+        reward_further (`float`): reward for when agent gets further to object
+
+    Returns:
+        float: one of the input rewards, or 0.0 if distance has not changed
+    """
+
+    def _distance_agent_object(state):
+        object_position = mitt.one(
+            position
+            for position in state.grid.positions()
+            if isinstance(state.grid[position], object_type)
+        )
+        return distance_function(state.agent.position, object_position)
+
+    distance_prev = _distance_agent_object(state)
+    distance_next = _distance_agent_object(next_state)
+
+    return (
+        reward_closer
+        if distance_next < distance_prev
+        else reward_further
+        if distance_next > distance_prev
+        else 0.0
     )

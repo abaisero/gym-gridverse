@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import enum
 import math
-from typing import List, NamedTuple
+from typing import Callable, List, NamedTuple
 
 
 class Shape(NamedTuple):
@@ -153,3 +153,6 @@ def get_manhattan_boundary(pos: Position, distance: int) -> List[Position]:
         Position(pos.y - i, pos.x - distance + i) for i in range(distance)
     )
     return boundary
+
+
+DistanceFunction = Callable[[Position, Position], float]

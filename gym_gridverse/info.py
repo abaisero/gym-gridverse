@@ -63,7 +63,8 @@ class Grid:
 
     def positions(self) -> Iterator[Position]:
         for indices in iter(np.indices(self.shape).reshape(2, -1).T):
-            yield Position(*indices)
+            # tolist casts to native python types
+            yield Position(*indices.tolist())
 
     def get_position(self, x: GridObject) -> Position:
         for position in self.positions():

@@ -10,6 +10,6 @@ setup(
     author_email='andrea.baisero@gmail.com',
     url='https://github.com/abaisero/gym-gridverse',
     packages=['gym_gridverse'],
-    install_requires=['gym', 'numpy', 'termcolor'],
+    install_requires=['gym', 'more_itertools', 'numpy', 'termcolor'],
     license='MIT',
 )
