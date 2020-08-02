@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import enum
-from dataclasses import dataclass
+import math
 from typing import List, NamedTuple
 
 
@@ -46,6 +46,16 @@ class _2D_Point(NamedTuple):
     @staticmethod
     def subtract(p1, p2):
         return Position(p1[0] - p2[0], p1[1] - p2[1])
+
+    @staticmethod
+    def manhattan_distance(p1, p2) -> float:
+        diff = _2D_Point.subtract(p1, p2)
+        return abs(diff.y) + abs(diff.x)
+
+    @staticmethod
+    def euclidean_distance(p1, p2) -> float:
+        diff = _2D_Point.subtract(p1, p2)
+        return math.sqrt(diff.y ** 2 + diff.x ** 2)
 
 
 # using inheritance to allow checking semantic types with isinstance without

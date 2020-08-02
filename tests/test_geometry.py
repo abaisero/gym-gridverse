@@ -1,3 +1,4 @@
+import math
 import random
 import unittest
 
@@ -95,3 +96,69 @@ class TestPosition(unittest.TestCase):
         y3 = y1 - y2
 
         self.assertEqual(Position(x3, y3), Position.subtract(p1, p2))
+
+    def test_manhattan_distance(self):
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(0, 0)), 0.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(0, 1)), 1.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(1, 1)), 2.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 1), Position(1, 1)), 1.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(1, 1), Position(1, 1)), 0.0
+        )
+
+        # diagonal
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(0, 0)), 0.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(1, 1)), 2.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(2, 2)), 4.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(3, 3)), 6.0
+        )
+
+    def test_euclidean_distance(self):
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(0, 0)), 0.0
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(0, 1)), 1.0
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(1, 1)),
+            math.sqrt(2.0),
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 1), Position(1, 1)), 1.0
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(1, 1), Position(1, 1)), 0.0
+        )
+
+        # diagonal
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(0, 0)), 0.0
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(1, 1)),
+            math.sqrt(2.0),
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(2, 2)),
+            math.sqrt(8.0),
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(3, 3)),
+            math.sqrt(18.0),
+        )
