@@ -39,6 +39,10 @@ class _2D_Point(NamedTuple):
     y: int
     x: int
 
+    @staticmethod
+    def add(p1, p2):
+        return Position(p1[0] + p2[0], p1[1] + p2[1])
+
 
 # using inheritance to allow checking semantic types with isinstance without
 # aliasing Position with DeltaPosition
@@ -75,6 +79,26 @@ class Orientation(enum.Enum):
             assert False
 
         return delta_position
+
+    def rotate_left(self):
+        rotations = {
+            self.N: self.W,
+            self.W: self.S,
+            self.S: self.E,
+            self.E: self.N,
+        }
+
+        return rotations[self]
+
+    def rotate_right(self):
+        rotations = {
+            self.N: self.E,
+            self.E: self.S,
+            self.S: self.W,
+            self.W: self.N,
+        }
+
+        return rotations[self]
 
 
 def get_manhattan_boundary(pos: Position, distance: int) -> List[Position]:
