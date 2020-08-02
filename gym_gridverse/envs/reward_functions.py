@@ -1,7 +1,7 @@
 from typing import Callable, Type
 
 from gym_gridverse.envs import Actions
-from gym_gridverse.grid_object import Goal, GridObject
+from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle
 from gym_gridverse.state import State
 
 RewardFunction = Callable[[State, Actions, State], float]
@@ -84,4 +84,28 @@ def reach_goal(
         object_type=Goal,
         reward_on=reward_on,
         reward_off=reward_off,
+    )
+
+
+def bump_moving_obstacle(
+    state: State, action: Actions, next_state: State, *, reward: float = -1.0,
+) -> float:
+    """reward for the Agent bumping into on a MovingObstacle
+
+    Args:
+        state (`State`):
+        action (`Actions`):
+        next_state (`State`):
+        reward (`float`): reward for when Agent bumps a MovingObstacle
+
+    Returns:
+        float: the input reward or 0.0
+    """
+    return overlap(
+        state,
+        action,
+        next_state,
+        object_type=MovingObstacle,
+        reward_on=reward,
+        reward_off=0.0,
     )

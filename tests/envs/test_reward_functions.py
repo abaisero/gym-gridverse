@@ -1,8 +1,12 @@
 import unittest
 
-from gym_gridverse.envs.reward_functions import living_reward, reach_goal
+from gym_gridverse.envs.reward_functions import (
+    bump_moving_obstacle,
+    living_reward,
+    reach_goal,
+)
 from gym_gridverse.geometry import Orientation, Position
-from gym_gridverse.grid_object import Goal
+from gym_gridverse.grid_object import Goal, MovingObstacle
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
@@ -12,6 +16,15 @@ def make_goal_state(agent_on_goal: bool) -> State:
     grid = Grid(2, 1)
     grid[Position(0, 0)] = Goal()
     agent_position = Position(0, 0) if agent_on_goal else Position(1, 0)
+    agent = Agent(agent_position, Orientation.N)
+    return State(grid, agent)
+
+
+def make_moving_obstacle_state(agent_on_obstacle: bool) -> State:
+    """makes a simple state with goal object and agent on or off the goal"""
+    grid = Grid(2, 1)
+    grid[Position(0, 0)] = MovingObstacle()
+    agent_position = Position(0, 0) if agent_on_obstacle else Position(1, 0)
     agent = Agent(agent_position, Orientation.N)
     return State(grid, agent)
 
@@ -53,6 +66,30 @@ class TestReachGoal(unittest.TestCase):
                 None, None, next_state, reward_on=10.0, reward_off=-1.0,
             ),
             -1.0,
+        )
+
+
+class TestBumpMovingObstacle(unittest.TestCase):
+    def test_bump_moving_obstacle_default(self):
+        # on goal
+        next_state = make_moving_obstacle_state(agent_on_obstacle=True)
+        self.assertEqual(bump_moving_obstacle(None, None, next_state), -1.0)
+
+        # off goal
+        next_state = make_moving_obstacle_state(agent_on_obstacle=False)
+        self.assertEqual(bump_moving_obstacle(None, None, next_state), 0.0)
+
+    def test_bump_moving_obstacle_custom(self):
+        # on goal
+        next_state = make_moving_obstacle_state(agent_on_obstacle=True)
+        self.assertEqual(
+            bump_moving_obstacle(None, None, next_state, reward=-10.0), -10.0,
+        )
+
+        # off goal
+        next_state = make_moving_obstacle_state(agent_on_obstacle=False)
+        self.assertEqual(
+            bump_moving_obstacle(None, None, next_state, reward=-10.0,), 0.0,
         )
 
 
