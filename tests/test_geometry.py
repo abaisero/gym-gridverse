@@ -1,8 +1,12 @@
 import random
 import unittest
 
-from gym_gridverse.geometry import (DeltaPosition, Orientation, Position,
-                                    get_manhattan_boundary)
+from gym_gridverse.geometry import (
+    DeltaPosition,
+    Orientation,
+    Position,
+    get_manhattan_boundary,
+)
 from gym_gridverse.state import Grid
 
 
@@ -77,3 +81,17 @@ class TestPosition(unittest.TestCase):
         y3 = y1 + y2
 
         self.assertEqual(Position(x3, y3), Position.add(p1, p2))
+
+    def test_subtract(self):
+        x1 = random.randint(-5, 10)
+        x2 = random.randint(-5, 10)
+        y1 = random.randint(-5, 10)
+        y2 = random.randint(-5, 10)
+
+        p1 = Position(x1, y1)
+        p2 = Position(x2, y2)
+
+        x3 = x1 - x2
+        y3 = y1 - y2
+
+        self.assertEqual(Position(x3, y3), Position.subtract(p1, p2))
