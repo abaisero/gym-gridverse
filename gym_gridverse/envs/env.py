@@ -20,9 +20,7 @@ class Actions(enum.Enum):
     TURN_RIGHT = enum.auto()
 
     ACTUATE = enum.auto()
-
-    PICK = enum.auto()
-    DROP = enum.auto()
+    PICK_N_DROP = enum.auto()
 
 
 class Environment(metaclass=abc.ABCMeta):
