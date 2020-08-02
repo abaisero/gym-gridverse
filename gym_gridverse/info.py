@@ -138,10 +138,7 @@ class Grid:
 
 class Agent:
     def __init__(
-        self,
-        position: Position,
-        orientation: Orientation,
-        obj: Optional[GridObject] = None,
+        self, position: Position, orientation: Orientation, obj: GridObject,
     ):
         self.position = position
         self.orientation = orientation
