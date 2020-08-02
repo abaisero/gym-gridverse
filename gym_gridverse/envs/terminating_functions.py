@@ -1,7 +1,7 @@
 from typing import Callable, Type
 
 from gym_gridverse.envs import Actions
-from gym_gridverse.grid_object import Goal, GridObject
+from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle
 from gym_gridverse.state import State
 
 TerminatingFunction = Callable[[State, Actions, State], bool]
@@ -40,3 +40,19 @@ def reach_goal(state: State, action: Actions, next_state: State,) -> bool:
         bool: True if next_state agent is on goal
     """
     return overlap(state, action, next_state, object_type=Goal)
+
+
+def bump_moving_obstacle(
+    state: State, action: Actions, next_state: State,
+) -> bool:
+    """terminating condition for Agent bumping a moving obstacle
+
+    Args:
+        state (`State`):
+        action (`Actions`):
+        next_state (`State`):
+
+    Returns:
+        bool: True if next_state agent is on a MovingObstacle
+    """
+    return overlap(state, action, next_state, object_type=MovingObstacle)
