@@ -11,7 +11,7 @@ import numpy as np
 from gym_gridverse.geometry import get_manhattan_boundary
 
 if TYPE_CHECKING:
-    from gym_gridverse.env import Actions
+    from gym_gridverse.envs import Actions
     from gym_gridverse.state import State
 
 

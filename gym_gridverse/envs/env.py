@@ -7,6 +7,8 @@ from gym_gridverse.observation_factory import MinigridObservationFactory
 from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
 from gym_gridverse.state import State
 
+__all__ = ['Actions', 'Environment']
+
 
 class Actions(enum.Enum):
     MOVE_FORWARD = 0
