@@ -6,7 +6,7 @@ from typing import Iterator, Optional, Sequence
 import numpy as np
 
 from .geometry import Area, Orientation, Position, Shape
-from .grid_object import Floor, GridObject, Hidden
+from .grid_object import Floor, GridObject, Hidden, NoneGridObject
 
 
 class Grid:
@@ -138,11 +138,17 @@ class Grid:
 
 class Agent:
     def __init__(
-        self, position: Position, orientation: Orientation, obj: GridObject,
+        self,
+        position: Position,
+        orientation: Orientation,
+        obj: Optional[GridObject] = None,
     ):
+        if obj is None:
+            obj = NoneGridObject()
+
         self.position = position
         self.orientation = orientation
-        self.obj = obj
+        self.obj: GridObject = obj
 
     def get_pov_area(self) -> Area:
         # TODO generalize to arbitrary rectangle centered at arbitrary position
