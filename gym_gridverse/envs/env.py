@@ -1,6 +1,6 @@
 import abc
 import enum
-from typing import Dict, Tuple
+from typing import Tuple
 
 from gym_gridverse.observation import Observation
 from gym_gridverse.observation_factory import MinigridObservationFactory
@@ -44,7 +44,7 @@ class Environment(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def functional_step(
         self, state: State, action: Actions
-    ) -> Tuple[State, float, bool, Dict]:
+    ) -> Tuple[State, float, bool]:
         raise NotImplementedError
 
     def functional_observation(self, state: State) -> Observation:
@@ -54,8 +54,10 @@ class Environment(metaclass=abc.ABCMeta):
         self.state = self.functional_reset()
         return self.functional_observation(self.state)
 
-    def step(self, action: Actions) -> Tuple[Observation, float, bool, Dict]:
-        self.state, reward, done, info = self.functional_step(
-            self.state, action
+    def step(self, action: Actions) -> Tuple[Observation, float, bool]:
+        self.state, reward, done = self.functional_step(self.state, action)
+        return (
+            self.functional_observation(self.state),
+            reward,
+            done,
         )
-        return self.functional_observation(self.state), reward, done, info
