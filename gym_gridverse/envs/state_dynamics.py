@@ -121,6 +121,28 @@ def step_objects(state: State, action: Actions) -> None:
         state.grid[pos].step(state, action)
 
 
+def actuate_mechanics(state: State, _: Actions) -> None:
+    """Implements the mechanics of actuation
+
+    Calls obj.actuate(state) on the object in front of agent
+
+    Args:
+        state (`State`):
+        action (`Actions`):
+
+    Returns:
+        None:
+    """
+
+    # TODO: use (and implement) API
+    obj_in_front_of_agent = state.grid[
+        Position.add(
+            state.agent.position, state.agent.orientation.as_delta_position()
+        )
+    ]
+    obj_in_front_of_agent.actuate(state)
+
+
 def pickup_mechanics(state: State, action: Actions) -> None:
     """Implements the effect of the pickup and drop action
 
