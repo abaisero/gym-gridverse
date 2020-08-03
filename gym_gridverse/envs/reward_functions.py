@@ -114,6 +114,38 @@ def bump_moving_obstacle(
     )
 
 
+def proportional_to_distance(
+    state: State,  # pylint: disable=unused-argument
+    action: Actions,  # pylint: disable=unused-argument
+    next_state: State,
+    *,
+    distance_function: DistanceFunction = Position.manhattan_distance,
+    object_type: Type[GridObject],
+    reward_per_unit_distance: float = -1.0,
+) -> float:
+    """reward proportional to distance to object
+
+    Args:
+        state (`State`):
+        action (`Actions`):
+        next_state (`State`):
+        distance_function (`DistanceFunction`):
+        object_type: (`Type[GridObject]`): type of unique object in grid
+        reward (`float`): reward per unit distance
+
+    Returns:
+        float: input reward times distance to object
+    """
+
+    object_position = mitt.one(
+        position
+        for position in next_state.grid.positions()
+        if isinstance(next_state.grid[position], object_type)
+    )
+    distance = distance_function(next_state.agent.position, object_position)
+    return reward_per_unit_distance * distance
+
+
 def getting_closer(
     state: State,
     action: Actions,  # pylint: disable=unused-argument

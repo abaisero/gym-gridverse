@@ -4,12 +4,21 @@ from gym_gridverse.envs.reward_functions import (
     bump_moving_obstacle,
     getting_closer,
     living_reward,
+    proportional_to_distance,
     reach_goal,
 )
 from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid_object import Goal, MovingObstacle
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
+
+
+def make_5x5_goal_state() -> State:
+    """makes a simple 5x5 state with goal object in the middle"""
+    grid = Grid(5, 5)
+    grid[Position(2, 2)] = Goal()
+    agent = Agent(Position(0, 0), Orientation.N)
+    return State(grid, agent)
 
 
 def make_goal_state(agent_on_goal: bool) -> State:
@@ -91,6 +100,192 @@ class TestBumpMovingObstacle(unittest.TestCase):
         next_state = make_moving_obstacle_state(agent_on_obstacle=False)
         self.assertEqual(
             bump_moving_obstacle(None, None, next_state, reward=-10.0,), 0.0,
+        )
+
+
+class TestProportionalToDistance(unittest.TestCase):
+    def test_proportional_to_distance_default(self):
+        state = make_5x5_goal_state()
+
+        # moving agent on the top row
+
+        state.agent.position = Position(0, 0)
+        self.assertAlmostEqual(
+            proportional_to_distance(None, None, state, object_type=Goal), -4
+        )
+
+        state.agent.position = Position(0, 1)
+        self.assertAlmostEqual(
+            proportional_to_distance(None, None, state, object_type=Goal), -3
+        )
+
+        state.agent.position = Position(0, 2)
+        self.assertAlmostEqual(
+            proportional_to_distance(None, None, state, object_type=Goal), -2
+        )
+
+        state.agent.position = Position(0, 3)
+        self.assertAlmostEqual(
+            proportional_to_distance(None, None, state, object_type=Goal), -3
+        )
+
+        state.agent.position = Position(0, 4)
+        self.assertAlmostEqual(
+            proportional_to_distance(None, None, state, object_type=Goal), -4
+        )
+
+        # moving agent on the middle row
+
+        state.agent.position = Position(2, 0)
+        self.assertAlmostEqual(
+            proportional_to_distance(None, None, state, object_type=Goal), -2
+        )
+
+        state.agent.position = Position(2, 1)
+        self.assertAlmostEqual(
+            proportional_to_distance(None, None, state, object_type=Goal), -1
+        )
+
+        state.agent.position = Position(2, 2)
+        self.assertAlmostEqual(
+            proportional_to_distance(None, None, state, object_type=Goal), 0
+        )
+
+        state.agent.position = Position(2, 3)
+        self.assertAlmostEqual(
+            proportional_to_distance(None, None, state, object_type=Goal), -1
+        )
+
+        state.agent.position = Position(2, 4)
+        self.assertAlmostEqual(
+            proportional_to_distance(None, None, state, object_type=Goal), -2
+        )
+
+    def test_proportional_to_distance_custom(self):
+        state = make_5x5_goal_state()
+
+        # moving agent on the top row
+
+        state.agent.position = Position(0, 0)
+        self.assertAlmostEqual(
+            proportional_to_distance(
+                None,
+                None,
+                state,
+                object_type=Goal,
+                reward_per_unit_distance=0.1,
+            ),
+            0.4,
+        )
+
+        state.agent.position = Position(0, 1)
+        self.assertAlmostEqual(
+            proportional_to_distance(
+                None,
+                None,
+                state,
+                object_type=Goal,
+                reward_per_unit_distance=0.1,
+            ),
+            0.3,
+        )
+
+        state.agent.position = Position(0, 2)
+        self.assertAlmostEqual(
+            proportional_to_distance(
+                None,
+                None,
+                state,
+                object_type=Goal,
+                reward_per_unit_distance=0.1,
+            ),
+            0.2,
+        )
+
+        state.agent.position = Position(0, 3)
+        self.assertAlmostEqual(
+            proportional_to_distance(
+                None,
+                None,
+                state,
+                object_type=Goal,
+                reward_per_unit_distance=0.1,
+            ),
+            0.3,
+        )
+
+        state.agent.position = Position(0, 4)
+        self.assertAlmostEqual(
+            proportional_to_distance(
+                None,
+                None,
+                state,
+                object_type=Goal,
+                reward_per_unit_distance=0.1,
+            ),
+            0.4,
+        )
+
+        # moving agent on the middle row
+
+        state.agent.position = Position(2, 0)
+        self.assertAlmostEqual(
+            proportional_to_distance(
+                None,
+                None,
+                state,
+                object_type=Goal,
+                reward_per_unit_distance=0.1,
+            ),
+            0.2,
+        )
+
+        state.agent.position = Position(2, 1)
+        self.assertAlmostEqual(
+            proportional_to_distance(
+                None,
+                None,
+                state,
+                object_type=Goal,
+                reward_per_unit_distance=0.1,
+            ),
+            0.1,
+        )
+
+        state.agent.position = Position(2, 2)
+        self.assertAlmostEqual(
+            proportional_to_distance(
+                None,
+                None,
+                state,
+                object_type=Goal,
+                reward_per_unit_distance=0.1,
+            ),
+            0.0,
+        )
+
+        state.agent.position = Position(2, 3)
+        self.assertAlmostEqual(
+            proportional_to_distance(
+                None,
+                None,
+                state,
+                object_type=Goal,
+                reward_per_unit_distance=0.1,
+            ),
+            0.1,
+        )
+
+        state.agent.position = Position(2, 4)
+        self.assertAlmostEqual(
+            proportional_to_distance(
+                None,
+                None,
+                state,
+                object_type=Goal,
+                reward_per_unit_distance=0.1,
+            ),
+            0.2,
         )
 
 
