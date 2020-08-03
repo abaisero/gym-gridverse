@@ -1,134 +1,79 @@
 # Gym Gridverse
 
-Gridworld domains in the gym interface
+Collection and library for grid-like domains.
 
-# Road map
+# To do
 
-1. BlahBlah
+* Refactoring
+    * Rename `ObservationFactory` to `ObservationFunction`
+    * Rename `StateDynamics` -> `TransitionFunction`
+    * Move key/repeating functionality to grid
+        * 'Object/pos in front of agent'
+    * geometry module
+* Create environment factory
+    * Create factory for:
+        * Reward function
+        * Termination function
+        * Transition function
+        * Observation function
+        * Reset function
+* Add domain functionality
+    * Reward and termination of dynamic objects
+* Add GUI Visualization
+* Adapter for gym-usage
+* Method to create more compact representation
+* One-hot encoding of the state, action and observation (wrapper)
 
-# Specification
+# Representation
 
-## Env API
+The state is represented by two pieced, a grid and agent information. These
+have an analogue representation as observation. An action is a glorified
+integer.
 
-* Gym
-* Functional step (give/return state)
-* `get_used_objects` (for representing states/observations more compactly)
+## Grid
 
-## Action:
+* A width by height matrix of objects, where an object is represented by:
+    * A type (integer)
+    * A status (integer, meaning dependent on type)
+    * A color
 
-* turn left/right
-* move left/right/forward/backward
-* pick up & down
-* actuate
+## Agent
 
-## State:
+* Position (x,y)
+* Orientation (N/E/S/W represented by int)
+* Holding object (with same properties as those in the grid)
 
-* Require
-    * Int representation
-    * Global mapping object type -> int
-    * Per object: mapping properties -> number
-* Representation:
-    * Grid: W x H x 4 channels
-        * Numpy array of objects
-        * Rendered:
-            1. bit for agent representation
-            1. cell type
-            1. cell status
-            1. cell color
-    * non-spatial features
-        * contains:
-            * Direction
-            * Type of holding object
-            * Property 1 of holding object
-            * Property 2 of holding object
-        * Renderable into tensor
+## Objects
+
+As mentioned above, an object is described by its type, status and color. We
+provide the following objects out of the box:
+
+* `Floor`: the most basic (empty) grid cell
+* `Wall`: a blocking (non-transparent) cell
+* `Goal`: Cell designated to represent rewarding and terminating goals
+* `Door`: Either open, closed or locked. Unlocked by `Key` if same color
+* `Key`: An object that can be picked up and unlocked `Door` with same color
+* `MovingObstacle`: An obstacle that moves stochastically over `Floor`
 
 ## Observation
 
-* [slice grid, state feature]
-* Encoding of hidden cells
-* Agent POV
+An array/integer representation of a slice of the grid and the agent state.
+Since some objects are not transparent, a object `Hidden` represents cells are
+not observable. The observation is always from the point of view of the agent.
+We provide the following observation functions:
 
-## Wrappers
+* Mimic like gym-minigrid
+* A more intuitive non-transparent blocking observation where a direct line of
+  sight is necessary to observe a cell
+* Stochastic version of the observation function
 
-* Map cell status properties to unique number per type
-* One-hot encoding
-* Compacting: mapping from global object type number -> domain specific
-* Maps actions to original Minigrid actions
+## Actions:
 
-## Domain specifications
-
-* Gym interface (minimal)
-* Grid (2-dimensional)
-* Partially observable
-* Spaces (discrete)
-    * States: [ height x width x channels ]
-    * Observations: [ height x width x channels ]
-        * agent POV
-    * Action: int:
-* Objects do not stack
-* Limited state features out of grid to agent direction and holding of object
-
-# Implementation
-
-## Dynamics
-
-* In Minigrid: mostly in base abstract
-* Mechanics:
-    * Key & door
-    * Button (door)
-    * goal cell
-    * dynamic obstacles
-* Conceptually:
-    1. Move agent / pickup / actuate
-    1. Update objects in order (dynamic obstacles..?)
-        * List through grid, call 'update' on each cell
-* Requirements:
-    * Move:
-        * Blocks agent or not
-    * Pickup
-        * Can be picked up
-    * Actuate:
-        * `cell.actuate()`: state -> state?
-    * Update
-        * `update` function
-
-## Cell objects
-
-* `status`
-* `color`
-* `render()` -> `[type, property 1, property 2]`
-* `can_be_picked_up` (or function?)
-* `blocks_agent` (or function?)
-* `actuate()`: state -> state (domain specific?)
-* `update()`: state -> state (domain specific?)
-* `transparent`
-* Register to automatically assign ID
-
-```python
-class door():
-    def actuate(state_grid, agent_direction: dir, hold_item: object):
-        if hold_item.type == key and hold_item.color == self.shared_property:
-            self.open()
-
-class cell_object():
-    @property
-    def status() -> int:
-        # e.g. door: return open/closed/locked
-
-    def shared_property():
-    # or
-    def color():
-
-class button():
-    def actuate(state_grid, agent_direction: dir, hold_item: object):
-        # loop over state_grid, find doors with self.shared_property -> open
-```
-
-## Environments
-
-* Our own implementation
-* Provide wrapper to Gym environment
-* `GymEnvironment(gym_api)` base base base class environment
-    * API: functional
-* `SimpleMiniGrid` <- all the specifications so far
+1. move forward
+1. move backward
+1. move left
+1. move right
+1. turn left
+1. turn right
+1. actuate
+1. pick and drop
