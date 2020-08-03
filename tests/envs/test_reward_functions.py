@@ -290,7 +290,7 @@ class TestProportionalToDistance(unittest.TestCase):
 
 
 class TestGettingCloser(unittest.TestCase):
-    def test_getting_closer(self):
+    def test_getting_closer_default(self):
         state_on_goal = make_goal_state(agent_on_goal=True)
         state_off_goal = make_goal_state(agent_on_goal=False)
 
@@ -315,6 +315,55 @@ class TestGettingCloser(unittest.TestCase):
         self.assertEqual(
             getting_closer(
                 state_on_goal, None, state_on_goal, object_type=Goal
+            ),
+            0.0,
+        )
+
+    def test_getting_closer_custom(self):
+        state_on_goal = make_goal_state(agent_on_goal=True)
+        state_off_goal = make_goal_state(agent_on_goal=False)
+
+        self.assertEqual(
+            getting_closer(
+                state_off_goal,
+                None,
+                state_off_goal,
+                object_type=Goal,
+                reward_closer=2.0,
+                reward_further=-5.0,
+            ),
+            0.0,
+        )
+        self.assertEqual(
+            getting_closer(
+                state_off_goal,
+                None,
+                state_on_goal,
+                object_type=Goal,
+                reward_closer=2.0,
+                reward_further=-5.0,
+            ),
+            2.0,
+        )
+        self.assertEqual(
+            getting_closer(
+                state_on_goal,
+                None,
+                state_off_goal,
+                object_type=Goal,
+                reward_closer=2.0,
+                reward_further=-5.0,
+            ),
+            -5.0,
+        )
+        self.assertEqual(
+            getting_closer(
+                state_on_goal,
+                None,
+                state_on_goal,
+                object_type=Goal,
+                reward_closer=2.0,
+                reward_further=-5.0,
             ),
             0.0,
         )
