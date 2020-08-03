@@ -1,10 +1,34 @@
-from typing import Callable, Type
+from typing import Callable, Sequence, Type
 
 from gym_gridverse.envs import Actions
 from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle
 from gym_gridverse.state import State
 
 TerminatingFunction = Callable[[State, Actions, State], bool]
+
+
+def chain(
+    state: State,
+    action: Actions,
+    next_state: State,
+    *,
+    terminating_functions: Sequence[TerminatingFunction],
+) -> bool:
+    """utility terminating function which sums other reward functions
+
+    Args:
+        state (`State`):
+        action (`Actions`):
+        next_state (`State`):
+        terminating_functions (`Sequence[TerminatingFunction]`):
+
+    Returns:
+        bool: OR operator over the input terminating functions
+    """
+    return any(
+        terminating_function(state, action, next_state)
+        for terminating_function in terminating_functions
+    )
 
 
 def overlap(

@@ -1,4 +1,4 @@
-from typing import Callable, Type
+from typing import Callable, Sequence, Type
 
 import more_itertools as mitt
 
@@ -8,6 +8,30 @@ from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle
 from gym_gridverse.state import State
 
 RewardFunction = Callable[[State, Actions, State], float]
+
+
+def chain(
+    state: State,
+    action: Actions,
+    next_state: State,
+    *,
+    reward_functions: Sequence[RewardFunction],
+) -> float:
+    """utility reward function which sums other reward functions
+
+    Args:
+        state (`State`):
+        action (`Actions`):
+        next_state (`State`):
+        reward_functions (`Sequence[RewardFunction]`):
+
+    Returns:
+        float: sum of the evaluated input reward functions
+    """
+    return sum(
+        reward_function(state, action, next_state)
+        for reward_function in reward_functions
+    )
 
 
 def overlap(
