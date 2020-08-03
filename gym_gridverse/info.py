@@ -150,6 +150,16 @@ class Agent:
         self.orientation = orientation
         self.obj: GridObject = obj
 
+    def __eq__(self, other):
+        if isinstance(other, Agent):
+            return (
+                self.position == other.position
+                and self.orientation == other.orientation
+                and self.obj == other.obj
+            )
+
+        return NotImplemented
+
     def get_pov_area(self) -> Area:
         # TODO generalize to arbitrary rectangle centered at arbitrary position
         # TODO make area_size an environment parameter

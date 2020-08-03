@@ -4,6 +4,7 @@ from typing import Callable
 
 from gym_gridverse.envs import Actions
 from gym_gridverse.geometry import Position
+from gym_gridverse.grid_object import Floor, NoneGridObject
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
@@ -103,7 +104,7 @@ def update_agent(state: State, action: Actions) -> None:
         rotate_agent(state.agent, action)
 
     if action in TRANSLATION_ACTIONS:
-        translate_agent(state.agent, state.grid, action)
+        move_agent(state.agent, state.grid, action)
 
 
 def step_objects(state: State, action: Actions) -> None:
@@ -118,3 +119,55 @@ def step_objects(state: State, action: Actions) -> None:
     """
     for pos in state.grid.positions():
         state.grid[pos].step(state, action)
+
+
+def pickup_mechanics(state: State, action: Actions) -> None:
+    """Implements the effect of the pickup and drop action
+
+    Pickup applies to the item _in front_ of the agent
+
+    There are multiple scenarii:
+    * There is no (pick-up-able) item to pickup under the agent:
+        * The agent is not holding any object -> No effect
+        * The agent is holding an object:
+            * Position in front of agent is floor -> drop current object
+            * Position in front is not a floor -> No effect
+    * There is a (pick-up-able) item to pickup under the agent:
+        * The agent is not holding any object -> Pick up, put floor in stead
+        * The agent is holding an object -> Swap items
+
+    TODO: Test
+
+    Args:
+        state (`State`):
+        action (`Actions`):
+
+    Returns:
+        None:
+    """
+
+    if action != Actions.PICK_N_DROP:
+        return
+
+    # TODO: eventually use grid logic to find this
+    pos_in_front_agent = Position.add(
+        state.agent.position, state.agent.orientation.as_delta_position()
+    )
+
+    obj_in_front_of_agent = state.grid[pos_in_front_agent]
+    obj_holding = state.agent.obj
+
+    can_pickup = obj_in_front_of_agent.can_be_picked_up
+    can_drop = isinstance(obj_in_front_of_agent, Floor) or can_pickup
+
+    if not can_pickup and not can_drop:
+        return
+
+    state.grid[pos_in_front_agent] = (
+        obj_holding
+        if can_drop and not isinstance(obj_holding, NoneGridObject)
+        else Floor()  # We know we are picking up if not dropping
+    )
+
+    # Know for sure that if not can_pickup then we have dropped
+    state.agent.obj = obj_in_front_of_agent if can_pickup else NoneGridObject()

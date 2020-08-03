@@ -1,12 +1,16 @@
 """ Tests state dynamics """
 
+import copy
 import random
 import unittest
 
 from gym_gridverse.envs import Actions
-from gym_gridverse.envs.state_dynamics import move_agent, rotate_agent
-from gym_gridverse.grid_object import Colors, Door, Floor, Key
+from gym_gridverse.envs.state_dynamics import (move_agent, pickup_mechanics,
+                                               rotate_agent)
+from gym_gridverse.grid_object import (Colors, Door, Floor, Key,
+                                       NoneGridObject, Wall)
 from gym_gridverse.info import Agent, Grid, Orientation, Position
+from gym_gridverse.state import State
 
 
 class TestRotateAgent(unittest.TestCase):
@@ -125,3 +129,71 @@ class TestMoveAgent(unittest.TestCase):
 
         self.assertEqual(self.agent.position, Position(2, 1))
 
+
+class TestPickupMechanics(unittest.TestCase):
+    def setUp(self):
+        """Sets up a 3x4 Grid with agent facing south in (1,2)"""
+        self.grid = Grid(height=3, width=4)
+        self.agent = Agent(position=Position(1, 2), orientation=Orientation.S)
+        self.a = Actions.PICK_N_DROP
+        self.item_pos = Position(2, 2)
+
+    @staticmethod
+    def step_with_copy(s: State, a: Actions):
+        next_s = copy.deepcopy(s)
+        pickup_mechanics(next_s, a)
+
+        return next_s
+
+    def test_nothing_to_pickup(self):
+        s = State(self.grid, self.agent)
+
+        # Cannot pickup floor
+        next_s = self.step_with_copy(s, self.a)
+        self.assertEqual(s, next_s)
+
+        # Cannot pickup door
+        self.grid[self.item_pos] = Door(Door.Status.CLOSED, Colors.GREEN)
+        next_s = self.step_with_copy(s, self.a)
+        self.assertEqual(s, next_s)
+
+        self.assertTrue(isinstance(next_s.grid[self.item_pos], Door))
+
+    def test_pickup(self):
+        self.grid[self.item_pos] = Key(Colors.GREEN)
+        s = State(self.grid, self.agent)
+
+        # Pick up works
+        next_s = self.step_with_copy(s, self.a)
+        self.assertEqual(self.grid[self.item_pos], next_s.agent.obj)
+        self.assertIsInstance(next_s.grid[self.item_pos], Floor)
+
+        # Pick up only works with correct action
+        next_s = self.step_with_copy(s, Actions.MOVE_LEFT)
+        self.assertNotEqual(self.grid[self.item_pos], next_s.agent.obj)
+        self.assertEqual(next_s.grid[self.item_pos], self.grid[self.item_pos])
+
+    def test_drop(self):
+        self.agent.obj = Key(Colors.BLUE)
+        s = State(self.grid, self.agent)
+
+        # Can drop:
+        next_s = self.step_with_copy(s, self.a)
+        self.assertIsInstance(next_s.agent.obj, NoneGridObject)
+        self.assertEqual(self.agent.obj, next_s.grid[self.item_pos])
+
+        # Cannot drop:
+        s.grid[self.item_pos] = Wall()
+
+        next_s = self.step_with_copy(s, self.a)
+        self.assertIsInstance(next_s.grid[self.item_pos], Wall)
+        self.assertEqual(self.agent.obj, next_s.agent.obj)
+
+    def test_swap(self):
+        self.agent.obj = Key(Colors.BLUE)
+        self.grid[self.item_pos] = Key(Colors.GREEN)
+        s = State(self.grid, self.agent)
+
+        next_s = self.step_with_copy(s, self.a)
+        self.assertEqual(s.grid[self.item_pos], next_s.agent.obj)
+        self.assertEqual(s.agent.obj, next_s.grid[self.item_pos])
