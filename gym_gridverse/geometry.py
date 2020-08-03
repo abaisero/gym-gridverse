@@ -22,6 +22,22 @@ class Area(NamedTuple):
     x1: int
 
     @property
+    def ymin(self):
+        return min(self.y0, self.y1)
+
+    @property
+    def ymax(self):
+        return max(self.y0, self.y1)
+
+    @property
+    def xmin(self):
+        return min(self.x0, self.x1)
+
+    @property
+    def xmax(self):
+        return max(self.x0, self.x1)
+
+    @property
     def height(self):
         return self.y1 - self.y0 + 1
 
