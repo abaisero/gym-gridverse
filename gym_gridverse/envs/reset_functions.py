@@ -2,7 +2,7 @@ import random
 from typing import Callable
 
 from gym_gridverse.geometry import Orientation, Position
-from gym_gridverse.grid_object import Floor, Goal, Wall
+from gym_gridverse.grid_object import Floor, Goal, MovingObstacle, Wall
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
@@ -103,3 +103,35 @@ def reset_minigrid_four_rooms(height: int, width: int) -> State:
 
     agent = Agent(agent_position, agent_orientation)
     return State(grid, agent)
+
+
+def reset_minigrid_dynamic_obstacles(
+    height: int, width: int, num_obstacles: int, random_agent_pos: bool = False
+) -> State:
+    """Returns an initial state as seen in 'Minigrid-dynamic-obstacle' environment
+
+    TODO: test
+
+    Args:
+        height (`int`):
+        width (`int`):
+        num_obstacles (`int`):
+        random_agent (`bool, optional`):
+
+    Returns:
+        State:
+    """
+
+    state = reset_minigrid_empty(height, width, random_agent_pos)
+
+    vacant_positions = filter(
+        lambda pos: pos != state.agent.position
+        and isinstance(state.grid[pos], Floor),
+        list(state.grid.positions()),
+    )
+
+    for obj_pos in random.sample(list(vacant_positions), num_obstacles):
+        assert isinstance(state.grid[obj_pos], Floor)
+        state.grid[obj_pos] = MovingObstacle()
+
+    return state
