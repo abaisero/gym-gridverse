@@ -40,11 +40,11 @@ def create_env(
 
     # Rewards are additive
     def reward(s, a, next_s):
-        sum([r(s, a, next_s) for r in rewards])
+        return sum([r(s, a, next_s) for r in rewards])
 
     # Termination is a big or
     def termination(s, a, next_s):
-        max([t(s, a, next_s) for t in terminations])
+        return max([t(s, a, next_s) for t in terminations])
 
     return Minigrid(reset, transition, reward, termination)
 
