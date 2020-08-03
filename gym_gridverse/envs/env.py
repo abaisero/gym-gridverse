@@ -2,8 +2,8 @@ import abc
 import enum
 from typing import Tuple
 
+from gym_gridverse.envs.observation_functions import minigrid_observation
 from gym_gridverse.observation import Observation
-from gym_gridverse.observation_factory import MinigridObservationFactory
 from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
 from gym_gridverse.state import State
 
@@ -34,7 +34,7 @@ class Environment(metaclass=abc.ABCMeta):
         self.action_space = action_space
         self.observation_space = observation_space
 
-        self.observation_factory = MinigridObservationFactory()
+        self.observation_function = minigrid_observation
         self.state = self.functional_reset()
 
     @abc.abstractmethod
@@ -48,7 +48,7 @@ class Environment(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     def functional_observation(self, state: State) -> Observation:
-        return self.observation_factory.observation(state)
+        return self.observation_function(state)
 
     def reset(self):
         self.state = self.functional_reset()
