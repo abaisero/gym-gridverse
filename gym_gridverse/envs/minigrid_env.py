@@ -18,13 +18,16 @@ class Minigrid(Environment):
         reward_function: RewardFunction,
         termination_function: TerminatingFunction,
     ):
-        # TODO: fix spaces
-        super().__init__(StateSpace(), ActionSpace(), ObservationSpace())
 
         self._functional_reset = reset_function
         self._functional_step = step_function
         self.reward_function = reward_function
         self.termination_function = termination_function
+
+
+        # TODO: fix spaces
+        # TODO: fix python
+        super().__init__(StateSpace(), ActionSpace(), ObservationSpace())
 
     def functional_reset(self) -> State:
         return self._functional_reset()
