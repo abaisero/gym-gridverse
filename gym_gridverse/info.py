@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import itertools as itt
 from copy import deepcopy
-from typing import Iterator, Optional, Sequence
+from typing import Callable, Iterator, Optional, Sequence
 
 import numpy as np
 
 from .geometry import Area, Orientation, Position, Shape
 from .grid_object import Floor, GridObject, Hidden, NoneGridObject
+
+ObjectFactory = Callable[[], GridObject]
 
 
 class Grid:
@@ -63,7 +66,8 @@ class Grid:
 
     def positions(self) -> Iterator[Position]:
         for indices in iter(np.indices(self.shape).reshape(2, -1).T):
-            yield Position(*indices)
+            # tolist casts to native python types
+            yield Position(*indices.tolist())
 
     def get_position(self, x: GridObject) -> Position:
         for position in self.positions():
@@ -79,6 +83,22 @@ class Grid:
         if not isinstance(obj, GridObject):
             TypeError('grid can only contain entities')
         self._grid[position] = obj
+
+    def draw_area(self, area: Area, *, object_factory: ObjectFactory):
+        """set objects returned by a factory on the perimeter of the area
+
+        Args:
+            area (Area): The area over which to draw
+            object_factory (ObjectFactory):
+        """
+        coordinates = itt.chain(
+            ((area.ymin, x) for x in range(area.xmin, area.xmax)),
+            ((y, area.xmax) for y in range(area.ymin, area.ymax)),
+            ((area.ymax, x) for x in range(area.xmax, area.xmin, -1)),
+            ((y, area.xmin) for y in range(area.ymax, area.ymin, -1)),
+        )
+        for y, x in coordinates:
+            self[Position(y, x)] = object_factory()
 
     def swap(self, p: Position, q: Position):
         """swap the objects at two positions"""

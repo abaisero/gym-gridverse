@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import enum
-from dataclasses import dataclass
-from typing import List, NamedTuple
+import math
+from typing import Callable, List, NamedTuple
 
 
 class Shape(NamedTuple):
@@ -20,6 +20,22 @@ class Area(NamedTuple):
     x0: int
     y1: int
     x1: int
+
+    @property
+    def ymin(self):
+        return min(self.y0, self.y1)
+
+    @property
+    def ymax(self):
+        return max(self.y0, self.y1)
+
+    @property
+    def xmin(self):
+        return min(self.x0, self.x1)
+
+    @property
+    def xmax(self):
+        return max(self.x0, self.x1)
 
     @property
     def height(self):
@@ -42,6 +58,20 @@ class _2D_Point(NamedTuple):
     @staticmethod
     def add(p1, p2):
         return Position(p1[0] + p2[0], p1[1] + p2[1])
+
+    @staticmethod
+    def subtract(p1, p2):
+        return Position(p1[0] - p2[0], p1[1] - p2[1])
+
+    @staticmethod
+    def manhattan_distance(p1, p2) -> float:
+        diff = _2D_Point.subtract(p1, p2)
+        return abs(diff.y) + abs(diff.x)
+
+    @staticmethod
+    def euclidean_distance(p1, p2) -> float:
+        diff = _2D_Point.subtract(p1, p2)
+        return math.sqrt(diff.y ** 2 + diff.x ** 2)
 
 
 # using inheritance to allow checking semantic types with isinstance without
@@ -139,3 +169,6 @@ def get_manhattan_boundary(pos: Position, distance: int) -> List[Position]:
         Position(pos.y - i, pos.x - distance + i) for i in range(distance)
     )
     return boundary
+
+
+DistanceFunction = Callable[[Position, Position], float]

@@ -67,6 +67,20 @@ class TestGrid(unittest.TestCase):
         grid[pos] = obj
         self.assertIs(grid[pos], obj)
 
+    def test_draw_area(self):
+        grid = Grid(3, 4)
+        grid.draw_area(Area(0, 0, 2, 3), object_factory=Wall)
+
+        grid_expected = Grid.from_objects(
+            [
+                [Wall(), Wall(), Wall(), Wall()],
+                [Wall(), Floor(), Floor(), Wall()],
+                [Wall(), Wall(), Wall(), Wall()],
+            ]
+        )
+
+        self.assertEqual(grid, grid_expected)
+
     def test_swap(self):
         grid = Grid(3, 4)
 

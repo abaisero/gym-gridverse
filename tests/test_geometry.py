@@ -1,8 +1,13 @@
+import math
 import random
 import unittest
 
-from gym_gridverse.geometry import (DeltaPosition, Orientation, Position,
-                                    get_manhattan_boundary)
+from gym_gridverse.geometry import (
+    DeltaPosition,
+    Orientation,
+    Position,
+    get_manhattan_boundary,
+)
 from gym_gridverse.state import Grid
 
 
@@ -77,3 +82,83 @@ class TestPosition(unittest.TestCase):
         y3 = y1 + y2
 
         self.assertEqual(Position(x3, y3), Position.add(p1, p2))
+
+    def test_subtract(self):
+        x1 = random.randint(-5, 10)
+        x2 = random.randint(-5, 10)
+        y1 = random.randint(-5, 10)
+        y2 = random.randint(-5, 10)
+
+        p1 = Position(x1, y1)
+        p2 = Position(x2, y2)
+
+        x3 = x1 - x2
+        y3 = y1 - y2
+
+        self.assertEqual(Position(x3, y3), Position.subtract(p1, p2))
+
+    def test_manhattan_distance(self):
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(0, 0)), 0.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(0, 1)), 1.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(1, 1)), 2.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 1), Position(1, 1)), 1.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(1, 1), Position(1, 1)), 0.0
+        )
+
+        # diagonal
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(0, 0)), 0.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(1, 1)), 2.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(2, 2)), 4.0
+        )
+        self.assertEqual(
+            Position.manhattan_distance(Position(0, 0), Position(3, 3)), 6.0
+        )
+
+    def test_euclidean_distance(self):
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(0, 0)), 0.0
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(0, 1)), 1.0
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(1, 1)),
+            math.sqrt(2.0),
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 1), Position(1, 1)), 1.0
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(1, 1), Position(1, 1)), 0.0
+        )
+
+        # diagonal
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(0, 0)), 0.0
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(1, 1)),
+            math.sqrt(2.0),
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(2, 2)),
+            math.sqrt(8.0),
+        )
+        self.assertEqual(
+            Position.euclidean_distance(Position(0, 0), Position(3, 3)),
+            math.sqrt(18.0),
+        )
