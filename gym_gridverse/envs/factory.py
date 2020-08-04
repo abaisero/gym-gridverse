@@ -3,8 +3,13 @@
 from functools import partial
 from typing import List
 
-from gym_gridverse.envs import (reset_functions, reward_functions,
-                                state_dynamics, terminating_functions)
+from gym_gridverse.envs import (
+    observation_functions,
+    reset_functions,
+    reward_functions,
+    state_dynamics,
+    terminating_functions,
+)
 from gym_gridverse.envs.env import Environment
 from gym_gridverse.envs.minigrid_env import Minigrid
 
@@ -38,6 +43,9 @@ def create_env(
         for f in transition_functions:
             f(s, a)
 
+    # TODO make more general
+    observation = observation_functions.minigrid_observation
+
     # Rewards are additive
     def reward(s, a, next_s):
         return sum([r(s, a, next_s) for r in rewards])
@@ -46,7 +54,7 @@ def create_env(
     def termination(s, a, next_s):
         return max([t(s, a, next_s) for t in terminations])
 
-    return Minigrid(reset, transition, reward, termination)
+    return Minigrid(reset, transition, observation, reward, termination)
 
 
 def plain_navigation_task(

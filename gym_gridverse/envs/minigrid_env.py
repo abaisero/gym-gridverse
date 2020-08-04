@@ -2,28 +2,32 @@ import copy
 from typing import Tuple
 
 from gym_gridverse.envs import Actions, Environment
+from gym_gridverse.envs.observation_functions import ObservationFunction
 from gym_gridverse.envs.reset_functions import ResetFunction
 from gym_gridverse.envs.reward_functions import RewardFunction
 from gym_gridverse.envs.state_dynamics import StateDynamics
 from gym_gridverse.envs.terminating_functions import TerminatingFunction
+from gym_gridverse.observation import Observation
 from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
 from gym_gridverse.state import State
 
 
+# TODO find better name
 class Minigrid(Environment):
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         reset_function: ResetFunction,
         step_function: StateDynamics,
+        observation_function: ObservationFunction,
         reward_function: RewardFunction,
         termination_function: TerminatingFunction,
     ):
 
         self._functional_reset = reset_function
         self._functional_step = step_function
+        self._functional_observation = observation_function
         self.reward_function = reward_function
         self.termination_function = termination_function
-
 
         # TODO: fix spaces
         # TODO: fix python
@@ -43,3 +47,6 @@ class Minigrid(Environment):
         terminal = self.termination_function(state, action, next_state)
 
         return (next_state, reward, terminal)
+
+    def functional_observation(self, state: State) -> Observation:
+        return self._functional_observation(state)

@@ -34,8 +34,7 @@ class Environment(metaclass=abc.ABCMeta):
         self.action_space = action_space
         self.observation_space = observation_space
 
-        self.observation_function = minigrid_observation
-        self.state = self.functional_reset()
+        self.state: State
 
     @abc.abstractmethod
     def functional_reset(self) -> State:
@@ -47,17 +46,17 @@ class Environment(metaclass=abc.ABCMeta):
     ) -> Tuple[State, float, bool]:
         raise NotImplementedError
 
+    @abc.abstractmethod
     def functional_observation(self, state: State) -> Observation:
-        return self.observation_function(state)
+        raise NotImplementedError
 
     def reset(self):
         self.state = self.functional_reset()
-        return self.functional_observation(self.state)
 
-    def step(self, action: Actions) -> Tuple[Observation, float, bool]:
+    def step(self, action: Actions) -> Tuple[float, bool]:
         self.state, reward, done = self.functional_step(self.state, action)
-        return (
-            self.functional_observation(self.state),
-            reward,
-            done,
-        )
+        return reward, done
+
+    @property
+    def observation(self):
+        return self.functional_observation(self.state)

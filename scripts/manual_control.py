@@ -3,8 +3,10 @@
 import argparse
 
 from gym_gridverse.envs import Actions, Environment
-from gym_gridverse.envs.factory import (STRING_TO_GYM_CONSTRUCTOR,
-                                        gym_minigrid_from_descr)
+from gym_gridverse.envs.factory import (
+    STRING_TO_GYM_CONSTRUCTOR,
+    gym_minigrid_from_descr,
+)
 from gym_gridverse.visualize import str_render_state
 
 
@@ -26,11 +28,12 @@ def get_user_action() -> Actions:
 
 
 def manually_control(domain: Environment):
+    domain.reset()
     while True:
 
         a = get_user_action()
 
-        _, r, t = domain.step(a)
+        r, t = domain.step(a)
 
         if t:
             print("Resetting environment")
