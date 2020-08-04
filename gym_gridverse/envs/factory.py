@@ -1,7 +1,7 @@
 """ Tying the magic together into constructing specific domains """
 
 from functools import partial
-from typing import List
+from typing import Callable, Dict, List
 
 from gym_gridverse.envs import (
     observation_functions,
@@ -48,11 +48,11 @@ def create_env(
 
     # Rewards are additive
     def reward(s, a, next_s):
-        return sum([r(s, a, next_s) for r in rewards])
+        return sum(r(s, a, next_s) for r in rewards)
 
     # Termination is a big or
     def termination(s, a, next_s):
-        return max([t(s, a, next_s) for t in terminations])
+        return any(t(s, a, next_s) for t in terminations)
 
     return Minigrid(reset, transition, observation, reward, termination)
 
@@ -149,7 +149,7 @@ def four_room() -> Environment:
     return plain_navigation_task(reset)
 
 
-STRING_TO_GYM_CONSTRUCTOR = {
+STRING_TO_GYM_CONSTRUCTOR: Dict[str, Callable[[], Environment]] = {
     # Empty rooms
     "MiniGrid-Empty-5x5-v0": partial(
         empty_gym_minigrid, size=5, random_pos=False
