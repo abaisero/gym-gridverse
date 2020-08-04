@@ -77,19 +77,51 @@ def plain_navigation_task(
     return create_env(reset_func, transitions, rewards, terminations)
 
 
+def dynamic_obstacle_minigrid(
+    size: int, random_pos: bool, num_obstacles: int
+) -> Environment:
+
+    # +2 size to accommodate the walls
+    reset_func = partial(
+        reset_functions.reset_minigrid_dynamic_obstacles,
+        size + 2,
+        size + 2,
+        num_obstacles,
+        random_pos,
+    )
+
+    transitions: List[state_dynamics.StateDynamics] = [
+        state_dynamics.update_agent,
+        state_dynamics.step_objects,
+    ]
+    rewards: List[reward_functions.RewardFunction] = [
+        reward_functions.reach_goal,
+        reward_functions.bump_moving_obstacle
+        # TODO: crashing into wall?
+    ]
+    terminations: List[terminating_functions.TerminatingFunction] = [
+        terminating_functions.reach_goal,
+        terminating_functions.bump_moving_obstacle
+        # TODO: crashing into wall?
+    ]
+
+    return create_env(reset_func, transitions, rewards, terminations)
+
+
 def empty_gym_minigrid(size: int, random_pos: bool) -> Environment:
     """Creates the gym-minigrid empty environment of `size` and `random_pos`
 
     Args:
-        size (`int`): The size of x by x room
+        size (`int`): The size of x by x floor
         random_pos (`bool`): Whether the agent spawns randomly
 
     Returns:
         Environment
     """
 
+    # +2 size to accommodate the walls
     reset: reset_functions.ResetFunction = partial(
-        reset_functions.reset_minigrid_empty, size, size, random_pos
+        reset_functions.reset_minigrid_empty, size + 2, size + 2, random_pos
     )
 
     return plain_navigation_task(reset)
@@ -110,6 +142,7 @@ def four_room() -> Environment:
 
 
 STRING_TO_GYM_CONSTRUCTOR = {
+    # Empty rooms
     "MiniGrid-Empty-5x5-v0": partial(
         empty_gym_minigrid, size=5, random_pos=False
     ),
@@ -128,7 +161,27 @@ STRING_TO_GYM_CONSTRUCTOR = {
     "MiniGrid-Empty-16x16-v0": partial(
         empty_gym_minigrid, size=8, random_pos=False
     ),
+    # 4 rooms
     "MiniGrid-FourRooms-v0": partial(four_room),
+    # Dynamic obstacle environments
+    "MiniGrid-Dynamic-Obstacles-5x5-v0": partial(
+        dynamic_obstacle_minigrid, size=5, random_pos=False, num_obstacles=2
+    ),
+    "MiniGrid-Dynamic-Obstacles-Random-5x5-v0": partial(
+        dynamic_obstacle_minigrid, size=5, random_pos=True, num_obstacles=2
+    ),
+    "MiniGrid-Dynamic-Obstacles-6x6-v0": partial(
+        dynamic_obstacle_minigrid, size=5, random_pos=False, num_obstacles=3
+    ),
+    "MiniGrid-Dynamic-Obstacles-Random-6x6-v0": partial(
+        dynamic_obstacle_minigrid, size=6, random_pos=True, num_obstacles=3
+    ),
+    "MiniGrid-Dynamic-Obstacles-8x8-v0": partial(
+        dynamic_obstacle_minigrid, size=8, random_pos=False, num_obstacles=4
+    ),
+    "MiniGrid-Dynamic-Obstacles-16x16-v0": partial(
+        dynamic_obstacle_minigrid, size=16, random_pos=False, num_obstacles=8
+    ),
 }
 
 

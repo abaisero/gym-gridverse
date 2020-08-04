@@ -10,19 +10,47 @@ Collection and library for grid-like domains.
     * Move key/repeating functionality to grid
         * 'Object/pos in front of agent'
     * geometry module
-* Create environment factory
-    * Create factory for:
+* Environment factory:
+    * Create a function that takes in list of functions below and return an
+      environment, implement environments below
         * Reward function
         * Termination function
         * Transition function
         * Observation function
         * Reset function
-* Add domain functionality
-    * Reward and termination of dynamic objects
+    * String -> construction mapping
 * Add GUI Visualization
 * Adapter for gym-usage
 * Method to create more compact representation
 * One-hot encoding of the state, action and observation (wrapper)
+
+## Environments
+
+Taken from the [gym-minigrid](https://github.com/maximecb/gym-minigrid)
+
+* [X] Empty (size + random flag)
+* [x] 4 room (random agent/goal position flag)
+* [ ] Door & key
+* [ ] Multi-room
+    * non-trivial to generate
+* [ ] Red/Blue Door
+    * Requires reward/termination function for opening (all?) doors
+* [ ] Memory
+    * Requires reward/termination function for 'going to matching object'
+* [ ] Key corridor
+    * Sounds like a lot of effort to create (hard coding?)
+* [ ] Unlock
+    * + pickup -> requires reward/termination function for picking up something
+    * + pickup & blocked -> also requires 'box' object
+* [ ] Obstructed maze
+    * Sounds like a lot of hard coding
+* [ ] Shift
+    * Requires lava (and appropriate reward/termination functions)
+* [ ] Lava gap + extended lava crossing
+    * Requires lava (and appropriate reward/termination functions)
+    * Plenty of hard coding (or non-trivial generation)
+* [ ] Dynamic obstacles
+
 
 # Representation
 
