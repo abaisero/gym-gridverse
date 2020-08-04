@@ -7,14 +7,14 @@ from gym_gridverse.state import State
 TerminatingFunction = Callable[[State, Actions, State], bool]
 
 
-def chain(
+def chain_any(
     state: State,
     action: Actions,
     next_state: State,
     *,
     terminating_functions: Sequence[TerminatingFunction],
 ) -> bool:
-    """utility terminating function which sums other reward functions
+    """utility function terminates when any of the input functions terminates
 
     Args:
         state (`State`):
@@ -26,6 +26,30 @@ def chain(
         bool: OR operator over the input terminating functions
     """
     return any(
+        terminating_function(state, action, next_state)
+        for terminating_function in terminating_functions
+    )
+
+
+def chain_all(
+    state: State,
+    action: Actions,
+    next_state: State,
+    *,
+    terminating_functions: Sequence[TerminatingFunction],
+) -> bool:
+    """utility function terminates when all of the input functions terminates
+
+    Args:
+        state (`State`):
+        action (`Actions`):
+        next_state (`State`):
+        terminating_functions (`Sequence[TerminatingFunction]`):
+
+    Returns:
+        bool: AND operator over the input terminating functions
+    """
+    return all(
         terminating_function(state, action, next_state)
         for terminating_function in terminating_functions
     )
