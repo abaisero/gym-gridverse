@@ -43,6 +43,11 @@ class GridObject(metaclass=abc.ABCMeta):
     def state_index(self) -> int:
         """ Returns the state index of the object """
 
+    @classmethod
+    @abc.abstractmethod
+    def num_states(cls) -> int:
+        """ Number of states this class can take on"""
+
     @property
     @abc.abstractmethod
     def color(self) -> Colors:
@@ -98,6 +103,10 @@ class NoneGridObject(GridObject):
     def color(self) -> Colors:
         return Colors.NONE
 
+    @classmethod
+    def num_states(cls) -> int:
+        return 0
+
     @property
     def transparent(self) -> bool:  # type: ignore
         assert RuntimeError('should never be called')
@@ -130,6 +139,10 @@ class Hidden(GridObject):
     @property
     def color(self) -> Colors:
         return Colors.NONE
+
+    @classmethod
+    def num_states(cls) -> int:
+        return 0
 
     @property
     def transparent(self) -> bool:
@@ -164,6 +177,10 @@ class Floor(GridObject):
     def color(self) -> Colors:
         return Colors.NONE
 
+    @classmethod
+    def num_states(cls) -> int:
+        return 0
+
     @property
     def transparent(self) -> bool:
         return True
@@ -197,6 +214,10 @@ class Wall(GridObject):
     def color(self) -> Colors:
         return Colors.NONE
 
+    @classmethod
+    def num_states(cls) -> int:
+        return 0
+
     @property
     def transparent(self) -> bool:
         return False
@@ -229,6 +250,10 @@ class Goal(GridObject):
     @property
     def color(self) -> Colors:
         return Colors.NONE
+
+    @classmethod
+    def num_states(cls) -> int:
+        return 0
 
     @property
     def transparent(self) -> bool:
@@ -282,6 +307,10 @@ class Door(GridObject):
     @property
     def state_index(self) -> int:
         return self._state.value
+
+    @classmethod
+    def num_states(cls) -> int:
+        return len(Door.Status)
 
     @property
     def color(self) -> Colors:
@@ -361,6 +390,10 @@ class Key(GridObject):
     def color(self) -> Colors:
         return self._color
 
+    @classmethod
+    def num_states(cls) -> int:
+        return 0
+
     @property
     def transparent(self) -> bool:
         return True
@@ -396,6 +429,10 @@ class MovingObstacle(GridObject):
     @property
     def color(self) -> Colors:
         return Colors.NONE
+
+    @classmethod
+    def num_states(cls) -> int:
+        return 0
 
     @property
     def transparent(self) -> bool:

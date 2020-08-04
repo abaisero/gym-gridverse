@@ -2,7 +2,6 @@ import abc
 import enum
 from typing import Tuple
 
-from gym_gridverse.envs.observation_functions import minigrid_observation
 from gym_gridverse.observation import Observation
 from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
 from gym_gridverse.state import State
