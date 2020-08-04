@@ -98,6 +98,7 @@ class TestNoneGridObject(unittest.TestCase):
         )
 
         self.assertEqual(none.render_as_char(), ' ')
+        self.assertEqual(none.num_states(), 0)
 
 
 class TestHidden(unittest.TestCase):
@@ -125,6 +126,7 @@ class TestHidden(unittest.TestCase):
 
         self.assertEqual(hidden.render_as_char(), 'H')
 
+        self.assertEqual(hidden.num_states(), 0)
 
 class TestFloor(unittest.TestCase):
     """ Basic stupid tests for floor grid object """
@@ -152,6 +154,7 @@ class TestFloor(unittest.TestCase):
         )
 
         self.assertEqual(floor.render_as_char(), ' ')
+        self.assertEqual(floor.num_states(), 0)
 
 
 class TestWall(unittest.TestCase):
@@ -180,6 +183,8 @@ class TestWall(unittest.TestCase):
         )
 
         self.assertEqual(wall.render_as_char(), 'W')
+        self.assertEqual(wall.num_states(), 0)
+
 
 
 class TestGoal(unittest.TestCase):
@@ -208,6 +213,7 @@ class TestGoal(unittest.TestCase):
         )
 
         self.assertEqual(goal.render_as_char(), 'G')
+        self.assertEqual(goal.num_states(), 0)
 
 
 class TestDoor(unittest.TestCase):
@@ -240,6 +246,7 @@ class TestDoor(unittest.TestCase):
         )
 
         self.assertEqual(open_door.render_as_char(), '_')
+        self.assertEqual(open_door.num_states(), 3)
 
     def test_closed_door_properties(self):
         """ Basic property tests """
@@ -352,6 +359,7 @@ class TestKey(unittest.TestCase):
             [Key.type_index, 0, color.value]  # pylint: disable=no-member
         )
         np.testing.assert_array_equal(key.as_array(), expected_arr_represtation)
+        self.assertEqual(key.num_states(), 0)
 
 
 class TestMovingObstacles(unittest.TestCase):
@@ -380,6 +388,7 @@ class TestMovingObstacles(unittest.TestCase):
         )
 
         self.assertEqual(obstacle.render_as_char(), '*')
+        self.assertEqual(obstacle.num_states(), 0)
 
     def test_obstacle_movement(self):
         """Test the 'step' behavior of the obstacle"""
