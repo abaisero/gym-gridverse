@@ -15,8 +15,6 @@ from gym_gridverse.grid_object import Colors, Goal, GridObject
 from gym_gridverse.observation import Observation
 from gym_gridverse.state import State
 
-# TODO add key binding for PICK_N_DROP
-
 key_action_mapping = {
     curses.KEY_UP: Actions.MOVE_FORWARD,
     curses.KEY_DOWN: Actions.MOVE_BACKWARD,
@@ -27,6 +25,7 @@ key_action_mapping = {
     ord('s'): Actions.MOVE_BACKWARD,
     ord('d'): Actions.MOVE_RIGHT,
     ord(' '): Actions.ACTUATE,
+    ord('p'): Actions.PICK_N_DROP,
 }
 
 agent_orientation_char_mapping = {
@@ -191,6 +190,7 @@ def main(
         legend_window_inner.addstr(8, 0, fstr('d', Actions.MOVE_RIGHT))
 
         legend_window_inner.addstr(10, 0, fstr('<SPACE>', Actions.ACTUATE))
+        legend_window_inner.addstr(11, 0, fstr('p', Actions.PICK_N_DROP))
 
         # refresh all windows
         screen.refresh()
