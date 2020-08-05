@@ -8,7 +8,8 @@ import gym_gridverse.envs.reset_functions as reset_fs
 import gym_gridverse.envs.reward_functions as reward_fs
 import gym_gridverse.envs.state_dynamics as step_fs
 import gym_gridverse.envs.terminating_functions as terminating_fs
-from gym_gridverse.envs import Actions, Environment
+from gym_gridverse.actions import Actions
+from gym_gridverse.envs import Environment
 from gym_gridverse.envs.minigrid_env import Minigrid
 from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid_object import Colors, Goal, GridObject

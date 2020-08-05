@@ -2,7 +2,7 @@ from typing import Callable, Sequence, Type
 
 import more_itertools as mitt
 
-from gym_gridverse.envs import Actions
+from gym_gridverse.actions import Actions
 from gym_gridverse.geometry import DistanceFunction, Position
 from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle
 from gym_gridverse.state import State

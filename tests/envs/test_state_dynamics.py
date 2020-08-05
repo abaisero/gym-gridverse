@@ -4,11 +4,20 @@ import copy
 import random
 import unittest
 
-from gym_gridverse.envs import Actions
-from gym_gridverse.envs.state_dynamics import (move_agent, pickup_mechanics,
-                                               rotate_agent)
-from gym_gridverse.grid_object import (Colors, Door, Floor, Key,
-                                       NoneGridObject, Wall)
+from gym_gridverse.actions import Actions
+from gym_gridverse.envs.state_dynamics import (
+    move_agent,
+    pickup_mechanics,
+    rotate_agent,
+)
+from gym_gridverse.grid_object import (
+    Colors,
+    Door,
+    Floor,
+    Key,
+    NoneGridObject,
+    Wall,
+)
 from gym_gridverse.info import Agent, Grid, Orientation, Position
 from gym_gridverse.state import State
 

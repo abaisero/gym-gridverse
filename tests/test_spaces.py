@@ -1,9 +1,13 @@
 import unittest
 
-from gym_gridverse.envs import Actions
+from gym_gridverse.actions import Actions
 from gym_gridverse.grid_object import Colors, Door, Floor, Goal
-from gym_gridverse.spaces import (ActionSpace, _max_color_index,
-                                  _max_object_status, _max_object_type)
+from gym_gridverse.spaces import (
+    ActionSpace,
+    _max_color_index,
+    _max_object_status,
+    _max_object_type,
+)
 
 
 class TestGetMaxValues(unittest.TestCase):
@@ -23,4 +27,4 @@ class TestGetMaxValues(unittest.TestCase):
 
 class TestActionSpace(unittest.TestCase):
     def test_num_actions(self):
-        self.assertEqual(len(Actions), ActionSpace().num_actions)
+        self.assertEqual(len(Actions), ActionSpace(list(Actions)).num_actions)

@@ -1,7 +1,8 @@
 import copy
 from typing import Tuple
 
-from gym_gridverse.envs import Actions, Environment
+from gym_gridverse.actions import Actions
+from gym_gridverse.envs import Environment
 from gym_gridverse.envs.observation_functions import ObservationFunction
 from gym_gridverse.envs.reset_functions import ResetFunction
 from gym_gridverse.envs.reward_functions import RewardFunction
@@ -31,7 +32,11 @@ class Minigrid(Environment):
 
         # TODO: fix spaces
         # TODO: fix python
-        super().__init__(StateSpace(), ActionSpace(), ObservationSpace())
+        super().__init__(
+            StateSpace(None, None, None),
+            ActionSpace(list(Actions)),
+            ObservationSpace(None, None, None),
+        )
 
     def functional_reset(self) -> State:
         return self._functional_reset()

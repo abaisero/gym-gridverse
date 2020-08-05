@@ -1,6 +1,6 @@
 from typing import List, Tuple, Type
 
-from gym_gridverse.envs.env import Actions
+from gym_gridverse.actions import Actions
 from gym_gridverse.geometry import Shape
 from gym_gridverse.grid_object import Colors, GridObject, Hidden, NoneGridObject
 

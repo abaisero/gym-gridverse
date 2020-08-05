@@ -1,25 +1,12 @@
 import abc
-import enum
 from typing import Tuple
 
+from gym_gridverse.actions import Actions
 from gym_gridverse.observation import Observation
 from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
 from gym_gridverse.state import State
 
-__all__ = ['Actions', 'Environment']
-
-
-class Actions(enum.Enum):
-    MOVE_FORWARD = 0
-    MOVE_BACKWARD = enum.auto()
-    MOVE_LEFT = enum.auto()
-    MOVE_RIGHT = enum.auto()
-
-    TURN_LEFT = enum.auto()
-    TURN_RIGHT = enum.auto()
-
-    ACTUATE = enum.auto()
-    PICK_N_DROP = enum.auto()
+__all__ = ['Environment']
 
 
 class Environment(metaclass=abc.ABCMeta):
