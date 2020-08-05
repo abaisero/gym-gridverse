@@ -1,8 +1,8 @@
 from typing import List, Tuple, Type
 
+from gym_gridverse.envs.env import Actions
 from gym_gridverse.geometry import Shape
-from gym_gridverse.grid_object import (Colors, GridObject, Hidden,
-                                       NoneGridObject)
+from gym_gridverse.grid_object import Colors, GridObject, Hidden, NoneGridObject
 
 
 def _max_object_type(objects: List[Type[GridObject]]) -> int:
@@ -95,9 +95,18 @@ class StateSpace:
 
 
 class ActionSpace:
+    def __init__(self, actions: List[Actions]):
+        self.actions = actions
+
+    def int_to_action(self, action: int) -> Actions:
+        return self.actions[action]
+
+    def action_to_int(self, action: Actions) -> int:
+        return self.actions.index(action)
+
     @property
     def num_actions(self) -> int:
-        return 8  # TODO: not hard-code
+        return len(self.actions)
 
 
 class ObservationSpace:
