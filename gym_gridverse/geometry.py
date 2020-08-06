@@ -50,6 +50,9 @@ class Area:
             and self.xmin <= position.x <= self.xmax
         )
 
+    def __hash__(self):
+        return hash(((self.ymin, self.ymax), (self.xmin, self.xmax)))
+
     def __eq__(self, other):
         if not isinstance(other, Area):
             return NotImplemented
