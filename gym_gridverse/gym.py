@@ -35,18 +35,16 @@ class GymGridVerseEnvironment(gym.Env):  # pylint: disable=abstract-method
 
     @property
     def state(self) -> Dict[str, np.array]:
-        # TODO implement State.as_array()
         return {
-            'grid': self.env.state.as_array(),
-            'agent': self.env.state.as_array(),
+            'grid': self.env.state.grid.as_array(),
+            'agent': self.env.state.agent.as_array(),
         }
 
     @property
     def observation(self) -> Dict[str, np.array]:
-        # TODO implement Observation.as_array()
         return {
-            'grid': self.env.observation.as_array(),
-            'agent': self.env.observation.as_array(),
+            'grid': self.env.observation.grid.as_array(),
+            'agent': self.env.observation.agent.as_array(),
         }
 
     def reset(self) -> Dict[str, np.array]:

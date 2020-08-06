@@ -88,7 +88,6 @@ class GridObject(metaclass=abc.ABCMeta):
         if not isinstance(other, GridObject):
             return NotImplemented
 
-        # TODO test equality for various gridobjects
         return (self.as_array() == other.as_array()).all()
 
 
@@ -455,8 +454,8 @@ class MovingObstacle(GridObject):
         stay put
 
         Args:
-            state ([TODO:type]): current state
-            action (Actions): action taken by agent (ignored)
+            state (`State`): current state
+            action (`Actions`): action taken by agent (ignored)
         """
 
         cur_pos = state.grid.get_position(self)

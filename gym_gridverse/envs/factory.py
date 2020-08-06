@@ -116,7 +116,7 @@ def dynamic_obstacle_minigrid(
     return create_env(reset_func, transitions, rewards, terminations)
 
 
-def empty_gym_minigrid(size: int, random_pos: bool) -> Environment:
+def gym_minigrid_empty(size: int, random_pos: bool) -> Environment:
     """Creates the gym-minigrid empty environment of `size` and `random_pos`
 
     Args:
@@ -135,11 +135,11 @@ def empty_gym_minigrid(size: int, random_pos: bool) -> Environment:
     return plain_navigation_task(reset)
 
 
-def four_room() -> Environment:
+def gym_minigrid_four_room() -> Environment:
     """Creates the gym-four-room environment
 
     Returns:
-        Environment: [TODO:description]
+        Environment:
     """
 
     reset: reset_functions.ResetFunction = partial(
@@ -152,25 +152,25 @@ def four_room() -> Environment:
 STRING_TO_GYM_CONSTRUCTOR: Dict[str, Callable[[], Environment]] = {
     # Empty rooms
     "MiniGrid-Empty-5x5-v0": partial(
-        empty_gym_minigrid, size=5, random_pos=False
+        gym_minigrid_empty, size=5, random_pos=False
     ),
     "MiniGrid-Empty-Random-5x5-v0": partial(
-        empty_gym_minigrid, size=5, random_pos=True
+        gym_minigrid_empty, size=5, random_pos=True
     ),
     "MiniGrid-Empty-6x6-v0": partial(
-        empty_gym_minigrid, size=6, random_pos=False
+        gym_minigrid_empty, size=6, random_pos=False
     ),
     "MiniGrid-Empty-Random-6x6-v0": partial(
-        empty_gym_minigrid, size=6, random_pos=True
+        gym_minigrid_empty, size=6, random_pos=True
     ),
     "MiniGrid-Empty-8x8-v0": partial(
-        empty_gym_minigrid, size=8, random_pos=False
+        gym_minigrid_empty, size=8, random_pos=False
     ),
     "MiniGrid-Empty-16x16-v0": partial(
-        empty_gym_minigrid, size=8, random_pos=False
+        gym_minigrid_empty, size=8, random_pos=False
     ),
     # 4 rooms
-    "MiniGrid-FourRooms-v0": partial(four_room),
+    "MiniGrid-FourRooms-v0": partial(gym_minigrid_four_room),
     # Dynamic obstacle environments
     "MiniGrid-Dynamic-Obstacles-5x5-v0": partial(
         dynamic_obstacle_minigrid, size=5, random_pos=False, num_obstacles=2

@@ -64,8 +64,6 @@ def rotate_agent(agent: Agent, action: Actions) -> None:
 
     Leaves the state unaffected if any other action was taken instead
 
-    TODO: test
-
     Args:
         agent (`Agent`):
         action (`Actions`):
@@ -157,8 +155,6 @@ def pickup_mechanics(state: State, action: Actions) -> None:
     * There is a (pick-up-able) item to pickup under the agent:
         * The agent is not holding any object -> Pick up, put floor in stead
         * The agent is holding an object -> Swap items
-
-    TODO: Test
 
     Args:
         state (`State`):

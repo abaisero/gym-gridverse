@@ -65,10 +65,7 @@ class TestGridObject(unittest.TestCase):
 
 
 def simple_state_without_object() -> State:
-    """ Returns a 2x2 (empty) grid with an agent without an item
-
-    TODO: Orientation?
-    """
+    """ Returns a 2x2 (empty) grid with an agent without an item """
     return State(
         Grid(height=2, width=2),
         Agent(position=(0, 0), orientation=None, obj=Floor()),
@@ -124,7 +121,7 @@ class TestHidden(unittest.TestCase):
             hidden.as_array(), expected_arr_represtation
         )
 
-        self.assertEqual(hidden.render_as_char(), 'H')
+        self.assertEqual(hidden.render_as_char(), '.')
 
         self.assertEqual(hidden.num_states(), 0)
 
@@ -182,7 +179,7 @@ class TestWall(unittest.TestCase):
             wall.as_array(), expected_arr_represtation
         )
 
-        self.assertEqual(wall.render_as_char(), 'W')
+        self.assertEqual(wall.render_as_char(), '#')
         self.assertEqual(wall.num_states(), 0)
 
 

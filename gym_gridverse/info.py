@@ -13,6 +13,7 @@ ObjectFactory = Callable[[], GridObject]
 
 
 class Grid:
+    # TODO: implement `as_array()`
     def __init__(self, height: int, width: int):
         self.height = height
         self.width = width
@@ -157,6 +158,7 @@ class Grid:
 
 
 class Agent:
+    # TODO: implement `as_array()`
     def __init__(
         self,
         position: Position,
