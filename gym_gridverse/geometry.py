@@ -61,6 +61,9 @@ class Area:
             and self.xmax == other.xmax
         )
 
+    def __repr__(self):
+        return f'Area(({self.ymin}, {self.ymax}), ({self.xmin}, {self.xmax}))'
+
 
 class _2D_Point(NamedTuple):
     """
