@@ -4,9 +4,13 @@ Collection and library for grid-like domains.
 
 # To do
 
+* Array representation state and grid
+* unittest (somehow) vis/manual control scripts
+* More checks on whether generated elements are in space
 * Increase supported (Minigrid) domains
 * Add GUI Visualization
 * Adapter for gym-usage
+    * Have a bot walk around using gym interface
 * Method to create more compact representation
 * One-hot encoding of the state, action and observation (wrapper)
 * Refactoring
