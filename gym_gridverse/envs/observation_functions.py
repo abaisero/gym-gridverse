@@ -1,5 +1,6 @@
 import math
 import random
+from functools import lru_cache
 from typing import Callable, Iterator, List
 
 import more_itertools as mitt
@@ -62,7 +63,7 @@ def ray_positions(
 
 
 # TODO test this
-# TODO cache rays based on state- or observation- space?
+@lru_cache()
 def rays_positions(start_pos: Position, area: Area) -> List[List[Position]]:
     rays: List[List[Position]] = []
 
