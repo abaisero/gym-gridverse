@@ -163,7 +163,7 @@ class Hidden(GridObject):
         pass
 
     def render_as_char(self) -> str:
-        return "H"
+        return "."
 
 
 class Floor(GridObject):
@@ -237,7 +237,7 @@ class Wall(GridObject):
         pass
 
     def render_as_char(self) -> str:
-        return "W"
+        return "#"
 
 
 class Goal(GridObject):
