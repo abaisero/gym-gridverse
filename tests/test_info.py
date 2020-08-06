@@ -69,7 +69,7 @@ class TestGrid(unittest.TestCase):
 
     def test_draw_area(self):
         grid = Grid(3, 4)
-        grid.draw_area(Area(0, 0, 2, 3), object_factory=Wall)
+        grid.draw_area(Area((0, 2), (0, 3)), object_factory=Wall)
 
         grid_expected = Grid.from_objects(
             [
@@ -117,7 +117,7 @@ class TestGrid(unittest.TestCase):
             ]
         )
 
-        subgrid = grid.subgrid(Area(-1, -1, 3, 4))
+        subgrid = grid.subgrid(Area((-1, 3), (-1, 4)))
         subgrid_expected = Grid.from_objects(
             [
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
@@ -129,11 +129,11 @@ class TestGrid(unittest.TestCase):
         )
         self.assertEqual(subgrid, subgrid_expected)
 
-        subgrid = grid.subgrid(Area(1, 1, 1, 2))
+        subgrid = grid.subgrid(Area((1, 1), (1, 2)))
         subgrid_expected = Grid.from_objects([[Wall(), Floor()]])
         self.assertEqual(subgrid, subgrid_expected)
 
-        subgrid = grid.subgrid(Area(-1, -1, 1, 1))
+        subgrid = grid.subgrid(Area((-1, 1), (-1, 1)))
         subgrid_expected = Grid.from_objects(
             [
                 [Hidden(), Hidden(), Hidden()],
@@ -143,7 +143,7 @@ class TestGrid(unittest.TestCase):
         )
         self.assertEqual(subgrid, subgrid_expected)
 
-        subgrid = grid.subgrid(Area(1, 2, 3, 4))
+        subgrid = grid.subgrid(Area((1, 3), (2, 4)))
         subgrid_expected = Grid.from_objects(
             [
                 [Floor(), Wall(), Hidden()],
@@ -209,28 +209,28 @@ class TestGrid(unittest.TestCase):
 class TestAgent(unittest.TestCase):
     def test_get_pov_area(self):
         agent = Agent(Position(0, 0), Orientation.N)
-        self.assertEqual(agent.get_pov_area(), Area(-6, -3, 0, 3))
+        self.assertEqual(agent.get_pov_area(), Area((-6, 0), (-3, 3)))
 
         agent = Agent(Position(0, 0), Orientation.S)
-        self.assertEqual(agent.get_pov_area(), Area(0, -3, 6, 3))
+        self.assertEqual(agent.get_pov_area(), Area((0, 6), (-3, 3)))
 
         agent = Agent(Position(0, 0), Orientation.E)
-        self.assertEqual(agent.get_pov_area(), Area(-3, 0, 3, 6))
+        self.assertEqual(agent.get_pov_area(), Area((-3, 3), (0, 6)))
 
         agent = Agent(Position(0, 0), Orientation.W)
-        self.assertEqual(agent.get_pov_area(), Area(-3, -6, 3, 0))
+        self.assertEqual(agent.get_pov_area(), Area((-3, 3), (-6, 0)))
 
         agent = Agent(Position(1, 2), Orientation.N)
-        self.assertEqual(agent.get_pov_area(), Area(-5, -1, 1, 5))
+        self.assertEqual(agent.get_pov_area(), Area((-5, 1), (-1, 5)))
 
         agent = Agent(Position(1, 2), Orientation.S)
-        self.assertEqual(agent.get_pov_area(), Area(1, -1, 7, 5))
+        self.assertEqual(agent.get_pov_area(), Area((1, 7), (-1, 5)))
 
         agent = Agent(Position(1, 2), Orientation.E)
-        self.assertEqual(agent.get_pov_area(), Area(-2, 2, 4, 8))
+        self.assertEqual(agent.get_pov_area(), Area((-2, 4), (2, 8)))
 
         agent = Agent(Position(1, 2), Orientation.W)
-        self.assertEqual(agent.get_pov_area(), Area(-2, -4, 4, 2))
+        self.assertEqual(agent.get_pov_area(), Area((-2, 4), (-4, 2)))
 
 
 if __name__ == '__main__':

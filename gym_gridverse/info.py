@@ -120,7 +120,7 @@ class Grid:
         subgrid = Grid(area.height, area.width)
 
         for pos_to in subgrid.positions():
-            pos_from = Position(pos_to.y + area.y0, pos_to.x + area.x0)
+            pos_from = Position.add(pos_to, area.top_left)
             subgrid[pos_to] = (
                 deepcopy(self[pos_from]) if pos_from in self else Hidden()
             )
@@ -206,4 +206,4 @@ class Agent:
 
         y1 = y0 + area_size - 1
         x1 = x0 + area_size - 1
-        return Area(y0, x0, y1, x1)
+        return Area((y0, y1), (x0, x1))

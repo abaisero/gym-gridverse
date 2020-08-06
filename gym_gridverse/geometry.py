@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import enum
 import math
-from typing import Callable, List, NamedTuple
+from typing import Callable, List, NamedTuple, Tuple
 
 
 class Shape(NamedTuple):
@@ -15,40 +15,50 @@ class Shape(NamedTuple):
     width: int
 
 
-class Area(NamedTuple):
-    y0: int
-    x0: int
-    y1: int
-    x1: int
-
-    @property
-    def ymin(self):
-        return min(self.y0, self.y1)
-
-    @property
-    def ymax(self):
-        return max(self.y0, self.y1)
-
-    @property
-    def xmin(self):
-        return min(self.x0, self.x1)
-
-    @property
-    def xmax(self):
-        return max(self.x0, self.x1)
+class Area:
+    def __init__(self, y: Tuple[int, int], x: Tuple[int, int]):
+        self.ymin, self.ymax = min(y), max(y)
+        self.xmin, self.xmax = min(x), max(x)
 
     @property
     def height(self):
-        return self.y1 - self.y0 + 1
+        return self.ymax - self.ymin + 1
 
     @property
     def width(self):
-        return self.x1 - self.x0 + 1
+        return self.xmax - self.xmin + 1
+
+    @property
+    def top_left(self):
+        return Position(self.ymin, self.xmin)
+
+    @property
+    def top_right(self):
+        return Position(self.ymin, self.xmax)
+
+    @property
+    def bottom_left(self):
+        return Position(self.ymax, self.xmin)
+
+    @property
+    def bottom_right(self):
+        return Position(self.ymax, self.xmax)
 
     def contains(self, position: Position):
         return (
-            self.y0 <= position.y <= self.y1
-            and self.x0 <= position.x <= self.x1
+            self.ymin <= position.y <= self.ymax
+            and self.xmin <= position.x <= self.xmax
+        )
+
+    def __eq__(self, other):
+        if not isinstance(other, Area):
+            return NotImplemented
+
+        return (
+            self.ymin == other.ymin
+            and self.ymax == other.ymax
+            and self.xmin == other.xmin
+            and self.xmax == other.xmax
         )
 
 
