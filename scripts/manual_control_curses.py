@@ -279,7 +279,9 @@ if __name__ == "__main__":
 
     step_function = step_fs.update_agent
 
-    observation_function = observation_fs.minigrid_observation
+    # observation_function = observation_fs.minigrid_observation
+    observation_function = observation_fs.raytracing_observation
+    # observation_function = observation_fs.stochastic_raytracing_observation
 
     reward_function = partial(
         reward_fs.chain,
