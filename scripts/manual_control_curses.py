@@ -1,7 +1,11 @@
 """ Manually control the agent in an environment """
+from __future__ import annotations
 
 import curses
+import enum
+from dataclasses import dataclass
 from functools import partial
+from typing import Optional
 
 import gym_gridverse.envs.observation_functions as observation_fs
 import gym_gridverse.envs.reset_functions as reset_fs
@@ -16,7 +20,15 @@ from gym_gridverse.grid_object import Colors, Goal, GridObject
 from gym_gridverse.observation import Observation
 from gym_gridverse.state import State
 
-key_action_mapping = {
+
+class Controls(enum.Enum):
+    QUIT = enum.auto()
+    RESET = enum.auto()
+    HIDE_STATE = enum.auto()
+
+
+key_value_mapping = {
+    # actions
     curses.KEY_UP: Actions.MOVE_FORWARD,
     curses.KEY_DOWN: Actions.MOVE_BACKWARD,
     curses.KEY_LEFT: Actions.TURN_LEFT,
@@ -27,6 +39,10 @@ key_action_mapping = {
     ord('d'): Actions.MOVE_RIGHT,
     ord(' '): Actions.ACTUATE,
     ord('p'): Actions.PICK_N_DROP,
+    # controls
+    ord('q'): Controls.QUIT,
+    ord('r'): Controls.RESET,
+    ord('h'): Controls.HIDE_STATE,
 }
 
 agent_orientation_char_mapping = {
@@ -37,17 +53,13 @@ agent_orientation_char_mapping = {
 }
 
 
-def get_action(screen) -> Actions:
-    while True:
-        key = screen.getch()
-        try:
-            return key_action_mapping[key]
-        except KeyError:
-            pass
-
-
-def draw_object(window, position: Position, obj: GridObject):
+def draw_object(
+    window, position: Position, obj: GridObject, *, hidden: bool = False
+):
     attribute = curses.color_pair(obj.color.value)
+
+    if hidden:
+        attribute |= curses.A_REVERSE
 
     try:
         # TODO change to addch if we can get newer version of ncurses
@@ -58,8 +70,14 @@ def draw_object(window, position: Position, obj: GridObject):
 
 
 def draw_state(window, state: State):
+    area = state.agent.get_pov_area()
     for position in state.grid.positions():
-        draw_object(window, position, state.grid[position])
+        draw_object(
+            window,
+            position,
+            state.grid[position],
+            hidden=not area.contains(position),
+        )
 
     try:
         # TODO change to addch if we can get newer version of ncurses
@@ -97,13 +115,10 @@ def main(
         Colors.YELLOW.value, curses.COLOR_YELLOW, curses.COLOR_BLACK
     )
 
-    if not curses.has_colors():
-        raise Exception()
-
     screen_height, screen_width = screen.getmaxyx()
     main_window = curses.newwin(screen_height, screen_width)
 
-    panel_height, panel_width = 2, 22
+    panel_height, panel_width = 3, 22
     panel_window_outer = main_window.derwin(
         panel_height + 2, panel_width + 2, 0, 0
     )
@@ -141,11 +156,7 @@ def main(
         screen_height - 2, screen_width - panel_width - 2 - 2, 1, 1,
     )
 
-    action: Actions = None  # type: ignore
-    reward: float = None  # type: ignore
-
-    env.reset()
-    while True:
+    def update(viz_state: VizState,):  # pylint: disable=too-many-arguments
         screen.clear()
         main_window.clear()
 
@@ -153,32 +164,34 @@ def main(
         panel_window_outer.border()
         panel_window_outer.addstr(0, 1, 'panel')
 
-        if action is None:
-            panel_window_inner.addstr(0, 0, 'Action:')
+        panel_window_inner.addstr(0, 0, f'Step: {viz_state.t}')
+        if viz_state.action is None:
+            panel_window_inner.addstr(1, 0, 'Action:')
         else:
-            panel_window_inner.addstr(0, 0, f'Action: {action.name}')
+            panel_window_inner.addstr(1, 0, f'Action: {viz_state.action.name}')
 
-        if reward is None:
-            panel_window_inner.addstr(1, 0, 'Reward:')
+        if viz_state.reward is None:
+            panel_window_inner.addstr(2, 0, 'Reward:')
         else:
-            panel_window_inner.addstr(1, 0, f'Reward: {reward: .5g}')
+            panel_window_inner.addstr(2, 0, f'Reward: {viz_state.reward: .5g}')
 
         # draw state window
         state_window_outer.border()
         state_window_outer.addstr(0, 1, 'state')
-        draw_state(state_window_inner, env.state)
+        if not viz_state.hide_state:
+            draw_state(state_window_inner, viz_state.state)
 
         # draw observation window
         observation_window_outer.border()
         observation_window_outer.addstr(0, 1, 'obs.')
-        draw_observation(observation_window_inner, env.observation)
+        draw_observation(observation_window_inner, viz_state.observation)
 
         # draw legend
         legend_window_outer.border()
         legend_window_outer.addstr(0, 1, 'legend')
 
-        def fstr(label: str, action: Actions):
-            return f'{label:>8s} : {action.name}'
+        def fstr(label: str, e: enum.Enum):
+            return f'{label:>8s} : {e.name}'
 
         legend_window_inner.addstr(0, 0, fstr('<UP>', Actions.MOVE_FORWARD))
         legend_window_inner.addstr(1, 0, fstr('<DOWN>', Actions.MOVE_BACKWARD))
@@ -193,18 +206,72 @@ def main(
         legend_window_inner.addstr(10, 0, fstr('<SPACE>', Actions.ACTUATE))
         legend_window_inner.addstr(11, 0, fstr('p', Actions.PICK_N_DROP))
 
+        legend_window_inner.addstr(13, 0, fstr('q', Controls.QUIT))
+        legend_window_inner.addstr(14, 0, fstr('r', Controls.RESET))
+        legend_window_inner.addstr(15, 0, fstr('h', Controls.HIDE_STATE))
+
         # refresh all windows
         screen.refresh()
         main_window.refresh()
+        legend_window_outer.refresh()
 
-        # agent + environment step
-        action = get_action(screen)
-        reward, done = env.step(action)
+    @dataclass
+    class VizState:
+        t: int
+        action: Optional[Actions]
+        reward: Optional[float]
+        state: State
+        observation: Observation
+        hide_state: bool
 
-        if done:
-            env.reset()
-            action = None  # type: ignore
-            reward = None  # type: ignore
+        @classmethod
+        def from_env(cls, env: Environment, *, hide_state: bool) -> VizState:
+            state = env.functional_reset()
+            observation = env.functional_observation(state)
+            return VizState(
+                t=0,
+                action=None,
+                reward=None,
+                state=state,
+                observation=observation,
+                hide_state=hide_state,
+            )
+
+    viz_state = VizState.from_env(env, hide_state=False)
+    while True:
+        update(viz_state)
+        key = screen.getch()
+
+        try:
+            value = key_value_mapping[key]
+        except KeyError:
+            continue
+
+        if isinstance(value, Actions):
+            viz_state.action = value
+
+            viz_state.t += 1
+            viz_state.state, viz_state.reward, done = env.functional_step(
+                viz_state.state, viz_state.action
+            )
+            viz_state.observation = env.functional_observation(viz_state.state)
+
+            if done:
+                update(viz_state)
+                screen.getch()
+
+                viz_state = VizState.from_env(
+                    env, hide_state=viz_state.hide_state
+                )
+
+        elif value == Controls.QUIT:
+            break
+
+        elif value == Controls.RESET:
+            viz_state = VizState.from_env(env, hide_state=viz_state.hide_state)
+
+        elif value == Controls.HIDE_STATE:
+            viz_state.hide_state = not viz_state.hide_state
 
 
 if __name__ == "__main__":

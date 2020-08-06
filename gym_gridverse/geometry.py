@@ -45,6 +45,12 @@ class Area(NamedTuple):
     def width(self):
         return self.x1 - self.x0 + 1
 
+    def contains(self, position: Position):
+        return (
+            self.y0 <= position.y <= self.y1
+            and self.x0 <= position.x <= self.x1
+        )
+
 
 class _2D_Point(NamedTuple):
     """
