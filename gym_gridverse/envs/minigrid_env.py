@@ -9,7 +9,7 @@ from gym_gridverse.envs.reward_functions import RewardFunction
 from gym_gridverse.envs.state_dynamics import StateDynamics
 from gym_gridverse.envs.terminating_functions import TerminatingFunction
 from gym_gridverse.observation import Observation
-from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
+from gym_gridverse.spaces import DomainSpace
 from gym_gridverse.state import State
 
 
@@ -17,6 +17,7 @@ from gym_gridverse.state import State
 class Minigrid(Environment):
     def __init__(  # pylint: disable=too-many-arguments
         self,
+        domain_space: DomainSpace,
         reset_function: ResetFunction,
         step_function: StateDynamics,
         observation_function: ObservationFunction,
@@ -30,12 +31,10 @@ class Minigrid(Environment):
         self.reward_function = reward_function
         self.termination_function = termination_function
 
-        # TODO: fix spaces
-        # TODO: fix python
         super().__init__(
-            StateSpace(None, None, None),
-            ActionSpace(list(Actions)),
-            ObservationSpace(None, None, None),
+            domain_space.state_space,
+            domain_space.action_space,
+            domain_space.observation_space,
         )
 
     def functional_reset(self) -> State:

@@ -18,6 +18,7 @@ from gym_gridverse.envs.minigrid_env import Minigrid
 from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid_object import Colors, Goal, GridObject
 from gym_gridverse.observation import Observation
+from gym_gridverse.spaces import DomainSpace
 from gym_gridverse.state import State
 
 
@@ -300,6 +301,7 @@ if __name__ == "__main__":
     terminating_function = terminating_fs.reach_goal
 
     domain: Environment = Minigrid(
+        DomainSpace(None, None, None),  #  TODO: properly initiate
         reset_function,
         step_function,
         observation_function,

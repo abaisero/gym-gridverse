@@ -3,18 +3,19 @@
 from functools import partial
 from typing import Callable, Dict, List
 
-from gym_gridverse.envs import (
-    observation_functions,
-    reset_functions,
-    reward_functions,
-    state_dynamics,
-    terminating_functions,
-)
+from gym_gridverse.actions import Actions
+from gym_gridverse.envs import (observation_functions, reset_functions,
+                                reward_functions, state_dynamics,
+                                terminating_functions)
 from gym_gridverse.envs.env import Environment
 from gym_gridverse.envs.minigrid_env import Minigrid
+from gym_gridverse.grid_object import Colors, Floor, Goal, MovingObstacle, Wall
+from gym_gridverse.spaces import (ActionSpace, DomainSpace, ObservationSpace,
+                                  StateSpace)
 
 
 def create_env(
+    domain_space: DomainSpace,
     reset: reset_functions.ResetFunction,
     transition_functions: List[state_dynamics.StateDynamics],
     rewards: List[reward_functions.RewardFunction],
@@ -29,6 +30,7 @@ def create_env(
     * terminates if one of the termination functions return true
 
     Args:
+        domain_space (`DomainSpace`):
         reset (`reset_functions.ResetFunction`):
         transition_functions (`List[state_dynamics.StateDynamics]`): called in order
         rewards (`List[reward_functions.RewardFunction]`): Combined additive
@@ -54,7 +56,9 @@ def create_env(
     def termination(s, a, next_s):
         return any(t(s, a, next_s) for t in terminations)
 
-    return Minigrid(reset, transition, observation, reward, termination)
+    return Minigrid(
+        domain_space, reset, transition, observation, reward, termination
+    )
 
 
 def plain_navigation_task(
@@ -82,7 +86,21 @@ def plain_navigation_task(
         terminating_functions.reach_goal
     ]
 
-    return create_env(reset_func, transitions, rewards, terminations)
+    grid_shape = reset_func().grid.shape  # XXX: we hate this
+    objects = [Wall, Floor, Goal]
+    colors = [Colors.NONE]
+
+    state_space = StateSpace(grid_shape, objects, colors)
+    observation_space = ObservationSpace(grid_shape, objects, colors)
+
+    # NOTE: here we could limit our actions to original gym interface
+    action_space = ActionSpace(list(Actions))
+
+    domain_space = DomainSpace(state_space, action_space, observation_space)
+
+    return create_env(
+        domain_space, reset_func, transitions, rewards, terminations
+    )
 
 
 def dynamic_obstacle_minigrid(
@@ -113,7 +131,20 @@ def dynamic_obstacle_minigrid(
         # TODO: crashing into wall?
     ]
 
-    return create_env(reset_func, transitions, rewards, terminations)
+    grid_shape = reset_func().grid.shape  # XXX: we hate this
+    objects = [Wall, Floor, Goal, MovingObstacle]
+    colors = [Colors.NONE]
+
+    state_space = StateSpace(grid_shape, objects, colors)
+    observation_space = ObservationSpace(grid_shape, objects, colors)
+
+    # NOTE: here we could limit our actions to original gym interface
+    action_space = ActionSpace(list(Actions))
+
+    domain_space = DomainSpace(state_space, action_space, observation_space)
+    return create_env(
+        domain_space, reset_func, transitions, rewards, terminations
+    )
 
 
 def gym_minigrid_empty(size: int, random_pos: bool) -> Environment:

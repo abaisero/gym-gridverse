@@ -1,8 +1,10 @@
+from dataclasses import dataclass
 from typing import List, Tuple, Type
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.geometry import Shape
-from gym_gridverse.grid_object import Colors, GridObject, Hidden, NoneGridObject
+from gym_gridverse.grid_object import (Colors, GridObject, Hidden,
+                                       NoneGridObject)
 
 
 def _max_object_type(objects: List[Type[GridObject]]) -> int:
@@ -162,3 +164,10 @@ class ObservationSpace:
     def max_agent_object_status(self) -> int:
         # NOTE: Add Hidden as the default 'non' object the agent is holding
         return _max_object_status(self.objects + [NoneGridObject])
+
+
+@dataclass
+class DomainSpace:
+    state_space: StateSpace
+    action_space: ActionSpace
+    observation_space: ObservationSpace
