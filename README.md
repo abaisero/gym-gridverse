@@ -4,31 +4,25 @@ Collection and library for grid-like domains.
 
 # To do
 
-* Refactoring
-    * Rename `ObservationFactory` to `ObservationFunction`
-    * Rename `StateDynamics` -> `TransitionFunction`
-    * Move key/repeating functionality to grid
-        * 'Object/pos in front of agent'
-    * geometry module
-* Environment factory:
-    * Create a function that takes in list of functions below and return an
-      environment, implement environments below
-        * Reward function
-        * Termination function
-        * Transition function
-        * Observation function
-        * Reset function
-    * String -> construction mapping
+* Increase supported (Minigrid) domains
 * Add GUI Visualization
 * Adapter for gym-usage
 * Method to create more compact representation
 * One-hot encoding of the state, action and observation (wrapper)
+* Refactoring
+    * Rename `StateDynamics` -> `TransitionFunction`
+    * Move key/repeating functionality to grid
+        * 'Object/pos in front of agent'
+    * geometry module
+* Re-produce minigrid behavior
+    * Discounted reward
+    * Minigrid state dynamics
 
 ## Environments
 
 Taken from the [gym-minigrid](https://github.com/maximecb/gym-minigrid)
 
-* [X] Empty (size + random flag)
+* [x] Empty (size + random flag)
 * [x] 4 room (random agent/goal position flag)
 * [ ] Door & key
 * [ ] Multi-room
@@ -49,8 +43,7 @@ Taken from the [gym-minigrid](https://github.com/maximecb/gym-minigrid)
 * [ ] Lava gap + extended lava crossing
     * Requires lava (and appropriate reward/termination functions)
     * Plenty of hard coding (or non-trivial generation)
-* [ ] Dynamic obstacles
-
+* [x] Dynamic obstacles
 
 # Representation
 

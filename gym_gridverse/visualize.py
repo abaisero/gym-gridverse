@@ -70,22 +70,12 @@ def str_render_state(state: State) -> str:
 
     string_grid[agent_x][agent_y] = str_render_agent(state.agent.orientation)
 
-    grid_descr = "\n".join(
-        [
-            str_render_object(Wall()) + ''.join(row) + str_render_object(Wall())
-            for row in string_grid
-        ]
-    )
+    grid_descr = "\n".join([''.join(row) for row in string_grid])
 
-    grid_descr = (
-        str_wall_row(state.grid.width)
-        + "\n"
-        + grid_descr
-        + "\n"
-        + str_wall_row(state.grid.width)
-    )
+    return grid_descr + "\nAgent holding: " + str_render_object(state.agent.obj)
 
-    if not state.agent.obj:
-        return grid_descr
 
+def str_render_obs(state: State) -> str:
+    string_grid = str_render_grid(state.grid)
+    grid_descr = "\n".join([''.join(row) for row in string_grid])
     return grid_descr + "\nAgent holding: " + str_render_object(state.agent.obj)

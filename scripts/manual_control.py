@@ -2,12 +2,11 @@
 
 import argparse
 
-from gym_gridverse.envs import Actions, Environment
-from gym_gridverse.envs.factory import (
-    STRING_TO_GYM_CONSTRUCTOR,
-    gym_minigrid_from_descr,
-)
-from gym_gridverse.visualize import str_render_state
+from gym_gridverse.actions import Actions
+from gym_gridverse.envs import Environment
+from gym_gridverse.envs.factory import (STRING_TO_GYM_CONSTRUCTOR,
+                                        gym_minigrid_from_descr)
+from gym_gridverse.visualize import str_render_obs, str_render_state
 
 
 def get_user_action() -> Actions:
@@ -39,7 +38,14 @@ def manually_control(domain: Environment):
             print("Resetting environment")
             domain.reset()
 
-        print(f"Reward {r}, next state:\n{str_render_state(domain.state)}")
+        state = domain.state
+        obs = domain.observation
+        # import ipdb; ipdb.set_trace()
+        print(
+            f"Reward {r}, "
+            f"next state:\n{str_render_state(state)}\n"
+            f"observation:\n{str_render_obs(obs)}"
+        )
 
 
 if __name__ == "__main__":
