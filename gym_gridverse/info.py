@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import itertools as itt
 from copy import deepcopy
-from typing import Callable, Iterator, Optional, Sequence
+from typing import Callable, Iterator, Optional, Sequence, Set, Type
 
 import numpy as np
 
@@ -76,6 +76,10 @@ class Grid:
                 return position
 
         raise ValueError(f'GridObject {x} not found')
+
+    def object_types(self) -> Set[Type[GridObject]]:
+        """returns object types currently in the grid"""
+        return set(type(self[position]) for position in self.positions())
 
     def __getitem__(self, position: Position) -> GridObject:
         return self._grid[position]

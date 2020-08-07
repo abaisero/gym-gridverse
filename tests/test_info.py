@@ -1,7 +1,7 @@
 import unittest
 
 from gym_gridverse.geometry import Area, DeltaPosition, Orientation, Position
-from gym_gridverse.grid_object import Floor, Hidden, Wall
+from gym_gridverse.grid_object import Floor, Goal, Hidden, Wall
 from gym_gridverse.info import Agent, Grid
 
 
@@ -49,6 +49,20 @@ class TestGrid(unittest.TestCase):
 
         # testing exception when object is not in grid
         self.assertRaises(ValueError, grid.get_position, Floor())
+
+    def test_object_types(self):
+        grid = Grid(3, 4)
+
+        self.assertSetEqual(grid.object_types(), set([Floor]))
+
+        grid[Position(0, 0)] = Wall()
+        self.assertSetEqual(grid.object_types(), set([Floor, Wall]))
+
+        grid[Position(0, 0)] = Goal()
+        self.assertSetEqual(grid.object_types(), set([Floor, Goal]))
+
+        grid[Position(1, 1)] = Wall()
+        self.assertSetEqual(grid.object_types(), set([Floor, Goal, Wall]))
 
     def test_get_item(self):
         grid = Grid(3, 4)
