@@ -15,10 +15,15 @@ import gym_gridverse.envs.terminating_functions as terminating_fs
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs import Environment
 from gym_gridverse.envs.minigrid_env import Minigrid
-from gym_gridverse.geometry import Orientation, Position
-from gym_gridverse.grid_object import Colors, Goal, GridObject
+from gym_gridverse.geometry import Orientation, Position, Shape
+from gym_gridverse.grid_object import Colors, Floor, Goal, GridObject, Wall
 from gym_gridverse.observation import Observation
-from gym_gridverse.spaces import DomainSpace
+from gym_gridverse.spaces import (
+    ActionSpace,
+    DomainSpace,
+    ObservationSpace,
+    StateSpace,
+)
 from gym_gridverse.state import State
 
 
@@ -300,8 +305,14 @@ if __name__ == "__main__":
 
     terminating_function = terminating_fs.reach_goal
 
+    domain_space = DomainSpace(
+        StateSpace(Shape(10, 10), [Floor, Wall, Goal], [Colors.NONE]),
+        ActionSpace(list(Actions)),
+        ObservationSpace(Shape(7, 7), [Floor, Wall, Goal], [Colors.NONE]),
+    )
+
     domain: Environment = Minigrid(
-        DomainSpace(None, None, None),  #  TODO: properly initiate
+        domain_space,
         reset_function,
         step_function,
         observation_function,

@@ -38,14 +38,27 @@ class Minigrid(Environment):
         )
 
     def functional_reset(self) -> State:
-        return self._functional_reset()
+        state = self._functional_reset()
+        if not self.state_space.contains(state):
+            raise ValueError('state does not satisfy state-space')
+
+        return state
 
     def functional_step(
         self, state: State, action: Actions
     ) -> Tuple[State, float, bool]:
 
+        if not self.state_space.contains(state):
+            raise ValueError('state does not satisfy state-space')
+
+        if not self.action_space.contains(action):
+            raise ValueError('action does not satisfy action-space')
+
         next_state = copy.deepcopy(state)
         self._functional_step(next_state, action)
+
+        if not self.state_space.contains(next_state):
+            raise ValueError('next_state does not satisfy state-space')
 
         reward = self.reward_function(state, action, next_state)
         terminal = self.termination_function(state, action, next_state)
@@ -53,4 +66,8 @@ class Minigrid(Environment):
         return (next_state, reward, terminal)
 
     def functional_observation(self, state: State) -> Observation:
-        return self._functional_observation(state)
+        observation = self._functional_observation(state)
+        if not self.observation_space.contains(observation):
+            raise ValueError('observation does not satisfy observation-space')
+
+        return observation
