@@ -159,10 +159,11 @@ class Grid:
 
 class Agent:
     # TODO: implement `as_array()`
+    # TODO temporary None on position and orientation
     def __init__(
         self,
-        position: Position,
-        orientation: Orientation,
+        position: Optional[Position],
+        orientation: Optional[Orientation],  # TODO temporary
         obj: Optional[GridObject] = None,
     ):
         if obj is None:
@@ -183,12 +184,14 @@ class Agent:
         return NotImplemented
 
     def position_relative(self, dpos: DeltaPosition) -> Position:
+        """get the absolute position from a delta position relative to the agent"""
         dpos_absolute = dpos.rotate(self.orientation)
         return Position(
             self.position.y + dpos_absolute.y, self.position.x + dpos_absolute.x
         )
 
     def position_in_front(self) -> Position:
+        """get the position in front of the agent"""
         return self.position_relative(Orientation.N.as_delta_position())
 
     def get_pov_area(self) -> Area:

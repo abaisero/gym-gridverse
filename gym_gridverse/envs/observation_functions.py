@@ -8,10 +8,13 @@ import numpy as np
 
 from gym_gridverse.geometry import Area, Position
 from gym_gridverse.grid_object import Hidden
+from gym_gridverse.info import Agent
 from gym_gridverse.observation import Observation
 from gym_gridverse.state import State
 
 ObservationFunction = Callable[[State], Observation]
+
+# TODO write documentation
 
 
 def minigrid_observation(state: State) -> Observation:
@@ -41,7 +44,8 @@ def minigrid_observation(state: State) -> Observation:
             if not visibility_mask[y, x]:
                 grid[Position(y, x)] = Hidden()
 
-    return Observation(grid, state.agent)
+    agent = Agent(None, None, state.agent.obj)
+    return Observation(grid, agent)
 
 
 # TODO test this
@@ -109,7 +113,8 @@ def raytracing_observation(state: State) -> Observation:
             if not mask[y, x]:
                 grid[Position(y, x)] = Hidden()
 
-    return Observation(grid, state.agent)
+    agent = Agent(None, None, state.agent.obj)
+    return Observation(grid, agent)
 
 
 def stochastic_raytracing_observation(state: State) -> Observation:
@@ -145,4 +150,5 @@ def stochastic_raytracing_observation(state: State) -> Observation:
             if random.random() > probs[y, x]:
                 grid[Position(y, x)] = Hidden()
 
-    return Observation(grid, state.agent)
+    agent = Agent(None, None, state.agent.obj)
+    return Observation(grid, agent)
