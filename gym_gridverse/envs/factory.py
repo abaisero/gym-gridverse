@@ -4,14 +4,22 @@ from functools import partial
 from typing import Callable, Dict, List
 
 from gym_gridverse.actions import Actions
-from gym_gridverse.envs import (observation_functions, reset_functions,
-                                reward_functions, state_dynamics,
-                                terminating_functions)
+from gym_gridverse.envs import (
+    observation_functions,
+    reset_functions,
+    reward_functions,
+    state_dynamics,
+    terminating_functions,
+)
 from gym_gridverse.envs.env import Environment
-from gym_gridverse.envs.minigrid_env import Minigrid
+from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.grid_object import Colors, Floor, Goal, MovingObstacle, Wall
-from gym_gridverse.spaces import (ActionSpace, DomainSpace, ObservationSpace,
-                                  StateSpace)
+from gym_gridverse.spaces import (
+    ActionSpace,
+    DomainSpace,
+    ObservationSpace,
+    StateSpace,
+)
 
 
 def create_env(
@@ -37,7 +45,7 @@ def create_env(
         terminations (`List[terminating_functions.TerminatingFunction]`): Called as big 'or'
 
     Returns:
-        Environment: Minigrid environment
+        Environment: GridWorld environment
     """
 
     # Transitions are applied in order
@@ -56,7 +64,7 @@ def create_env(
     def termination(s, a, next_s):
         return any(t(s, a, next_s) for t in terminations)
 
-    return Minigrid(
+    return GridWorld(
         domain_space, reset, transition, observation, reward, termination
     )
 
@@ -73,7 +81,7 @@ def plain_navigation_task(
         reset_func (reset_functions.ResetFunction):
 
     Returns:
-        Environment: Minigrid with basic navigation dynamics
+        Environment: GridWorld with basic navigation dynamics
     """
 
     transitions: List[state_dynamics.StateDynamics] = [

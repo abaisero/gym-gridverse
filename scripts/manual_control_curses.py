@@ -14,7 +14,7 @@ import gym_gridverse.envs.state_dynamics as step_fs
 import gym_gridverse.envs.terminating_functions as terminating_fs
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs import Environment
-from gym_gridverse.envs.minigrid_env import Minigrid
+from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid_object import Colors, Floor, Goal, GridObject, Wall
 from gym_gridverse.observation import Observation
@@ -311,7 +311,7 @@ if __name__ == "__main__":
         ObservationSpace(Shape(7, 7), [Floor, Wall, Goal], [Colors.NONE]),
     )
 
-    domain: Environment = Minigrid(
+    domain: Environment = GridWorld(
         domain_space,
         reset_function,
         step_function,

@@ -13,8 +13,7 @@ from gym_gridverse.spaces import DomainSpace
 from gym_gridverse.state import State
 
 
-# TODO find better name
-class Minigrid(Environment):
+class GridWorld(Environment):
     def __init__(  # pylint: disable=too-many-arguments
         self,
         domain_space: DomainSpace,
