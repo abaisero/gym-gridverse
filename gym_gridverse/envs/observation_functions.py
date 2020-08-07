@@ -6,7 +6,7 @@ from typing import Callable, Iterator, List
 import more_itertools as mitt
 import numpy as np
 
-from gym_gridverse.geometry import Area, Position
+from gym_gridverse.geometry import Area, Orientation, Position
 from gym_gridverse.grid_object import Hidden
 from gym_gridverse.info import Agent
 from gym_gridverse.observation import Observation
@@ -44,12 +44,12 @@ def minigrid_observation(state: State) -> Observation:
             if not visibility_mask[y, x]:
                 grid[Position(y, x)] = Hidden()
 
-    agent = Agent(None, None, state.agent.obj)
+    agent = Agent(Position(-1, -1), Orientation.N, state.agent.obj)
     return Observation(grid, agent)
 
 
 # TODO test this
-# TODO cache this
+# TODO cache this?
 def ray_positions(
     start_pos: Position, area: Area, radians: float, step_size: float
 ) -> Iterator[Position]:
@@ -86,8 +86,8 @@ def raytracing_observation(state: State) -> Observation:
     area = state.agent.get_pov_area()
     grid = state.grid.subgrid(area).change_orientation(state.agent.orientation)
 
-    pos = Position(6, 3)
-    area = Area((0, 6), (0, 6))
+    pos = Position(6, 3)  # TODO use observation shape
+    area = Area((0, 6), (0, 6))  # TODO use observation shape
     rays = rays_positions(pos, area)
 
     counts_n = np.zeros((area.height, area.width), dtype=int)
@@ -113,7 +113,7 @@ def raytracing_observation(state: State) -> Observation:
             if not mask[y, x]:
                 grid[Position(y, x)] = Hidden()
 
-    agent = Agent(None, None, state.agent.obj)
+    agent = Agent(Position(-1, -1), Orientation.N, state.agent.obj)
     return Observation(grid, agent)
 
 
@@ -150,5 +150,5 @@ def stochastic_raytracing_observation(state: State) -> Observation:
             if random.random() > probs[y, x]:
                 grid[Position(y, x)] = Hidden()
 
-    agent = Agent(None, None, state.agent.obj)
+    agent = Agent(Position(-1, -1), Orientation.N, state.agent.obj)
     return Observation(grid, agent)

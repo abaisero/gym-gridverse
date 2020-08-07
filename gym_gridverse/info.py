@@ -163,11 +163,10 @@ class Grid:
 
 class Agent:
     # TODO: implement `as_array()`
-    # TODO temporary None on position and orientation
     def __init__(
         self,
-        position: Optional[Position],
-        orientation: Optional[Orientation],  # TODO temporary
+        position: Position,
+        orientation: Orientation,
         obj: Optional[GridObject] = None,
     ):
         if obj is None:
