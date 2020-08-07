@@ -105,7 +105,23 @@ class Position(_2D_Point):
 
 
 class DeltaPosition(_2D_Point):
-    pass
+    def rotate(self, orientation: Orientation) -> DeltaPosition:
+        if orientation is Orientation.N:
+            rotated_dpos = DeltaPosition(self.y, self.x)
+
+        elif orientation is Orientation.S:
+            rotated_dpos = DeltaPosition(-self.y, -self.x)
+
+        elif orientation is Orientation.E:
+            rotated_dpos = DeltaPosition(self.x, -self.y)
+
+        elif orientation is Orientation.W:
+            rotated_dpos = DeltaPosition(-self.x, self.y)
+
+        else:
+            assert False
+
+        return rotated_dpos
 
 
 class Orientation(enum.Enum):

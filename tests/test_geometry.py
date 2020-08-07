@@ -8,7 +8,6 @@ from gym_gridverse.geometry import (
     Position,
     get_manhattan_boundary,
 )
-from gym_gridverse.state import Grid
 
 
 class TestOrientation(unittest.TestCase):
@@ -161,4 +160,58 @@ class TestPosition(unittest.TestCase):
         self.assertEqual(
             Position.euclidean_distance(Position(0, 0), Position(3, 3)),
             math.sqrt(18.0),
+        )
+
+
+class TestDeltaPosition(unittest.TestCase):
+    def test_rotate_basis(self):
+        # y basis
+        self.assertEqual(
+            DeltaPosition(1, 0).rotate(Orientation.N), DeltaPosition(1, 0)
+        )
+
+        self.assertEqual(
+            DeltaPosition(1, 0).rotate(Orientation.S), DeltaPosition(-1, 0)
+        )
+
+        self.assertEqual(
+            DeltaPosition(1, 0).rotate(Orientation.E), DeltaPosition(0, -1)
+        )
+
+        self.assertEqual(
+            DeltaPosition(1, 0).rotate(Orientation.W), DeltaPosition(0, 1)
+        )
+
+        # x basis
+        self.assertEqual(
+            DeltaPosition(0, 1).rotate(Orientation.N), DeltaPosition(0, 1)
+        )
+
+        self.assertEqual(
+            DeltaPosition(0, 1).rotate(Orientation.S), DeltaPosition(0, -1)
+        )
+
+        self.assertEqual(
+            DeltaPosition(0, 1).rotate(Orientation.E), DeltaPosition(1, 0)
+        )
+
+        self.assertEqual(
+            DeltaPosition(0, 1).rotate(Orientation.W), DeltaPosition(-1, 0)
+        )
+
+    def test_rotate(self):
+        self.assertEqual(
+            DeltaPosition(1, 2).rotate(Orientation.N), DeltaPosition(1, 2)
+        )
+
+        self.assertEqual(
+            DeltaPosition(1, 2).rotate(Orientation.S), DeltaPosition(-1, -2)
+        )
+
+        self.assertEqual(
+            DeltaPosition(1, 2).rotate(Orientation.E), DeltaPosition(2, -1)
+        )
+
+        self.assertEqual(
+            DeltaPosition(1, 2).rotate(Orientation.W), DeltaPosition(-2, 1)
         )
