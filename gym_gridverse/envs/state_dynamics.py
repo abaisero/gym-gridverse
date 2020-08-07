@@ -2,24 +2,13 @@
 
 from typing import Callable
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.actions import (ROTATION_ACTIONS, TRANSLATION_ACTIONS,
+                                   Actions)
+from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import Position
 from gym_gridverse.grid_object import Floor, NoneGridObject
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
-
-TRANSLATION_ACTIONS = [
-    Actions.MOVE_FORWARD,
-    Actions.MOVE_BACKWARD,
-    Actions.MOVE_LEFT,
-    Actions.MOVE_RIGHT,
-]
-
-ROTATION_ACTIONS = [
-    Actions.TURN_LEFT,
-    Actions.TURN_RIGHT,
-]
-
 
 StateDynamics = Callable[[State, Actions], None]
 
@@ -41,16 +30,9 @@ def move_agent(agent: Agent, grid: Grid, action: Actions) -> None:
     if action not in TRANSLATION_ACTIONS:
         return
 
-    # Map directions to relative orientation
-    direction_to_relative_orientation = {
-        Actions.MOVE_FORWARD: agent.orientation,
-        Actions.MOVE_LEFT: agent.orientation.rotate_left(),
-        Actions.MOVE_RIGHT: agent.orientation.rotate_right(),
-        Actions.MOVE_BACKWARD: agent.orientation.rotate_right().rotate_right(),
-    }
-
-    delta = direction_to_relative_orientation[action].as_delta_position()
-    next_pos = Position.add(agent.position, delta)
+    next_pos = updated_agent_position_if_unobstructed(
+        agent.position, agent.orientation, action
+    )
 
     # exit if next position is not legal
     if next_pos not in grid or grid[next_pos].blocks:
