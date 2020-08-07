@@ -1,6 +1,6 @@
 import unittest
 
-from gym_gridverse.geometry import Area, Orientation, Position
+from gym_gridverse.geometry import Area, DeltaPosition, Orientation, Position
 from gym_gridverse.grid_object import Floor, Hidden, Wall
 from gym_gridverse.info import Agent, Grid
 
@@ -231,6 +231,72 @@ class TestAgent(unittest.TestCase):
 
         agent = Agent(Position(1, 2), Orientation.W)
         self.assertEqual(agent.get_pov_area(), Area((-2, 4), (-4, 2)))
+
+    def test_position_relative(self):
+        agent = Agent(Position(0, 0), Orientation.N)
+        self.assertEqual(
+            agent.position_relative(DeltaPosition(1, -1)), Position(1, -1)
+        )
+
+        agent = Agent(Position(0, 0), Orientation.S)
+        self.assertEqual(
+            agent.position_relative(DeltaPosition(1, -1)), Position(-1, 1)
+        )
+
+        agent = Agent(Position(0, 0), Orientation.E)
+        self.assertEqual(
+            agent.position_relative(DeltaPosition(1, -1)), Position(-1, -1)
+        )
+
+        agent = Agent(Position(0, 0), Orientation.W)
+        self.assertEqual(
+            agent.position_relative(DeltaPosition(1, -1)), Position(1, 1)
+        )
+
+        agent = Agent(Position(1, 2), Orientation.N)
+        self.assertEqual(
+            agent.position_relative(DeltaPosition(2, -2)), Position(3, 0)
+        )
+
+        agent = Agent(Position(1, 2), Orientation.S)
+        self.assertEqual(
+            agent.position_relative(DeltaPosition(2, -2)), Position(-1, 4)
+        )
+
+        agent = Agent(Position(1, 2), Orientation.E)
+        self.assertEqual(
+            agent.position_relative(DeltaPosition(2, -2)), Position(-1, 0)
+        )
+
+        agent = Agent(Position(1, 2), Orientation.W)
+        self.assertEqual(
+            agent.position_relative(DeltaPosition(2, -2)), Position(3, 4)
+        )
+
+    def test_position_in_front(self):
+        agent = Agent(Position(0, 0), Orientation.N)
+        self.assertEqual(agent.position_in_front(), Position(-1, 0))
+
+        agent = Agent(Position(0, 0), Orientation.S)
+        self.assertEqual(agent.position_in_front(), Position(1, 0))
+
+        agent = Agent(Position(0, 0), Orientation.E)
+        self.assertEqual(agent.position_in_front(), Position(0, 1))
+
+        agent = Agent(Position(0, 0), Orientation.W)
+        self.assertEqual(agent.position_in_front(), Position(0, -1))
+
+        agent = Agent(Position(1, 2), Orientation.N)
+        self.assertEqual(agent.position_in_front(), Position(0, 2))
+
+        agent = Agent(Position(1, 2), Orientation.S)
+        self.assertEqual(agent.position_in_front(), Position(2, 2))
+
+        agent = Agent(Position(1, 2), Orientation.E)
+        self.assertEqual(agent.position_in_front(), Position(1, 3))
+
+        agent = Agent(Position(1, 2), Orientation.W)
+        self.assertEqual(agent.position_in_front(), Position(1, 1))
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ from typing import Callable, Iterator, Optional, Sequence
 
 import numpy as np
 
-from .geometry import Area, Orientation, Position, Shape
+from .geometry import Area, DeltaPosition, Orientation, Position, Shape
 from .grid_object import Floor, GridObject, Hidden, NoneGridObject
 
 ObjectFactory = Callable[[], GridObject]
@@ -181,6 +181,15 @@ class Agent:
             )
 
         return NotImplemented
+
+    def position_relative(self, dpos: DeltaPosition) -> Position:
+        dpos_absolute = dpos.rotate(self.orientation)
+        return Position(
+            self.position.y + dpos_absolute.y, self.position.x + dpos_absolute.x
+        )
+
+    def position_in_front(self) -> Position:
+        return self.position_relative(Orientation.N.as_delta_position())
 
     def get_pov_area(self) -> Area:
         # TODO generalize to arbitrary rectangle centered at arbitrary position

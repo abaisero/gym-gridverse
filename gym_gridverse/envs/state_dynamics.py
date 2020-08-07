@@ -132,12 +132,7 @@ def actuate_mechanics(state: State, _: Actions) -> None:
         None:
     """
 
-    # TODO: use (and implement) API
-    obj_in_front_of_agent = state.grid[
-        Position.add(
-            state.agent.position, state.agent.orientation.as_delta_position()
-        )
-    ]
+    obj_in_front_of_agent = state.grid[state.agent.position_in_front()]
     obj_in_front_of_agent.actuate(state)
 
 
@@ -167,12 +162,7 @@ def pickup_mechanics(state: State, action: Actions) -> None:
     if action != Actions.PICK_N_DROP:
         return
 
-    # TODO: eventually use grid logic to find this
-    pos_in_front_agent = Position.add(
-        state.agent.position, state.agent.orientation.as_delta_position()
-    )
-
-    obj_in_front_of_agent = state.grid[pos_in_front_agent]
+    obj_in_front_of_agent = state.grid[state.agent.position_in_front()]
     obj_holding = state.agent.obj
 
     can_pickup = obj_in_front_of_agent.can_be_picked_up
@@ -181,7 +171,7 @@ def pickup_mechanics(state: State, action: Actions) -> None:
     if not can_pickup and not can_drop:
         return
 
-    state.grid[pos_in_front_agent] = (
+    state.grid[state.agent.position_in_front()] = (
         obj_holding
         if can_drop and not isinstance(obj_holding, NoneGridObject)
         else Floor()  # We know we are picking up if not dropping
