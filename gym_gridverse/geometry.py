@@ -50,6 +50,30 @@ class Area:
             and self.xmin <= position.x <= self.xmax
         )
 
+    def translate(self, position: Position) -> Area:
+        return Area(
+            (self.ymin + position.y, self.ymax + position.y),
+            (self.xmin + position.x, self.xmax + position.x),
+        )
+
+    def rotate(self, orientation: Orientation) -> Area:
+        if orientation is Orientation.N:
+            area = Area((self.ymin, self.ymax), (self.xmin, self.xmax))
+
+        elif orientation is Orientation.S:
+            area = Area((-self.ymin, -self.ymax), (-self.xmin, -self.xmax))
+
+        elif orientation is Orientation.E:
+            area = Area((self.xmin, self.xmax), (-self.ymax, -self.ymin))
+
+        elif orientation is Orientation.W:
+            area = Area((-self.xmax, -self.xmin), (self.ymin, self.ymax))
+
+        else:
+            assert False
+
+        return area
+
     def __hash__(self):
         return hash(((self.ymin, self.ymax), (self.xmin, self.xmax)))
 

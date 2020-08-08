@@ -73,6 +73,30 @@ class TestArea(unittest.TestCase):
         self.assertFalse(area.contains(Position(2, 2)))
         self.assertFalse(area.contains(Position(1, 3)))
 
+    def test_translate(self):
+        area = Area((0, 1), (0, 2))
+        self.assertEqual(area.translate(Position(1, -1)), Area((1, 2), (-1, 1)))
+        self.assertEqual(area.translate(Position(-1, 1)), Area((-1, 0), (1, 3)))
+
+        area = Area((-1, 1), (-2, 2))
+        self.assertEqual(area.translate(Position(1, -1)), Area((0, 2), (-3, 1)))
+        self.assertEqual(
+            area.translate(Position(-1, 1)), Area((-2, 0), (-1, 3))
+        )
+
+    def test_rotate(self):
+        area = Area((0, 1), (0, 2))
+        self.assertEqual(area.rotate(Orientation.N), Area((0, 1), (0, 2)))
+        self.assertEqual(area.rotate(Orientation.S), Area((-1, 0), (-2, 0)))
+        self.assertEqual(area.rotate(Orientation.E), Area((0, 2), (-1, 0)))
+        self.assertEqual(area.rotate(Orientation.W), Area((-2, 0), (0, 1)))
+
+        area = Area((-1, 1), (-2, 2))
+        self.assertEqual(area.rotate(Orientation.N), Area((-1, 1), (-2, 2)))
+        self.assertEqual(area.rotate(Orientation.S), Area((1, -1), (2, -2)))
+        self.assertEqual(area.rotate(Orientation.E), Area((-2, 2), (-1, 1)))
+        self.assertEqual(area.rotate(Orientation.W), Area((-2, 2), (-1, 1)))
+
     def test_eq(self):
         self.assertEqual(Area((0, 1), (0, 2)), Area((0, 1), (0, 2)))
         self.assertNotEqual(Area((0, 1), (0, 2)), Area((-1, 1), (-2, 2)))
