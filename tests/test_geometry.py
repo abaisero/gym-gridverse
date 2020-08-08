@@ -3,11 +3,81 @@ import random
 import unittest
 
 from gym_gridverse.geometry import (
+    Area,
     DeltaPosition,
     Orientation,
     Position,
     get_manhattan_boundary,
 )
+
+
+class TestArea(unittest.TestCase):
+    def test_height(self):
+        area = Area((0, 1), (0, 2))
+        self.assertEqual(area.height, 2)
+
+        area = Area((-1, 1), (-2, 2))
+        self.assertEqual(area.height, 3)
+
+    def test_width(self):
+        area = Area((0, 1), (0, 2))
+        self.assertEqual(area.width, 3)
+
+        area = Area((-1, 1), (-2, 2))
+        self.assertEqual(area.width, 5)
+
+    def test_top_left(self):
+        area = Area((0, 1), (0, 2))
+        self.assertEqual(area.top_left, Position(0, 0))
+
+        area = Area((-1, 1), (-2, 2))
+        self.assertEqual(area.top_left, Position(-1, -2))
+
+    def test_top_right(self):
+        area = Area((0, 1), (0, 2))
+        self.assertEqual(area.top_right, Position(0, 2))
+
+        area = Area((-1, 1), (-2, 2))
+        self.assertEqual(area.top_right, Position(-1, 2))
+
+    def test_bottom_left(self):
+        area = Area((0, 1), (0, 2))
+        self.assertEqual(area.bottom_left, Position(1, 0))
+
+        area = Area((-1, 1), (-2, 2))
+        self.assertEqual(area.bottom_left, Position(1, -2))
+
+    def test_bottom_right(self):
+        area = Area((0, 1), (0, 2))
+        self.assertEqual(area.bottom_right, Position(1, 2))
+
+        area = Area((-1, 1), (-2, 2))
+        self.assertEqual(area.bottom_right, Position(1, 2))
+
+    def test_contains(self):
+        area = Area((0, 1), (0, 2))
+        self.assertTrue(area.contains(Position(0, 0)))
+        self.assertFalse(area.contains(Position(-1, 0)))
+        self.assertFalse(area.contains(Position(0, -1)))
+
+        self.assertTrue(area.contains(Position(1, 2)))
+        self.assertFalse(area.contains(Position(2, 2)))
+        self.assertFalse(area.contains(Position(1, 3)))
+
+        area = Area((-1, 1), (-2, 2))
+        self.assertTrue(area.contains(Position(-1, -2)))
+        self.assertFalse(area.contains(Position(-2, -2)))
+        self.assertFalse(area.contains(Position(-1, -3)))
+
+        self.assertTrue(area.contains(Position(1, 2)))
+        self.assertFalse(area.contains(Position(2, 2)))
+        self.assertFalse(area.contains(Position(1, 3)))
+
+    def test_eq(self):
+        self.assertEqual(Area((0, 1), (0, 2)), Area((0, 1), (0, 2)))
+        self.assertNotEqual(Area((0, 1), (0, 2)), Area((-1, 1), (-2, 2)))
+        self.assertNotEqual(Area((-1, 1), (-2, 2)), Area((0, 1), (0, 2)))
+        self.assertEqual(Area((-1, 1), (-2, 2)), Area((-1, 1), (-2, 2)))
 
 
 class TestOrientation(unittest.TestCase):
@@ -215,3 +285,7 @@ class TestDeltaPosition(unittest.TestCase):
         self.assertEqual(
             DeltaPosition(1, 2).rotate(Orientation.W), DeltaPosition(-2, 1)
         )
+
+
+if __name__ == '__main__':
+    unittest.main()
