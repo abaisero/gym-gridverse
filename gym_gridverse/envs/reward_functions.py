@@ -1,10 +1,10 @@
 from typing import Callable, Sequence, Type
 
 import more_itertools as mitt
-
 from gym_gridverse.actions import Actions
+from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import DistanceFunction, Position
-from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle
+from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle, Wall
 from gym_gridverse.state import State
 
 RewardFunction = Callable[[State, Actions, State], float]
@@ -213,3 +213,28 @@ def getting_closer(
         if distance_next > distance_prev
         else 0.0
     )
+
+
+def bump_into_wall(
+    state: State, action: Actions, _: State, *, reward: float = -1.0,
+):
+    """Returns `reward` when bumping into wall, otherwise 0
+
+    Bumping is tested by seeing whether the intended move would end up with the
+    agent on a wall.
+
+    Args:
+        state (State):
+        action (Actions):
+        _ (State):
+        reward (float, optional): The reward to provide if bumping into wall
+    """
+
+    attempted_next_position = updated_agent_position_if_unobstructed(
+        state.agent.position, state.agent.orientation, action
+    )
+
+    if isinstance(state.grid[attempted_next_position], Wall):
+        return reward
+
+    return 0.0
