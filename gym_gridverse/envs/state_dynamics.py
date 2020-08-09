@@ -5,7 +5,6 @@ from typing import Callable
 from gym_gridverse.actions import (ROTATION_ACTIONS, TRANSLATION_ACTIONS,
                                    Actions)
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
-from gym_gridverse.geometry import Position
 from gym_gridverse.grid_object import Floor, NoneGridObject
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State

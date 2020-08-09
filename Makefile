@@ -1,4 +1,4 @@
-.PHONY: test mypy pylint
+.PHONY: test mypy pylint ctags
 
 test:
 	python -m unittest
@@ -8,3 +8,6 @@ mypy:
 
 pylint:
 	pylint gym_gridverse/ tests/
+
+ctags:
+	ctags -R .

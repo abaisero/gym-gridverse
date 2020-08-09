@@ -1,7 +1,8 @@
 from typing import Callable, Sequence, Type
 
 from gym_gridverse.actions import Actions
-from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle
+from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
+from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle, Wall
 from gym_gridverse.state import State
 
 TerminatingFunction = Callable[[State, Actions, State], bool]
@@ -104,3 +105,23 @@ def bump_moving_obstacle(
         bool: True if next_state agent is on a MovingObstacle
     """
     return overlap(state, action, next_state, object_type=MovingObstacle)
+
+
+def bump_into_wall(state: State, action: Actions, _: State,) -> bool:
+    """Terminating condition for Agent bumping into a wall
+
+    Tests whether the intended next agent position from state contains a Wall
+
+    Args:
+        state (`State`):
+        action (`Actions`):
+        next_state (`State`):
+
+    Returns:
+        bool: True if next_state agent attempted to move onto a wall cell
+    """
+    attempted_next_position = updated_agent_position_if_unobstructed(
+        state.agent.position, state.agent.orientation, action
+    )
+
+    return isinstance(state.grid[attempted_next_position], Wall)
