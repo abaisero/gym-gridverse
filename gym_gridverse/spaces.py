@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Iterable, List, Tuple, Type
 
 from gym_gridverse.actions import Actions
-from gym_gridverse.geometry import Orientation, Shape
+from gym_gridverse.geometry import Area, Orientation, Position, Shape
 from gym_gridverse.grid_object import Colors, GridObject, Hidden, NoneGridObject
 from gym_gridverse.observation import Observation
 from gym_gridverse.state import State
@@ -136,12 +136,29 @@ class ObservationSpace:
         object_types: List[Type[GridObject]],
         colors: List[Colors],
     ):
+        #
+        if grid_shape.width % 2 == 0:
+            raise ValueError('shape should have an odd width')
+
         self.grid_shape = grid_shape
         self.object_types = object_types
         self.colors = colors
 
         self._grid_object_types = set(object_types + [Hidden])
         self._agent_object_types = set(object_types + [NoneGridObject])
+
+        # TODO eventually let this substitute the `grid_shape` input altogether
+        # this area represents the observable area, with (0, 0) representing
+        # the agent's position, when the agent is pointing N
+        self.area = Area(
+            (-self.grid_shape.height + 1, 0),
+            (-(self.grid_shape.width // 2), self.grid_shape.width // 2),
+        )
+
+        # NOTE this position is relative to the top right coordinate of the area
+        self.agent_position = Position(
+            self.area.height - 1, self.area.width // 2
+        )
 
     def contains(self, observation: Observation) -> bool:
         """True if the observation satisfies the observation-space"""
@@ -151,8 +168,9 @@ class ObservationSpace:
             and observation.grid.object_types().issubset(
                 self._grid_object_types
             )
-            and observation.agent.position is None
-            and observation.agent.orientation is None
+            and 0 <= observation.agent.position.y < self.area.height
+            and 0 <= observation.agent.position.x < self.area.width
+            and observation.agent.orientation == Orientation.N
             and type(observation.agent.obj) in self._agent_object_types
         )
 

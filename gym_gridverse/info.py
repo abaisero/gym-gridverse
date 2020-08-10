@@ -56,6 +56,10 @@ class Grid:
     def shape(self) -> Shape:
         return Shape(self.height, self.width)
 
+    @property
+    def area(self) -> Area:
+        return Area((0, self.height - 1), (0, self.width - 1))
+
     def __contains__(self, position: Position) -> bool:
         """checks if position is in the grid"""
         return 0 <= position.y < self.height and 0 <= position.x < self.width
@@ -197,30 +201,12 @@ class Agent:
         """get the position in front of the agent"""
         return self.position_relative(Orientation.N.as_delta_position())
 
-    def get_pov_area(self) -> Area:
-        # TODO generalize to arbitrary rectangle centered at arbitrary position
-        # TODO make area_size an environment parameter
-        area_size = 7
+    def get_pov_area(self, relative_area: Area) -> Area:
+        """gets absolute area corresponding to given relative area
 
-        y0, x0 = self.position
-
-        if self.orientation is Orientation.N:
-            y0 -= area_size - 1
-            x0 -= area_size // 2
-
-        elif self.orientation is Orientation.S:
-            x0 -= area_size // 2
-
-        elif self.orientation is Orientation.E:
-            y0 -= area_size // 2
-
-        elif self.orientation is Orientation.W:
-            y0 -= area_size // 2
-            x0 -= area_size - 1
-
-        else:
-            assert False
-
-        y1 = y0 + area_size - 1
-        x1 = x0 + area_size - 1
-        return Area((y0, y1), (x0, x1))
+        The relative ares is relative to the agent's POV, with position (0, 0)
+        representing the agent's position.  The absolute area is the relative
+        ares translated and rotated such as to indicate the agent's POV in
+        absolute state coordinates.
+        """
+        return relative_area.rotate(self.orientation).translate(self.position)

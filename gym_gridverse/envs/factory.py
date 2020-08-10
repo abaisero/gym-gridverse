@@ -13,6 +13,7 @@ from gym_gridverse.envs import (
 )
 from gym_gridverse.envs.env import Environment
 from gym_gridverse.envs.gridworld import GridWorld
+from gym_gridverse.geometry import Shape
 from gym_gridverse.grid_object import Colors, Floor, Goal, MovingObstacle, Wall
 from gym_gridverse.spaces import (
     ActionSpace,
@@ -54,7 +55,10 @@ def create_env(
             f(s, a)
 
     # TODO make more general
-    observation = observation_functions.minigrid_observation
+    observation = partial(
+        observation_functions.minigrid_observation,
+        observation_space=domain_space.observation_space,
+    )
 
     # Rewards are additive
     def reward(s, a, next_s):
@@ -99,7 +103,8 @@ def plain_navigation_task(
     colors = [Colors.NONE]
 
     state_space = StateSpace(grid_shape, objects, colors)
-    observation_space = ObservationSpace(grid_shape, objects, colors)
+    observation_shape = Shape(7, 7)
+    observation_space = ObservationSpace(observation_shape, objects, colors)
 
     # NOTE: here we could limit our actions to original gym interface
     action_space = ActionSpace(list(Actions))

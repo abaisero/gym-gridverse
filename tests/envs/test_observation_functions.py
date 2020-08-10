@@ -1,9 +1,10 @@
 import unittest
 
 from gym_gridverse.envs.observation_functions import minigrid_observation
-from gym_gridverse.geometry import Orientation, Position
+from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid_object import Floor, Hidden, Wall
 from gym_gridverse.info import Agent, Grid
+from gym_gridverse.spaces import ObservationSpace
 from gym_gridverse.state import State
 
 
@@ -14,39 +15,51 @@ class Test_MinigridObservation(unittest.TestCase):
 
         agent = Agent(Position(7, 7), Orientation.N)
         state = State(grid, agent)
-        observation = minigrid_observation(state)
-        self.assertEqual(observation.agent.position, Position(-1, -1))
+        observation_space = ObservationSpace(Shape(6, 5), [], [])
+        observation = minigrid_observation(
+            state, observation_space=observation_space
+        )
+        self.assertEqual(observation.agent.position, Position(5, 2))
         self.assertEqual(observation.agent.orientation, Orientation.N)
         self.assertEqual(observation.agent.obj, state.agent.obj)
-        self.assertTupleEqual(observation.grid.shape, (7, 7))
-        self.assertIsInstance(observation.grid[Position(4, 1)], Wall)
+        self.assertTupleEqual(observation.grid.shape, (6, 5))
+        self.assertIsInstance(observation.grid[Position(3, 0)], Wall)
 
         agent = Agent(Position(3, 3), Orientation.S)
         state = State(grid, agent)
-        observation = minigrid_observation(state)
-        self.assertEqual(observation.agent.position, Position(-1, -1))
+        observation_space = ObservationSpace(Shape(6, 5), [], [])
+        observation = minigrid_observation(
+            state, observation_space=observation_space
+        )
+        self.assertEqual(observation.agent.position, Position(5, 2))
         self.assertEqual(observation.agent.orientation, Orientation.N)
         self.assertEqual(observation.agent.obj, state.agent.obj)
-        self.assertTupleEqual(observation.grid.shape, (7, 7))
-        self.assertIsInstance(observation.grid[Position(4, 1)], Wall)
+        self.assertTupleEqual(observation.grid.shape, (6, 5))
+        self.assertIsInstance(observation.grid[Position(3, 0)], Wall)
 
         agent = Agent(Position(7, 3), Orientation.E)
         state = State(grid, agent)
-        observation = minigrid_observation(state)
-        self.assertEqual(observation.agent.position, Position(-1, -1))
+        observation_space = ObservationSpace(Shape(6, 5), [], [])
+        observation = minigrid_observation(
+            state, observation_space=observation_space
+        )
+        self.assertEqual(observation.agent.position, Position(5, 2))
         self.assertEqual(observation.agent.orientation, Orientation.N)
         self.assertEqual(observation.agent.obj, state.agent.obj)
-        self.assertTupleEqual(observation.grid.shape, (7, 7))
-        self.assertIsInstance(observation.grid[Position(4, 1)], Wall)
+        self.assertTupleEqual(observation.grid.shape, (6, 5))
+        self.assertIsInstance(observation.grid[Position(3, 0)], Wall)
 
         agent = Agent(Position(3, 7), Orientation.W)
         state = State(grid, agent)
-        observation = minigrid_observation(state)
-        self.assertEqual(observation.agent.position, Position(-1, -1))
+        observation_space = ObservationSpace(Shape(6, 5), [], [])
+        observation = minigrid_observation(
+            state, observation_space=observation_space
+        )
+        self.assertEqual(observation.agent.position, Position(5, 2))
         self.assertEqual(observation.agent.orientation, Orientation.N)
         self.assertEqual(observation.agent.obj, state.agent.obj)
-        self.assertTupleEqual(observation.grid.shape, (7, 7))
-        self.assertIsInstance(observation.grid[Position(4, 1)], Wall)
+        self.assertTupleEqual(observation.grid.shape, (6, 5))
+        self.assertIsInstance(observation.grid[Position(3, 0)], Wall)
 
     def test_observation_partially_observable(self):
         grid = Grid.from_objects(
@@ -59,288 +72,72 @@ class Test_MinigridObservation(unittest.TestCase):
 
         agent = Agent(Position(2, 1), Orientation.N)
         state = State(grid, agent)
-        observation = minigrid_observation(state)
+        observation_space = ObservationSpace(Shape(6, 5), [], [])
+        observation = minigrid_observation(
+            state, observation_space=observation_space
+        )
         observation_grid_expected = Grid.from_objects(
             [
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Wall(),
-                    Wall(),
-                    Wall(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Floor(),
-                    Floor(),
-                    Floor(),
-                    Hidden(),
-                    Hidden(),
-                ],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Wall(), Wall(), Wall(), Hidden(),],
+                [Hidden(), Floor(), Floor(), Floor(), Hidden(),],
             ]
         )
         self.assertEqual(observation.grid, observation_grid_expected)
 
         agent = Agent(Position(0, 1), Orientation.S)
         state = State(grid, agent)
-        observation = minigrid_observation(state)
+        observation_space = ObservationSpace(Shape(6, 5), [], [])
+        observation = minigrid_observation(
+            state, observation_space=observation_space
+        )
         observation_grid_expected = Grid.from_objects(
             [
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Wall(),
-                    Wall(),
-                    Wall(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Floor(),
-                    Floor(),
-                    Floor(),
-                    Hidden(),
-                    Hidden(),
-                ],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Wall(), Wall(), Wall(), Hidden(),],
+                [Hidden(), Floor(), Floor(), Floor(), Hidden(),],
             ]
         )
         self.assertEqual(observation.grid, observation_grid_expected)
 
         agent = Agent(Position(2, 1), Orientation.E)
         state = State(grid, agent)
-        observation = minigrid_observation(state)
+        observation_space = ObservationSpace(Shape(6, 5), [], [])
+        observation = minigrid_observation(
+            state, observation_space=observation_space
+        )
         observation_grid_expected = Grid.from_objects(
             [
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Wall(),
-                    Floor(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Wall(),
-                    Floor(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Wall(), Floor(), Hidden(), Hidden(),],
+                [Hidden(), Wall(), Floor(), Hidden(), Hidden(),],
             ]
         )
         self.assertEqual(observation.grid, observation_grid_expected)
 
         agent = Agent(Position(2, 1), Orientation.W)
         state = State(grid, agent)
-        observation = minigrid_observation(state)
+        observation_space = ObservationSpace(Shape(6, 5), [], [])
+        observation = minigrid_observation(
+            state, observation_space=observation_space
+        )
         observation_grid_expected = Grid.from_objects(
             [
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Floor(),
-                    Wall(),
-                    Hidden(),
-                    Hidden(),
-                ],
-                [
-                    Hidden(),
-                    Hidden(),
-                    Hidden(),
-                    Floor(),
-                    Wall(),
-                    Hidden(),
-                    Hidden(),
-                ],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(),],
+                [Hidden(), Hidden(), Floor(), Wall(), Hidden(),],
+                [Hidden(), Hidden(), Floor(), Wall(), Hidden(),],
             ]
         )
         self.assertEqual(observation.grid, observation_grid_expected)

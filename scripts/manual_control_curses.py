@@ -75,8 +75,8 @@ def draw_object(
         pass
 
 
-def draw_state(window, state: State):
-    area = state.agent.get_pov_area()
+def draw_state(window, state: State, observation_space: ObservationSpace):
+    area = state.agent.get_pov_area(observation_space.area)
     for position in state.grid.positions():
         draw_object(
             window,
@@ -104,7 +104,11 @@ def draw_observation(window, observation: Observation):
     try:
         # TODO change to addch if we can get newer version of ncurses
         # https://bugs.python.org/issue37738?fbclid=IwAR1Zllzw6jEG4r-1bxxoM_md8X4SabMV3NMt1nK3AqeHbyGI1iRZqDrwO6k
-        window.addstr(6, 3, agent_orientation_char_mapping[Orientation.N])
+        window.addstr(
+            observation.agent.position.y,
+            observation.agent.position.x,
+            agent_orientation_char_mapping[Orientation.N],
+        )
     except curses.error:
         pass
 
@@ -132,8 +136,7 @@ def main(
         panel_height, panel_width, 1, 1
     )
 
-    env.reset()  # TODO normally I would get grid shape from state space
-    state_height, state_width = env.state.grid.shape
+    state_height, state_width = env.state_space.grid_shape
     state_window_outer = main_window.derwin(
         state_height + 2, state_width + 2, panel_height + 2, 0
     )
@@ -141,7 +144,7 @@ def main(
         state_height, state_width, 1, 1
     )
 
-    observation_height, observation_width = env.observation.grid.shape
+    observation_height, observation_width = env.observation_space.grid_shape
     observation_window_outer = main_window.derwin(
         observation_height + 2,
         observation_width + 2,
@@ -162,7 +165,9 @@ def main(
         screen_height - 2, screen_width - panel_width - 2 - 2, 1, 1,
     )
 
-    def update(viz_state: VizState,):  # pylint: disable=too-many-arguments
+    def update(
+        viz_state: VizState, observation_space: ObservationSpace
+    ):  # pylint: disable=too-many-arguments
         screen.clear()
         main_window.clear()
 
@@ -185,7 +190,7 @@ def main(
         state_window_outer.border()
         state_window_outer.addstr(0, 1, 'state')
         if not viz_state.hide_state:
-            draw_state(state_window_inner, viz_state.state)
+            draw_state(state_window_inner, viz_state.state, observation_space)
 
         # draw observation window
         observation_window_outer.border()
@@ -245,7 +250,7 @@ def main(
 
     viz_state = VizState.from_env(env, hide_state=False)
     while True:
-        update(viz_state)
+        update(viz_state, env.observation_space)
         key = screen.getch()
 
         try:
@@ -263,7 +268,7 @@ def main(
             viz_state.observation = env.functional_observation(viz_state.state)
 
             if done:
-                update(viz_state)
+                update(viz_state, env.observation_space)
                 screen.getch()
 
                 viz_state = VizState.from_env(
@@ -281,6 +286,12 @@ def main(
 
 
 if __name__ == "__main__":
+    domain_space = DomainSpace(
+        StateSpace(Shape(10, 10), [Floor, Wall, Goal], [Colors.NONE]),
+        ActionSpace(list(Actions)),
+        ObservationSpace(Shape(13, 7), [Floor, Wall, Goal], [Colors.NONE]),
+    )
+
     reset_function = partial(reset_fs.reset_minigrid_four_rooms, 10, 10)
 
     step_function = step_fs.update_agent
@@ -288,6 +299,9 @@ if __name__ == "__main__":
     # observation_function = observation_fs.minigrid_observation
     observation_function = observation_fs.raytracing_observation
     # observation_function = observation_fs.stochastic_raytracing_observation
+    observation_function = partial(
+        observation_function, observation_space=domain_space.observation_space,
+    )
 
     reward_function = partial(
         reward_fs.chain,
@@ -304,12 +318,6 @@ if __name__ == "__main__":
     )
 
     terminating_function = terminating_fs.reach_goal
-
-    domain_space = DomainSpace(
-        StateSpace(Shape(10, 10), [Floor, Wall, Goal], [Colors.NONE]),
-        ActionSpace(list(Actions)),
-        ObservationSpace(Shape(7, 7), [Floor, Wall, Goal], [Colors.NONE]),
-    )
 
     domain: Environment = GridWorld(
         domain_space,

@@ -1,9 +1,11 @@
 import unittest
 
 from gym_gridverse.actions import Actions
+from gym_gridverse.geometry import Area, Position, Shape
 from gym_gridverse.grid_object import Colors, Door, Floor, Goal
 from gym_gridverse.spaces import (
     ActionSpace,
+    ObservationSpace,
     _max_color_index,
     _max_object_status,
     _max_object_type,
@@ -67,3 +69,35 @@ class TestActionSpace(unittest.TestCase):
             ]
         )
         self.assertEqual(action_space.num_actions, 4)
+
+
+class TestObservationSpace(unittest.TestCase):
+    def test_area(self):
+        observation_space = ObservationSpace(Shape(2, 5), [], [])
+        self.assertEqual(observation_space.area, Area((-1, 0), (-2, 2)))
+
+        observation_space = ObservationSpace(Shape(3, 5), [], [])
+        self.assertEqual(observation_space.area, Area((-2, 0), (-2, 2)))
+
+        observation_space = ObservationSpace(Shape(2, 7), [], [])
+        self.assertEqual(observation_space.area, Area((-1, 0), (-3, 3)))
+
+        observation_space = ObservationSpace(Shape(3, 7), [], [])
+        self.assertEqual(observation_space.area, Area((-2, 0), (-3, 3)))
+
+    def test_agent_position(self):
+        observation_space = ObservationSpace(Shape(2, 5), [], [])
+        self.assertEqual(observation_space.agent_position, Position(1, 2))
+
+        observation_space = ObservationSpace(Shape(3, 5), [], [])
+        self.assertEqual(observation_space.agent_position, Position(2, 2))
+
+        observation_space = ObservationSpace(Shape(2, 7), [], [])
+        self.assertEqual(observation_space.agent_position, Position(1, 3))
+
+        observation_space = ObservationSpace(Shape(3, 7), [], [])
+        self.assertEqual(observation_space.agent_position, Position(2, 3))
+
+
+if __name__ == '__main__':
+    unittest.main()

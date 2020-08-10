@@ -67,6 +67,7 @@ class GridWorld(Environment):
     def functional_observation(self, state: State) -> Observation:
         observation = self._functional_observation(state)
         if not self.observation_space.contains(observation):
+            __import__("ipdb").set_trace()  # XXX BREAKPOINT
             raise ValueError('observation does not satisfy observation-space')
 
         return observation

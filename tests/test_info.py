@@ -222,29 +222,47 @@ class TestGrid(unittest.TestCase):
 
 class TestAgent(unittest.TestCase):
     def test_get_pov_area(self):
+        relative_area = Area((-6, 0), (-3, 3))
+
         agent = Agent(Position(0, 0), Orientation.N)
-        self.assertEqual(agent.get_pov_area(), Area((-6, 0), (-3, 3)))
+        self.assertEqual(
+            agent.get_pov_area(relative_area), Area((-6, 0), (-3, 3))
+        )
 
         agent = Agent(Position(0, 0), Orientation.S)
-        self.assertEqual(agent.get_pov_area(), Area((0, 6), (-3, 3)))
+        self.assertEqual(
+            agent.get_pov_area(relative_area), Area((0, 6), (-3, 3))
+        )
 
         agent = Agent(Position(0, 0), Orientation.E)
-        self.assertEqual(agent.get_pov_area(), Area((-3, 3), (0, 6)))
+        self.assertEqual(
+            agent.get_pov_area(relative_area), Area((-3, 3), (0, 6))
+        )
 
         agent = Agent(Position(0, 0), Orientation.W)
-        self.assertEqual(agent.get_pov_area(), Area((-3, 3), (-6, 0)))
+        self.assertEqual(
+            agent.get_pov_area(relative_area), Area((-3, 3), (-6, 0))
+        )
 
         agent = Agent(Position(1, 2), Orientation.N)
-        self.assertEqual(agent.get_pov_area(), Area((-5, 1), (-1, 5)))
+        self.assertEqual(
+            agent.get_pov_area(relative_area), Area((-5, 1), (-1, 5))
+        )
 
         agent = Agent(Position(1, 2), Orientation.S)
-        self.assertEqual(agent.get_pov_area(), Area((1, 7), (-1, 5)))
+        self.assertEqual(
+            agent.get_pov_area(relative_area), Area((1, 7), (-1, 5))
+        )
 
         agent = Agent(Position(1, 2), Orientation.E)
-        self.assertEqual(agent.get_pov_area(), Area((-2, 4), (2, 8)))
+        self.assertEqual(
+            agent.get_pov_area(relative_area), Area((-2, 4), (2, 8))
+        )
 
         agent = Agent(Position(1, 2), Orientation.W)
-        self.assertEqual(agent.get_pov_area(), Area((-2, 4), (-4, 2)))
+        self.assertEqual(
+            agent.get_pov_area(relative_area), Area((-2, 4), (-4, 2))
+        )
 
     def test_position_relative(self):
         agent = Agent(Position(0, 0), Orientation.N)
