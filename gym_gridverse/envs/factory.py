@@ -135,13 +135,13 @@ def dynamic_obstacle_minigrid(
     ]
     rewards: List[reward_functions.RewardFunction] = [
         reward_functions.reach_goal,
-        reward_functions.bump_moving_obstacle
-        # TODO: crashing into wall?
+        reward_functions.bump_moving_obstacle,
+        reward_functions.bump_into_wall,
     ]
     terminations: List[terminating_functions.TerminatingFunction] = [
         terminating_functions.reach_goal,
-        terminating_functions.bump_moving_obstacle
-        # TODO: crashing into wall?
+        terminating_functions.bump_moving_obstacle,
+        terminating_functions.bump_into_wall,
     ]
 
     grid_shape = reset_func().grid.shape  # XXX: we hate this
@@ -149,7 +149,8 @@ def dynamic_obstacle_minigrid(
     colors = [Colors.NONE]
 
     state_space = StateSpace(grid_shape, objects, colors)
-    observation_space = ObservationSpace(grid_shape, objects, colors)
+    # TODO: hard-coded observation shape
+    observation_space = ObservationSpace(Shape(7, 7), objects, colors)
 
     # NOTE: here we could limit our actions to original gym interface
     action_space = ActionSpace(list(Actions))

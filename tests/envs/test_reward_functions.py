@@ -1,14 +1,13 @@
 import unittest
 
-from gym_gridverse.envs.reward_functions import (
-    bump_moving_obstacle,
-    getting_closer,
-    living_reward,
-    proportional_to_distance,
-    reach_goal,
-)
+from gym_gridverse.actions import Actions
+from gym_gridverse.envs.reward_functions import (bump_into_wall,
+                                                 bump_moving_obstacle,
+                                                 getting_closer, living_reward,
+                                                 proportional_to_distance,
+                                                 reach_goal)
 from gym_gridverse.geometry import Orientation, Position
-from gym_gridverse.grid_object import Goal, MovingObstacle
+from gym_gridverse.grid_object import Goal, MovingObstacle, Wall
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
@@ -22,10 +21,19 @@ def make_5x5_goal_state() -> State:
 
 
 def make_goal_state(agent_on_goal: bool) -> State:
-    """makes a simple state with goal object and agent on or off the goal"""
+    """makes a simple state with a wall in front of the agent"""
     grid = Grid(2, 1)
     grid[Position(0, 0)] = Goal()
     agent_position = Position(0, 0) if agent_on_goal else Position(1, 0)
+    agent = Agent(agent_position, Orientation.N)
+    return State(grid, agent)
+
+
+def make_wall_state() -> State:
+    """makes a simple state with goal object and agent on or off the goal"""
+    grid = Grid(2, 1)
+    grid[Position(0, 0)] = Wall()
+    agent_position = Position(1, 0)
     agent = Agent(agent_position, Orientation.N)
     return State(grid, agent)
 
@@ -366,6 +374,35 @@ class TestGettingCloser(unittest.TestCase):
                 reward_further=-5.0,
             ),
             0.0,
+        )
+
+
+class TestBumpIntoWall(unittest.TestCase):
+    def test_not_bumping(self):
+        self.assertEqual(
+            bump_into_wall(make_wall_state(), Actions.MOVE_LEFT, None), 0.0
+        )
+
+        self.assertEqual(
+            bump_into_wall(make_wall_state(), Actions.PICK_N_DROP, None), 0.0
+        )
+
+    def test_bumping(self):
+
+        state = make_wall_state()
+        self.assertEqual(
+            bump_into_wall(state, Actions.MOVE_FORWARD, None), -1.0
+        )
+
+        state.agent.orientation = Orientation.E
+        self.assertEqual(bump_into_wall(state, Actions.MOVE_LEFT, None), -1.0)
+
+    def test_reward_value(self):
+        self.assertEqual(
+            bump_into_wall(
+                make_wall_state(), Actions.MOVE_FORWARD, None, reward=-4.78,
+            ),
+            -4.78,
         )
 
 

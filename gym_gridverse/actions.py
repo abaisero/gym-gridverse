@@ -12,3 +12,16 @@ class Actions(enum.Enum):
 
     ACTUATE = enum.auto()
     PICK_N_DROP = enum.auto()
+
+
+TRANSLATION_ACTIONS = [
+    Actions.MOVE_FORWARD,
+    Actions.MOVE_BACKWARD,
+    Actions.MOVE_LEFT,
+    Actions.MOVE_RIGHT,
+]
+
+ROTATION_ACTIONS = [
+    Actions.TURN_LEFT,
+    Actions.TURN_RIGHT,
+]
