@@ -1,6 +1,7 @@
 from typing import Callable, Sequence, Type
 
 import more_itertools as mitt
+
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import DistanceFunction, Position
@@ -216,7 +217,11 @@ def getting_closer(
 
 
 def bump_into_wall(
-    state: State, action: Actions, _: State, *, reward: float = -1.0,
+    state: State,
+    action: Actions,
+    next_state: State,  # pylint: disable=unused-argument
+    *,
+    reward: float = -1.0,
 ):
     """Returns `reward` when bumping into wall, otherwise 0
 
@@ -226,7 +231,7 @@ def bump_into_wall(
     Args:
         state (State):
         action (Actions):
-        _ (State):
+        next_state (State):
         reward (float, optional): The reward to provide if bumping into wall
     """
 

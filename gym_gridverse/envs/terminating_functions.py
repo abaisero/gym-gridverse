@@ -107,7 +107,11 @@ def bump_moving_obstacle(
     return overlap(state, action, next_state, object_type=MovingObstacle)
 
 
-def bump_into_wall(state: State, action: Actions, _: State,) -> bool:
+def bump_into_wall(
+    state: State,
+    action: Actions,
+    next_state: State,  # pylint: disable=unused-argument
+) -> bool:
     """Terminating condition for Agent bumping into a wall
 
     Tests whether the intended next agent position from state contains a Wall
