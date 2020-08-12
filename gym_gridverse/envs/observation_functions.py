@@ -19,11 +19,16 @@ VisibilityFunction = Callable[[Grid, Position], np.array]
 # TODO write documentation
 
 
-# TODO refactor into a component which does the cutting and turning, and
-# another component which does Hides stuff
+def full_visibility(state: State, *, observation_space: ObservationSpace):
+    area = state.agent.get_pov_area(observation_space.area)
+    observation_grid = state.grid.subgrid(area).change_orientation(
+        state.agent.orientation
+    )
 
-# TODO find better names for the area variables from the perspective of the
-# agent or from the absolute coordinates
+    observation_agent = Agent(
+        observation_space.agent_position, Orientation.N, state.agent.obj
+    )
+    return Observation(observation_grid, observation_agent)
 
 
 def from_visibility(
