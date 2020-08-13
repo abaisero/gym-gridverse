@@ -2,7 +2,8 @@ import random
 from typing import Callable
 
 from gym_gridverse.geometry import Orientation, Position
-from gym_gridverse.grid_object import Floor, Goal, MovingObstacle, Wall
+from gym_gridverse.grid_object import (Colors, Door, Floor, Goal, Key,
+                                       MovingObstacle, Wall)
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
@@ -133,5 +134,63 @@ def reset_minigrid_dynamic_obstacles(
     for obj_pos in random.sample(list(vacant_positions), num_obstacles):
         assert isinstance(state.grid[obj_pos], Floor)
         state.grid[obj_pos] = MovingObstacle()
+
+    return state
+
+
+def reset_minigrid_door_key(grid_size: int) -> State:
+    """Returns a state similar to the gym minigrid 'door & key' environment
+
+    Creates a grid_size x grid_size (including wall) grid with a random column
+    of walls. The agent and a yellow key are randomly dropped left of the
+    column, while the goal is placed in the bottom right. For example:
+
+    #########
+    # @#    #
+    #  D    #
+    #K #   G#
+    #########
+
+    TODO: test
+
+    Args:
+        grid_size (`int`): assumes rectangular grid
+
+    Returns:
+        State:
+    """
+    if grid_size < 5:
+        raise ValueError(
+            f"Minigrid door-key environment minimum size is 5, given {grid_size}"
+        )
+
+    state = reset_minigrid_empty(grid_size, grid_size)
+    assert isinstance(state.grid[Position(grid_size - 2, grid_size - 2)], Goal)
+
+    # Generate vertical splitting wall
+    wall_column = random.randint(2, grid_size - 3)
+    # TODO: potential general function
+    for h in range(0, grid_size):
+        state.grid[Position(h, wall_column)] = Wall()
+
+    # Place yellow, locked door
+    door_row = random.randint(2, grid_size - 2)
+    state.grid[Position(door_row, wall_column)] = Door(
+        Door.Status.LOCKED, Colors.YELLOW
+    )
+
+    # Place yellow key left of wall
+    # TODO: potential general function
+    key_pos = Position(
+        random.randint(1, grid_size - 2), random.randint(1, wall_column - 1)
+    )
+    state.grid[key_pos] = Key(Colors.YELLOW)
+
+    # Place agent left of wall
+    # TODO: potential general function
+    state.agent.position = Position(
+        random.randint(1, grid_size - 2), random.randint(1, wall_column - 1)
+    )
+    state.agent.orientation = random.choice(list(Orientation))
 
     return state

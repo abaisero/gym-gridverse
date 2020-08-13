@@ -4,23 +4,16 @@ from functools import partial
 from typing import Callable, Dict, List
 
 from gym_gridverse.actions import Actions
-from gym_gridverse.envs import (
-    observation_functions,
-    reset_functions,
-    reward_functions,
-    state_dynamics,
-    terminating_functions,
-)
+from gym_gridverse.envs import (observation_functions, reset_functions,
+                                reward_functions, state_dynamics,
+                                terminating_functions)
 from gym_gridverse.envs.env import Environment
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import Shape
-from gym_gridverse.grid_object import Colors, Floor, Goal, MovingObstacle, Wall
-from gym_gridverse.spaces import (
-    ActionSpace,
-    DomainSpace,
-    ObservationSpace,
-    StateSpace,
-)
+from gym_gridverse.grid_object import (Colors, Door, Floor, Goal, Key,
+                                       MovingObstacle, Wall)
+from gym_gridverse.spaces import (ActionSpace, DomainSpace, ObservationSpace,
+                                  StateSpace)
 
 
 def create_env(
@@ -173,7 +166,7 @@ def gym_minigrid_empty(size: int, random_pos: bool) -> Environment:
     """
 
     # +2 size to accommodate the walls
-    reset: reset_functions.ResetFunction = partial(
+    reset = partial(
         reset_functions.reset_minigrid_empty, size + 2, size + 2, random_pos
     )
 
@@ -187,11 +180,47 @@ def gym_minigrid_four_room() -> Environment:
         Environment:
     """
 
-    reset: reset_functions.ResetFunction = partial(
-        reset_functions.reset_minigrid_four_rooms, 19, 19
-    )
+    reset = partial(reset_functions.reset_minigrid_four_rooms, 19, 19)
 
     return plain_navigation_task(reset)
+
+
+def gym_door_key_env(size: int) -> Environment:
+    """Creates the 'door key' gym environment
+
+    Args:
+        size (`int`): size of the (rectangular) grid
+
+    Returns:
+        Environment:
+    """
+
+    reset = partial(reset_functions.reset_minigrid_door_key, grid_size=size + 2)
+
+    transitions: List[state_dynamics.StateDynamics] = [
+        state_dynamics.update_agent,
+        state_dynamics.actuate_mechanics,
+        state_dynamics.pickup_mechanics,
+    ]
+    rewards: List[reward_functions.RewardFunction] = [
+        reward_functions.reach_goal
+    ]
+    terminations: List[terminating_functions.TerminatingFunction] = [
+        terminating_functions.reach_goal
+    ]
+
+    grid_shape = reset().grid.shape  # XXX: we hate this
+    objects = [Wall, Floor, Goal, Door, Key]
+    colors = [Colors.NONE, Colors.YELLOW]
+    observation_shape = Shape(7, 7)
+
+    state_space = StateSpace(grid_shape, objects, colors)
+    observation_space = ObservationSpace(observation_shape, objects, colors)
+    action_space = ActionSpace(list(Actions))
+
+    domain_space = DomainSpace(state_space, action_space, observation_space)
+
+    return create_env(domain_space, reset, transitions, rewards, terminations)
 
 
 STRING_TO_GYM_CONSTRUCTOR: Dict[str, Callable[[], Environment]] = {
@@ -235,6 +264,10 @@ STRING_TO_GYM_CONSTRUCTOR: Dict[str, Callable[[], Environment]] = {
     "MiniGrid-Dynamic-Obstacles-16x16-v0": partial(
         dynamic_obstacle_minigrid, size=16, random_pos=False, num_obstacles=8
     ),
+    "MiniGrid-DoorKey-5x5-v0": partial(gym_door_key_env, size=5),
+    "MiniGrid-DoorKey-6x6-v0": partial(gym_door_key_env, size=6),
+    "MiniGrid-DoorKey-8x8-v0": partial(gym_door_key_env, size=8),
+    "MiniGrid-DoorKey-16x16-v0": partial(gym_door_key_env, size=16),
 }
 
 

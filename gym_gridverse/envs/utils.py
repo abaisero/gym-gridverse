@@ -9,8 +9,6 @@ def updated_agent_position_if_unobstructed(
 
     NOTE: Assumes action is successful and next position is not blocking agent
 
-    TODO: test
-
     Args:
         agent_pos (`Position`): current agent position
         action (`Actions`): action taken by agent
