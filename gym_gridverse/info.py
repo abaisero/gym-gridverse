@@ -164,6 +164,14 @@ class Grid:
         objects = deepcopy(objects)
         return Grid.from_objects(objects)
 
+    def as_array(self) -> np.array:
+        return np.array(
+            [
+                [self[Position(y, x)].as_array() for x in range(self.width)]
+                for y in range(self.height)
+            ]
+        )
+
 
 class Agent:
     # TODO: implement `as_array()`
