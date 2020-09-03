@@ -88,7 +88,11 @@ class GridObject(metaclass=abc.ABCMeta):
         if not isinstance(other, GridObject):
             return NotImplemented
 
-        return (self.as_array() == other.as_array()).all()
+        return (
+            self.type_index == other
+            and self.state_index == other.state_index
+            and self.color == other.color
+        )
 
 
 class NoneGridObject(GridObject):
