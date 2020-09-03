@@ -2,7 +2,16 @@ from __future__ import annotations
 
 import itertools as itt
 from copy import deepcopy
-from typing import Callable, Iterator, Optional, Sequence, Set, Type
+from typing import (
+    Callable,
+    Iterator,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Type,
+    Union,
+)
 
 import numpy as np
 
@@ -85,10 +94,14 @@ class Grid:
         """returns object types currently in the grid"""
         return set(type(self[position]) for position in self.positions())
 
-    def __getitem__(self, position: Position) -> GridObject:
+    def __getitem__(
+        self, position: Union[Position, Tuple[int, int]]
+    ) -> GridObject:
         return self._grid[position]
 
-    def __setitem__(self, position: Position, obj: GridObject):
+    def __setitem__(
+        self, position: Union[Position, Tuple[int, int]], obj: GridObject
+    ):
         if not isinstance(obj, GridObject):
             TypeError('grid can only contain entities')
         self._grid[position] = obj
