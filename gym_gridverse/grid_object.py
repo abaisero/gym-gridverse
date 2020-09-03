@@ -89,7 +89,7 @@ class GridObject(metaclass=abc.ABCMeta):
             return NotImplemented
 
         return (
-            self.type_index == other
+            self.type_index == other.type_index
             and self.state_index == other.state_index
             and self.color == other.color
         )
