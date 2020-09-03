@@ -29,7 +29,7 @@ class DefaultObservationRepresentation(Representation):
             for object_type in self.observation_space.object_types
         )
         max_color_value = max(
-            color.value for color in self.observation_space.colos
+            color.value for color in self.observation_space.colors
         )
 
         grid_array = np.array(
@@ -38,7 +38,7 @@ class DefaultObservationRepresentation(Representation):
                     [max_type_index, max_state_index, max_color_value]
                     for x in range(self.observation_space.grid_shape.width)
                 ]
-                for y in range(self.observation_space.grid_space.height)
+                for y in range(self.observation_space.grid_shape.height)
             ]
         )
         agent_array = np.array(
@@ -69,7 +69,7 @@ class DefaultObservationRepresentation(Representation):
                     ]
                     for x in range(self.observation_space.grid_shape.width)
                 ]
-                for y in range(self.observation_space.grid_space.height)
+                for y in range(self.observation_space.grid_shape.height)
             ]
         )
         none_grid_object = NoneGridObject()
@@ -83,13 +83,13 @@ class DefaultObservationRepresentation(Representation):
                     ]
                     for x in range(self.observation_space.grid_shape.width)
                 ]
-                for y in range(self.observation_space.grid_space.height)
+                for y in range(self.observation_space.grid_shape.height)
             ]
         )
         grid_array_agent_channels[observation.agent.position] = agent_obj_array
 
         grid_array = np.concatenate(
-            (grid_array_agent_channels, grid_array_object_channels), axis=0
+            (grid_array_agent_channels, grid_array_object_channels), axis=-1
         )
         return {'grid': grid_array, 'agent': agent_obj_array}
 

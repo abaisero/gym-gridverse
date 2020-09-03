@@ -10,4 +10,4 @@ pylint:
 	pylint gym_gridverse/ tests/
 
 ctags:
-	ctags -R .
+	ctags -R gym_gridverse test
