@@ -19,3 +19,5 @@ class Representation(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def convert(self, x) -> Dict[str, np.ndarray]:
         """represents x"""
+
+# TODO: make object representation too?

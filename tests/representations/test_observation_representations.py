@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 from gym_gridverse.geometry import Orientation, Position, Shape
-from gym_gridverse.grid_object import Colors, Door, Floor, Key
+from gym_gridverse.grid_object import Colors, Door, Floor, Key, NoneGridObject
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.observation import Observation
 from gym_gridverse.representations.observation_representations import \
@@ -12,6 +12,7 @@ from gym_gridverse.spaces import ObservationSpace
 
 class TestDefaultObservationRepresentation(unittest.TestCase):
     def setUp(self):
+        """Creates an observation representation of 3 by 3"""
         objects = [Floor, Key, Door]
         colors = [Colors.NONE, Colors.RED, Colors.BLUE]
         self.obs_space = ObservationSpace(Shape(3, 3), objects, colors)
@@ -36,13 +37,29 @@ class TestDefaultObservationRepresentation(unittest.TestCase):
         np.testing.assert_array_equal(space['agent'], max_channel_values)
 
     def test_convert(self):
-        agent = Agent(Position(0, 0), Orientation.N, Key(Colors.RED))
+        agent = Agent(Position(0, 2), Orientation.E, Key(Colors.RED))
         grid = Grid(*self.obs_space.grid_shape)
         grid[1, 1] = Door(Door.Status.CLOSED, Colors.BLUE)
 
         observation = Observation(grid, agent)
 
         floor_index = Floor.type_index  # pylint: disable=no-member
+
+        expected_agent_observation = np.array(
+            [
+                agent.obj.type_index,
+                agent.obj.state_index,
+                agent.obj.color.value,
+            ]
+        )
+
+        expected_agent_position_channels = np.ones((3, 3, 3))
+        expected_agent_position_channels[:, :, 0] = NoneGridObject.type_index
+        expected_agent_position_channels[:, :, 1] = 0  # status
+        expected_agent_position_channels[:, :, 2] = Colors.NONE.value
+
+        expected_agent_position_channels[0, 2] = expected_agent_observation
+
         expected_grid_observation = np.array(
             [
                 [
@@ -67,15 +84,10 @@ class TestDefaultObservationRepresentation(unittest.TestCase):
             ]
         )
 
-        expected_agent_observation = np.array(
-            [
-                agent.obj.type_index,
-                agent.obj.state_index,
-                agent.obj.color.value,
-            ]
-        )
-
         obs = self.obs_rep.convert(observation)
+        np.testing.assert_array_equal(
+            obs['grid'][:, :, :3], expected_agent_position_channels
+        )
         np.testing.assert_array_equal(
             obs['grid'][:, :, 3:], expected_grid_observation
         )
