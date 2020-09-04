@@ -169,7 +169,7 @@ def reset_minigrid_door_key(grid_size: int) -> State:
 
     # Generate vertical splitting wall
     wall_column = random.randint(2, grid_size - 3)
-    # TODO: potential general function
+    # XXX: potential general function
     for h in range(0, grid_size):
         state.grid[Position(h, wall_column)] = Wall()
 
@@ -180,14 +180,14 @@ def reset_minigrid_door_key(grid_size: int) -> State:
     )
 
     # Place yellow key left of wall
-    # TODO: potential general function
+    # XXX: potential general function
     key_pos = Position(
         random.randint(1, grid_size - 2), random.randint(1, wall_column - 1)
     )
     state.grid[key_pos] = Key(Colors.YELLOW)
 
     # Place agent left of wall
-    # TODO: potential general function
+    # XXX: potential general function
     state.agent.position = Position(
         random.randint(1, grid_size - 2), random.randint(1, wall_column - 1)
     )

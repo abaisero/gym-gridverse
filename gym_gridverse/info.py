@@ -2,16 +2,8 @@ from __future__ import annotations
 
 import itertools as itt
 from copy import deepcopy
-from typing import (
-    Callable,
-    Iterator,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import (Callable, Iterator, Optional, Sequence, Set, Tuple, Type,
+                    Union)
 
 import numpy as np
 
@@ -22,7 +14,6 @@ ObjectFactory = Callable[[], GridObject]
 
 
 class Grid:
-    # TODO: implement `as_array()`
     def __init__(self, height: int, width: int):
         self.height = height
         self.width = width
@@ -177,17 +168,8 @@ class Grid:
         objects = deepcopy(objects)
         return Grid.from_objects(objects)
 
-    def as_array(self) -> np.array:
-        return np.array(
-            [
-                [self[Position(y, x)].as_array() for x in range(self.width)]
-                for y in range(self.height)
-            ]
-        )
-
 
 class Agent:
-    # TODO: implement `as_array()`
     def __init__(
         self,
         position: Position,

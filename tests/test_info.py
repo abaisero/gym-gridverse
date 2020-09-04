@@ -1,7 +1,6 @@
 import unittest
 
 import numpy as np
-
 from gym_gridverse.geometry import Area, DeltaPosition, Orientation, Position
 from gym_gridverse.grid_object import Floor, Goal, Hidden, Wall
 from gym_gridverse.info import Agent, Grid
@@ -220,60 +219,6 @@ class TestGrid(unittest.TestCase):
             ]
         )
         self.assertEqual(grid_W, grid_W_expected)
-
-    def test_as_array(self):
-        # checkerboard pattern
-        grid = Grid.from_objects(
-            [
-                [Wall(), Floor(), Wall(), Floor()],
-                [Floor(), Wall(), Floor(), Wall()],
-                [Wall(), Floor(), Wall(), Floor()],
-            ]
-        )
-        array = grid.as_array()
-        self.assertTupleEqual(array.shape, (3, 4, 3))
-        np.testing.assert_array_equal(array[0, 0], array[0, 2])
-        np.testing.assert_array_equal(array[0, 0], array[1, 1])
-        np.testing.assert_array_equal(array[0, 0], array[1, 3])
-        np.testing.assert_array_equal(array[0, 0], array[2, 0])
-        np.testing.assert_array_equal(array[0, 0], array[2, 2])
-
-        self.assertRaises(
-            AssertionError,
-            np.testing.assert_array_equal,
-            array[0, 0],
-            array[0, 1],
-        )
-        self.assertRaises(
-            AssertionError,
-            np.testing.assert_array_equal,
-            array[0, 0],
-            array[0, 3],
-        )
-        self.assertRaises(
-            AssertionError,
-            np.testing.assert_array_equal,
-            array[0, 0],
-            array[1, 0],
-        )
-        self.assertRaises(
-            AssertionError,
-            np.testing.assert_array_equal,
-            array[0, 0],
-            array[1, 2],
-        )
-        self.assertRaises(
-            AssertionError,
-            np.testing.assert_array_equal,
-            array[0, 0],
-            array[2, 1],
-        )
-        self.assertRaises(
-            AssertionError,
-            np.testing.assert_array_equal,
-            array[0, 0],
-            array[2, 3],
-        )
 
 
 class TestAgent(unittest.TestCase):

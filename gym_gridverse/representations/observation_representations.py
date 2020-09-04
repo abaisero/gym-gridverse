@@ -115,7 +115,7 @@ class CompactObservationRepresentation(Representation):
 def create_observation_representation() -> Representation:
     """Factory function for observation representations
 
-    TODO: nyi, current returns `ObservationToArray`
+    TODO: nyi, current returns `DefaultObservationRepresentation`
 
     Returns:
         Representation: [TODO:description]
