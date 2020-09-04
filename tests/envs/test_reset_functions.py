@@ -2,8 +2,8 @@ import random
 import unittest
 
 import gym_gridverse.envs.reset_functions as reset_funcs
-from gym_gridverse.geometry import Position
-from gym_gridverse.grid_object import Door, Goal, Key, Wall
+from gym_gridverse.geometry import Position, Shape
+from gym_gridverse.grid_object import Door, Goal, Key, MovingObstacle, Wall
 
 
 class TestGymDoorKey(unittest.TestCase):
@@ -86,3 +86,28 @@ class TestGymDoorKey(unittest.TestCase):
             Goal,
             "There should be a goal left bottom",
         )
+
+
+class TestDynamicObstacles(unittest.TestCase):
+    def setUp(self):
+        self.n = random.randint(1, 3)
+        self.w = random.randint(4, 10)
+        self.h = random.randint(4, 10)
+        self.s = reset_funcs.reset_minigrid_dynamic_obstacles(
+            self.h, self.w, self.n
+        )
+
+    def test_grid_size(self):
+        self.assertEqual(self.s.grid.shape, Shape(self.h, self.w))
+
+    def test_number_obstacles(self):
+        count = len(
+            list(
+                filter(
+                    lambda pos: isinstance(self.s.grid[pos], MovingObstacle),
+                    self.s.grid.positions(),
+                )
+            )
+        )
+
+        self.assertEqual(count, self.n)

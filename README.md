@@ -4,13 +4,16 @@ Collection and library for grid-like domains.
 
 # To do
 
-- [ ] rename 'envs' to 'internal'
-- [ ] rename 'envs/env.py' to 'inner_env.py'
-- Array representation state and grid
-- unittest (somehow) vis/manual control scripts
-- More checks on whether generated elements are in space
-- Increase supported (Minigrid) domains
+- API usage: how to use our library
+- random (?) bot that uses our library
+- increase supported (Minigrid) domains
 - Add GUI Visualization
+
+## implementation details
+
+- rename 'envs' to 'internal'
+- rename 'envs/env.py' to 'inner_env.py'
+- unittest vis/manual control scripts
 - Adapter for gym-usage
     - Have a bot walk around using gym interface
 - Method to create more compact representation

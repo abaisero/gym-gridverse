@@ -111,13 +111,11 @@ def reset_minigrid_dynamic_obstacles(
 ) -> State:
     """Returns an initial state as seen in 'Minigrid-dynamic-obstacle' environment
 
-    TODO: test
-
     Args:
-        height (`int`):
-        width (`int`):
-        num_obstacles (`int`):
-        random_agent (`bool, optional`):
+        height (`int`): height of grid
+        width (`int`): width of grid
+        num_obstacles (`int`): number of dynamic obstacles
+        random_agent (`bool, optional`): position of agent, in corner if False
 
     Returns:
         State:
@@ -150,8 +148,6 @@ def reset_minigrid_door_key(grid_size: int) -> State:
     #  D    #
     #K #   G#
     #########
-
-    TODO: test
 
     Args:
         grid_size (`int`): assumes rectangular grid
