@@ -40,7 +40,7 @@ def manually_control(domain: Environment):
 
         state = domain.state
         obs = domain.observation
-        # import ipdb; ipdb.set_trace()
+
         print(
             f"Reward {r}, "
             f"next state:\n{str_render_state(state)}\n"
