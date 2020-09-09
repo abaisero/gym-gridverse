@@ -18,6 +18,10 @@ class OuterEnv:
         self.state_rep = state_rep
         self.obs_rep = obs_rep
 
+        # XXX: rename obs_rep -> observation_repr
+        # XXX: rename state_rep -> state_repr
+        # XXX: rename Env -> Environment
+
     @property
     def action_space(self):
         return self.env.action_space
