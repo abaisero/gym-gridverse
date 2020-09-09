@@ -98,6 +98,8 @@ class CompactObservationRepresentation(ObservationRepresentation):
 
     Will jump over unused indices to allow for smaller spaces
 
+    TODO: implement
+
     """
 
     def __init__(self):
