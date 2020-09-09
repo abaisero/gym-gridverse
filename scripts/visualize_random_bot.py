@@ -5,12 +5,16 @@ import random
 from typing import Dict
 
 import numpy as np
+
 from gym_gridverse.actions import Actions
-from gym_gridverse.envs.factory import (STRING_TO_GYM_CONSTRUCTOR,
-                                        gym_minigrid_from_descr)
+from gym_gridverse.envs.factory import (
+    STRING_TO_GYM_CONSTRUCTOR,
+    gym_minigrid_from_descr,
+)
 from gym_gridverse.outer_env import OuterEnv
-from gym_gridverse.representations.observation_representations import \
-    DefaultObservationRepresentation
+from gym_gridverse.representations.observation_representations import (
+    DefaultObservationRepresentation,
+)
 from gym_gridverse.spaces import ActionSpace
 from gym_gridverse.visualize import str_render_obs, str_render_state
 
