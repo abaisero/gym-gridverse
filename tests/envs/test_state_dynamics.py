@@ -5,19 +5,11 @@ import random
 import unittest
 
 from gym_gridverse.actions import Actions
-from gym_gridverse.envs.state_dynamics import (
-    move_agent,
-    pickup_mechanics,
-    rotate_agent,
-)
-from gym_gridverse.grid_object import (
-    Colors,
-    Door,
-    Floor,
-    Key,
-    NoneGridObject,
-    Wall,
-)
+from gym_gridverse.envs.reset_functions import reset_minigrid_dynamic_obstacles
+from gym_gridverse.envs.state_dynamics import (move_agent, pickup_mechanics,
+                                               rotate_agent, step_objects)
+from gym_gridverse.grid_object import (Colors, Door, Floor, Key,
+                                       MovingObstacle, NoneGridObject, Wall)
 from gym_gridverse.info import Agent, Grid, Orientation, Position
 from gym_gridverse.state import State
 
@@ -206,3 +198,39 @@ class TestPickupMechanics(unittest.TestCase):
         next_s = self.step_with_copy(s, self.a)
         self.assertEqual(s.grid[self.item_pos], next_s.agent.obj)
         self.assertEqual(s.agent.obj, next_s.grid[self.item_pos])
+
+
+class TestStepDynamics(unittest.TestCase):
+    def test_step_called_once(self):
+        """Tests step is called exactly once on all objects
+
+        There was this naive implementation that looped over all positions, and
+        called `.step()` on it. Unfortunately, when `step` caused the object to
+        _move_, then there was a possibility that the object moved to a later
+        position, hence being called twice. This test is here to make sure that
+        does not happen again.
+        """
+
+        def call_counter(func):
+            def helper(*args, **kwargs):
+                helper.count += 1
+                return func(*args, **kwargs)
+
+            helper.count = 0
+            return helper
+
+        w, h, n = 6, 6, 4
+        state = reset_minigrid_dynamic_obstacles(h, w, n)
+        action = Actions.PICK_N_DROP
+
+        # replace obstacles with those that count step
+        obstacles = []
+        for pos in state.grid.positions():
+            if isinstance(state.grid[pos], MovingObstacle):
+                state.grid[pos].step = call_counter(state.grid[pos].step)
+                obstacles.append(state.grid[pos])
+
+        step_objects(state, action)
+
+        for obs in obstacles:
+            self.assertEqual(obs.step.count, 1)

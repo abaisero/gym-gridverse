@@ -1,11 +1,11 @@
 """ Functions to model dynamics """
 
-from typing import Callable
+from typing import Callable, List
 
 from gym_gridverse.actions import (ROTATION_ACTIONS, TRANSLATION_ACTIONS,
                                    Actions)
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
-from gym_gridverse.grid_object import Floor, NoneGridObject
+from gym_gridverse.grid_object import Floor, GridObject, NoneGridObject
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
@@ -96,8 +96,15 @@ def step_objects(state: State, action: Actions) -> None:
     Returns:
         None:
     """
+
+    stepped_objects: List[GridObject] = []
+
     for pos in state.grid.positions():
-        state.grid[pos].step(state, action)
+        obj = state.grid[pos]
+
+        if not any([x is obj for x in stepped_objects]):
+            stepped_objects.append(obj)
+            obj.step(state, action)
 
 
 def actuate_mechanics(state: State, action: Actions) -> None:
