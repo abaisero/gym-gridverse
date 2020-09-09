@@ -2,7 +2,9 @@ from typing import Optional, Tuple
 
 from gym_gridverse.envs.env import Actions, Environment
 from gym_gridverse.representations.representation import (
-    ObservationRepresentation, StateRepresentation)
+    ObservationRepresentation,
+    StateRepresentation,
+)
 
 
 class OuterEnv:
@@ -27,9 +29,15 @@ class OuterEnv:
         return self.env.step(action)
 
     @property
-    def observation(self):
-        return self.obs_rep.convert(self.env.observation)
+    def state(self):
+        if self.state_rep is None:
+            raise RuntimeError('State representation not available')
+
+        return self.state_rep.convert(self.env.state)
 
     @property
-    def state(self):
-        return self.state_rep.convert(self.env.state)
+    def observation(self):
+        if self.obs_rep is None:
+            raise RuntimeError('Observation representation not available')
+
+        return self.obs_rep.convert(self.env.observation)
