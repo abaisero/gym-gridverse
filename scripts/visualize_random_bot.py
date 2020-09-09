@@ -24,6 +24,7 @@ def random_action_selection(
 
 def visualize_random_bot(domain: OuterEnv):
     domain.reset()
+
     while True:
 
         a = random_action_selection(domain.observation, domain.action_space)
@@ -35,6 +36,8 @@ def visualize_random_bot(domain: OuterEnv):
             print("Resetting environment")
             domain.reset()
 
+        # typically not used outside of library, inner representation used to
+        # visualize below
         internal_state = domain.env.state
         internal_obs = domain.env.observation
 

@@ -37,7 +37,7 @@ class TestDefaultObservationRepresentation(unittest.TestCase):
         np.testing.assert_array_equal(space['agent'], max_channel_values)
 
     def test_convert(self):
-        agent = Agent(Position(0, 2), Orientation.E, Key(Colors.RED))
+        agent = Agent(Position(0, 2), Orientation.N, Key(Colors.RED))
         grid = Grid(*self.obs_space.grid_shape)
         grid[1, 1] = Door(Door.Status.CLOSED, Colors.BLUE)
 
@@ -54,6 +54,7 @@ class TestDefaultObservationRepresentation(unittest.TestCase):
         )
 
         expected_agent_position_channels = np.ones((3, 3, 3))
+        # pylint: disable=no-member
         expected_agent_position_channels[:, :, 0] = NoneGridObject.type_index
         expected_agent_position_channels[:, :, 1] = 0  # status
         expected_agent_position_channels[:, :, 2] = Colors.NONE.value
@@ -85,6 +86,7 @@ class TestDefaultObservationRepresentation(unittest.TestCase):
         )
 
         obs = self.obs_rep.convert(observation)
+
         np.testing.assert_array_equal(
             obs['grid'][:, :, :3], expected_agent_position_channels
         )

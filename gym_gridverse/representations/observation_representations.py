@@ -20,17 +20,9 @@ class DefaultObservationRepresentation(ObservationRepresentation):
 
     @property
     def space(self) -> Dict[str, np.ndarray]:
-        max_type_index = max(
-            object_type.type_index
-            for object_type in self.observation_space.object_types
-        )
-        max_state_index = max(
-            object_type.num_states()
-            for object_type in self.observation_space.object_types
-        )
-        max_color_value = max(
-            color.value for color in self.observation_space.colors
-        )
+        max_type_index = self.observation_space.max_grid_object_type
+        max_state_index = self.observation_space.max_grid_object_status
+        max_color_value = self.observation_space.max_object_color
 
         grid_array = np.array(
             [
@@ -47,8 +39,8 @@ class DefaultObservationRepresentation(ObservationRepresentation):
         return {'grid': grid_array, 'agent': agent_array}
 
     def convert(self, o: Observation) -> Dict[str, np.ndarray]:
-
-        # TODO make sure input observation fits space?
+        if not self.observation_space.contains(o):
+            raise ValueError('Input observation not contained in space')
 
         agent_obj_array = np.array(
             [
