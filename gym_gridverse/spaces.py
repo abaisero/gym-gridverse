@@ -3,7 +3,8 @@ from typing import Iterable, List, Tuple, Type
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.geometry import Area, Orientation, Position, Shape
-from gym_gridverse.grid_object import Colors, GridObject, Hidden, NoneGridObject
+from gym_gridverse.grid_object import (Colors, GridObject, Hidden,
+                                       NoneGridObject)
 from gym_gridverse.observation import Observation
 from gym_gridverse.state import State
 
