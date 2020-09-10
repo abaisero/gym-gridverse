@@ -1,18 +1,25 @@
 from typing import Dict
 
 import numpy as np
-from gym_gridverse.grid_object import NoneGridObject
+
 from gym_gridverse.observation import Observation
-from gym_gridverse.representations.representation import \
-    ObservationRepresentation
+from gym_gridverse.representations.representation import (
+    ObservationRepresentation,
+    default_convert,
+    default_representation_space,
+    no_overlap_convert,
+    no_overlap_representation_space,
+)
 from gym_gridverse.spaces import ObservationSpace
 
 
 class DefaultObservationRepresentation(ObservationRepresentation):
     """The default representation for observations
 
-    Simply returns the observation as indices
-
+    Simply returns the observation as indices. See
+    `gym_gridverse.representations.representation.default_representation_space`
+    and `gym_gridverse.representations.representation.default_convert` for more
+    information
     """
 
     def __init__(self, observation_space: ObservationSpace):
@@ -24,65 +31,58 @@ class DefaultObservationRepresentation(ObservationRepresentation):
         max_state_index = self.observation_space.max_grid_object_status
         max_color_value = self.observation_space.max_object_color
 
-        grid_array = np.array(
-            [
-                [
-                    [max_type_index, max_state_index, max_color_value]
-                    for x in range(self.observation_space.grid_shape.width)
-                ]
-                for y in range(self.observation_space.grid_shape.height)
-            ]
+        return default_representation_space(
+            max_type_index,
+            max_state_index,
+            max_color_value,
+            self.observation_space.grid_shape.width,
+            self.observation_space.grid_shape.height,
         )
-        agent_array = np.array(
-            [max_type_index, max_state_index, max_color_value]
-        )
-        return {'grid': grid_array, 'agent': agent_array}
 
     def convert(self, o: Observation) -> Dict[str, np.ndarray]:
         if not self.observation_space.contains(o):
             raise ValueError('Input observation not contained in space')
 
-        agent_obj_array = np.array(
-            [
-                o.agent.obj.type_index,
-                o.agent.obj.state_index,
-                o.agent.obj.color.value,
-            ]
+        return default_convert(o.grid, o.agent)
+
+
+class NoOverlapObservationRepresentation(ObservationRepresentation):
+    """Representation that ensures that the numbers represent unique things
+
+    Simply returns the observation as indices, except that channels do not
+    overlap. See
+    `gym_gridverse.representations.representation.no_overlap_representation_space`
+    and `gym_gridverse.representations.representation.no_overlap_convert` for
+    more information
+    """
+
+    def __init__(self, observation_space: ObservationSpace):
+        self.observation_space = observation_space
+
+    @property
+    def space(self) -> Dict[str, np.ndarray]:
+        max_type_index = self.observation_space.max_grid_object_type
+        max_state_index = self.observation_space.max_grid_object_status
+        max_color_value = self.observation_space.max_object_color
+
+        return no_overlap_representation_space(
+            max_type_index,
+            max_state_index,
+            max_color_value,
+            self.observation_space.grid_shape.width,
+            self.observation_space.grid_shape.height,
         )
 
-        grid_array_object_channels = np.array(
-            [
-                [
-                    [
-                        o.grid[y, x].type_index,
-                        o.grid[y, x].state_index,
-                        o.grid[y, x].color.value,
-                    ]
-                    for x in range(self.observation_space.grid_shape.width)
-                ]
-                for y in range(self.observation_space.grid_shape.height)
-            ]
-        )
-        none_grid_object = NoneGridObject()
-        grid_array_agent_channels = np.array(
-            [
-                [
-                    [
-                        none_grid_object.type_index,  # pylint: disable=no-member
-                        none_grid_object.state_index,
-                        none_grid_object.color.value,
-                    ]
-                    for x in range(self.observation_space.grid_shape.width)
-                ]
-                for y in range(self.observation_space.grid_shape.height)
-            ]
-        )
-        grid_array_agent_channels[o.agent.position] = agent_obj_array
+    def convert(self, o: Observation) -> Dict[str, np.ndarray]:
+        if not self.observation_space.contains(o):
+            raise ValueError('Input observation not contained in space')
 
-        grid_array = np.concatenate(
-            (grid_array_agent_channels, grid_array_object_channels), axis=-1
+        max_type_index = self.observation_space.max_grid_object_type
+        max_state_index = self.observation_space.max_grid_object_status
+
+        return no_overlap_convert(
+            o.grid, o.agent, max_type_index, max_state_index
         )
-        return {'grid': grid_array, 'agent': agent_obj_array}
 
 
 class CompactObservationRepresentation(ObservationRepresentation):

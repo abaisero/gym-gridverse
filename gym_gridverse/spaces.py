@@ -137,7 +137,6 @@ class ObservationSpace:
         object_types: List[Type[GridObject]],
         colors: List[Colors],
     ):
-        #
         if grid_shape.width % 2 == 0:
             raise ValueError('shape should have an odd width')
 

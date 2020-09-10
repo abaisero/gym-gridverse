@@ -1,8 +1,15 @@
 from typing import Dict
 
 import numpy as np
+
 from gym_gridverse.grid_object import NoneGridObject
-from gym_gridverse.representations.representation import StateRepresentation
+from gym_gridverse.representations.representation import (
+    StateRepresentation,
+    default_convert,
+    default_representation_space,
+    no_overlap_convert,
+    no_overlap_representation_space,
+)
 from gym_gridverse.spaces import StateSpace
 from gym_gridverse.state import State
 
@@ -10,8 +17,10 @@ from gym_gridverse.state import State
 class DefaultStateRepresentation(StateRepresentation):
     """The default representation for state
 
-    Simply returns the state as indices
-
+    Simply returns the state as indices. See
+    `gym_gridverse.representations.representation.default_representation_space`
+    and `gym_gridverse.representations.representation.default_convert` for more
+    information
     """
 
     def __init__(self, state_space: StateSpace):
@@ -23,66 +32,58 @@ class DefaultStateRepresentation(StateRepresentation):
         max_state_index = self.state_space.max_grid_object_status
         max_color_value = self.state_space.max_object_color
 
-        grid_array = np.array(
-            [
-                [
-                    [max_type_index, max_state_index, max_color_value]
-                    for x in range(self.state_space.grid_shape.width)
-                ]
-                for y in range(self.state_space.grid_shape.height)
-            ]
+        return default_representation_space(
+            max_type_index,
+            max_state_index,
+            max_color_value,
+            self.state_space.grid_shape.width,
+            self.state_space.grid_shape.height,
         )
-        agent_array = np.array(
-            [max_type_index, max_state_index, max_color_value]
-        )
-        return {'grid': grid_array, 'agent': agent_array}
 
     def convert(self, s: State) -> Dict[str, np.ndarray]:
         if not self.state_space.contains(s):
-            import ipdb; ipdb.set_trace()
             raise ValueError('Input state not contained in space')
 
-        agent_obj_array = np.array(
-            [
-                s.agent.obj.type_index,
-                s.agent.obj.state_index,
-                s.agent.obj.color.value,
-            ]
+        return default_convert(s.grid, s.agent)
+
+
+class NoOverlapStateRepresentation(StateRepresentation):
+    """Representation that ensures that the numbers represent unique things
+
+    Simply returns the state as indices, except that channels do not
+    overlap. See
+    `gym_gridverse.representations.representation.no_overlap_representation_space`
+    and `gym_gridverse.representations.representation.no_overlap_convert` for
+    more information
+    """
+
+    def __init__(self, state_space: StateSpace):
+        self.state_space = state_space
+
+    @property
+    def space(self) -> Dict[str, np.ndarray]:
+        max_type_index = self.state_space.max_grid_object_type
+        max_state_index = self.state_space.max_grid_object_status
+        max_color_value = self.state_space.max_object_color
+
+        return no_overlap_representation_space(
+            max_type_index,
+            max_state_index,
+            max_color_value,
+            self.state_space.grid_shape.width,
+            self.state_space.grid_shape.height,
         )
 
-        grid_array_object_channels = np.array(
-            [
-                [
-                    [
-                        s.grid[y, x].type_index,
-                        s.grid[y, x].state_index,
-                        s.grid[y, x].color.value,
-                    ]
-                    for x in range(self.state_space.grid_shape.width)
-                ]
-                for y in range(self.state_space.grid_shape.height)
-            ]
-        )
-        none_grid_object = NoneGridObject()
-        grid_array_agent_channels = np.array(
-            [
-                [
-                    [
-                        none_grid_object.type_index,  # pylint: disable=no-member
-                        none_grid_object.state_index,
-                        none_grid_object.color.value,
-                    ]
-                    for x in range(self.state_space.grid_shape.width)
-                ]
-                for y in range(self.state_space.grid_shape.height)
-            ]
-        )
-        grid_array_agent_channels[s.agent.position] = agent_obj_array
+    def convert(self, s: State) -> Dict[str, np.ndarray]:
+        if not self.state_space.contains(s):
+            raise ValueError('Input state not contained in space')
 
-        grid_array = np.concatenate(
-            (grid_array_agent_channels, grid_array_object_channels), axis=-1
+        max_type_index = self.state_space.max_grid_object_type
+        max_state_index = self.state_space.max_grid_object_status
+
+        return no_overlap_convert(
+            s.grid, s.agent, max_type_index, max_state_index
         )
-        return {'grid': grid_array, 'agent': agent_obj_array}
 
 
 class CompactStateRepresentation(StateRepresentation):
