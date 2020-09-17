@@ -3,6 +3,7 @@ from typing import Dict
 
 import numpy as np
 
+from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid_object import GridObject, NoneGridObject
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.observation import Observation
@@ -62,7 +63,8 @@ def default_representation_space(
     `DefaultObservationRepresentation`, refactored here since DRY
 
     return['grid'] is a height x width x 5 shapes array of max values
-    return['agent'] is a 3-value feature array representing the held object
+    return['agent'] is a 6-value feature array representing the agent
+    pos/orientation and held object
 
     Args:
         max_type_index (int): highest value the type of the objects can take
@@ -82,7 +84,16 @@ def default_representation_space(
         [[[max_type_index, max_state_index, max_color_value] * 2] * width]
         * height
     )
-    agent_array = np.array([max_type_index, max_state_index, max_color_value])
+    agent_array = np.array(
+        [
+            height,
+            width,
+            len(Orientation),
+            max_type_index,
+            max_state_index,
+            max_color_value,
+        ]
+    )
     return {'grid': grid_array, 'agent': agent_array}
 
 
@@ -100,6 +111,9 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
     e.g. return['grid'][h,w,2] returns the color of object on grid position (h,w)
 
     Converts agent into a 3 feature value: [
+        agent y position,
+        agent x positoin,
+        agent orientation,
         item type index,
         item status index,
         item color index
@@ -153,7 +167,14 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
         (grid_array_agent_channels, grid_array_object_channels), axis=-1
     )
 
-    return {'grid': grid_array, 'agent': agent_obj_array}
+    agent_array = np.concatenate(
+        [
+            [agent.position.y, agent.position.x, agent.orientation.value],
+            agent_obj_array,
+        ],
+    )
+
+    return {'grid': grid_array, 'agent': agent_array}
 
 
 def no_overlap_representation_space(
@@ -203,6 +224,9 @@ def no_overlap_representation_space(
     rep['grid'][:, :, [1, 4]] += max_type_index
     rep['grid'][:, :, [2, 5]] += max_type_index + max_state_index
 
+    # default also returns position and orientation, which must be removed
+    rep['agent'] = rep['agent'][3:]
+
     rep['agent'][1] += max_type_index
     rep['agent'][2] += max_type_index + max_state_index
 
@@ -249,6 +273,9 @@ def no_overlap_convert(
     # increment channels to ensure there is no overlap
     rep['grid'][:, :, [1, 4]] += max_type_index
     rep['grid'][:, :, [2, 5]] += max_type_index + max_state_index
+
+    # default also returns position and orientation, which must be removed
+    rep['agent'] = rep['agent'][3:]
 
     rep['agent'][1] += max_type_index
     rep['agent'][2] += max_type_index + max_state_index

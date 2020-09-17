@@ -38,6 +38,13 @@ class TestDefaultRepresentation(unittest.TestCase):
             self.max_obj_state,
             self.max_color_value,
         ]
+        expected_agent_space = [
+            self.h,
+            self.w,
+            len(Orientation),
+            *max_channel_values,
+        ]
+
         expected_grid_space = np.array(
             [[max_channel_values * 2] * self.w] * self.h
         )
@@ -51,7 +58,7 @@ class TestDefaultRepresentation(unittest.TestCase):
         )
 
         np.testing.assert_array_equal(space['grid'], expected_grid_space)
-        np.testing.assert_array_equal(space['agent'], max_channel_values)
+        np.testing.assert_array_equal(space['agent'], expected_agent_space)
 
     def test_convert(self):
 
@@ -61,8 +68,11 @@ class TestDefaultRepresentation(unittest.TestCase):
 
         floor_index = Floor.type_index  # pylint: disable=no-member
 
-        expected_agent_observation = np.array(
+        expected_agent_representation = np.array(
             [
+                0,
+                2,
+                Orientation.N.value,
                 agent.obj.type_index,
                 agent.obj.state_index,
                 agent.obj.color.value,
@@ -75,9 +85,11 @@ class TestDefaultRepresentation(unittest.TestCase):
         expected_agent_position_channels[:, :, 1] = 0  # status
         expected_agent_position_channels[:, :, 2] = Colors.NONE.value
 
-        expected_agent_position_channels[0, 2] = expected_agent_observation
+        expected_agent_position_channels[0, 2] = expected_agent_representation[
+            3:
+        ]
 
-        expected_grid_observation = np.array(
+        expected_grid_representation = np.array(
             [
                 [
                     [floor_index, 0, 0],
@@ -107,9 +119,11 @@ class TestDefaultRepresentation(unittest.TestCase):
             rep['grid'][:, :, :3], expected_agent_position_channels
         )
         np.testing.assert_array_equal(
-            rep['grid'][:, :, 3:], expected_grid_observation
+            rep['grid'][:, :, 3:], expected_grid_representation
         )
-        np.testing.assert_array_equal(rep['agent'], expected_agent_observation)
+        np.testing.assert_array_equal(
+            rep['agent'], expected_agent_representation
+        )
 
 
 class TestNoOverlapRepresentation(unittest.TestCase):
@@ -229,3 +243,7 @@ class TestNoOverlapRepresentation(unittest.TestCase):
         np.testing.assert_array_equal(
             state_as_array['agent'], expected_agent_state
         )
+
+
+if __name__ == '__main__':
+    unittest.main()

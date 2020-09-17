@@ -20,6 +20,9 @@ class DefaultObservationRepresentation(ObservationRepresentation):
     `gym_gridverse.representations.representation.default_representation_space`
     and `gym_gridverse.representations.representation.default_convert` for more
     information
+
+    Note that the observation does not include the position or orientation of
+    the agent in the agent aspect
     """
 
     def __init__(self, observation_space: ObservationSpace):
@@ -31,7 +34,7 @@ class DefaultObservationRepresentation(ObservationRepresentation):
         max_state_index = self.observation_space.max_grid_object_status
         max_color_value = self.observation_space.max_object_color
 
-        return default_representation_space(
+        space = default_representation_space(
             max_type_index,
             max_state_index,
             max_color_value,
@@ -39,11 +42,23 @@ class DefaultObservationRepresentation(ObservationRepresentation):
             self.observation_space.grid_shape.height,
         )
 
+        # observaiton does not include the position and orientation returned by
+        # the default implementation
+        space['agent'] = space['agent'][3:]
+
+        return space
+
     def convert(self, o: Observation) -> Dict[str, np.ndarray]:
         if not self.observation_space.contains(o):
             raise ValueError('Input observation not contained in space')
 
-        return default_convert(o.grid, o.agent)
+        conversion = default_convert(o.grid, o.agent)
+
+        # observaiton does not include the position and orientation returned by
+        # the default implementation
+        conversion['agent'] = conversion['agent'][3:]
+
+        return conversion
 
 
 class NoOverlapObservationRepresentation(ObservationRepresentation):
