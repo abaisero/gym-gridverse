@@ -3,8 +3,6 @@ import unittest
 
 import gym
 
-import gym_gridverse  # pylint: disable=unused-import
-
 
 class TestGymEnvironment(unittest.TestCase):
     def test_registration(self):  # pylint: disable=no-self-use
@@ -19,9 +17,9 @@ class TestGymEnvironment(unittest.TestCase):
 
             (
                 observation,
-                reward,  #  pylint: disable=unused-variable
+                reward,  # pylint: disable=unused-variable
                 done,
-                info,  #  pylint: disable=unused-variable
+                info,  # pylint: disable=unused-variable
             ) = env.step(action)
 
             if done:
