@@ -31,7 +31,7 @@ def sample_transitions(
     action_sampler: Callable[[State], Actions],
     sim: Simulator,
 ) -> List[Transition]:
-    """samples transitions uniformly
+    """samples transitions according to `sim` using `state_sampler` and `action_sampler`
 
     Returns a list of `n` `Transition`, where the state-action pair is sampled
     from `state_sampler` and `action_sampler`, and the resulting transition
@@ -50,8 +50,12 @@ def sample_transitions(
         `List[Transition]`: list of `Transition` of size `n`
     """
     # this function assumes those representations are available
-    assert sim.state_rep
-    assert sim.obs_rep
+    assert (
+        sim.state_rep
+    ), "sampling transitions requires a state representation in the simulator"
+    assert (
+        sim.obs_rep
+    ), "sampling transitions requires an observation representation in the simulator"
 
     data: List[Transition] = []
 
