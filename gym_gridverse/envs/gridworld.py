@@ -51,7 +51,7 @@ class GridWorld(Environment):
             raise ValueError('state does not satisfy state-space')
 
         if not self.action_space.contains(action):
-            raise ValueError('action does not satisfy action-space')
+            raise ValueError(f'action {action} does not satisfy action-space')
 
         next_state = copy.deepcopy(state)
         self._functional_step(next_state, action)
