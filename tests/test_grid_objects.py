@@ -2,6 +2,7 @@
 import unittest
 
 import numpy as np
+
 from gym_gridverse.geometry import Position
 from gym_gridverse.grid_object import (
     Colors,
@@ -125,6 +126,7 @@ class TestHidden(unittest.TestCase):
 
         self.assertEqual(hidden.num_states(), 0)
 
+
 class TestFloor(unittest.TestCase):
     """ Basic stupid tests for floor grid object """
 
@@ -181,7 +183,6 @@ class TestWall(unittest.TestCase):
 
         self.assertEqual(wall.render_as_char(), '#')
         self.assertEqual(wall.num_states(), 0)
-
 
 
 class TestGoal(unittest.TestCase):
