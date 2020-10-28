@@ -12,13 +12,13 @@ class OuterEnv:
         self,
         env: Environment,
         state_rep: Optional[StateRepresentation] = None,
-        obs_rep: Optional[ObservationRepresentation] = None,
+        observation_rep: Optional[ObservationRepresentation] = None,
     ):
         self.env = env
         self.state_rep = state_rep
-        self.obs_rep = obs_rep
+        self.observation_rep = observation_rep
 
-        # XXX: rename obs_rep -> observation_repr
+        # XXX: rename observation_rep -> observation_repr
         # XXX: rename state_rep -> state_repr
         # XXX: rename Env -> Environment
 
@@ -41,7 +41,7 @@ class OuterEnv:
 
     @property
     def observation(self):
-        if self.obs_rep is None:
+        if self.observation_rep is None:
             raise RuntimeError('Observation representation not available')
 
-        return self.obs_rep.convert(self.env.observation)
+        return self.observation_rep.convert(self.env.observation)

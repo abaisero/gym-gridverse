@@ -10,7 +10,9 @@ from typing import Optional, Tuple
 from gym_gridverse.envs.env import Actions, Environment
 from gym_gridverse.observation import Observation
 from gym_gridverse.representations.representation import (
-    ObservationRepresentation, StateRepresentation)
+    ObservationRepresentation,
+    StateRepresentation,
+)
 from gym_gridverse.state import State
 
 
@@ -28,7 +30,7 @@ class Simulator:
         simulator.state_rep.convert(s),
         a,
         simulator.state_rep(s'),
-        simulator.obs_rep.convert(o),
+        simulator.observation_rep.convert(o),
         r,
         t
     )
@@ -42,7 +44,7 @@ class Simulator:
         self,
         env: Environment,
         state_rep: Optional[StateRepresentation] = None,
-        obs_rep: Optional[ObservationRepresentation] = None,
+        observation_rep: Optional[ObservationRepresentation] = None,
     ):
         """creates a simulator from environment and stores state & obs representation
 
@@ -53,7 +55,7 @@ class Simulator:
         """
         self.env = env
         self.state_rep = state_rep
-        self.obs_rep = obs_rep
+        self.observation_rep = observation_rep
 
     @property
     def action_space(self):
@@ -65,7 +67,7 @@ class Simulator:
         """simulates a transition in the environment
 
         In order to 'use' the states and observation one can use
-        `self.state_rep` and `self.obs_rep` to convert them into numpy data
+        `self.state_rep` and `self.observation_rep` to convert them into numpy data
         types
 
         """

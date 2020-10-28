@@ -41,8 +41,8 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
             self.env.action_space.num_actions
         )
         self.observation_space = (
-            outer_space_to_gym_space(self.env.obs_rep.space)
-            if self.env.obs_rep is not None
+            outer_space_to_gym_space(self.env.observation_rep.space)
+            if self.env.observation_rep is not None
             else None
         )
 
@@ -55,11 +55,11 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
 
     def set_observation_representation(self, name: str):
         """Change underlying observation representation"""
-        self.env.obs_rep = create_observation_representation(
+        self.env.observation_rep = create_observation_representation(
             name, self.env.env.observation_space
         )
         self.observation_space = outer_space_to_gym_space(
-            self.env.obs_rep.space
+            self.env.observation_rep.space
         )
 
     @classmethod
@@ -96,7 +96,9 @@ for key, constructor_ in factory.STRING_TO_GYM_CONSTRUCTOR.items():
         observation_repr = create_observation_representation(
             'default', env.observation_space
         )
-        return OuterEnv(env, state_rep=state_repr, obs_rep=observation_repr)
+        return OuterEnv(
+            env, state_rep=state_repr, observation_rep=observation_repr
+        )
 
     gym.register(
         f'GridVerse-{key}',

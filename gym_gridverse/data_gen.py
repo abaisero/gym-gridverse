@@ -38,7 +38,7 @@ def sample_transitions(
     according to `sim`. The states and observation is encoded as numpy arrays
     through the representation stored in `sim`.
 
-    Assumes: the `state_rep` and `obs_rep` in `sim` is set (not None)
+    Assumes: the `state_rep` and `observation_rep` in `sim` is set (not None)
 
     Args:
         n (`int`): number of sampled transitions
@@ -54,7 +54,7 @@ def sample_transitions(
         sim.state_rep
     ), "sampling transitions requires a state representation in the simulator"
     assert (
-        sim.obs_rep
+        sim.observation_rep
     ), "sampling transitions requires an observation representation in the simulator"
 
     data: List[Transition] = []
@@ -74,7 +74,7 @@ def sample_transitions(
                 sim.state_rep.convert(s),
                 a,
                 sim.state_rep.convert(next_s),
-                sim.obs_rep.convert(o),
+                sim.observation_rep.convert(o),
                 r,
                 t,
             )
