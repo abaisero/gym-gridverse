@@ -14,7 +14,7 @@ class OuterEnv:
         state_rep: Optional[StateRepresentation] = None,
         observation_rep: Optional[ObservationRepresentation] = None,
     ):
-        self.env = env
+        self.inner_env = env
         self.state_rep = state_rep
         self.observation_rep = observation_rep
 
@@ -24,24 +24,24 @@ class OuterEnv:
 
     @property
     def action_space(self):
-        return self.env.action_space
+        return self.inner_env.action_space
 
     def reset(self):
-        self.env.reset()
+        self.inner_env.reset()
 
     def step(self, action: Actions) -> Tuple[float, bool]:
-        return self.env.step(action)
+        return self.inner_env.step(action)
 
     @property
     def state(self):
         if self.state_rep is None:
             raise RuntimeError('State representation not available')
 
-        return self.state_rep.convert(self.env.state)
+        return self.state_rep.convert(self.inner_env.state)
 
     @property
     def observation(self):
         if self.observation_rep is None:
             raise RuntimeError('Observation representation not available')
 
-        return self.observation_rep.convert(self.env.observation)
+        return self.observation_rep.convert(self.inner_env.observation)

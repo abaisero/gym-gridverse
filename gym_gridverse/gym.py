@@ -30,36 +30,38 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
         self, constructor: Callable[[], OuterEnv],
     ):
         super().__init__()
-        self.env = constructor()
+        self.outer_env = constructor()
 
         self.state_space = (
-            outer_space_to_gym_space(self.env.state_rep.space)
-            if self.env.state_rep is not None
+            outer_space_to_gym_space(self.outer_env.state_rep.space)
+            if self.outer_env.state_rep is not None
             else None
         )
         self.action_space = gym.spaces.Discrete(
-            self.env.action_space.num_actions
+            self.outer_env.action_space.num_actions
         )
         self.observation_space = (
-            outer_space_to_gym_space(self.env.observation_rep.space)
-            if self.env.observation_rep is not None
+            outer_space_to_gym_space(self.outer_env.observation_rep.space)
+            if self.outer_env.observation_rep is not None
             else None
         )
 
     def set_state_representation(self, name: str):
         """Change underlying state representation"""
-        self.env.state_rep = create_state_representation(
-            name, self.env.env.state_space
+        self.outer_env.state_rep = create_state_representation(
+            name, self.outer_env.env.state_space
         )
-        self.state_space = outer_space_to_gym_space(self.env.state_rep.space)
+        self.state_space = outer_space_to_gym_space(
+            self.outer_env.state_rep.space
+        )
 
     def set_observation_representation(self, name: str):
         """Change underlying observation representation"""
-        self.env.observation_rep = create_observation_representation(
-            name, self.env.env.observation_space
+        self.outer_env.observation_rep = create_observation_representation(
+            name, self.outer_env.env.observation_space
         )
         self.observation_space = outer_space_to_gym_space(
-            self.env.observation_rep.space
+            self.outer_env.observation_rep.space
         )
 
     @classmethod
@@ -68,19 +70,19 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
 
     @property
     def state(self) -> Dict[str, np.array]:
-        return self.env.state
+        return self.outer_env.state
 
     @property
     def observation(self) -> Dict[str, np.array]:
-        return self.env.observation
+        return self.outer_env.observation
 
     def reset(self) -> Dict[str, np.array]:
-        self.env.reset()
+        self.outer_env.reset()
         return self.observation
 
     def step(self, action: int):
-        action_ = self.env.action_space.int_to_action(action)
-        reward, done = self.env.step(action_)
+        action_ = self.outer_env.action_space.int_to_action(action)
+        reward, done = self.outer_env.step(action_)
         return self.observation, reward, done, {}
 
     # TODO implement render method
