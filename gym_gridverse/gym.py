@@ -49,7 +49,7 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
     def set_state_representation(self, name: str):
         """Change underlying state representation"""
         self.outer_env.state_rep = create_state_representation(
-            name, self.outer_env.env.state_space
+            name, self.outer_env.inner_env.state_space
         )
         self.state_space = outer_space_to_gym_space(
             self.outer_env.state_rep.space
@@ -58,7 +58,7 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
     def set_observation_representation(self, name: str):
         """Change underlying observation representation"""
         self.outer_env.observation_rep = create_observation_representation(
-            name, self.outer_env.env.observation_space
+            name, self.outer_env.inner_env.observation_space
         )
         self.observation_space = outer_space_to_gym_space(
             self.outer_env.observation_rep.space
