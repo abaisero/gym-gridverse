@@ -7,7 +7,10 @@ import gym
 from gym_gridverse.envs import Environment, factory
 from gym_gridverse.outer_env import OuterEnv
 from gym_gridverse.representations.observation_representations import (
-    DefaultObservationRepresentation,
+    create_observation_representation,
+)
+from gym_gridverse.representations.state_representations import (
+    create_state_representation,
 )
 
 
@@ -43,6 +46,22 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
             else None
         )
 
+    def set_state_representation(self, name: str):
+        """Change underlying state representation"""
+        self.env.state_rep = create_state_representation(
+            name, self.env.env.state_space
+        )
+        self.state_space = outer_space_to_gym_space(self.env.state_rep.space)
+
+    def set_observation_representation(self, name: str):
+        """Change underlying observation representation"""
+        self.env.obs_rep = create_observation_representation(
+            name, self.env.env.observation_space
+        )
+        self.observation_space = outer_space_to_gym_space(
+            self.env.obs_rep.space
+        )
+
     @classmethod
     def from_environment(cls, env: OuterEnv):
         return cls(lambda: env)
@@ -74,8 +93,8 @@ for key, constructor_ in factory.STRING_TO_GYM_CONSTRUCTOR.items():
     ) -> OuterEnv:
         env = constructor()
         state_repr = None
-        observation_repr = DefaultObservationRepresentation(
-            env.observation_space
+        observation_repr = create_observation_representation(
+            'default', env.observation_space
         )
         return OuterEnv(env, state_rep=state_repr, obs_rep=observation_repr)
 

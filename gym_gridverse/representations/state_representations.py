@@ -2,7 +2,6 @@ from typing import Dict
 
 import numpy as np
 
-from gym_gridverse.grid_object import NoneGridObject
 from gym_gridverse.representations.representation import (
     StateRepresentation,
     default_convert,
@@ -95,25 +94,23 @@ class CompactStateRepresentation(StateRepresentation):
 
     """
 
-    def __init__(self):
-        pass
-
-    @property
-    def space(self) -> Dict[str, np.ndarray]:
-        pass
-
-    def convert(self, s: State) -> Dict[str, np.ndarray]:
-        pass
-
 
 def create_state_representation(
-    state_space: StateSpace,
+    name: str, state_space: StateSpace,
 ) -> StateRepresentation:
     """Factory function for state representations
-
-    TODO: nyi, current returns `DefaultStateRepresentation`
 
     Returns:
         Representation:
     """
-    return DefaultStateRepresentation(state_space)
+
+    if name == 'default':
+        return DefaultStateRepresentation(state_space)
+
+    if name == 'no_overlap':
+        return NoOverlapStateRepresentation(state_space)
+
+    if name == 'compact':
+        raise NotImplementedError
+
+    raise ValueError(f'invalid name {name}')

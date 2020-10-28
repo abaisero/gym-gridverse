@@ -109,25 +109,23 @@ class CompactObservationRepresentation(ObservationRepresentation):
 
     """
 
-    def __init__(self):
-        pass
-
-    @property
-    def space(self) -> Dict[str, np.ndarray]:
-        pass
-
-    def convert(self, o: Observation) -> Dict[str, np.ndarray]:
-        pass
-
 
 def create_observation_representation(
-    observation_space: ObservationSpace,
+    name: str, observation_space: ObservationSpace,
 ) -> ObservationRepresentation:
     """Factory function for observation representations
-
-    TODO: nyi, current returns `DefaultObservationRepresentation`
 
     Returns:
         Representation:
     """
-    return DefaultObservationRepresentation(observation_space)
+
+    if name == 'default':
+        return DefaultObservationRepresentation(observation_space)
+
+    if name == 'no_overlap':
+        return NoOverlapObservationRepresentation(observation_space)
+
+    if name == 'compact':
+        raise NotImplementedError
+
+    raise ValueError(f'invalid name {name}')
