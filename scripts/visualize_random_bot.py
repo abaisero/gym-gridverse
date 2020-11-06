@@ -42,8 +42,8 @@ def visualize_random_bot(domain: OuterEnv):
 
         # typically not used outside of library, inner representation used to
         # visualize below
-        internal_state = domain.env.state
-        internal_obs = domain.env.observation
+        internal_state = domain.inner_env.state
+        internal_obs = domain.inner_env.observation
 
         print(
             f"Reward {r}, "
@@ -61,6 +61,6 @@ if __name__ == "__main__":
 
     inner_env = gym_minigrid_from_descr(parser.parse_args().descr)
     rep = DefaultObservationRepresentation(inner_env.observation_space)
-    outer_env = OuterEnv(inner_env, obs_rep=rep)
+    outer_env = OuterEnv(inner_env, observation_rep=rep)
 
     visualize_random_bot(outer_env)
