@@ -88,6 +88,8 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
     # TODO implement render method
 
 
+env_ids = []
+
 for key, constructor_ in factory.STRING_TO_GYM_CONSTRUCTOR.items():
 
     def outer_env_constructor(
@@ -102,8 +104,10 @@ for key, constructor_ in factory.STRING_TO_GYM_CONSTRUCTOR.items():
             env, state_rep=state_repr, observation_rep=observation_repr
         )
 
+    env_id = f'GridVerse-{key}'
     gym.register(
-        f'GridVerse-{key}',
+        env_id,
         entry_point='gym_gridverse.gym:GymEnvironment',
         kwargs={'constructor': partial(outer_env_constructor, constructor_)},
     )
+    env_ids.append(env_id)
