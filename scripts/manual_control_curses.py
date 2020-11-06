@@ -289,15 +289,17 @@ if __name__ == "__main__":
     domain_space = DomainSpace(
         StateSpace(Shape(10, 10), [Floor, Wall, Goal], [Colors.NONE]),
         ActionSpace(list(Actions)),
-        ObservationSpace(Shape(13, 7), [Floor, Wall, Goal], [Colors.NONE]),
+        ObservationSpace(Shape(7, 7), [Floor, Wall, Goal], [Colors.NONE]),
     )
 
-    reset_function = partial(reset_fs.reset_minigrid_four_rooms, 10, 10)
+    # reset_function = partial(reset_fs.reset_minigrid_four_rooms, 10, 10)
+    reset_function = partial(reset_fs.reset_minigrid_empty, 10, 10, True)
 
     step_function = step_fs.update_agent
 
+    observation_function = observation_fs.full_visibility
     # observation_function = observation_fs.minigrid_observation
-    observation_function = observation_fs.raytracing_observation
+    # observation_function = observation_fs.raytracing_observation
     # observation_function = observation_fs.stochastic_raytracing_observation
     observation_function = partial(
         observation_function, observation_space=domain_space.observation_space,
