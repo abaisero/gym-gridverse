@@ -2,8 +2,15 @@ import random
 from typing import Callable
 
 from gym_gridverse.geometry import Orientation, Position
-from gym_gridverse.grid_object import (Colors, Door, Floor, Goal, Key,
-                                       MovingObstacle, Wall)
+from gym_gridverse.grid_object import (
+    Colors,
+    Door,
+    Floor,
+    Goal,
+    Key,
+    MovingObstacle,
+    Wall,
+)
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
