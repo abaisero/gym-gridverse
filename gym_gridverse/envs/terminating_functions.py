@@ -1,4 +1,5 @@
-from typing import Callable, Sequence, Type
+from functools import partial
+from typing import Callable, Optional, Sequence, Type
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
@@ -129,3 +130,40 @@ def bump_into_wall(
     )
 
     return isinstance(state.grid[attempted_next_position], Wall)
+
+
+def factory(
+    name: str,
+    *,
+    terminating_functions: Optional[Sequence[TerminatingFunction]] = None,
+    object_type: Optional[Type[GridObject]] = None,
+) -> TerminatingFunction:
+
+    if name == 'chain_any':
+        if None in [terminating_functions]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(chain_any, terminating_function=terminating_functions)
+
+    if name == 'chain_all':
+        if None in [terminating_functions]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(chain_all, terminating_function=terminating_functions)
+
+    if name == 'overlap':
+        if None in [object_type]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(overlap, object_type=object_type)
+
+    if name == 'reach_goal':
+        return reach_goal
+
+    if name == 'bump_moving_obstacle':
+        return bump_moving_obstacle
+
+    if name == 'bump_into_wall':
+        return bump_into_wall
+
+    raise ValueError(f'invalid terminating function name `{name}`')

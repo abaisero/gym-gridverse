@@ -1,7 +1,11 @@
 import unittest
 
 from gym_gridverse.actions import Actions
-from gym_gridverse.envs.terminating_functions import bump_into_wall, reach_goal
+from gym_gridverse.envs.terminating_functions import (
+    bump_into_wall,
+    factory,
+    reach_goal,
+)
 from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid_object import Goal, Wall
 from gym_gridverse.info import Agent, Grid
@@ -52,6 +56,25 @@ class TestBumpIntoWall(unittest.TestCase):
 
         state.agent.orientation = Orientation.W
         self.assertTrue(bump_into_wall(state, Actions.MOVE_RIGHT, None))
+
+
+class TestFactory(unittest.TestCase):
+    def test_invalid(self):
+        self.assertRaises(ValueError, factory, 'invalid')
+
+    def test_valid(self):
+        factory('chain_any', terminating_functions=[])
+        self.assertRaises(ValueError, factory, 'chain_any')
+
+        factory('chain_all', terminating_functions=[])
+        self.assertRaises(ValueError, factory, 'chain_all')
+
+        factory('overlap', object_type=Goal)
+        self.assertRaises(ValueError, factory, 'overlap')
+
+        factory('reach_goal')
+        factory('bump_moving_obstacle')
+        factory('bump_into_wall')
 
 
 if __name__ == '__main__':
