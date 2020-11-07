@@ -2,8 +2,7 @@
 
 from typing import Callable, List
 
-from gym_gridverse.actions import (ROTATION_ACTIONS, TRANSLATION_ACTIONS,
-                                   Actions)
+from gym_gridverse.actions import ROTATION_ACTIONS, TRANSLATION_ACTIONS, Actions
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.grid_object import Floor, GridObject, NoneGridObject
 from gym_gridverse.info import Agent, Grid
@@ -168,3 +167,20 @@ def pickup_mechanics(state: State, action: Actions) -> None:
 
     # Know for sure that if not can_pickup then we have dropped
     state.agent.obj = obj_in_front_of_agent if can_pickup else NoneGridObject()
+
+
+def factory(name: str) -> StateDynamics:
+
+    if name == 'update_agent':
+        return update_agent
+
+    if name == 'step_objects':
+        return step_objects
+
+    if name == 'actuate_mechanics':
+        return actuate_mechanics
+
+    if name == 'pickup_mechanics':
+        return pickup_mechanics
+
+    raise ValueError(f'invalid transition function name `{name}`')

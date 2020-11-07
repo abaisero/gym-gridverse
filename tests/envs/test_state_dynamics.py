@@ -6,10 +6,22 @@ import unittest
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs.reset_functions import reset_minigrid_dynamic_obstacles
-from gym_gridverse.envs.state_dynamics import (move_agent, pickup_mechanics,
-                                               rotate_agent, step_objects)
-from gym_gridverse.grid_object import (Colors, Door, Floor, Key,
-                                       MovingObstacle, NoneGridObject, Wall)
+from gym_gridverse.envs.state_dynamics import (
+    factory,
+    move_agent,
+    pickup_mechanics,
+    rotate_agent,
+    step_objects,
+)
+from gym_gridverse.grid_object import (
+    Colors,
+    Door,
+    Floor,
+    Key,
+    MovingObstacle,
+    NoneGridObject,
+    Wall,
+)
 from gym_gridverse.info import Agent, Grid, Orientation, Position
 from gym_gridverse.state import State
 
@@ -234,3 +246,14 @@ class TestStepDynamics(unittest.TestCase):
 
         for obs in obstacles:
             self.assertEqual(obs.step.count, 1)
+
+
+class TestFactory(unittest.TestCase):
+    def test_invalid(self):
+        self.assertRaises(ValueError, factory, 'invalid')
+
+    def test_valid(self):  # pylint: disable=no-self-use
+        factory('update_agent')
+        factory('step_objects')
+        factory('actuate_mechanics')
+        factory('pickup_mechanics')
