@@ -1,11 +1,15 @@
 import unittest
 
 from gym_gridverse.actions import Actions
-from gym_gridverse.envs.reward_functions import (bump_into_wall,
-                                                 bump_moving_obstacle,
-                                                 getting_closer, living_reward,
-                                                 proportional_to_distance,
-                                                 reach_goal)
+from gym_gridverse.envs.reward_functions import (
+    bump_into_wall,
+    bump_moving_obstacle,
+    factory,
+    getting_closer,
+    living_reward,
+    proportional_to_distance,
+    reach_goal,
+)
 from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid_object import Goal, MovingObstacle, Wall
 from gym_gridverse.info import Agent, Grid
@@ -404,6 +408,47 @@ class TestBumpIntoWall(unittest.TestCase):
             ),
             -4.78,
         )
+
+
+class TestFactory(unittest.TestCase):
+    def test_invalid(self):
+        self.assertRaises(ValueError, factory, 'invalid')
+
+    def test_valid(self):
+        factory('chain', reward_functions=[])
+        self.assertRaises(ValueError, factory, 'chain')
+
+        factory('overlap', object_type=Goal, reward_on=1.0, reward_off=-1.0)
+        self.assertRaises(ValueError, factory, 'overlap')
+
+        factory('living_reward', reward=1.0)
+        self.assertRaises(ValueError, factory, 'living_reward')
+
+        factory('reach_goal', reward_on=1.0, reward_off=-1.0)
+        self.assertRaises(ValueError, factory, 'reach_goal')
+
+        factory('bump_moving_obstacle', reward=-1.0)
+        self.assertRaises(ValueError, factory, 'bump_moving_obstacle')
+
+        factory(
+            'proportional_to_distance',
+            distance_function=Position.manhattan_distance,
+            object_type=Goal,
+            reward_per_unit_distance=-0.1,
+        )
+        self.assertRaises(ValueError, factory, 'proportional_to_distance')
+
+        factory(
+            'getting_closer',
+            distance_function=Position.manhattan_distance,
+            object_type=Goal,
+            reward_closer=-0.1,
+            reward_further=-0.1,
+        )
+        self.assertRaises(ValueError, factory, 'getting_closer')
+
+        factory('bump_into_wall', reward=-1.0)
+        self.assertRaises(ValueError, factory, 'bump_into_wall')
 
 
 if __name__ == '__main__':

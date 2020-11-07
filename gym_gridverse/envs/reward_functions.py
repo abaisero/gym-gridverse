@@ -1,4 +1,5 @@
-from typing import Callable, Sequence, Type
+from functools import partial
+from typing import Callable, Optional, Sequence, Type
 
 import more_itertools as mitt
 
@@ -243,3 +244,89 @@ def bump_into_wall(
         return reward
 
     return 0.0
+
+
+def factory(  # pylint: disable=too-many-branches
+    name: str,
+    *,
+    reward_functions: Optional[Sequence[RewardFunction]] = None,
+    reward: Optional[float] = None,
+    reward_on: Optional[float] = None,
+    reward_off: Optional[float] = None,
+    object_type: Optional[Type[GridObject]] = None,
+    distance_function: Optional[DistanceFunction] = None,
+    reward_per_unit_distance: Optional[float] = None,
+    reward_closer: Optional[float] = None,
+    reward_further: Optional[float] = None,
+) -> RewardFunction:
+
+    if name == 'chain':
+        if None in [reward_functions]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(chain, reward_functions=reward_functions)
+
+    if name == 'overlap':
+        if None in [object_type, reward_on, reward_off]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            overlap,
+            object_type=object_type,
+            reward_on=reward_on,
+            reward_off=reward_off,
+        )
+
+    if name == 'living_reward':
+        if None in [reward]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(living_reward, reward=reward)
+
+    if name == 'reach_goal':
+        if None in [reward_on, reward_off]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(reach_goal, reward_on=reward_on, reward_off=reward_off)
+
+    if name == 'bump_moving_obstacle':
+        if None in [reward]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(bump_moving_obstacle, reward=reward)
+
+    if name == 'proportional_to_distance':
+        if None in [distance_function, object_type, reward_per_unit_distance]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            proportional_to_distance,
+            distance_function=distance_function,
+            object_type=object_type,
+            reward_per_unit_distance=reward_per_unit_distance,
+        )
+
+    if name == 'getting_closer':
+        if None in [
+            distance_function,
+            object_type,
+            reward_closer,
+            reward_further,
+        ]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            getting_closer,
+            distance_function=distance_function,
+            object_type=object_type,
+            reward_closer=reward_closer,
+            reward_further=reward_further,
+        )
+
+    if name == 'bump_into_wall':
+        if None in [reward]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(bump_into_wall, reward=reward)
+
+    raise ValueError('invalid reward function name {name}')
