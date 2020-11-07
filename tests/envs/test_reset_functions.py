@@ -111,3 +111,38 @@ class TestDynamicObstacles(unittest.TestCase):
         )
 
         self.assertEqual(count, self.n)
+
+
+class TestFactory(unittest.TestCase):
+    def test_invalid(self):
+        self.assertRaises(ValueError, reset_funcs.factory, 'invalid')
+
+    def test_minigrid_empty(self):
+        reset_funcs.factory(
+            'minigrid_empty', height=10, width=10, random_agent_pos=True
+        )
+        self.assertRaises(ValueError, reset_funcs.factory, 'minigrid_empty')
+
+    def test_minigrid_four_rooms(self):
+        reset_funcs.factory('minigrid_four_rooms', height=10, width=10)
+        self.assertRaises(
+            ValueError, reset_funcs.factory, 'minigrid_four_rooms'
+        )
+
+    def test_minigrid_dynamic_obstacles(self):
+        reset_funcs.factory(
+            'minigrid_dynamic_obstacles',
+            height=10,
+            width=10,
+            num_obstacles=10,
+            random_agent_pos=True,
+        )
+        self.assertRaises(
+            ValueError, reset_funcs.factory, 'minigrid_dynamic_obstacles'
+        )
+
+    def test_minigrid_door_key(self):
+        reset_funcs.factory(
+            'minigrid_door_key', size=10,
+        )
+        self.assertRaises(ValueError, reset_funcs.factory, 'minigrid_door_key')

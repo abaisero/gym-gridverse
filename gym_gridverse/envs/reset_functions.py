@@ -1,5 +1,6 @@
 import random
-from typing import Callable
+from functools import partial
+from typing import Callable, Optional
 
 from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid_object import (
@@ -18,9 +19,10 @@ ResetFunction = Callable[[], State]
 
 
 def reset_minigrid_empty(
-    height: int, width: int, random_agent: bool = False
+    height: int, width: int, random_agent: bool = False,
 ) -> State:
     """imitates Minigrid's Empty environment"""
+
     if height < 4 or width < 4:
         raise ValueError('height and width need to be at least 4')
 
@@ -197,3 +199,51 @@ def reset_minigrid_door_key(grid_size: int) -> State:
     state.agent.orientation = random.choice(list(Orientation))
 
     return state
+
+
+def factory(
+    name: str,
+    *,
+    height: Optional[int] = None,
+    width: Optional[int] = None,
+    size: Optional[int] = None,
+    random_agent_pos: Optional[bool] = None,
+    num_obstacles: Optional[int] = None,
+) -> ResetFunction:
+
+    if name == 'minigrid_empty':
+        if None in [height, width, random_agent_pos]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            reset_minigrid_empty,
+            height=height,
+            width=width,
+            random_agent=random_agent_pos,
+        )
+
+    if name == 'minigrid_four_rooms':
+        if None in [height, width]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(reset_minigrid_four_rooms, height=height, width=width)
+
+    if name == 'minigrid_dynamic_obstacles':
+        if None in [height, width, num_obstacles, random_agent_pos]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            reset_minigrid_dynamic_obstacles,
+            height=height,
+            width=width,
+            num_obstacles=num_obstacles,
+            random_agent_pos=random_agent_pos,
+        )
+
+    if name == 'minigrid_door_key':
+        if None in [size]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(reset_minigrid_door_key, grid_size=size)
+
+    raise ValueError(f'invalid reset function name `{name}`')
