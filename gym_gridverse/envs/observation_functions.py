@@ -1,6 +1,6 @@
 import math
 from functools import lru_cache, partial
-from typing import Callable, Iterator, List
+from typing import Callable, Iterator, List, Optional
 
 import more_itertools as mitt
 import numpy as np
@@ -172,3 +172,54 @@ raytracing_observation = partial(
 stochastic_raytracing_observation = partial(
     from_visibility, visibility_function=raytracing_visibility
 )
+
+
+def factory(
+    name: str,
+    *,
+    observation_space: Optional[ObservationSpace] = None,
+    visibility_function: Optional[VisibilityFunction] = None,
+) -> ObservationFunction:
+
+    if name == 'full_visibility':
+        if None in [observation_space]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(full_visibility, observation_space=observation_space)
+
+    if name == 'from_visibility':
+        if None in [observation_space, visibility_function]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            from_visibility,
+            observation_space=observation_space,
+            visibility_function=visibility_function,
+        )
+
+    if name == 'minigrid_observation':
+        if None in [observation_space]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            minigrid_observation, observation_space=observation_space,
+        )
+
+    if name == 'raytracing_observation':
+        if None in [observation_space]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            raytracing_observation, observation_space=observation_space,
+        )
+
+    if name == 'stochastic_raytracing_observation':
+        if None in [observation_space]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            stochastic_raytracing_observation,
+            observation_space=observation_space,
+        )
+
+    raise ValueError(f'invalid observation function name {name}')

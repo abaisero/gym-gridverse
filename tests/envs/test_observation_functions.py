@@ -1,6 +1,10 @@
 import unittest
+from unittest.mock import Mock
 
-from gym_gridverse.envs.observation_functions import minigrid_observation
+from gym_gridverse.envs.observation_functions import (
+    factory,
+    minigrid_observation,
+)
 from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid_object import Floor, Hidden, Wall
 from gym_gridverse.info import Agent, Grid
@@ -141,6 +145,42 @@ class Test_MinigridObservation(unittest.TestCase):
             ]
         )
         self.assertEqual(observation.grid, observation_grid_expected)
+
+
+class TestFactory(unittest.TestCase):
+    def test_invalid(self):
+        self.assertRaises(ValueError, factory, 'invalid')
+
+    def test_valid(self):
+        observation_space = Mock()
+        factory('full_visibility', observation_space=observation_space)
+        self.assertRaises(ValueError, factory, 'full_visibility')
+
+        observation_space = Mock()
+        visibility_function = Mock()
+        factory(
+            'from_visibility',
+            observation_space=observation_space,
+            visibility_function=visibility_function,
+        )
+        self.assertRaises(ValueError, factory, 'from_visibility')
+
+        observation_space = Mock()
+        factory('minigrid_observation', observation_space=observation_space)
+        self.assertRaises(ValueError, factory, 'minigrid_observation')
+
+        observation_space = Mock()
+        factory('raytracing_observation', observation_space=observation_space)
+        self.assertRaises(ValueError, factory, 'raytracing_observation')
+
+        observation_space = Mock()
+        factory(
+            'stochastic_raytracing_observation',
+            observation_space=observation_space,
+        )
+        self.assertRaises(
+            ValueError, factory, 'stochastic_raytracing_observation'
+        )
 
 
 if __name__ == '__main__':
