@@ -1,0 +1,105 @@
+state_space:
+  shape: list(int(), min=2, max=2)
+  objects: list(include('object_type'), min=1)
+  colors: list(include('color'), min=1)
+action_space: list(enum('MOVE_FORWARD', 'MOVE_BACKWARD', 'MOVE_LEFT', 'MOVE_RIGHT', 'TURN_LEFT', 'TURN_RIGHT', 'ACTUATE', 'PICK_N_DROP'), min=2, required=False)
+observation_space:
+  shape: list(int(), min=2, max=2)
+  objects: list(include('object_type'), min=1)
+  colors: list(include('color'), min=1)
+reset: include('reset_function')
+transition: include('transition_function')
+reward: include('reward_function')
+observation: include('observation_function')
+terminating: include('terminating_function')
+---
+reset_function: any(include('reset_function_minigrid_empty'), include('reset_function_minigrid_four_rooms'), include('reset_function_minigrid_dynamic_obstacles'), include('reset_minigrid_door_key'))
+reset_function_minigrid_empty:
+  name: enum('minigrid_empty')
+  random_agent: bool(required=False)
+reset_function_minigrid_four_rooms:
+  name: enum('minigrid_four_rooms')
+reset_function_minigrid_dynamic_obstacles:
+  name: enum('minigrid_dynamic_obstacles')
+  num_obstacles: int(min=1)
+  random_agent: bool(required=False)
+reset_function_minigrid_door_key:
+  name: enum('minigrid_door_key')
+---
+transition_function: list(include('transition_function_update_agent'), include('transition_function_step_objects'), include('transition_function_actuate_mechanics'), include('transition_function_pickup_mechanics'), min=1)
+transition_function_update_agent:
+  name: enum('update_agent')
+transition_function_step_objects:
+  name: enum('step_objects')
+transition_function_actuate_mechanics:
+  name: enum('actuate_mechanics')
+transition_function_pickup_mechanics:
+  name: enum('pickup_mechanics')
+---
+reward_function: list(include('reward_function_overlap'), include('reward_function_living_reward'), include('reward_function_reach_goal'), include('reward_function_bump_moving_obstacle'), include('reward_function_proportional_to_distance'), include('reward_function_getting_closer'), include('reward_function_bump_into_wall'), min=1)
+reward_function_overlap:
+  name: enum('overlap')
+  object_type: include('object_type')
+  reward_on: num()
+  reward_off: num()
+reward_function_living_reward:
+  name: enum('living_reward')
+  reward: num()
+reward_function_reach_goal:
+  name: enum('reach_goal')
+  reward_on: num()
+  reward_off: num()
+reward_function_bump_moving_obstacle:
+  name: enum('bump_moving_obstacle')
+  reward: num()
+reward_function_proportional_to_distance:
+  name: enum('proportional_to_distance')
+  object_type: include('object_type')
+  reward_per_unit_distance: num()
+reward_function_getting_closer:
+  name: enum('getting_closer')
+  distance_function: include('distance_function')
+  object_type: include('object_type')
+  reward_closer: num()
+  reward_further: num()
+reward_function_bump_into_wall:
+  name: enum('bump_into_wall')
+  reward: num()
+---
+observation_function: any(include('observation_function_full_visibility'), include('observation_function_from_visibility'), include('observation_function_minigrid_visibility'), include('observation_function_raytracing_visibility'), include('observation_function_stochastic_raytracing_visibility'))
+observation_function_full_visibility:
+  name: enum('full_visibility')
+observation_function_from_visibility:
+  name: enum('from_visibility')
+  visibility_function: include('visibility_function')
+observation_function_minigrid_visibility:
+  name: enum('minigrid_visibility')
+observation_function_raytracing_visibility:
+  name: enum('raytracing_visibility')
+observation_function_stochastic_raytracing_visibility:
+  name: enum('stochastic_raytracing_visibility')
+---
+terminating_function: any(include('terminating_function_chain_any'), include('terminating_function_chain_all'), include('terminating_function_overlap'), include('terminating_function_reach_goal'), include('terminating_function_bump_moving_obstacle'), include('terminating_function_bump_into_wall'))
+terminating_function_chain_any:
+  name: enum('chain_any')
+  terminating_functions: list(include('terminating_function'), min=1)
+terminating_function_chain_all:
+  name: enum('chain_all')
+  terminating_functions: list(include('terminating_function'), min=1)
+terminating_function_overlap:
+  name: enum('overlap')
+  object_type: include('object_type')
+terminating_function_reach_goal:
+  name: enum('reach_goal')
+terminating_function_bump_moving_obstacle:
+  name: enum('bump_moving_obstacle')
+terminating_function_bump_into_wall:
+  name: enum('bump_into_wall')
+---
+visibility_function: enum('minigrid', 'raytracing', 'stochastic_raytracing')
+---
+distance_function: enum('manhattan', 'euclidean')
+---
+object_type: str()
+---
+color: str()
