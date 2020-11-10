@@ -20,7 +20,7 @@ class Environment(metaclass=abc.ABCMeta):
         self.action_space = action_space
         self.observation_space = observation_space
 
-        self.state: State
+        self._state: State
 
     @abc.abstractmethod
     def functional_reset(self) -> State:
@@ -42,6 +42,19 @@ class Environment(metaclass=abc.ABCMeta):
     def step(self, action: Actions) -> Tuple[float, bool]:
         self.state, reward, done = self.functional_step(self.state, action)
         return reward, done
+
+    @property
+    def state(self):
+        try:
+            return self._state
+        except AttributeError:
+            raise RuntimeError(
+                'The state was not set;  check that the environment was reset.'
+            )
+
+    @state.setter
+    def state(self, value: State):
+        self._state = value
 
     @property
     def observation(self):
