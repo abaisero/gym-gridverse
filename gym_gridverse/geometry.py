@@ -156,38 +156,45 @@ class Orientation(enum.Enum):
 
     def as_delta_position(self, dist: int = 1) -> DeltaPosition:
         if self is Orientation.N:
-            delta_position = DeltaPosition(-dist, 0)
+            return DeltaPosition(-dist, 0)
 
-        elif self is Orientation.S:
-            delta_position = DeltaPosition(dist, 0)
+        if self is Orientation.S:
+            return DeltaPosition(dist, 0)
 
-        elif self is Orientation.E:
-            delta_position = DeltaPosition(0, dist)
+        if self is Orientation.E:
+            return DeltaPosition(0, dist)
 
-        elif self is Orientation.W:
-            delta_position = DeltaPosition(0, -dist)
+        if self is Orientation.W:
+            return DeltaPosition(0, -dist)
 
-        else:
-            assert False
+        raise RuntimeError
 
-        return delta_position
+    def as_radians(self) -> float:
+        radians = {
+            Orientation.N: 0.0,
+            Orientation.W: math.pi / 2,
+            Orientation.S: math.pi,
+            Orientation.E: math.pi * 3 / 2,
+        }
+
+        return radians[self]
 
     def rotate_left(self):
         rotations = {
-            self.N: self.W,
-            self.W: self.S,
-            self.S: self.E,
-            self.E: self.N,
+            Orientation.N: Orientation.W,
+            Orientation.W: Orientation.S,
+            Orientation.S: Orientation.E,
+            Orientation.E: Orientation.N,
         }
 
         return rotations[self]
 
     def rotate_right(self):
         rotations = {
-            self.N: self.E,
-            self.E: self.S,
-            self.S: self.W,
-            self.W: self.N,
+            Orientation.N: Orientation.E,
+            Orientation.E: Orientation.S,
+            Orientation.S: Orientation.W,
+            Orientation.W: Orientation.N,
         }
 
         return rotations[self]
