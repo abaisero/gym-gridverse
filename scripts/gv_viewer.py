@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import argparse
 import enum
+import itertools as itt
 import math
-import random
 import time
 from functools import partial
 from typing import Dict, Optional, Sequence, Tuple, Union
@@ -13,19 +13,20 @@ import pyglet
 from gym.envs.classic_control import rendering
 
 from gym_gridverse.actions import Actions
-from gym_gridverse.envs import Environment
+from gym_gridverse.envs import observation_functions as observation_fs
 from gym_gridverse.envs.factory_yaml import make_environment
-from gym_gridverse.geometry import Orientation, Position
+from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid_object import (
     Colors,
     Door,
     Floor,
     Goal,
+    Hidden,
     Key,
     MovingObstacle,
     Wall,
 )
-from gym_gridverse.spaces import StateSpace
+from gym_gridverse.observation import Observation
 from gym_gridverse.state import State
 
 
@@ -122,6 +123,16 @@ def make_goal(goal: Goal) -> rendering.Geom:  # pylint: disable=unused-argument
     geom_flag.add_attr(rendering.Transform(translation=(-pad / 4, 0.0)))
 
     return Group([geom_goal, geom_flag])
+
+
+def make_hidden(  # pylint: disable=unused-argument
+    hidden: Hidden,
+) -> rendering.Geom:
+
+    geom = rendering.make_polygon(
+        [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)], filled=True,
+    )
+    return geom
 
 
 def make_wall(wall: Wall) -> rendering.Geom:  # pylint: disable=unused-argument
@@ -238,6 +249,8 @@ def make_door(door: Door) -> rendering.Geom:
 
 
 def make_key(key: Key) -> rendering.Geom:  # pylint: disable=unused-argument
+    # TODO make key outline
+
     geom_bow = rendering.make_circle(radius=0.4, res=6, filled=True)
     geom_bow.add_attr(rendering.Transform(translation=(-0.3, 0.0)))
 
@@ -281,82 +294,80 @@ def convert_pos(position: Position, *, num_rows: int,) -> Tuple[float, float]:
 
 
 class GridVerseViewer:
-    def __init__(self, state_space: StateSpace):
-        self.state_space = state_space
+    def __init__(self, shape: Shape, *, caption: Optional[str] = None):
+        self._pos_converter = partial(convert_pos, num_rows=shape.height,)
 
-        self._pos_converter = partial(
-            convert_pos, num_rows=state_space.grid_shape.height,
-        )
-
-        self.viewer_transforms = [
+        self._viewer_transforms = [
             rendering.Transform(translation=(1.0, 1.0)),
-            rendering.Transform(
-                scale=(
-                    0.5 / state_space.grid_shape.width,
-                    0.5 / state_space.grid_shape.height,
-                ),
-            ),
+            rendering.Transform(scale=(0.5 / shape.width, 0.5 / shape.height),),
         ]
 
-        self._viewer = rendering.Viewer(500, 500)
+        self._viewer = rendering.Viewer(40 * shape.width, 40 * shape.height)
         self._viewer.set_bounds(0.0, 1.0, 0.0, 1.0)
+        # self._viewer.window.set_minimum_size(500, 500)
+        # self._viewer.window.set_maximum_size(500, 500)
+
+        if caption is not None:
+            self._viewer.window.set_caption(caption)
 
         background = make_grid_background()
         self._viewer.add_geom(background)
 
-        self.grid = make_grid(
-            (0.0, 0.0),
-            (1.0, 1.0),
-            state_space.grid_shape.height,
-            state_space.grid_shape.width,
+        self._grid = make_grid(
+            (0.0, 0.0), (1.0, 1.0), shape.height, shape.width,
         )
 
     def __del__(self):
         self._viewer.close()
 
+    def flip_visibility(self):
+        self.window.set_visible(not self.window.visible)
+
     @property
     def window(self) -> pyglet.window.Window:
         return self._viewer.window
 
-    @classmethod
-    def from_env(cls, env: Environment) -> GridVerseViewer:
-        return cls(env.state_space)
-
-    def render_state(self, state: State):
-        for position in state.grid.positions():
-            obj = state.grid[position]
+    def render(self, state_or_observation: Union[State, Observation]):
+        for position in state_or_observation.grid.positions():
+            obj = state_or_observation.grid[position]
             if isinstance(obj, Floor):
                 pass
 
+            if isinstance(obj, Hidden):
+                geom = make_hidden(obj)
+                self._draw_geom_onetime(geom, position)
+
             if isinstance(obj, Wall):
                 geom = make_wall(obj)
-                self.draw_geom_onetime(geom, position)
+                self._draw_geom_onetime(geom, position)
 
             if isinstance(obj, Key):
                 geom = make_key(obj)
-                self.draw_geom_onetime(geom, position)
+                self._draw_geom_onetime(geom, position)
 
             if isinstance(obj, Door):
                 geom = make_door(obj)
-                self.draw_geom_onetime(geom, position)
+                self._draw_geom_onetime(geom, position)
 
             if isinstance(obj, Goal):
                 geom = make_goal(obj)
-                self.draw_geom_onetime(geom, position)
+                self._draw_geom_onetime(geom, position)
 
             if isinstance(obj, MovingObstacle):
                 geom = make_moving_obstacle(obj)
-                self.draw_geom_onetime(geom, position)
+                self._draw_geom_onetime(geom, position)
 
         geom = make_agent()
-        self.draw_geom_onetime(
-            geom, state.agent.position, state.agent.orientation
+        self._draw_geom_onetime(
+            geom,
+            state_or_observation.agent.position,
+            state_or_observation.agent.orientation,
         )
 
-        self._viewer.add_onetime(self.grid)
+        self._viewer.add_onetime(self._grid)
         self._viewer.render(return_rgb_array=True)
 
-    def draw_geom_onetime(
+    def _draw_geom_onetime(
         self,
         geom: rendering.Geom,
         position: Position,
@@ -366,33 +377,20 @@ class GridVerseViewer:
         geom.add_attr(
             rendering.Transform(translation=self._pos_converter(position))
         )
-        for transform in self.viewer_transforms:
+        for transform in self._viewer_transforms:
             geom.add_attr(transform)
         self._viewer.add_onetime(geom)
 
 
-class Control(enum.Enum):
+class Controls(enum.Enum):
     PASS = 0
     QUIT = enum.auto()
     RESET = enum.auto()
+    HIDE_STATE = enum.auto()
+    CYCLE_OBSERVATION = enum.auto()
 
 
-Command = Union[Actions, Control]
-
-
-def main_random_control(env, viewer, args):
-    done = True
-    while True:
-        if done:
-            env.reset()
-            viewer.render_state(env.state)
-            done = False
-
-        action = random.choice(env.action_space.actions)
-        _, done = env.step(action)
-
-        viewer.render_state(env.state)
-        time.sleep(args.spf)
+Command = Union[Actions, Controls]
 
 
 class KeyboardHandler:
@@ -409,36 +407,113 @@ class KeyboardHandler:
         pyglet.window.key.SPACE: Actions.ACTUATE,
         pyglet.window.key.P: Actions.PICK_N_DROP,
         # controls
-        pyglet.window.key.R: Control.RESET,
-        pyglet.window.key.Q: Control.QUIT,
+        pyglet.window.key.Q: Controls.QUIT,
+        pyglet.window.key.R: Controls.RESET,
+        pyglet.window.key.H: Controls.HIDE_STATE,
+        pyglet.window.key.O: Controls.CYCLE_OBSERVATION,
     }
 
     def __init__(self):
-        self.key = None
+        self._key = None
 
     def on_key_press(  # pylint: disable=unused-argument
         self, symbol, modifiers
     ):
-        self.key = symbol
+        self._key = symbol
 
     def get_command(self) -> Command:
         try:
-            return self.keymap[self.key]
+            return self.keymap[self._key]
         except KeyError:
-            return Control.PASS
+            return Controls.PASS
         finally:
-            self.key = None
+            self._key = None
 
 
-def main_manual_control(env, viewer, args):
+def print_legend():
+    def fstr(label: str, e: enum.Enum):
+        return f'{label:>8s} : {e.name}'
+
+    print('LEGEND')
+    print('------')
+
+    print(fstr('<UP>', Actions.MOVE_FORWARD))
+    print(fstr('<DOWN>', Actions.MOVE_BACKWARD))
+    print(fstr('<LEFT>', Actions.TURN_LEFT))
+    print(fstr('<RIGHT>', Actions.TURN_RIGHT))
+    print()
+
+    print(fstr('w', Actions.MOVE_FORWARD))
+    print(fstr('a', Actions.MOVE_LEFT))
+    print(fstr('s', Actions.MOVE_BACKWARD))
+    print(fstr('d', Actions.MOVE_RIGHT))
+    print()
+
+    print(fstr('<SPACE>', Actions.ACTUATE))
+    print(fstr('p', Actions.PICK_N_DROP))
+    print()
+
+    print(fstr('q', Controls.QUIT))
+    print(fstr('r', Controls.RESET))
+    print(fstr('h', Controls.HIDE_STATE))
+    print(fstr('o', Controls.CYCLE_OBSERVATION))
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('env_path', help='env YAML file')
+    parser.add_argument(
+        '--fps', type=float, default=15.0, help='frames per second'
+    )
+    args = parser.parse_args()
+    args.spf = 1 / args.fps
+
+    with open(args.env_path) as f:
+        env = make_environment(f)
+
+    print_legend()
+
+    state_viewer = GridVerseViewer(env.state_space.grid_shape, caption='State')
+    observation_viewer = GridVerseViewer(
+        env.observation_space.grid_shape, caption='Observation'
+    )
+
     keyboard_handler = KeyboardHandler()
-    viewer.window.push_handlers(keyboard_handler)
+    state_viewer.window.push_handlers(keyboard_handler)
+    observation_viewer.window.push_handlers(keyboard_handler)
+
+    observation_functions = itt.cycle(
+        [
+            (
+                'full_visibility',
+                partial(
+                    observation_fs.full_visibility,
+                    observation_space=env.observation_space,
+                ),
+            ),
+            (
+                'minigrid_visibility',
+                partial(
+                    observation_fs.minigrid_observation,
+                    observation_space=env.observation_space,
+                ),
+            ),
+            (
+                'raytracing_visibility',
+                partial(
+                    observation_fs.raytracing_observation,
+                    observation_space=env.observation_space,
+                ),
+            ),
+        ]
+    )
 
     done = True
     while True:
         if done:
             env.reset()
-            viewer.render_state(env.state)
+            state_viewer.render(env.state)
+            observation_viewer.render(env.observation)
             done = False
 
         command = keyboard_handler.get_command()
@@ -446,37 +521,25 @@ def main_manual_control(env, viewer, args):
         if isinstance(command, Actions):
             _, done = env.step(command)
 
-        elif command is Control.RESET:
-            raise NotImplementedError
+        if command is Controls.HIDE_STATE:
+            state_viewer.flip_visibility()
 
-        elif command is Control.QUIT:
-            raise NotImplementedError
+        elif command is Controls.RESET:
+            done = True
+            continue
 
-        viewer.render_state(env.state)
+        elif command is Controls.QUIT:
+            break
+
+        elif command is Controls.CYCLE_OBSERVATION:
+            name, observation_function = next(observation_functions)
+            print(f'setting observation function: {name}')
+            # TODO find another way of setting the observation function...
+            env._functional_observation = observation_function
+
+        state_viewer.render(env.state)
+        observation_viewer.render(env.observation)
         time.sleep(args.spf)
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('data_path', help='YAML data file')
-    parser.add_argument(
-        '--fps', type=float, default=15.0, help='frames per second'
-    )
-    parser.add_argument(
-        '--manual-control', action='store_true', help='Manual control'
-    )
-    args = parser.parse_args()
-    args.spf = 1 / args.fps
-
-    with open(args.data_path) as f:
-        env = make_environment(f)
-
-    viewer = GridVerseViewer.from_env(env)
-
-    if args.manual_control:
-        main_manual_control(env, viewer, args)
-    else:
-        main_random_control(env, viewer, args)
 
 
 if __name__ == '__main__':
