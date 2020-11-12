@@ -36,6 +36,12 @@ class GridWorld(Environment):
             domain_space.observation_space,
         )
 
+    def set_observation_function(
+        self, observation_function: ObservationFunction
+    ):
+        self._functional_observation = observation_function
+        self._observation = None
+
     def functional_reset(self) -> State:
         state = self._functional_reset()
         if not self.state_space.contains(state):
