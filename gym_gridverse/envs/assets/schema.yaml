@@ -13,7 +13,7 @@ reward: include('reward_function')
 observation: include('observation_function')
 terminating: include('terminating_function')
 ---
-reset_function: any(include('reset_function_minigrid_empty'), include('reset_function_minigrid_four_rooms'), include('reset_function_minigrid_dynamic_obstacles'), include('reset_minigrid_door_key'))
+reset_function: any(include('reset_function_minigrid_empty'), include('reset_function_minigrid_four_rooms'), include('reset_function_minigrid_dynamic_obstacles'), include('reset_function_minigrid_door_key'))
 reset_function_minigrid_empty:
   name: enum('minigrid_empty')
   random_agent: bool(required=False)
