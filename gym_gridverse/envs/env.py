@@ -1,5 +1,5 @@
 import abc
-from typing import Tuple
+from typing import Optional, Tuple
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.observation import Observation
@@ -20,7 +20,8 @@ class Environment(metaclass=abc.ABCMeta):
         self.action_space = action_space
         self.observation_space = observation_space
 
-        self._state: State
+        self._state: Optional[State] = None
+        self._observation: Optional[Observation] = None
 
     @abc.abstractmethod
     def functional_reset(self) -> State:
@@ -37,25 +38,27 @@ class Environment(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     def reset(self):
-        self.state = self.functional_reset()
+        self._state = self.functional_reset()
+        self._observation = None
 
     def step(self, action: Actions) -> Tuple[float, bool]:
-        self.state, reward, done = self.functional_step(self.state, action)
+        self._state, reward, done = self.functional_step(self.state, action)
+        self._observation = None
         return reward, done
 
     @property
-    def state(self):
-        try:
-            return self._state
-        except AttributeError:
+    def state(self) -> State:
+        if self._state is None:
             raise RuntimeError(
-                'The state was not set;  check that the environment was reset.'
+                'The state was not set properly;  was the environment reset?'
             )
 
-    @state.setter
-    def state(self, value: State):
-        self._state = value
+        return self._state
 
     @property
-    def observation(self):
-        return self.functional_observation(self.state)
+    def observation(self) -> Observation:
+        # memoizing observation because observation function can be stochastic
+        if self._observation is None:
+            self._observation = self.functional_observation(self.state)
+
+        return self._observation
