@@ -248,8 +248,63 @@ def make_door(door: Door) -> rendering.Geom:
     )
 
 
+def make_capsule(length, width, *, filled=True):
+    l, r, t, b = 0, length, width / 2, -width / 2
+    box = rendering.make_polygon(
+        [(l, b), (l, t), (r, t), (r, b)], filled=filled
+    )
+    circ0 = rendering.make_circle(width / 2, filled=filled)
+    circ1 = rendering.make_circle(width / 2, filled=filled)
+    circ1.add_attr(rendering.Transform(translation=(length, 0)))
+    geom = Group([box, circ0, circ1])
+    return geom
+
+
 def make_key(key: Key) -> rendering.Geom:  # pylint: disable=unused-argument
-    # TODO make key outline
+    # OUTLINE
+
+    lw = 4
+
+    geom_bow_outline = rendering.make_circle(radius=0.4, res=6, filled=False)
+    geom_bow_outline.add_attr(rendering.Transform(translation=(-0.3, 0.0)))
+    geom_bow_outline.set_linewidth(lw)
+
+    geom_blade_outline = make_capsule(0.6, 0.2, filled=False)
+    for geom in geom_blade_outline.geoms:
+        geom.set_linewidth(lw)
+
+    geom_bit1_outline = make_capsule(0.3, 0.1, filled=False)
+    geom_bit1_outline.add_attr(
+        rendering.Transform(translation=(0.4, 0.0), rotation=math.pi / 2)
+    )
+    for geom in geom_bit1_outline.geoms:
+        geom.set_linewidth(lw)
+
+    geom_bit2_outline = make_capsule(0.3, 0.1, filled=False)
+    geom_bit2_outline.add_attr(
+        rendering.Transform(translation=(0.5, 0.0), rotation=math.pi / 2)
+    )
+    for geom in geom_bit2_outline.geoms:
+        geom.set_linewidth(lw)
+
+    geom_bit3_outline = make_capsule(0.3, 0.1, filled=False)
+    geom_bit3_outline.add_attr(
+        rendering.Transform(translation=(0.6, 0.0), rotation=math.pi / 2)
+    )
+    for geom in geom_bit3_outline.geoms:
+        geom.set_linewidth(lw)
+
+    geom_outline = Group(
+        [
+            geom_bow_outline,
+            geom_blade_outline,
+            geom_bit1_outline,
+            geom_bit2_outline,
+            geom_bit3_outline,
+        ]
+    )
+
+    # BODY
 
     geom_bow = rendering.make_circle(radius=0.4, res=6, filled=True)
     geom_bow.add_attr(rendering.Transform(translation=(-0.3, 0.0)))
@@ -261,7 +316,7 @@ def make_key(key: Key) -> rendering.Geom:  # pylint: disable=unused-argument
         rendering.Transform(translation=(0.4, 0.0), rotation=math.pi / 2)
     )
 
-    geom_bit2 = rendering.make_capsule(0.2, 0.1)
+    geom_bit2 = rendering.make_capsule(0.3, 0.1)
     geom_bit2.add_attr(
         rendering.Transform(translation=(0.5, 0.0), rotation=math.pi / 2)
     )
@@ -275,7 +330,8 @@ def make_key(key: Key) -> rendering.Geom:  # pylint: disable=unused-argument
         [geom_bow, geom_blade, geom_bit1, geom_bit2, geom_bit3]
     )
     geom.set_color(*colormap[key.color])
-    return geom
+
+    return Group([geom_outline, geom])
 
 
 def make_moving_obstacle(  # pylint: disable=unused-argument
@@ -302,10 +358,9 @@ class GridVerseViewer:
             rendering.Transform(scale=(0.5 / shape.width, 0.5 / shape.height),),
         ]
 
-        self._viewer = rendering.Viewer(40 * shape.width, 40 * shape.height)
+        m = 40
+        self._viewer = rendering.Viewer(m * shape.width, m * shape.height)
         self._viewer.set_bounds(0.0, 1.0, 0.0, 1.0)
-        # self._viewer.window.set_minimum_size(500, 500)
-        # self._viewer.window.set_maximum_size(500, 500)
 
         if caption is not None:
             self._viewer.window.set_caption(caption)
@@ -534,8 +589,7 @@ def main():
         elif command is Controls.CYCLE_OBSERVATION:
             name, observation_function = next(observation_functions)
             print(f'setting observation function: {name}')
-            # TODO find another way of setting the observation function...
-            env._functional_observation = observation_function
+            env.set_observation_function(observation_function)
 
         state_viewer.render(env.state)
         observation_viewer.render(env.observation)
