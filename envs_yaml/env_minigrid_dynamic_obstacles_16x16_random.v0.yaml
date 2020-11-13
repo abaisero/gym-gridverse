@@ -1,0 +1,37 @@
+state_space:
+  shape: [ 18, 18 ]
+  objects: [ Wall, Floor, Goal, MovingObstacle ]
+  colors: [ NONE ]
+
+observation_space:
+  shape: [ 7, 7 ]
+  objects: [ Wall, Floor, Goal, MovingObstacle ]
+  colors: [ NONE ]
+
+reset:
+  name: minigrid_dynamic_obstacles
+  num_obstacles: 8
+  random_agent: True
+
+transition:
+  - name: update_agent
+  - name: step_objects
+
+reward:
+  - name: reach_goal
+    reward_on: 1.0
+    reward_off: 0.0
+  - name: bump_moving_obstacle
+    reward: -1.0
+  - name: bump_into_wall
+    reward: -1.0
+
+observation:
+  name: full_visibility
+
+terminating:
+  name: chain_any
+  terminating_functions:
+    - name: reach_goal
+    - name: bump_moving_obstacle
+    - name: bump_into_wall
