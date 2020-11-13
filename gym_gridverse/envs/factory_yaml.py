@@ -1,3 +1,4 @@
+import importlib.resources
 from functools import partial
 from os import path
 from typing import Dict, List, Optional, TextIO, Type
@@ -23,8 +24,10 @@ from gym_gridverse.spaces import (
 
 
 def make_schema() -> yamale.schema.Schema:
-    schema_path = path.join(path.dirname(__file__), 'assets/schema.yaml')
-    return yamale.make_schema(schema_path)
+    content = importlib.resources.read_text(
+        'gym_gridverse.envs.resources', 'schema.yaml'
+    )
+    return yamale.make_schema(content=content)
 
 
 def make_data(stream: TextIO, *, validate=True) -> Dict:
