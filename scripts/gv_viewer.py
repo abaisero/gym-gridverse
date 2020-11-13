@@ -340,9 +340,16 @@ def make_moving_obstacle(  # pylint: disable=unused-argument
 
     pad = 0.8
     geom = rendering.make_polygon(
-        [(-pad, 0.0), (0.0, pad), (pad, 0.0), (0.0, -pad)], filled=False
+        [(-pad, 0.0), (0.0, pad), (pad, 0.0), (0.0, -pad),], filled=True,
     )
-    return geom
+    geom.set_color(*RED)
+
+    geom_outline = rendering.make_polygon(
+        [(-pad, 0.0), (0.0, pad), (pad, 0.0), (0.0, -pad),], filled=False,
+    )
+    geom_outline.set_linewidth(3)
+
+    return Group([geom, geom_outline])
 
 
 def convert_pos(position: Position, *, num_rows: int,) -> Tuple[float, float]:
