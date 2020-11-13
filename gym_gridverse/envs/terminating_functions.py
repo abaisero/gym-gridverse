@@ -143,13 +143,13 @@ def factory(
         if None in [terminating_functions]:
             raise ValueError('invalid parameters for name `{name}`')
 
-        return partial(chain_any, terminating_function=terminating_functions)
+        return partial(chain_any, terminating_functions=terminating_functions)
 
     if name == 'chain_all':
         if None in [terminating_functions]:
             raise ValueError('invalid parameters for name `{name}`')
 
-        return partial(chain_all, terminating_function=terminating_functions)
+        return partial(chain_all, terminating_functions=terminating_functions)
 
     if name == 'overlap':
         if None in [object_type]:
