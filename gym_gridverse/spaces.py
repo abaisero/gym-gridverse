@@ -1,10 +1,9 @@
 from dataclasses import dataclass
-from typing import Iterable, List, Tuple, Type
+from typing import Iterable, Sequence, Tuple, Type
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.geometry import Area, Orientation, Position, Shape
-from gym_gridverse.grid_object import (Colors, GridObject, Hidden,
-                                       NoneGridObject)
+from gym_gridverse.grid_object import Colors, GridObject, Hidden, NoneGridObject
 from gym_gridverse.observation import Observation
 from gym_gridverse.state import State
 
@@ -49,14 +48,14 @@ class StateSpace:
     def __init__(
         self,
         grid_shape: Shape,
-        object_types: List[Type[GridObject]],
-        colors: List[Colors],
+        object_types: Sequence[Type[GridObject]],
+        colors: Sequence[Colors],
     ):
         self.grid_shape = grid_shape
         self.object_types = object_types
         self.colors = colors
 
-        self._agent_object_types = set(object_types + [NoneGridObject])
+        self._agent_object_types = set(object_types) | {NoneGridObject}
 
     def contains(self, state: State) -> bool:
         """True if the state satisfies the state-space"""
@@ -112,7 +111,7 @@ class StateSpace:
 
 
 class ActionSpace:
-    def __init__(self, actions: List[Actions]):
+    def __init__(self, actions: Sequence[Actions]):
         self.actions = actions
 
     def contains(self, action: Actions) -> bool:
@@ -134,8 +133,8 @@ class ObservationSpace:
     def __init__(
         self,
         grid_shape: Shape,
-        object_types: List[Type[GridObject]],
-        colors: List[Colors],
+        object_types: Sequence[Type[GridObject]],
+        colors: Sequence[Colors],
     ):
         if grid_shape.width % 2 == 0:
             raise ValueError('shape should have an odd width')
@@ -144,8 +143,8 @@ class ObservationSpace:
         self.object_types = object_types
         self.colors = colors
 
-        self._grid_object_types = set(object_types + [Hidden])
-        self._agent_object_types = set(object_types + [NoneGridObject])
+        self._grid_object_types = set(object_types) | {Hidden}
+        self._agent_object_types = set(object_types) | {NoneGridObject}
 
         # TODO eventually let this substitute the `grid_shape` input altogether
         # this area represents the observable area, with (0, 0) representing
