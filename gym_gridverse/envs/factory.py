@@ -4,16 +4,31 @@ from functools import partial
 from typing import Callable, Dict, List
 
 from gym_gridverse.actions import Actions
-from gym_gridverse.envs import (observation_functions, reset_functions,
-                                reward_functions, state_dynamics,
-                                terminating_functions)
+from gym_gridverse.envs import (
+    observation_functions,
+    reset_functions,
+    reward_functions,
+    state_dynamics,
+    terminating_functions,
+)
 from gym_gridverse.envs.env import Environment
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import Shape
-from gym_gridverse.grid_object import (Colors, Door, Floor, Goal, Key,
-                                       MovingObstacle, Wall)
-from gym_gridverse.spaces import (ActionSpace, DomainSpace, ObservationSpace,
-                                  StateSpace)
+from gym_gridverse.grid_object import (
+    Colors,
+    Door,
+    Floor,
+    Goal,
+    Key,
+    MovingObstacle,
+    Wall,
+)
+from gym_gridverse.spaces import (
+    ActionSpace,
+    DomainSpace,
+    ObservationSpace,
+    StateSpace,
+)
 
 
 def create_env(
@@ -241,7 +256,7 @@ STRING_TO_GYM_CONSTRUCTOR: Dict[str, Callable[[], Environment]] = {
         gym_minigrid_empty, size=8, random_pos=False
     ),
     "MiniGrid-Empty-16x16-v0": partial(
-        gym_minigrid_empty, size=8, random_pos=False
+        gym_minigrid_empty, size=16, random_pos=False
     ),
     # 4 rooms
     "MiniGrid-FourRooms-v0": partial(gym_minigrid_four_room),
@@ -253,7 +268,7 @@ STRING_TO_GYM_CONSTRUCTOR: Dict[str, Callable[[], Environment]] = {
         dynamic_obstacle_minigrid, size=5, random_pos=True, num_obstacles=2
     ),
     "MiniGrid-Dynamic-Obstacles-6x6-v0": partial(
-        dynamic_obstacle_minigrid, size=5, random_pos=False, num_obstacles=3
+        dynamic_obstacle_minigrid, size=6, random_pos=False, num_obstacles=3
     ),
     "MiniGrid-Dynamic-Obstacles-Random-6x6-v0": partial(
         dynamic_obstacle_minigrid, size=6, random_pos=True, num_obstacles=3
