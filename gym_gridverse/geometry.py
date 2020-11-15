@@ -21,30 +21,30 @@ class Area:
         self.xmin, self.xmax = min(x), max(x)
 
     @property
-    def height(self):
+    def height(self) -> int:
         return self.ymax - self.ymin + 1
 
     @property
-    def width(self):
+    def width(self) -> int:
         return self.xmax - self.xmin + 1
 
     @property
-    def top_left(self):
+    def top_left(self) -> Position:
         return Position(self.ymin, self.xmin)
 
     @property
-    def top_right(self):
+    def top_right(self) -> Position:
         return Position(self.ymin, self.xmax)
 
     @property
-    def bottom_left(self):
+    def bottom_left(self) -> Position:
         return Position(self.ymax, self.xmin)
 
     @property
-    def bottom_right(self):
+    def bottom_right(self) -> Position:
         return Position(self.ymax, self.xmax)
 
-    def contains(self, position: Position):
+    def contains(self, position: Position) -> bool:
         return (
             self.ymin <= position.y <= self.ymax
             and self.xmin <= position.x <= self.xmax
@@ -102,11 +102,11 @@ class _2D_Point(NamedTuple):
     x: int
 
     @staticmethod
-    def add(p1, p2):
+    def add(p1, p2) -> Position:
         return Position(p1[0] + p2[0], p1[1] + p2[1])
 
     @staticmethod
-    def subtract(p1, p2):
+    def subtract(p1, p2) -> Position:
         return Position(p1[0] - p2[0], p1[1] - p2[1])
 
     @staticmethod
@@ -188,7 +188,7 @@ class Orientation(enum.Enum):
 
         return radians[self]
 
-    def rotate_left(self):
+    def rotate_left(self) -> Orientation:
         rotations = {
             Orientation.N: Orientation.W,
             Orientation.W: Orientation.S,
@@ -198,7 +198,7 @@ class Orientation(enum.Enum):
 
         return rotations[self]
 
-    def rotate_right(self):
+    def rotate_right(self) -> Orientation:
         rotations = {
             Orientation.N: Orientation.E,
             Orientation.E: Orientation.S,
