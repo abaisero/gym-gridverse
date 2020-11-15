@@ -1,4 +1,4 @@
-import unittest
+import pytest
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs.reward_functions import (
@@ -33,12 +33,11 @@ def make_goal_state(agent_on_goal: bool) -> State:
     return State(grid, agent)
 
 
-def make_wall_state() -> State:
+def make_wall_state(orientation: Orientation = Orientation.N) -> State:
     """makes a simple state with goal object and agent on or off the goal"""
     grid = Grid(2, 1)
-    grid[Position(0, 0)] = Wall()
-    agent_position = Position(1, 0)
-    agent = Agent(agent_position, Orientation.N)
+    grid[0, 0] = Wall()
+    agent = Agent(Position(1, 0), orientation)
     return State(grid, agent)
 
 
@@ -51,405 +50,219 @@ def make_moving_obstacle_state(agent_on_obstacle: bool) -> State:
     return State(grid, agent)
 
 
-class TestLivingReward(unittest.TestCase):
-    def test_living_reward_default(self):
-        self.assertEqual(living_reward(None, None, None), -1.0)
-
-    def test_living_reward_custom(self):
-        self.assertEqual(living_reward(None, None, None, reward=-1.0), -1.0)
-        self.assertEqual(living_reward(None, None, None, reward=0.0), 0.0)
-        self.assertEqual(living_reward(None, None, None, reward=1.0), 1.0)
-
-
-class TestReachGoal(unittest.TestCase):
-    def test_reach_goal_default(self):
-        # on goal
-        next_state = make_goal_state(agent_on_goal=True)
-        self.assertEqual(reach_goal(None, None, next_state), 1.0)
-
-        # off goal
-        next_state = make_goal_state(agent_on_goal=False)
-        self.assertEqual(reach_goal(None, None, next_state), 0.0)
-
-    def test_reach_goal_custom(self):
-        # on goal
-        next_state = make_goal_state(agent_on_goal=True)
-        self.assertEqual(
-            reach_goal(
-                None, None, next_state, reward_on=10.0, reward_off=-1.0,
-            ),
-            10.0,
-        )
-
-        # off goal
-        next_state = make_goal_state(agent_on_goal=False)
-        self.assertEqual(
-            reach_goal(
-                None, None, next_state, reward_on=10.0, reward_off=-1.0,
-            ),
-            -1.0,
-        )
+@pytest.mark.parametrize(
+    'kwargs,expected',
+    [
+        ({}, -1.0),
+        ({'reward': -1.0}, -1.0),
+        ({'reward': 0.0}, 0.0),
+        ({'reward': 1.0}, 1.0),
+    ],
+)
+def test_living_reward(
+    kwargs, expected: float, forbidden_state_maker, forbidden_action_maker,
+):
+    state = forbidden_state_maker()
+    action = forbidden_action_maker()
+    next_state = forbidden_state_maker()
+    assert living_reward(state, action, next_state, **kwargs) == expected
 
 
-class TestBumpMovingObstacle(unittest.TestCase):
-    def test_bump_moving_obstacle_default(self):
-        # on goal
-        next_state = make_moving_obstacle_state(agent_on_obstacle=True)
-        self.assertEqual(bump_moving_obstacle(None, None, next_state), -1.0)
-
-        # off goal
-        next_state = make_moving_obstacle_state(agent_on_obstacle=False)
-        self.assertEqual(bump_moving_obstacle(None, None, next_state), 0.0)
-
-    def test_bump_moving_obstacle_custom(self):
-        # on goal
-        next_state = make_moving_obstacle_state(agent_on_obstacle=True)
-        self.assertEqual(
-            bump_moving_obstacle(None, None, next_state, reward=-10.0), -10.0,
-        )
-
-        # off goal
-        next_state = make_moving_obstacle_state(agent_on_obstacle=False)
-        self.assertEqual(
-            bump_moving_obstacle(None, None, next_state, reward=-10.0,), 0.0,
-        )
+@pytest.mark.parametrize(
+    'agent_on_goal,kwargs,expected',
+    [
+        (True, {}, 1.0),
+        (False, {}, 0.0),
+        (True, {'reward_on': 10.0, 'reward_off': -1.0}, 10.0),
+        (False, {'reward_on': 10.0, 'reward_off': -1.0}, -1.0),
+    ],
+)
+def test_reach_goal(
+    agent_on_goal: bool,
+    kwargs,
+    expected: float,
+    forbidden_state_maker,
+    forbidden_action_maker,
+):
+    state = forbidden_state_maker()
+    action = forbidden_action_maker()
+    next_state = make_goal_state(agent_on_goal=agent_on_goal)
+    assert reach_goal(state, action, next_state, **kwargs) == expected
 
 
-class TestProportionalToDistance(unittest.TestCase):
-    def test_proportional_to_distance_default(self):
-        state = make_5x5_goal_state()
+@pytest.mark.parametrize(
+    'agent_on_obstacle,kwargs,expected',
+    [
+        (True, {}, -1.0),
+        (False, {}, 0.0),
+        (True, {'reward': -10.0}, -10.0),
+        (False, {'reward': -10.0}, 0.0),
+    ],
+)
+def test_bump_moving_obstacle_default(
+    agent_on_obstacle: bool,
+    kwargs,
+    expected: float,
+    forbidden_state_maker,
+    forbidden_action_maker,
+):
+    state = forbidden_state_maker()
+    action = forbidden_action_maker()
+    next_state = make_moving_obstacle_state(agent_on_obstacle)
+    assert bump_moving_obstacle(state, action, next_state, **kwargs) == expected
 
+
+@pytest.mark.parametrize(
+    'position,kwargs,expected',
+    [
         # moving agent on the top row
-
-        state.agent.position = Position(0, 0)
-        self.assertAlmostEqual(
-            proportional_to_distance(None, None, state, object_type=Goal), -4
-        )
-
-        state.agent.position = Position(0, 1)
-        self.assertAlmostEqual(
-            proportional_to_distance(None, None, state, object_type=Goal), -3
-        )
-
-        state.agent.position = Position(0, 2)
-        self.assertAlmostEqual(
-            proportional_to_distance(None, None, state, object_type=Goal), -2
-        )
-
-        state.agent.position = Position(0, 3)
-        self.assertAlmostEqual(
-            proportional_to_distance(None, None, state, object_type=Goal), -3
-        )
-
-        state.agent.position = Position(0, 4)
-        self.assertAlmostEqual(
-            proportional_to_distance(None, None, state, object_type=Goal), -4
-        )
-
+        (Position(0, 0), {}, -4.0),
+        (Position(0, 1), {}, -3.0),
+        (Position(0, 2), {}, -2.0),
+        (Position(0, 3), {}, -3.0),
+        (Position(0, 4), {}, -4.0),
         # moving agent on the middle row
-
-        state.agent.position = Position(2, 0)
-        self.assertAlmostEqual(
-            proportional_to_distance(None, None, state, object_type=Goal), -2
-        )
-
-        state.agent.position = Position(2, 1)
-        self.assertAlmostEqual(
-            proportional_to_distance(None, None, state, object_type=Goal), -1
-        )
-
-        state.agent.position = Position(2, 2)
-        self.assertAlmostEqual(
-            proportional_to_distance(None, None, state, object_type=Goal), 0
-        )
-
-        state.agent.position = Position(2, 3)
-        self.assertAlmostEqual(
-            proportional_to_distance(None, None, state, object_type=Goal), -1
-        )
-
-        state.agent.position = Position(2, 4)
-        self.assertAlmostEqual(
-            proportional_to_distance(None, None, state, object_type=Goal), -2
-        )
-
-    def test_proportional_to_distance_custom(self):
-        state = make_5x5_goal_state()
-
+        (Position(2, 0), {}, -2.0),
+        (Position(2, 1), {}, -1.0),
+        (Position(2, 2), {}, 0.0),
+        (Position(2, 3), {}, -1.0),
+        (Position(2, 4), {}, -2.0),
         # moving agent on the top row
-
-        state.agent.position = Position(0, 0)
-        self.assertAlmostEqual(
-            proportional_to_distance(
-                None,
-                None,
-                state,
-                object_type=Goal,
-                reward_per_unit_distance=0.1,
-            ),
-            0.4,
-        )
-
-        state.agent.position = Position(0, 1)
-        self.assertAlmostEqual(
-            proportional_to_distance(
-                None,
-                None,
-                state,
-                object_type=Goal,
-                reward_per_unit_distance=0.1,
-            ),
-            0.3,
-        )
-
-        state.agent.position = Position(0, 2)
-        self.assertAlmostEqual(
-            proportional_to_distance(
-                None,
-                None,
-                state,
-                object_type=Goal,
-                reward_per_unit_distance=0.1,
-            ),
-            0.2,
-        )
-
-        state.agent.position = Position(0, 3)
-        self.assertAlmostEqual(
-            proportional_to_distance(
-                None,
-                None,
-                state,
-                object_type=Goal,
-                reward_per_unit_distance=0.1,
-            ),
-            0.3,
-        )
-
-        state.agent.position = Position(0, 4)
-        self.assertAlmostEqual(
-            proportional_to_distance(
-                None,
-                None,
-                state,
-                object_type=Goal,
-                reward_per_unit_distance=0.1,
-            ),
-            0.4,
-        )
-
+        (Position(0, 0), {'reward_per_unit_distance': 0.1}, 0.40),
+        (Position(0, 1), {'reward_per_unit_distance': 0.1}, 0.30),
+        (Position(0, 2), {'reward_per_unit_distance': 0.1}, 0.20),
+        (Position(0, 3), {'reward_per_unit_distance': 0.1}, 0.30),
+        (Position(0, 4), {'reward_per_unit_distance': 0.1}, 0.40),
         # moving agent on the middle row
+        (Position(2, 0), {'reward_per_unit_distance': 0.1}, 0.20),
+        (Position(2, 1), {'reward_per_unit_distance': 0.1}, 0.10),
+        (Position(2, 2), {'reward_per_unit_distance': 0.1}, 0.0),
+        (Position(2, 3), {'reward_per_unit_distance': 0.1}, 0.10),
+        (Position(2, 4), {'reward_per_unit_distance': 0.1}, 0.20),
+    ],
+)
+def test_proportional_to_distance_default(
+    position: Position,
+    kwargs,
+    expected: float,
+    forbidden_state_maker,
+    forbidden_action_maker,
+):
+    state = forbidden_state_maker()
+    action = forbidden_action_maker()
+    next_state = make_5x5_goal_state()
+    next_state.agent.position = position
 
-        state.agent.position = Position(2, 0)
-        self.assertAlmostEqual(
-            proportional_to_distance(
-                None,
-                None,
-                state,
-                object_type=Goal,
-                reward_per_unit_distance=0.1,
-            ),
-            0.2,
-        )
-
-        state.agent.position = Position(2, 1)
-        self.assertAlmostEqual(
-            proportional_to_distance(
-                None,
-                None,
-                state,
-                object_type=Goal,
-                reward_per_unit_distance=0.1,
-            ),
-            0.1,
-        )
-
-        state.agent.position = Position(2, 2)
-        self.assertAlmostEqual(
-            proportional_to_distance(
-                None,
-                None,
-                state,
-                object_type=Goal,
-                reward_per_unit_distance=0.1,
-            ),
-            0.0,
-        )
-
-        state.agent.position = Position(2, 3)
-        self.assertAlmostEqual(
-            proportional_to_distance(
-                None,
-                None,
-                state,
-                object_type=Goal,
-                reward_per_unit_distance=0.1,
-            ),
-            0.1,
-        )
-
-        state.agent.position = Position(2, 4)
-        self.assertAlmostEqual(
-            proportional_to_distance(
-                None,
-                None,
-                state,
-                object_type=Goal,
-                reward_per_unit_distance=0.1,
-            ),
-            0.2,
-        )
+    reward = proportional_to_distance(
+        state, action, next_state, object_type=Goal, **kwargs
+    )
+    assert round(reward, 7) == expected
 
 
-class TestGettingCloser(unittest.TestCase):
-    def test_getting_closer_default(self):
-        state_on_goal = make_goal_state(agent_on_goal=True)
-        state_off_goal = make_goal_state(agent_on_goal=False)
-
-        self.assertEqual(
-            getting_closer(
-                state_off_goal, None, state_off_goal, object_type=Goal
-            ),
-            0.0,
-        )
-        self.assertEqual(
-            getting_closer(
-                state_off_goal, None, state_on_goal, object_type=Goal
-            ),
-            1.0,
-        )
-        self.assertEqual(
-            getting_closer(
-                state_on_goal, None, state_off_goal, object_type=Goal
-            ),
-            -1.0,
-        )
-        self.assertEqual(
-            getting_closer(
-                state_on_goal, None, state_on_goal, object_type=Goal
-            ),
-            0.0,
-        )
-
-    def test_getting_closer_custom(self):
-        state_on_goal = make_goal_state(agent_on_goal=True)
-        state_off_goal = make_goal_state(agent_on_goal=False)
-
-        self.assertEqual(
-            getting_closer(
-                state_off_goal,
-                None,
-                state_off_goal,
-                object_type=Goal,
-                reward_closer=2.0,
-                reward_further=-5.0,
-            ),
-            0.0,
-        )
-        self.assertEqual(
-            getting_closer(
-                state_off_goal,
-                None,
-                state_on_goal,
-                object_type=Goal,
-                reward_closer=2.0,
-                reward_further=-5.0,
-            ),
-            2.0,
-        )
-        self.assertEqual(
-            getting_closer(
-                state_on_goal,
-                None,
-                state_off_goal,
-                object_type=Goal,
-                reward_closer=2.0,
-                reward_further=-5.0,
-            ),
-            -5.0,
-        )
-        self.assertEqual(
-            getting_closer(
-                state_on_goal,
-                None,
-                state_on_goal,
-                object_type=Goal,
-                reward_closer=2.0,
-                reward_further=-5.0,
-            ),
-            0.0,
-        )
+@pytest.mark.parametrize(
+    'agent_on_goal,next_agent_on_goal,kwargs,expected',
+    [
+        (False, False, {}, 0.0),
+        (False, True, {}, 1.0),
+        (True, False, {}, -1.0),
+        (True, True, {}, 0.0),
+        (False, False, {'reward_closer': 2.0, 'reward_further': -5.0}, 0.0),
+        (False, True, {'reward_closer': 2.0, 'reward_further': -5.0}, 2.0),
+        (True, False, {'reward_closer': 2.0, 'reward_further': -5.0}, -5.0),
+        (True, True, {'reward_closer': 2.0, 'reward_further': -5.0}, 0.0),
+    ],
+)
+def test_getting_closer(
+    agent_on_goal: bool,
+    next_agent_on_goal: bool,
+    kwargs,
+    expected: float,
+    forbidden_action_maker,
+):
+    state = make_goal_state(agent_on_goal)
+    action = forbidden_action_maker()
+    next_state = make_goal_state(next_agent_on_goal)
+    assert (
+        getting_closer(state, action, next_state, object_type=Goal, **kwargs)
+        == expected
+    )
 
 
-class TestBumpIntoWall(unittest.TestCase):
-    def test_not_bumping(self):
-        self.assertEqual(
-            bump_into_wall(make_wall_state(), Actions.MOVE_LEFT, None), 0.0
-        )
-
-        self.assertEqual(
-            bump_into_wall(make_wall_state(), Actions.PICK_N_DROP, None), 0.0
-        )
-
-    def test_bumping(self):
-
-        state = make_wall_state()
-        self.assertEqual(
-            bump_into_wall(state, Actions.MOVE_FORWARD, None), -1.0
-        )
-
-        state.agent.orientation = Orientation.E
-        self.assertEqual(bump_into_wall(state, Actions.MOVE_LEFT, None), -1.0)
-
-    def test_reward_value(self):
-        self.assertEqual(
-            bump_into_wall(
-                make_wall_state(), Actions.MOVE_FORWARD, None, reward=-4.78,
-            ),
-            -4.78,
-        )
+@pytest.mark.parametrize(
+    'state,action,kwargs,expected',
+    [
+        # not bumping
+        (make_wall_state(), Actions.MOVE_LEFT, {}, 0.0),
+        (make_wall_state(), Actions.PICK_N_DROP, {}, 0.0),
+        # bumping
+        (make_wall_state(Orientation.N), Actions.MOVE_FORWARD, {}, -1.0),
+        (make_wall_state(Orientation.E), Actions.MOVE_LEFT, {}, -1.0),
+        (make_wall_state(Orientation.S), Actions.MOVE_BACKWARD, {}, -1.0),
+        (make_wall_state(Orientation.W), Actions.MOVE_RIGHT, {}, -1.0),
+        # reward value
+        (make_wall_state(), Actions.MOVE_FORWARD, {'reward': -4.78}, -4.78),
+    ],
+)
+def test_bump_into_wall(
+    state: State,
+    action: Actions,
+    kwargs,
+    expected: float,
+    forbidden_state_maker,
+):
+    next_state = forbidden_state_maker()
+    assert bump_into_wall(state, action, next_state, **kwargs) == expected
 
 
-class TestFactory(unittest.TestCase):
-    def test_invalid(self):
-        self.assertRaises(ValueError, factory, 'invalid')
-
-    def test_valid(self):
-        factory('chain', reward_functions=[])
-        self.assertRaises(ValueError, factory, 'chain')
-
-        factory('overlap', object_type=Goal, reward_on=1.0, reward_off=-1.0)
-        self.assertRaises(ValueError, factory, 'overlap')
-
-        factory('living_reward', reward=1.0)
-        self.assertRaises(ValueError, factory, 'living_reward')
-
-        factory('reach_goal', reward_on=1.0, reward_off=-1.0)
-        self.assertRaises(ValueError, factory, 'reach_goal')
-
-        factory('bump_moving_obstacle', reward=-1.0)
-        self.assertRaises(ValueError, factory, 'bump_moving_obstacle')
-
-        factory(
+@pytest.mark.parametrize(
+    'name,kwargs',
+    [
+        ('chain', {'reward_functions': []}),
+        (
+            'overlap',
+            {'object_type': Goal, 'reward_on': 1.0, 'reward_off': -1.0},
+        ),
+        ('living_reward', {'reward': 1.0}),
+        ('reach_goal', {'reward_on': 1.0, 'reward_off': -1.0}),
+        ('bump_moving_obstacle', {'reward': -1.0}),
+        (
             'proportional_to_distance',
-            distance_function=Position.manhattan_distance,
-            object_type=Goal,
-            reward_per_unit_distance=-0.1,
-        )
-        self.assertRaises(ValueError, factory, 'proportional_to_distance')
-
-        factory(
+            {
+                'distance_function': Position.manhattan_distance,
+                'object_type': Goal,
+                'reward_per_unit_distance': -0.1,
+            },
+        ),
+        (
             'getting_closer',
-            distance_function=Position.manhattan_distance,
-            object_type=Goal,
-            reward_closer=-0.1,
-            reward_further=-0.1,
-        )
-        self.assertRaises(ValueError, factory, 'getting_closer')
+            {
+                'distance_function': Position.manhattan_distance,
+                'object_type': Goal,
+                'reward_closer': -0.1,
+                'reward_further': -0.1,
+            },
+        ),
+        ('bump_into_wall', {'reward': -1.0}),
+    ],
+)
+def test_factory_valid(name: str, kwargs):
+    factory(name, **kwargs)
 
-        factory('bump_into_wall', reward=-1.0)
-        self.assertRaises(ValueError, factory, 'bump_into_wall')
 
-
-if __name__ == '__main__':
-    unittest.main()
+@pytest.mark.parametrize(
+    'name,kwargs,exception',
+    [
+        ('invalid', {}, ValueError),
+        ('chain', {}, ValueError),
+        ('overlap', {}, ValueError),
+        ('living_reward', {}, ValueError),
+        ('reach_goal', {}, ValueError),
+        ('bump_moving_obstacle', {}, ValueError),
+        ('proportional_to_distance', {}, ValueError),
+        ('getting_closer', {}, ValueError),
+        ('bump_into_wall', {}, ValueError),
+    ],
+)
+def test_factory_invalid(name: str, kwargs, exception: Exception):
+    with pytest.raises(exception):  # type: ignore
+        factory(name, **kwargs)

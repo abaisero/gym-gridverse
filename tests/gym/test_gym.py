@@ -1,30 +1,17 @@
-import random
-import unittest
-
 import gym
 
 
-class TestGymEnvironment(unittest.TestCase):
-    def test_registration(self):  # pylint: disable=no-self-use
-        gym.make('GridVerse-MiniGrid-Empty-5x5-v0')
-
-    def test_control_loop(self):  # pylint: disable=no-self-use
-        env = gym.make('GridVerse-MiniGrid-Empty-5x5-v0')
-
-        observation = env.reset()  # pylint: disable=unused-variable
-        for _ in range(10):
-            action = random.randrange(env.action_space.n)
-
-            (
-                observation,
-                reward,  # pylint: disable=unused-variable
-                done,
-                info,  # pylint: disable=unused-variable
-            ) = env.step(action)
-
-            if done:
-                observation = env.reset()
+def test_gym_registration():
+    gym.make('GridVerse-MiniGrid-Empty-5x5-v0')
 
 
-if __name__ == '__main__':
-    unittest.main()
+def test_gym_control_loop():
+    env = gym.make('GridVerse-MiniGrid-Empty-5x5-v0')
+
+    observation = env.reset()  # pylint: disable=unused-variable
+    for _ in range(10):
+        action = env.action_space.sample()
+        observation, _reward, done, _info = env.step(action)
+
+        if done:
+            observation = env.reset()

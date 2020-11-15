@@ -1,4 +1,4 @@
-import unittest
+import pytest
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs.terminating_functions import (
@@ -12,6 +12,7 @@ from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
 
+# TODO turn into fixture
 def make_goal_state(agent_on_goal: bool) -> State:
     """makes a simple state with goal object and agent on or off the goal"""
     grid = Grid(2, 1)
@@ -21,6 +22,7 @@ def make_goal_state(agent_on_goal: bool) -> State:
     return State(grid, agent)
 
 
+# TODO turn into fixture
 def make_wall_state() -> State:
     """makes a simple state with Wall object and agent in front of it"""
     grid = Grid(2, 1)
@@ -30,52 +32,65 @@ def make_wall_state() -> State:
     return State(grid, agent)
 
 
-class TestReachGoal(unittest.TestCase):
-    def test_reach_goal(self):
+@pytest.mark.parametrize(
+    'next_state,expected',
+    [
         # on goal
-        next_state = make_goal_state(agent_on_goal=True)
-        self.assertTrue(reach_goal(None, None, next_state))
-
+        (make_goal_state(agent_on_goal=True), True),
         # off goal
-        next_state = make_goal_state(agent_on_goal=False)
-        self.assertFalse(reach_goal(None, None, next_state))
+        (make_goal_state(agent_on_goal=False), False),
+    ],
+)
+def test_reach_goal(next_state: State, expected: bool):
+    assert reach_goal(None, None, next_state) == expected  # type: ignore
 
 
-class TestBumpIntoWall(unittest.TestCase):
-    def test_valid_moves(self):
-        state = make_wall_state()
-
-        self.assertFalse(bump_into_wall(state, Actions.MOVE_LEFT, None))
-        self.assertFalse(bump_into_wall(state, Actions.TURN_RIGHT, None))
-        self.assertFalse(bump_into_wall(state, Actions.ACTUATE, None))
-
-    def test_bumps(self):
-
-        state = make_wall_state()
-        self.assertTrue(bump_into_wall(state, Actions.MOVE_FORWARD, None))
-
-        state.agent.orientation = Orientation.W
-        self.assertTrue(bump_into_wall(state, Actions.MOVE_RIGHT, None))
+@pytest.mark.parametrize(
+    'state,action,expected',
+    [
+        # no bumps
+        (make_wall_state(), Actions.MOVE_LEFT, False),
+        (make_wall_state(), Actions.TURN_RIGHT, False),
+        (make_wall_state(), Actions.ACTUATE, False),
+        # bumps
+        (make_wall_state(), Actions.MOVE_FORWARD, True),
+    ],
+)
+def test_bump_into_wall(state: State, action: Actions, expected: bool):
+    assert bump_into_wall(state, action, None) == expected  # type: ignore
 
 
-class TestFactory(unittest.TestCase):
-    def test_invalid(self):
-        self.assertRaises(ValueError, factory, 'invalid')
-
-    def test_valid(self):
-        factory('chain_any', terminating_functions=[])
-        self.assertRaises(ValueError, factory, 'chain_any')
-
-        factory('chain_all', terminating_functions=[])
-        self.assertRaises(ValueError, factory, 'chain_all')
-
-        factory('overlap', object_type=Goal)
-        self.assertRaises(ValueError, factory, 'overlap')
-
-        factory('reach_goal')
-        factory('bump_moving_obstacle')
-        factory('bump_into_wall')
+# TODO incorporate this test with previous one
+def test_bump_into_wall_special_case():
+    state = make_wall_state()
+    state.agent.orientation = Orientation.W
+    assert bump_into_wall(state, Actions.MOVE_RIGHT, None)
 
 
-if __name__ == '__main__':
-    unittest.main()
+@pytest.mark.parametrize(
+    'name,kwargs',
+    [
+        ('chain_any', {'terminating_functions': []}),
+        ('chain_all', {'terminating_functions': []}),
+        ('overlap', {'object_type': Goal}),
+        ('reach_goal', {}),
+        ('bump_moving_obstacle', {}),
+        ('bump_into_wall', {}),
+    ],
+)
+def test_factory_valid(name: str, kwargs):
+    factory(name, **kwargs)
+
+
+@pytest.mark.parametrize(
+    'name,kwargs,exception',
+    [
+        ('invalid', {}, ValueError),
+        ('chain_any', {}, ValueError),
+        ('chain_all', {}, ValueError),
+        ('overlap', {}, ValueError),
+    ],
+)
+def test_factory_invalid(name: str, kwargs, exception: Exception):
+    with pytest.raises(exception):  # type: ignore
+        factory(name, **kwargs)

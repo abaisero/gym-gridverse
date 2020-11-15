@@ -1,8 +1,10 @@
-import unittest
+from typing import Sequence, Type
+
+import pytest
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.geometry import Area, Position, Shape
-from gym_gridverse.grid_object import Colors, Door, Floor, Goal
+from gym_gridverse.grid_object import Colors, Door, Floor, Goal, GridObject
 from gym_gridverse.spaces import (
     ActionSpace,
     ObservationSpace,
@@ -12,92 +14,122 @@ from gym_gridverse.spaces import (
 )
 
 
-class TestGetMaxValues(unittest.TestCase):
-    def test_max_color_index(self):
-        colors = [Colors.RED, Colors.BLUE]
-        self.assertEqual(_max_color_index(colors), Colors.BLUE.value)
-
-    def test_max_object_status(self):
-
-        self.assertEqual(_max_object_status([Floor, Goal]), 0)
-        self.assertEqual(_max_object_status([Goal, Door]), len(Door.Status))
-
-    def test_max_object_type(self):
-        self.assertEqual(_max_object_type([Floor, Goal]), Goal.type_index)
-        self.assertEqual(_max_object_type([Door, Goal]), Door.type_index)
+def test_max_color_index():
+    colors = [Colors.RED, Colors.BLUE]
+    assert _max_color_index(colors) == Colors.BLUE.value
 
 
-class TestActionSpace(unittest.TestCase):
-    def test_contains(self):
-        action_space = ActionSpace(list(Actions))
-        self.assertTrue(action_space.contains(Actions.MOVE_FORWARD))
-        self.assertTrue(action_space.contains(Actions.MOVE_BACKWARD))
-        self.assertTrue(action_space.contains(Actions.MOVE_LEFT))
-        self.assertTrue(action_space.contains(Actions.MOVE_RIGHT))
-        self.assertTrue(action_space.contains(Actions.TURN_LEFT))
-        self.assertTrue(action_space.contains(Actions.TURN_RIGHT))
-        self.assertTrue(action_space.contains(Actions.ACTUATE))
-        self.assertTrue(action_space.contains(Actions.PICK_N_DROP))
+@pytest.mark.parametrize(
+    'object_types,expected',
+    [([Floor, Goal], 0), ([Door, Goal], len(Door.Status))],
+)
+def test_max_object_status(
+    object_types: Sequence[Type[GridObject]], expected: int
+):
+    assert _max_object_status(object_types) == expected
 
-        action_space = ActionSpace(
+
+@pytest.mark.parametrize(
+    'object_types,expected',
+    [([Floor, Goal], Goal.type_index), ([Door, Goal], Door.type_index)],
+)
+def test_max_object_type(
+    object_types: Sequence[Type[GridObject]], expected: int
+):
+    assert _max_object_type(object_types) == expected
+
+
+@pytest.mark.parametrize(
+    'action_space,expected_contains,expected_not_contains',
+    [
+        (
+            ActionSpace(list(Actions)),
             [
                 Actions.MOVE_FORWARD,
                 Actions.MOVE_BACKWARD,
                 Actions.MOVE_LEFT,
                 Actions.MOVE_RIGHT,
-            ]
-        )
-        self.assertTrue(action_space.contains(Actions.MOVE_FORWARD))
-        self.assertTrue(action_space.contains(Actions.MOVE_BACKWARD))
-        self.assertTrue(action_space.contains(Actions.MOVE_LEFT))
-        self.assertTrue(action_space.contains(Actions.MOVE_RIGHT))
-        self.assertFalse(action_space.contains(Actions.TURN_LEFT))
-        self.assertFalse(action_space.contains(Actions.TURN_RIGHT))
-        self.assertFalse(action_space.contains(Actions.ACTUATE))
-        self.assertFalse(action_space.contains(Actions.PICK_N_DROP))
-
-    def test_num_actions(self):
-        action_space = ActionSpace(list(Actions))
-        self.assertEqual(action_space.num_actions, len(Actions))
-
-        action_space = ActionSpace(
+                Actions.TURN_LEFT,
+                Actions.TURN_RIGHT,
+                Actions.ACTUATE,
+                Actions.PICK_N_DROP,
+            ],
+            [],
+        ),
+        (
+            ActionSpace(
+                [
+                    Actions.MOVE_FORWARD,
+                    Actions.MOVE_BACKWARD,
+                    Actions.MOVE_LEFT,
+                    Actions.MOVE_RIGHT,
+                ]
+            ),
             [
                 Actions.MOVE_FORWARD,
                 Actions.MOVE_BACKWARD,
                 Actions.MOVE_LEFT,
                 Actions.MOVE_RIGHT,
-            ]
-        )
-        self.assertEqual(action_space.num_actions, 4)
+            ],
+            [
+                Actions.TURN_LEFT,
+                Actions.TURN_RIGHT,
+                Actions.ACTUATE,
+                Actions.PICK_N_DROP,
+            ],
+        ),
+    ],
+)
+def test_action_space_contains(
+    action_space: ActionSpace,
+    expected_contains: Sequence[Actions],
+    expected_not_contains: Sequence[Actions],
+):
+    for action in expected_contains:
+        assert action_space.contains(action)
+
+    for action in expected_not_contains:
+        assert not action_space.contains(action)
 
 
-class TestObservationSpace(unittest.TestCase):
-    def test_area(self):
-        observation_space = ObservationSpace(Shape(2, 5), [], [])
-        self.assertEqual(observation_space.area, Area((-1, 0), (-2, 2)))
+def test_action_space_num_actions():
+    action_space = ActionSpace(list(Actions))
+    assert action_space.num_actions == len(Actions)
 
-        observation_space = ObservationSpace(Shape(3, 5), [], [])
-        self.assertEqual(observation_space.area, Area((-2, 0), (-2, 2)))
-
-        observation_space = ObservationSpace(Shape(2, 7), [], [])
-        self.assertEqual(observation_space.area, Area((-1, 0), (-3, 3)))
-
-        observation_space = ObservationSpace(Shape(3, 7), [], [])
-        self.assertEqual(observation_space.area, Area((-2, 0), (-3, 3)))
-
-    def test_agent_position(self):
-        observation_space = ObservationSpace(Shape(2, 5), [], [])
-        self.assertEqual(observation_space.agent_position, Position(1, 2))
-
-        observation_space = ObservationSpace(Shape(3, 5), [], [])
-        self.assertEqual(observation_space.agent_position, Position(2, 2))
-
-        observation_space = ObservationSpace(Shape(2, 7), [], [])
-        self.assertEqual(observation_space.agent_position, Position(1, 3))
-
-        observation_space = ObservationSpace(Shape(3, 7), [], [])
-        self.assertEqual(observation_space.agent_position, Position(2, 3))
+    action_space = ActionSpace(
+        [
+            Actions.MOVE_FORWARD,
+            Actions.MOVE_BACKWARD,
+            Actions.MOVE_LEFT,
+            Actions.MOVE_RIGHT,
+        ]
+    )
+    assert action_space.num_actions == 4
 
 
-if __name__ == '__main__':
-    unittest.main()
+@pytest.mark.parametrize(
+    'shape,expected',
+    [
+        (Shape(2, 5), Area((-1, 0), (-2, 2))),
+        (Shape(3, 5), Area((-2, 0), (-2, 2))),
+        (Shape(2, 7), Area((-1, 0), (-3, 3))),
+        (Shape(3, 7), Area((-2, 0), (-3, 3))),
+    ],
+)
+def test_observation_space_area(shape: Shape, expected: Area):
+    observation_space = ObservationSpace(shape, [], [])
+    assert observation_space.area == expected
+
+
+@pytest.mark.parametrize(
+    'shape,expected',
+    [
+        (Shape(2, 5), Position(1, 2)),
+        (Shape(3, 5), Position(2, 2)),
+        (Shape(2, 7), Position(1, 3)),
+        (Shape(3, 7), Position(2, 3)),
+    ],
+)
+def test_observation_space_agent_position(shape: Shape, expected: Position):
+    observation_space = ObservationSpace(shape, [], [])
+    assert observation_space.agent_position == expected

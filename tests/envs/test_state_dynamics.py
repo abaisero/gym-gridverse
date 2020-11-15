@@ -2,7 +2,9 @@
 
 import copy
 import random
-import unittest
+from typing import Sequence
+
+import pytest
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs.reset_functions import reset_minigrid_dynamic_obstacles
@@ -26,234 +28,308 @@ from gym_gridverse.info import Agent, Grid, Orientation, Position
 from gym_gridverse.state import State
 
 
-class TestRotateAgent(unittest.TestCase):
-    @staticmethod
-    def random_object():
-        random.choice([Key, Floor])
-
-    def test_the_rotation(self):
-        random_position = Position(random.randint(0, 10), random.randint(0, 10))
-        random_object = self.random_object()
-
-        # Facing NORTH
-        agent = Agent(random_position, Orientation.N, random_object)
-
-        # Rotate to WEST
-        rotate_agent(agent, Actions.TURN_LEFT)
-        self.assertEqual(agent.orientation, Orientation.W)
-
+@pytest.mark.parametrize(
+    'agent,actions,expected',
+    [
+        # Facing north, rotate to WEST
+        (
+            Agent(
+                Position(random.randint(0, 10), random.randint(0, 10)),
+                Orientation.N,
+                NoneGridObject(),
+            ),
+            [Actions.TURN_LEFT],
+            Orientation.W,
+        ),
         # Not rotating
-        rotate_agent(agent, Actions.MOVE_LEFT)
-        rotate_agent(agent, Actions.ACTUATE)
-        rotate_agent(agent, Actions.PICK_N_DROP)
-        self.assertEqual(agent.orientation, Orientation.W)
-
+        (
+            Agent(
+                Position(random.randint(0, 10), random.randint(0, 10)),
+                Orientation.W,
+                NoneGridObject(),
+            ),
+            [Actions.MOVE_LEFT, Actions.ACTUATE, Actions.PICK_N_DROP],
+            Orientation.W,
+        ),
         # Two rotation to EAST
-        rotate_agent(agent, Actions.TURN_LEFT)
-        rotate_agent(agent, Actions.TURN_LEFT)
-        self.assertEqual(agent.orientation, Orientation.E)
-
+        (
+            Agent(
+                Position(random.randint(0, 10), random.randint(0, 10)),
+                Orientation.W,
+                NoneGridObject(),
+            ),
+            [Actions.TURN_LEFT, Actions.TURN_LEFT],
+            Orientation.E,
+        ),
         # One back to SOUTH
-        rotate_agent(agent, Actions.TURN_RIGHT)
-        self.assertEqual(agent.orientation, Orientation.S)
-
+        (
+            Agent(
+                Position(random.randint(0, 10), random.randint(0, 10)),
+                Orientation.E,
+                NoneGridObject(),
+            ),
+            [Actions.TURN_RIGHT],
+            Orientation.S,
+        ),
         # Full circle for fun to SOUTH
-        rotate_agent(agent, Actions.TURN_RIGHT)
-        rotate_agent(agent, Actions.TURN_RIGHT)
-        rotate_agent(agent, Actions.TURN_RIGHT)
-        rotate_agent(agent, Actions.TURN_RIGHT)
-        self.assertEqual(agent.orientation, Orientation.S)
+        (
+            Agent(
+                Position(random.randint(0, 10), random.randint(0, 10)),
+                Orientation.S,
+                NoneGridObject(),
+            ),
+            [
+                Actions.TURN_RIGHT,
+                Actions.TURN_RIGHT,
+                Actions.TURN_RIGHT,
+                Actions.TURN_RIGHT,
+            ],
+            Orientation.S,
+        ),
+    ],
+)
+def test_rotate_agent(
+    agent: Agent,  # pylint: disable=redefined-outer-name
+    actions: Sequence[Actions],
+    expected: Orientation,
+):
+    for action in actions:
+        rotate_agent(agent, action)
+
+    assert agent.orientation == expected
 
 
-class TestMoveAgent(unittest.TestCase):
-    def setUp(self):
-        """Sets up a 3x2 Grid with agent facing north in (2,1)"""
-        self.grid = Grid(height=3, width=2)
-        self.agent = Agent(position=Position(2, 1), orientation=Orientation.N)
-
-    def test_basic_movement_north(self):
-        """Test unblocked movement"""
-
-        # Move to (2,0)
-        move_agent(self.agent, self.grid, action=Actions.MOVE_LEFT)
-        self.assertEqual(self.agent.position, Position(2, 0))
-
-        # Move to (2,1)
-        move_agent(self.agent, self.grid, action=Actions.MOVE_RIGHT)
-        self.assertEqual(self.agent.position, Position(2, 1))
-
-        # Move up twice to (0,1)
-        move_agent(self.agent, self.grid, action=Actions.MOVE_FORWARD)
-        move_agent(self.agent, self.grid, action=Actions.MOVE_FORWARD)
-        self.assertEqual(self.agent.position, Position(0, 1))
-
-        # Move down once to (1,1)
-        move_agent(self.agent, self.grid, action=Actions.MOVE_BACKWARD)
-        self.assertEqual(self.agent.position, Position(1, 1))
-
-    def test_blocked_by_grid_object(self):
-        """ Puts an object on (2,0) and try to move there"""
-        self.grid[Position(2, 0)] = Door(Door.Status.CLOSED, Colors.YELLOW)
-        move_agent(self.agent, self.grid, action=Actions.MOVE_LEFT)
-
-        self.assertEqual(self.agent.position, Position(2, 1))
-
-    def test_blocked_by_edges(self):
-        """Verify agent does not move outside of bounds"""
-        move_agent(self.agent, self.grid, action=Actions.MOVE_RIGHT)
-
-        self.assertEqual(self.agent.position, Position(2, 1))
-
-    def test_other_actions_are_inactive(self):
-        """Make sure actions that do not _move_ are ignored"""
-        move_agent(self.agent, self.grid, action=Actions.TURN_RIGHT)
-        move_agent(self.agent, self.grid, action=Actions.PICK_N_DROP)
-        move_agent(self.agent, self.grid, action=Actions.ACTUATE)
-
-        self.assertEqual(self.agent.position, Position(2, 1))
-
-    def test_facing_east(self):
-        """Just another test to make sure orientation works as intended"""
-        self.agent.orientation = Orientation.E
-
-        move_agent(self.agent, self.grid, action=Actions.MOVE_LEFT)
-        move_agent(self.agent, self.grid, action=Actions.MOVE_LEFT)
-        self.assertEqual(self.agent.position, Position(0, 1))
-
-        move_agent(self.agent, self.grid, action=Actions.MOVE_BACKWARD)
-        self.assertEqual(self.agent.position, Position(0, 0))
-
-        move_agent(self.agent, self.grid, action=Actions.MOVE_FORWARD)
-        self.assertEqual(self.agent.position, Position(0, 1))
-        move_agent(self.agent, self.grid, action=Actions.MOVE_FORWARD)
-        self.assertEqual(self.agent.position, Position(0, 1))
-
-        move_agent(self.agent, self.grid, action=Actions.MOVE_RIGHT)
-        self.assertEqual(self.agent.position, Position(1, 1))
-
-    def test_can_go_on_non_block_objects(self):
-        self.grid[Position(2, 0)] = Door(Door.Status.OPEN, Colors.YELLOW)
-        move_agent(self.agent, self.grid, action=Actions.MOVE_LEFT)
-
-        self.assertEqual(self.agent.position, Position(2, 0))
-
-        self.grid[Position(2, 1)] = Key(Colors.BLUE)
-        move_agent(self.agent, self.grid, action=Actions.MOVE_RIGHT)
-
-        self.assertEqual(self.agent.position, Position(2, 1))
+# TODO clean fixture
+@pytest.fixture
+def grid() -> Grid:
+    """Sets up a 3x2 Grid"""
+    return Grid(height=3, width=2)
 
 
-class TestPickupMechanics(unittest.TestCase):
-    def setUp(self):
-        """Sets up a 3x4 Grid with agent facing south in (1,2)"""
-        self.grid = Grid(height=3, width=4)
-        self.agent = Agent(position=Position(1, 2), orientation=Orientation.S)
-        self.a = Actions.PICK_N_DROP
-        self.item_pos = Position(2, 2)
-
-    @staticmethod
-    def step_with_copy(s: State, a: Actions):
-        next_s = copy.deepcopy(s)
-        pickup_mechanics(next_s, a)
-
-        return next_s
-
-    def test_nothing_to_pickup(self):
-        s = State(self.grid, self.agent)
-
-        # Cannot pickup floor
-        next_s = self.step_with_copy(s, self.a)
-        self.assertEqual(s, next_s)
-
-        # Cannot pickup door
-        self.grid[self.item_pos] = Door(Door.Status.CLOSED, Colors.GREEN)
-        next_s = self.step_with_copy(s, self.a)
-        self.assertEqual(s, next_s)
-
-        self.assertTrue(isinstance(next_s.grid[self.item_pos], Door))
-
-    def test_pickup(self):
-        self.grid[self.item_pos] = Key(Colors.GREEN)
-        s = State(self.grid, self.agent)
-
-        # Pick up works
-        next_s = self.step_with_copy(s, self.a)
-        self.assertEqual(self.grid[self.item_pos], next_s.agent.obj)
-        self.assertIsInstance(next_s.grid[self.item_pos], Floor)
-
-        # Pick up only works with correct action
-        next_s = self.step_with_copy(s, Actions.MOVE_LEFT)
-        self.assertNotEqual(self.grid[self.item_pos], next_s.agent.obj)
-        self.assertEqual(next_s.grid[self.item_pos], self.grid[self.item_pos])
-
-    def test_drop(self):
-        self.agent.obj = Key(Colors.BLUE)
-        s = State(self.grid, self.agent)
-
-        # Can drop:
-        next_s = self.step_with_copy(s, self.a)
-        self.assertIsInstance(next_s.agent.obj, NoneGridObject)
-        self.assertEqual(self.agent.obj, next_s.grid[self.item_pos])
-
-        # Cannot drop:
-        s.grid[self.item_pos] = Wall()
-
-        next_s = self.step_with_copy(s, self.a)
-        self.assertIsInstance(next_s.grid[self.item_pos], Wall)
-        self.assertEqual(self.agent.obj, next_s.agent.obj)
-
-    def test_swap(self):
-        self.agent.obj = Key(Colors.BLUE)
-        self.grid[self.item_pos] = Key(Colors.GREEN)
-        s = State(self.grid, self.agent)
-
-        next_s = self.step_with_copy(s, self.a)
-        self.assertEqual(s.grid[self.item_pos], next_s.agent.obj)
-        self.assertEqual(s.agent.obj, next_s.grid[self.item_pos])
+# TODO clean fixture
+@pytest.fixture
+def agent() -> Agent:
+    """Sets up an agent facing north in (2,1)"""
+    return Agent(position=Position(2, 1), orientation=Orientation.N)
 
 
-class TestStepDynamics(unittest.TestCase):
-    def test_step_called_once(self):
-        """Tests step is called exactly once on all objects
+# TODO parametrize
+def test_move_action_basic_movement_north(
+    grid: Grid, agent: Agent,  # pylint: disable=redefined-outer-name
+):
+    """Test unblocked movement"""
 
-        There was this naive implementation that looped over all positions, and
-        called `.step()` on it. Unfortunately, when `step` caused the object to
-        _move_, then there was a possibility that the object moved to a later
-        position, hence being called twice. This test is here to make sure that
-        does not happen again.
-        """
+    # Move to (2,0)
+    move_agent(agent, grid, action=Actions.MOVE_LEFT)
+    assert agent.position == Position(2, 0)
 
-        def call_counter(func):
-            def helper(*args, **kwargs):
-                helper.count += 1
-                return func(*args, **kwargs)
+    # Move to (2,1)
+    move_agent(agent, grid, action=Actions.MOVE_RIGHT)
+    assert agent.position == Position(2, 1)
 
-            helper.count = 0
-            return helper
+    # Move up twice to (0,1)
+    move_agent(agent, grid, action=Actions.MOVE_FORWARD)
+    move_agent(agent, grid, action=Actions.MOVE_FORWARD)
+    assert agent.position == Position(0, 1)
 
-        w, h, n = 6, 6, 4
-        state = reset_minigrid_dynamic_obstacles(h, w, n)
-        action = Actions.PICK_N_DROP
-
-        # replace obstacles with those that count step
-        obstacles = []
-        for pos in state.grid.positions():
-            if isinstance(state.grid[pos], MovingObstacle):
-                state.grid[pos].step = call_counter(state.grid[pos].step)
-                obstacles.append(state.grid[pos])
-
-        step_objects(state, action)
-
-        for obs in obstacles:
-            self.assertEqual(obs.step.count, 1)
+    # Move down once to (1,1)
+    move_agent(agent, grid, action=Actions.MOVE_BACKWARD)
+    assert agent.position == Position(1, 1)
 
 
-class TestFactory(unittest.TestCase):
-    def test_invalid(self):
-        self.assertRaises(ValueError, factory, 'invalid')
+# TODO parametrize
+def test_move_action_blocked_by_grid_object(
+    grid: Grid, agent: Agent,  # pylint: disable=redefined-outer-name
+):
+    """ Puts an object on (2,0) and try to move there"""
 
-    def test_valid(self):  # pylint: disable=no-self-use
-        factory('update_agent')
-        factory('step_objects')
-        factory('actuate_mechanics')
-        factory('pickup_mechanics')
+    grid[Position(2, 0)] = Door(Door.Status.CLOSED, Colors.YELLOW)
+    move_agent(agent, grid, action=Actions.MOVE_LEFT)
+
+    assert agent.position == Position(2, 1)
+
+
+# TODO parametrize
+def test_move_action_blocked_by_edges(
+    grid: Grid, agent: Agent,  # pylint: disable=redefined-outer-name
+):
+    """Verify agent does not move outside of bounds"""
+
+    move_agent(agent, grid, action=Actions.MOVE_RIGHT)
+
+    assert agent.position == Position(2, 1)
+
+
+# TODO parametrize
+def test_move_action_other_actions_are_inactive(
+    grid: Grid, agent: Agent,  # pylint: disable=redefined-outer-name
+):
+    """Make sure actions that do not _move_ are ignored"""
+
+    move_agent(agent, grid, action=Actions.TURN_RIGHT)
+    move_agent(agent, grid, action=Actions.PICK_N_DROP)
+    move_agent(agent, grid, action=Actions.ACTUATE)
+
+    assert agent.position == Position(2, 1)
+
+
+# TODO parametrize
+def test_move_action_facing_east(
+    grid: Grid, agent: Agent,  # pylint: disable=redefined-outer-name
+):
+    """Just another test to make sure orientation works as intended"""
+    agent.orientation = Orientation.E
+
+    move_agent(agent, grid, action=Actions.MOVE_LEFT)
+    move_agent(agent, grid, action=Actions.MOVE_LEFT)
+    assert agent.position == Position(0, 1)
+
+    move_agent(agent, grid, action=Actions.MOVE_BACKWARD)
+    assert agent.position == Position(0, 0)
+
+    move_agent(agent, grid, action=Actions.MOVE_FORWARD)
+    assert agent.position == Position(0, 1)
+    move_agent(agent, grid, action=Actions.MOVE_FORWARD)
+    assert agent.position == Position(0, 1)
+
+    move_agent(agent, grid, action=Actions.MOVE_RIGHT)
+    assert agent.position == Position(1, 1)
+
+
+# TODO parametrize
+def test_move_action_can_go_on_non_block_objects(
+    grid: Grid, agent: Agent,  # pylint: disable=redefined-outer-name
+):
+    grid[Position(2, 0)] = Door(Door.Status.OPEN, Colors.YELLOW)
+    move_agent(agent, grid, action=Actions.MOVE_LEFT)
+    assert agent.position == Position(2, 0)
+
+    grid[Position(2, 1)] = Key(Colors.BLUE)
+    move_agent(agent, grid, action=Actions.MOVE_RIGHT)
+    assert agent.position == Position(2, 1)
+
+
+def step_with_copy(state: State, action: Actions) -> State:
+    next_state = copy.deepcopy(state)
+    pickup_mechanics(next_state, action)
+    return next_state
+
+
+def test_pickup_mechanics_nothing_to_pickup():
+    grid = Grid(height=3, width=4)
+    agent = Agent(position=Position(1, 2), orientation=Orientation.S)
+    item_pos = Position(2, 2)
+
+    state = State(grid, agent)
+
+    # Cannot pickup floor
+    next_state = step_with_copy(state, Actions.PICK_N_DROP)
+    assert state == next_state
+
+    # Cannot pickup door
+    grid[item_pos] = Door(Door.Status.CLOSED, Colors.GREEN)
+    next_state = step_with_copy(state, Actions.PICK_N_DROP)
+    assert state == next_state
+
+    assert isinstance(next_state.grid[item_pos], Door)
+
+
+def test_pickup_mechanics_pickup():
+    grid = Grid(height=3, width=4)
+    agent = Agent(position=Position(1, 2), orientation=Orientation.S)
+    item_pos = Position(2, 2)
+
+    grid[item_pos] = Key(Colors.GREEN)
+    state = State(grid, agent)
+
+    # Pick up works
+    next_state = step_with_copy(state, Actions.PICK_N_DROP)
+    assert grid[item_pos] == next_state.agent.obj
+    assert isinstance(next_state.grid[item_pos], Floor)
+
+    # Pick up only works with correct action
+    next_state = step_with_copy(state, Actions.MOVE_LEFT)
+    assert grid[item_pos] != next_state.agent.obj
+    assert next_state.grid[item_pos] == grid[item_pos]
+
+
+def test_pickup_mechanics_drop():
+    grid = Grid(height=3, width=4)
+    agent = Agent(position=Position(1, 2), orientation=Orientation.S)
+    item_pos = Position(2, 2)
+
+    agent.obj = Key(Colors.BLUE)
+    state = State(grid, agent)
+
+    # Can drop:
+    next_state = step_with_copy(state, Actions.PICK_N_DROP)
+    assert isinstance(next_state.agent.obj, NoneGridObject)
+    assert agent.obj == next_state.grid[item_pos]
+
+    # Cannot drop:
+    state.grid[item_pos] = Wall()
+
+    next_state = step_with_copy(state, Actions.PICK_N_DROP)
+    assert isinstance(next_state.grid[item_pos], Wall)
+    assert agent.obj == next_state.agent.obj
+
+
+def test_pickup_mechanics_swap():
+    grid = Grid(height=3, width=4)
+    agent = Agent(position=Position(1, 2), orientation=Orientation.S)
+    item_pos = Position(2, 2)
+
+    agent.obj = Key(Colors.BLUE)
+    grid[item_pos] = Key(Colors.GREEN)
+    state = State(grid, agent)
+
+    next_state = step_with_copy(state, Actions.PICK_N_DROP)
+    assert state.grid[item_pos] == next_state.agent.obj
+    assert state.agent.obj == next_state.grid[item_pos]
+
+
+def test_step_called_once():
+    """Tests step is called exactly once on all objects
+
+    There was this naive implementation that looped over all positions, and
+    called `.step()` on it. Unfortunately, when `step` caused the object to
+    _move_, then there was a possibility that the object moved to a later
+    position, hence being called twice. This test is here to make sure that
+    does not happen again.
+    """
+
+    def call_counter(func):
+        def helper(*args, **kwargs):
+            helper.count += 1
+            return func(*args, **kwargs)
+
+        helper.count = 0
+        return helper
+
+    w, h, n = 6, 6, 4
+    state = reset_minigrid_dynamic_obstacles(h, w, n)
+
+    # replace obstacles with those that count step
+    obstacles = []
+    for pos in state.grid.positions():
+        if isinstance(state.grid[pos], MovingObstacle):
+            state.grid[pos].step = call_counter(state.grid[pos].step)
+            obstacles.append(state.grid[pos])
+
+    step_objects(state, Actions.PICK_N_DROP)
+
+    for obs in obstacles:
+        assert obs.step.count == 1
+
+
+@pytest.mark.parametrize(
+    'name',
+    ['update_agent', 'step_objects', 'actuate_mechanics', 'pickup_mechanics'],
+)
+def test_factory_valid(name):
+    factory(name)
+
+
+def test_factory_invalid():
+    with pytest.raises(ValueError):
+        factory('invalid')
