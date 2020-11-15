@@ -131,16 +131,24 @@ def reset_minigrid_dynamic_obstacles(
     """
 
     state = reset_minigrid_empty(height, width, random_agent_pos)
+    vacant_positions = [
+        position
+        for position in state.grid.positions()
+        if isinstance(state.grid[position], Floor)
+        and position != state.agent.position
+    ]
 
-    vacant_positions = filter(
-        lambda pos: pos != state.agent.position
-        and isinstance(state.grid[pos], Floor),
-        list(state.grid.positions()),
-    )
+    try:
+        sample_positions = random.sample(vacant_positions, num_obstacles)
+    except ValueError as e:
+        raise ValueError(
+            f'Too many obstacles ({num_obstacles}) and not enough '
+            f'vacant positions ({len(vacant_positions)})'
+        ) from e
 
-    for obj_pos in random.sample(list(vacant_positions), num_obstacles):
-        assert isinstance(state.grid[obj_pos], Floor)
-        state.grid[obj_pos] = MovingObstacle()
+    for pos in sample_positions:
+        assert isinstance(state.grid[pos], Floor)
+        state.grid[pos] = MovingObstacle()
 
     return state
 
