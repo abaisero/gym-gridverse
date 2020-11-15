@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import enum
 import math
-from typing import Callable, List, NamedTuple, Tuple
+from typing import Callable, List, NamedTuple, Tuple, Union
 
 
 class Shape(NamedTuple):
@@ -125,7 +125,16 @@ class _2D_Point(NamedTuple):
 
 
 class Position(_2D_Point):
-    pass
+    @staticmethod
+    def from_position_or_tuple(position_or_tuple: PositionOrTuple) -> Position:
+        return (
+            position_or_tuple
+            if isinstance(position_or_tuple, Position)
+            else Position(*position_or_tuple)
+        )
+
+
+PositionOrTuple = Union[Position, Tuple[int, int]]
 
 
 class DeltaPosition(_2D_Point):

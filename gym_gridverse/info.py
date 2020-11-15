@@ -2,12 +2,18 @@ from __future__ import annotations
 
 import itertools as itt
 from copy import deepcopy
-from typing import (Callable, Iterator, Optional, Sequence, Set, Tuple, Type,
-                    Union)
+from typing import Callable, Iterator, Optional, Sequence, Set, Type
 
 import numpy as np
 
-from .geometry import Area, DeltaPosition, Orientation, Position, Shape
+from .geometry import (
+    Area,
+    DeltaPosition,
+    Orientation,
+    Position,
+    PositionOrTuple,
+    Shape,
+)
 from .grid_object import Floor, GridObject, Hidden, NoneGridObject
 
 ObjectFactory = Callable[[], GridObject]
@@ -85,16 +91,15 @@ class Grid:
         """returns object types currently in the grid"""
         return set(type(self[position]) for position in self.positions())
 
-    def __getitem__(
-        self, position: Union[Position, Tuple[int, int]]
-    ) -> GridObject:
+    def __getitem__(self, position_or_tuple: PositionOrTuple) -> GridObject:
+        position = Position.from_position_or_tuple(position_or_tuple)
         return self._grid[position]
 
-    def __setitem__(
-        self, position: Union[Position, Tuple[int, int]], obj: GridObject
-    ):
+    def __setitem__(self, position_or_tuple: PositionOrTuple, obj: GridObject):
         if not isinstance(obj, GridObject):
             TypeError('grid can only contain entities')
+
+        position = Position.from_position_or_tuple(position_or_tuple)
         self._grid[position] = obj
 
     def draw_area(self, area: Area, *, object_factory: ObjectFactory):

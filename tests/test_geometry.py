@@ -8,6 +8,7 @@ from gym_gridverse.geometry import (
     DeltaPosition,
     Orientation,
     Position,
+    PositionOrTuple,
     get_manhattan_boundary,
 )
 
@@ -192,6 +193,20 @@ def test_manhattan_boundary(
     boundary = get_manhattan_boundary(position, distance)
     assert len(boundary) == len(expected)
     assert all(pos in boundary for pos in expected)
+
+
+@pytest.mark.parametrize('y', [-10, 0, 10])
+@pytest.mark.parametrize('x', [-10, 0, 10])
+def test_position_from_position_or_tuple(y: int, x: int):
+    position = Position(y, x)
+    position_from_position = Position.from_position_or_tuple(position)
+    assert isinstance(position_from_position, Position)
+    assert position_from_position is position
+
+    position_from_tuple = Position.from_position_or_tuple((y, x))
+    assert isinstance(position_from_tuple, Position)
+
+    assert position_from_position == position_from_tuple
 
 
 @pytest.mark.parametrize(
