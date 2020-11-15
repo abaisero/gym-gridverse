@@ -64,14 +64,14 @@ def minigrid_visibility(grid: Grid, position: Position) -> np.ndarray:
 
     for y in range(grid.height - 1, -1, -1):
         for x in range(grid.width - 1):
-            if visibility[y, x] and grid[Position(y, x)].transparent:
+            if visibility[y, x] and grid[y, x].transparent:
                 visibility[y, x + 1] = True
                 if y > 0:
                     visibility[y - 1, x] = True
                     visibility[y - 1, x + 1] = True
 
         for x in range(grid.width - 1, 0, -1):
-            if visibility[y, x] and grid[Position(y, x)].transparent:
+            if visibility[y, x] and grid[y, x].transparent:
                 visibility[y, x - 1] = True
                 if y > 0:
                     visibility[y - 1, x] = True

@@ -44,13 +44,15 @@ class Area:
     def bottom_right(self) -> Position:
         return Position(self.ymax, self.xmax)
 
-    def contains(self, position: Position) -> bool:
+    def contains(self, position: PositionOrTuple) -> bool:
+        position = Position.from_position_or_tuple(position)
         return (
             self.ymin <= position.y <= self.ymax
             and self.xmin <= position.x <= self.xmax
         )
 
-    def translate(self, position: Position) -> Area:
+    def translate(self, position: PositionOrTuple) -> Area:
+        position = Position.from_position_or_tuple(position)
         return Area(
             (self.ymin + position.y, self.ymax + position.y),
             (self.xmin + position.x, self.xmax + position.x),
@@ -126,11 +128,9 @@ class _2D_Point(NamedTuple):
 
 class Position(_2D_Point):
     @staticmethod
-    def from_position_or_tuple(position_or_tuple: PositionOrTuple) -> Position:
+    def from_position_or_tuple(position: PositionOrTuple) -> Position:
         return (
-            position_or_tuple
-            if isinstance(position_or_tuple, Position)
-            else Position(*position_or_tuple)
+            position if isinstance(position, Position) else Position(*position)
         )
 
 
@@ -209,7 +209,9 @@ class Orientation(enum.Enum):
         return rotations[self]
 
 
-def get_manhattan_boundary(pos: Position, distance: int) -> List[Position]:
+def get_manhattan_boundary(
+    position: PositionOrTuple, distance: int
+) -> List[Position]:
     """Returns the cells (excluding pos) with Manhattan distance of pos
 
     For distance = 1, will return the left, upper, right and lower cell of
@@ -224,7 +226,7 @@ def get_manhattan_boundary(pos: Position, distance: int) -> List[Position]:
       x
 
     Args:
-        pos (Position): The center of the return boundary (excluded)
+        position (PositionOrTuple): The center of the return boundary (excluded)
         distance (int): The distance of the boundary returned
 
     Returns:
@@ -232,19 +234,25 @@ def get_manhattan_boundary(pos: Position, distance: int) -> List[Position]:
     """
     assert distance > 0
 
+    position = Position.from_position_or_tuple(position)
+
     boundary: List[Position] = []
     # from top, adding points clockwise in 4 straight lines
     boundary.extend(
-        Position(pos.y - distance + i, pos.x + i) for i in range(distance)
+        Position(position.y - distance + i, position.x + i)
+        for i in range(distance)
     )
     boundary.extend(
-        Position(pos.y + i, pos.x + distance - i) for i in range(distance)
+        Position(position.y + i, position.x + distance - i)
+        for i in range(distance)
     )
     boundary.extend(
-        Position(pos.y + distance - i, pos.x - i) for i in range(distance)
+        Position(position.y + distance - i, position.x - i)
+        for i in range(distance)
     )
     boundary.extend(
-        Position(pos.y - i, pos.x - distance + i) for i in range(distance)
+        Position(position.y - i, position.x - distance + i)
+        for i in range(distance)
     )
     return boundary
 

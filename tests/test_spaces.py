@@ -3,7 +3,7 @@ from typing import Sequence, Type
 import pytest
 
 from gym_gridverse.actions import Actions
-from gym_gridverse.geometry import Area, Position, Shape
+from gym_gridverse.geometry import Area, PositionOrTuple, Shape
 from gym_gridverse.grid_object import Colors, Door, Floor, Goal, GridObject
 from gym_gridverse.spaces import (
     ActionSpace,
@@ -124,12 +124,14 @@ def test_observation_space_area(shape: Shape, expected: Area):
 @pytest.mark.parametrize(
     'shape,expected',
     [
-        (Shape(2, 5), Position(1, 2)),
-        (Shape(3, 5), Position(2, 2)),
-        (Shape(2, 7), Position(1, 3)),
-        (Shape(3, 7), Position(2, 3)),
+        (Shape(2, 5), (1, 2)),
+        (Shape(3, 5), (2, 2)),
+        (Shape(2, 7), (1, 3)),
+        (Shape(3, 7), (2, 3)),
     ],
 )
-def test_observation_space_agent_position(shape: Shape, expected: Position):
+def test_observation_space_agent_position(
+    shape: Shape, expected: PositionOrTuple
+):
     observation_space = ObservationSpace(shape, [], [])
     assert observation_space.agent_position == expected

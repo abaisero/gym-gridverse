@@ -2,7 +2,7 @@ import random
 from functools import partial
 from typing import Callable, Optional
 
-from gym_gridverse.geometry import Orientation, Position
+from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid_object import (
     Colors,
     Door,
@@ -49,11 +49,10 @@ def reset_minigrid_empty(
             ]
         )
         agent_orientation = random.choice(list(Orientation))
+        agent = Agent(agent_position, agent_orientation)
     else:
-        agent_position = Position(1, 1)
-        agent_orientation = Orientation.E
+        agent = Agent((1, 1), Orientation.E)
 
-    agent = Agent(agent_position, agent_orientation)
     return State(grid, agent)
 
 
@@ -71,25 +70,25 @@ def reset_minigrid_four_rooms(height: int, width: int) -> State:
 
     # making walls
     for y in range(height):
-        grid[Position(y, 0)] = Wall()
-        grid[Position(y, width_split)] = Wall()
-        grid[Position(y, width - 1)] = Wall()
+        grid[y, 0] = Wall()
+        grid[y, width_split] = Wall()
+        grid[y, width - 1] = Wall()
 
     for x in range(width):
-        grid[Position(0, x)] = Wall()
-        grid[Position(height_split, x)] = Wall()
-        grid[Position(height - 1, x)] = Wall()
+        grid[0, x] = Wall()
+        grid[height_split, x] = Wall()
+        grid[height - 1, x] = Wall()
 
     # creating openings in walls
     y = random.choice(range(1, height_split - 1))
-    grid[Position(y, width_split)] = Floor()
+    grid[y, width_split] = Floor()
     y = random.choice(range(height_split + 1, height - 1))
-    grid[Position(y, width_split)] = Floor()
+    grid[y, width_split] = Floor()
 
     x = random.choice(range(1, width_split - 1))
-    grid[Position(height_split, x)] = Floor()
+    grid[height_split, x] = Floor()
     x = random.choice(range(width_split + 1, width - 1))
-    grid[Position(height_split, x)] = Floor()
+    grid[height_split, x] = Floor()
 
     # random goal
     goal_position = random.choice(
@@ -178,32 +177,30 @@ def reset_minigrid_door_key(grid_size: int) -> State:
         )
 
     state = reset_minigrid_empty(grid_size, grid_size)
-    assert isinstance(state.grid[Position(grid_size - 2, grid_size - 2)], Goal)
+    assert isinstance(state.grid[grid_size - 2, grid_size - 2], Goal)
 
     # Generate vertical splitting wall
     wall_column = random.randint(2, grid_size - 3)
     # XXX: potential general function
     for h in range(0, grid_size):
-        state.grid[Position(h, wall_column)] = Wall()
+        state.grid[h, wall_column] = Wall()
 
     # Place yellow, locked door
     door_row = random.randint(2, grid_size - 2)
-    state.grid[Position(door_row, wall_column)] = Door(
-        Door.Status.LOCKED, Colors.YELLOW
-    )
+    state.grid[door_row, wall_column] = Door(Door.Status.LOCKED, Colors.YELLOW)
 
     # Place yellow key left of wall
     # XXX: potential general function
-    key_pos = Position(
-        random.randint(1, grid_size - 2), random.randint(1, wall_column - 1)
-    )
+    y = random.randint(1, grid_size - 2)
+    x = random.randint(1, wall_column - 1)
+    key_pos = (y, x)
     state.grid[key_pos] = Key(Colors.YELLOW)
 
     # Place agent left of wall
     # XXX: potential general function
-    state.agent.position = Position(
-        random.randint(1, grid_size - 2), random.randint(1, wall_column - 1)
-    )
+    y = random.randint(1, grid_size - 2)
+    x = random.randint(1, wall_column - 1)
+    state.agent.position = (y, x)
     state.agent.orientation = random.choice(list(Orientation))
 
     return state

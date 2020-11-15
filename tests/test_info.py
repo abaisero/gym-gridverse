@@ -7,6 +7,7 @@ from gym_gridverse.geometry import (
     DeltaPosition,
     Orientation,
     Position,
+    PositionOrTuple,
     Shape,
 )
 from gym_gridverse.grid_object import Floor, Goal, GridObject, Hidden, Wall
@@ -28,28 +29,28 @@ def test_grid_shape(grid: Grid, expected: Shape):
 @pytest.mark.parametrize(
     'grid,position,expected',
     [
-        (Grid(3, 4), Position(0, 0), True),
-        (Grid(3, 4), Position(2, 3), True),
-        (Grid(3, 4), Position(-1, 0), False),
-        (Grid(3, 4), Position(0, -1), False),
-        (Grid(3, 4), Position(3, 3), False),
-        (Grid(3, 4), Position(2, 4), False),
+        (Grid(3, 4), (0, 0), True),
+        (Grid(3, 4), (2, 3), True),
+        (Grid(3, 4), (-1, 0), False),
+        (Grid(3, 4), (0, -1), False),
+        (Grid(3, 4), (3, 3), False),
+        (Grid(3, 4), (2, 4), False),
     ],
 )
-def test_grid_contains(grid: Grid, position: Position, expected: bool):
+def test_grid_contains(grid: Grid, position: PositionOrTuple, expected: bool):
     assert (position in grid) == expected
 
 
 @pytest.mark.parametrize(
     'grid,position',
     [
-        (Grid(3, 4), Position(-1, 0)),
-        (Grid(3, 4), Position(0, -1)),
-        (Grid(3, 4), Position(3, 3)),
-        (Grid(3, 4), Position(2, 4)),
+        (Grid(3, 4), (-1, 0)),
+        (Grid(3, 4), (0, -1)),
+        (Grid(3, 4), (3, 3)),
+        (Grid(3, 4), (2, 4)),
     ],
 )
-def test_grid_check_contains(grid: Grid, position: Position):
+def test_grid_check_contains(grid: Grid, position: PositionOrTuple):
     # pylint: disable=protected-access
     with pytest.raises(ValueError):
         grid._check_contains(position)
@@ -82,13 +83,13 @@ def test_grid_object_types():
 
     assert grid.object_types() == set([Floor])
 
-    grid[Position(0, 0)] = Wall()
+    grid[0, 0] = Wall()
     assert grid.object_types() == set([Floor, Wall])
 
-    grid[Position(0, 0)] = Goal()
+    grid[0, 0] = Goal()
     assert grid.object_types() == set([Floor, Goal])
 
-    grid[Position(1, 1)] = Wall()
+    grid[1, 1] = Wall()
     assert grid.object_types() == set([Floor, Goal, Wall])
 
 
@@ -255,18 +256,18 @@ def test_grid_change_orientation(
 @pytest.mark.parametrize(
     'position,orientation,expected',
     [
-        (Position(0, 0), Orientation.N, Area((-6, 0), (-3, 3))),
-        (Position(0, 0), Orientation.S, Area((0, 6), (-3, 3))),
-        (Position(0, 0), Orientation.E, Area((-3, 3), (0, 6))),
-        (Position(0, 0), Orientation.W, Area((-3, 3), (-6, 0))),
-        (Position(1, 2), Orientation.N, Area((-5, 1), (-1, 5))),
-        (Position(1, 2), Orientation.S, Area((1, 7), (-1, 5))),
-        (Position(1, 2), Orientation.E, Area((-2, 4), (2, 8))),
-        (Position(1, 2), Orientation.W, Area((-2, 4), (-4, 2))),
+        ((0, 0), Orientation.N, Area((-6, 0), (-3, 3))),
+        ((0, 0), Orientation.S, Area((0, 6), (-3, 3))),
+        ((0, 0), Orientation.E, Area((-3, 3), (0, 6))),
+        ((0, 0), Orientation.W, Area((-3, 3), (-6, 0))),
+        ((1, 2), Orientation.N, Area((-5, 1), (-1, 5))),
+        ((1, 2), Orientation.S, Area((1, 7), (-1, 5))),
+        ((1, 2), Orientation.E, Area((-2, 4), (2, 8))),
+        ((1, 2), Orientation.W, Area((-2, 4), (-4, 2))),
     ],
 )
 def test_get_pov_area(
-    position: Position, orientation: Orientation, expected: Area
+    position: PositionOrTuple, orientation: Orientation, expected: Area
 ):
     relative_area = Area((-6, 0), (-3, 3))
     agent = Agent(position, orientation)
@@ -276,21 +277,21 @@ def test_get_pov_area(
 @pytest.mark.parametrize(
     'position,orientation,delta_position,expected',
     [
-        (Position(0, 0), Orientation.N, DeltaPosition(1, -1), Position(1, -1)),
-        (Position(0, 0), Orientation.S, DeltaPosition(1, -1), Position(-1, 1)),
-        (Position(0, 0), Orientation.E, DeltaPosition(1, -1), Position(-1, -1)),
-        (Position(0, 0), Orientation.W, DeltaPosition(1, -1), Position(1, 1)),
-        (Position(1, 2), Orientation.N, DeltaPosition(2, -2), Position(3, 0)),
-        (Position(1, 2), Orientation.S, DeltaPosition(2, -2), Position(-1, 4)),
-        (Position(1, 2), Orientation.E, DeltaPosition(2, -2), Position(-1, 0)),
-        (Position(1, 2), Orientation.W, DeltaPosition(2, -2), Position(3, 4)),
+        ((0, 0), Orientation.N, DeltaPosition(1, -1), (1, -1)),
+        ((0, 0), Orientation.S, DeltaPosition(1, -1), (-1, 1)),
+        ((0, 0), Orientation.E, DeltaPosition(1, -1), (-1, -1)),
+        ((0, 0), Orientation.W, DeltaPosition(1, -1), (1, 1)),
+        ((1, 2), Orientation.N, DeltaPosition(2, -2), (3, 0)),
+        ((1, 2), Orientation.S, DeltaPosition(2, -2), (-1, 4)),
+        ((1, 2), Orientation.E, DeltaPosition(2, -2), (-1, 0)),
+        ((1, 2), Orientation.W, DeltaPosition(2, -2), (3, 4)),
     ],
 )
 def test_agent_position_relative(
-    position: Position,
+    position: PositionOrTuple,
     orientation: Orientation,
     delta_position: DeltaPosition,
-    expected: Position,
+    expected: PositionOrTuple,
 ):
     agent = Agent(position, orientation)
     assert agent.position_relative(delta_position) == expected
@@ -299,18 +300,20 @@ def test_agent_position_relative(
 @pytest.mark.parametrize(
     'position,orientation,expected',
     [
-        (Position(0, 0), Orientation.N, Position(-1, 0)),
-        (Position(0, 0), Orientation.S, Position(1, 0)),
-        (Position(0, 0), Orientation.E, Position(0, 1)),
-        (Position(0, 0), Orientation.W, Position(0, -1)),
-        (Position(1, 2), Orientation.N, Position(0, 2)),
-        (Position(1, 2), Orientation.S, Position(2, 2)),
-        (Position(1, 2), Orientation.E, Position(1, 3)),
-        (Position(1, 2), Orientation.W, Position(1, 1)),
+        ((0, 0), Orientation.N, (-1, 0)),
+        ((0, 0), Orientation.S, (1, 0)),
+        ((0, 0), Orientation.E, (0, 1)),
+        ((0, 0), Orientation.W, (0, -1)),
+        ((1, 2), Orientation.N, (0, 2)),
+        ((1, 2), Orientation.S, (2, 2)),
+        ((1, 2), Orientation.E, (1, 3)),
+        ((1, 2), Orientation.W, (1, 1)),
     ],
 )
 def test_agent_position_in_front(
-    position: Position, orientation: Orientation, expected: Position
+    position: PositionOrTuple,
+    orientation: Orientation,
+    expected: PositionOrTuple,
 ):
     agent = Agent(position, orientation)
     assert agent.position_in_front() == expected

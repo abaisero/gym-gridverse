@@ -66,12 +66,14 @@ class Grid:
     def area(self) -> Area:
         return Area((0, self.height - 1), (0, self.width - 1))
 
-    def __contains__(self, position: Position) -> bool:
+    def __contains__(self, position: PositionOrTuple) -> bool:
         """checks if position is in the grid"""
+        position = Position.from_position_or_tuple(position)
         return 0 <= position.y < self.height and 0 <= position.x < self.width
 
-    def _check_contains(self, position: Position):
+    def _check_contains(self, position: PositionOrTuple):
         """raises value error if position is not in the grid"""
+        position = Position.from_position_or_tuple(position)
         if position not in self:
             raise ValueError(f'Position {position} ')
 
@@ -91,15 +93,15 @@ class Grid:
         """returns object types currently in the grid"""
         return set(type(self[position]) for position in self.positions())
 
-    def __getitem__(self, position_or_tuple: PositionOrTuple) -> GridObject:
-        position = Position.from_position_or_tuple(position_or_tuple)
+    def __getitem__(self, position: PositionOrTuple) -> GridObject:
+        position = Position.from_position_or_tuple(position)
         return self._grid[position]
 
-    def __setitem__(self, position_or_tuple: PositionOrTuple, obj: GridObject):
+    def __setitem__(self, position: PositionOrTuple, obj: GridObject):
         if not isinstance(obj, GridObject):
             TypeError('grid can only contain entities')
 
-        position = Position.from_position_or_tuple(position_or_tuple)
+        position = Position.from_position_or_tuple(position)
         self._grid[position] = obj
 
     def draw_area(self, area: Area, *, object_factory: ObjectFactory):
@@ -116,7 +118,7 @@ class Grid:
             ((y, area.xmin) for y in range(area.ymax, area.ymin, -1)),
         )
         for y, x in coordinates:
-            self[Position(y, x)] = object_factory()
+            self[y, x] = object_factory()
 
     def swap(self, p: Position, q: Position):
         """swap the objects at two positions"""
@@ -177,16 +179,24 @@ class Grid:
 class Agent:
     def __init__(
         self,
-        position: Position,
+        position: PositionOrTuple,
         orientation: Orientation,
         obj: Optional[GridObject] = None,
     ):
         if obj is None:
             obj = NoneGridObject()
 
-        self.position = position
+        self.position = position  # type: ignore
         self.orientation = orientation
         self.obj: GridObject = obj
+
+    @property
+    def position(self) -> Position:
+        return self._position
+
+    @position.setter
+    def position(self, position: PositionOrTuple):
+        self._position = Position.from_position_or_tuple(position)
 
     def __eq__(self, other):
         if isinstance(other, Agent):

@@ -29,83 +29,71 @@ def test_area_width(area: Area, expected: int):
 
 @pytest.mark.parametrize(
     'area,expected',
-    [
-        (Area((0, 1), (0, 2)), Position(0, 0)),
-        (Area((-1, 1), (-2, 2)), Position(-1, -2)),
-    ],
+    [(Area((0, 1), (0, 2)), (0, 0)), (Area((-1, 1), (-2, 2)), (-1, -2)),],
 )
-def test_area_top_left(area: Area, expected: Position):
+def test_area_top_left(area: Area, expected: PositionOrTuple):
     assert area.top_left == expected
 
 
 @pytest.mark.parametrize(
     'area,expected',
-    [
-        (Area((0, 1), (0, 2)), Position(0, 2)),
-        (Area((-1, 1), (-2, 2)), Position(-1, 2)),
-    ],
+    [(Area((0, 1), (0, 2)), (0, 2)), (Area((-1, 1), (-2, 2)), (-1, 2))],
 )
-def test_area_top_right(area: Area, expected: Position):
+def test_area_top_right(area: Area, expected: PositionOrTuple):
     assert area.top_right == expected
 
 
 @pytest.mark.parametrize(
     'area,expected',
-    [
-        (Area((0, 1), (0, 2)), Position(1, 0)),
-        (Area((-1, 1), (-2, 2)), Position(1, -2)),
-    ],
+    [(Area((0, 1), (0, 2)), (1, 0)), (Area((-1, 1), (-2, 2)), (1, -2)),],
 )
-def test_area_bottom_left(area: Area, expected: Position):
+def test_area_bottom_left(area: Area, expected: PositionOrTuple):
     assert area.bottom_left == expected
 
 
 @pytest.mark.parametrize(
     'area,expected',
-    [
-        (Area((0, 1), (0, 2)), Position(1, 2)),
-        (Area((-1, 1), (-2, 2)), Position(1, 2)),
-    ],
+    [(Area((0, 1), (0, 2)), (1, 2)), (Area((-1, 1), (-2, 2)), (1, 2)),],
 )
-def test_area_bottom_right(area: Area, expected: Position):
+def test_area_bottom_right(area: Area, expected: PositionOrTuple):
     assert area.bottom_right == expected
 
 
 @pytest.mark.parametrize(
     'area,position,expected',
     [
-        (Area((0, 1), (0, 2)), Position(0, 0), True),
-        (Area((0, 1), (0, 2)), Position(-1, 0), False),
-        (Area((0, 1), (0, 2)), Position(0, -1), False),
+        (Area((0, 1), (0, 2)), (0, 0), True),
+        (Area((0, 1), (0, 2)), (-1, 0), False),
+        (Area((0, 1), (0, 2)), (0, -1), False),
         #
-        (Area((0, 1), (0, 2)), Position(1, 2), True),
-        (Area((0, 1), (0, 2)), Position(2, 2), False),
-        (Area((0, 1), (0, 2)), Position(1, 3), False),
+        (Area((0, 1), (0, 2)), (1, 2), True),
+        (Area((0, 1), (0, 2)), (2, 2), False),
+        (Area((0, 1), (0, 2)), (1, 3), False),
         #
-        (Area((-1, 1), (-2, 2)), Position(-1, -2), True),
-        (Area((-1, 1), (-2, 2)), Position(-2, -2), False),
-        (Area((-1, 1), (-2, 2)), Position(-1, -3), False),
+        (Area((-1, 1), (-2, 2)), (-1, -2), True),
+        (Area((-1, 1), (-2, 2)), (-2, -2), False),
+        (Area((-1, 1), (-2, 2)), (-1, -3), False),
         #
-        (Area((-1, 1), (-2, 2)), Position(1, 2), True),
-        (Area((-1, 1), (-2, 2)), Position(2, 2), False),
-        (Area((-1, 1), (-2, 2)), Position(1, 3), False),
+        (Area((-1, 1), (-2, 2)), (1, 2), True),
+        (Area((-1, 1), (-2, 2)), (2, 2), False),
+        (Area((-1, 1), (-2, 2)), (1, 3), False),
     ],
 )
-def test_area_contains(area: Area, position: Position, expected: bool):
+def test_area_contains(area: Area, position: PositionOrTuple, expected: bool):
     assert area.contains(position) == expected
 
 
 @pytest.mark.parametrize(
     'area,position,expected',
     [
-        (Area((0, 1), (0, 2)), Position(1, -1), Area((1, 2), (-1, 1))),
-        (Area((0, 1), (0, 2)), Position(-1, 1), Area((-1, 0), (1, 3))),
+        (Area((0, 1), (0, 2)), (1, -1), Area((1, 2), (-1, 1))),
+        (Area((0, 1), (0, 2)), (-1, 1), Area((-1, 0), (1, 3))),
         #
-        (Area((-1, 1), (-2, 2)), Position(1, -1), Area((0, 2), (-3, 1))),
-        (Area((-1, 1), (-2, 2)), Position(-1, 1), Area((-2, 0), (-1, 3))),
+        (Area((-1, 1), (-2, 2)), (1, -1), Area((0, 2), (-3, 1))),
+        (Area((-1, 1), (-2, 2)), (-1, 1), Area((-2, 0), (-1, 3))),
     ],
 )
-def test_area_translate(area: Area, position: Position, expected: Area):
+def test_area_translate(area: Area, position: PositionOrTuple, expected: Area):
     assert area.translate(position) == expected
 
 
@@ -166,33 +154,22 @@ def test_orientation_as_delta_position(
 @pytest.mark.parametrize(
     'position,distance,expected',
     [
+        ((2, 2), 1, [(1, 2), (2, 3), (3, 2), (2, 1)]),
         (
-            Position(2, 2),
-            1,
-            [Position(1, 2), Position(2, 3), Position(3, 2), Position(2, 1)],
-        ),
-        (
-            Position(4, 3),
+            (4, 3),
             2,
-            [
-                Position(2, 3),
-                Position(3, 4),
-                Position(4, 5),
-                Position(5, 4),
-                Position(6, 3),
-                Position(5, 2),
-                Position(4, 1),
-                Position(3, 2),
-            ],
+            [(2, 3), (3, 4), (4, 5), (5, 4), (6, 3), (5, 2), (4, 1), (3, 2)],
         ),
     ],
 )
 def test_manhattan_boundary(
-    position: Position, distance: int, expected: Sequence[Position]
+    position: PositionOrTuple,
+    distance: int,
+    expected: Sequence[PositionOrTuple],
 ):
     boundary = get_manhattan_boundary(position, distance)
     assert len(boundary) == len(expected)
-    assert all(pos in boundary for pos in expected)
+    assert all(expected_position in boundary for expected_position in expected)
 
 
 @pytest.mark.parametrize('y', [-10, 0, 10])

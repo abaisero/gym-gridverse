@@ -374,18 +374,18 @@ def test_moving_obstacle_obstacle_movement():
     # allow for just 1 next step
     s = simple_state_without_object()
 
-    s.grid[Position(1, 0)] = obs_1
-    s.grid[Position(1, 1)] = obs_2
+    s.grid[1, 0] = obs_1
+    s.grid[1, 1] = obs_2
     obs_1.step(s, action=None)
 
-    assert s.grid.get_position(obs_1) == Position(0, 0)
+    assert s.grid.get_position(obs_1) == (0, 0)
 
     # two possible moves out of corner
     s = simple_state_without_object()
 
-    s.grid[Position(1, 1)] = obs_1
+    s.grid[1, 1] = obs_1
     obs_1.step(s, action=None)
 
-    assert (s.grid.get_position(obs_1) == Position(0, 1)) or (
-        s.grid.get_position(obs_1) == Position(1, 0)
+    assert (s.grid.get_position(obs_1) == (0, 1)) or (
+        s.grid.get_position(obs_1) == (1, 0)
     )

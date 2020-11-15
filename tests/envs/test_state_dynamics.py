@@ -24,7 +24,7 @@ from gym_gridverse.grid_object import (
     NoneGridObject,
     Wall,
 )
-from gym_gridverse.info import Agent, Grid, Orientation, Position
+from gym_gridverse.info import Agent, Grid, Orientation, PositionOrTuple
 from gym_gridverse.state import State
 
 
@@ -34,7 +34,7 @@ from gym_gridverse.state import State
         # Facing north, rotate to WEST
         (
             Agent(
-                Position(random.randint(0, 10), random.randint(0, 10)),
+                (random.randint(0, 10), random.randint(0, 10)),
                 Orientation.N,
                 NoneGridObject(),
             ),
@@ -44,7 +44,7 @@ from gym_gridverse.state import State
         # Not rotating
         (
             Agent(
-                Position(random.randint(0, 10), random.randint(0, 10)),
+                (random.randint(0, 10), random.randint(0, 10)),
                 Orientation.W,
                 NoneGridObject(),
             ),
@@ -54,7 +54,7 @@ from gym_gridverse.state import State
         # Two rotation to EAST
         (
             Agent(
-                Position(random.randint(0, 10), random.randint(0, 10)),
+                (random.randint(0, 10), random.randint(0, 10)),
                 Orientation.W,
                 NoneGridObject(),
             ),
@@ -64,7 +64,7 @@ from gym_gridverse.state import State
         # One back to SOUTH
         (
             Agent(
-                Position(random.randint(0, 10), random.randint(0, 10)),
+                (random.randint(0, 10), random.randint(0, 10)),
                 Orientation.E,
                 NoneGridObject(),
             ),
@@ -74,7 +74,7 @@ from gym_gridverse.state import State
         # Full circle for fun to SOUTH
         (
             Agent(
-                Position(random.randint(0, 10), random.randint(0, 10)),
+                (random.randint(0, 10), random.randint(0, 10)),
                 Orientation.S,
                 NoneGridObject(),
             ),
@@ -99,114 +99,79 @@ def test_rotate_agent(
     assert agent.orientation == expected
 
 
-# TODO clean fixture
-@pytest.fixture
-def grid() -> Grid:
-    """Sets up a 3x2 Grid"""
-    return Grid(height=3, width=2)
-
-
-# TODO clean fixture
-@pytest.fixture
-def agent() -> Agent:
-    """Sets up an agent facing north in (2,1)"""
-    return Agent(position=Position(2, 1), orientation=Orientation.N)
-
-
-# TODO parametrize
-def test_move_action_basic_movement_north(
-    grid: Grid, agent: Agent,  # pylint: disable=redefined-outer-name
+@pytest.mark.parametrize(
+    'position,orientation,actions,expected',
+    [
+        #  unblocked movement
+        ((2, 1), Orientation.N, [Actions.MOVE_LEFT], (2, 0)),
+        ((2, 0), Orientation.N, [Actions.MOVE_RIGHT], (2, 1)),
+        (
+            (2, 1),
+            Orientation.N,
+            [Actions.MOVE_FORWARD, Actions.MOVE_FORWARD],
+            (0, 1),
+        ),
+        ((0, 1), Orientation.N, [Actions.MOVE_BACKWARD], (1, 1),),
+        # blocked by grid object
+        # blocked by edges
+        ((2, 1), Orientation.N, [Actions.MOVE_RIGHT], (2, 1)),
+        # non-movements
+        ((2, 1), Orientation.N, [Actions.TURN_RIGHT], (2, 1)),
+        ((2, 1), Orientation.N, [Actions.TURN_LEFT], (2, 1)),
+        ((2, 1), Orientation.N, [Actions.ACTUATE], (2, 1)),
+        ((2, 1), Orientation.N, [Actions.PICK_N_DROP], (2, 1)),
+        # facing east
+        (
+            (2, 1),
+            Orientation.E,
+            [Actions.MOVE_LEFT, Actions.MOVE_LEFT],
+            (0, 1),
+        ),
+        ((0, 1), Orientation.E, [Actions.MOVE_BACKWARD], (0, 0),),
+        ((0, 0), Orientation.E, [Actions.MOVE_FORWARD], (0, 1)),
+        ((0, 1), Orientation.E, [Actions.MOVE_FORWARD], (0, 1)),
+        ((0, 1), Orientation.E, [Actions.MOVE_RIGHT], (1, 1)),
+    ],
+)
+def test_move_action(
+    position: PositionOrTuple,
+    orientation: Orientation,
+    actions: Sequence[Actions],
+    expected: PositionOrTuple,
 ):
-    """Test unblocked movement"""
+    grid = Grid(height=3, width=2)
+    agent = Agent(position=position, orientation=orientation)
 
-    # Move to (2,0)
-    move_agent(agent, grid, action=Actions.MOVE_LEFT)
-    assert agent.position == Position(2, 0)
+    for action in actions:
+        move_agent(agent, grid, action=action)
 
-    # Move to (2,1)
-    move_agent(agent, grid, action=Actions.MOVE_RIGHT)
-    assert agent.position == Position(2, 1)
-
-    # Move up twice to (0,1)
-    move_agent(agent, grid, action=Actions.MOVE_FORWARD)
-    move_agent(agent, grid, action=Actions.MOVE_FORWARD)
-    assert agent.position == Position(0, 1)
-
-    # Move down once to (1,1)
-    move_agent(agent, grid, action=Actions.MOVE_BACKWARD)
-    assert agent.position == Position(1, 1)
+    assert agent.position == expected
 
 
-# TODO parametrize
-def test_move_action_blocked_by_grid_object(
-    grid: Grid, agent: Agent,  # pylint: disable=redefined-outer-name
-):
+# TODO integrate with previous test
+def test_move_action_blocked_by_grid_object():
     """ Puts an object on (2,0) and try to move there"""
+    grid = Grid(height=3, width=2)
+    agent = Agent(position=(2, 1), orientation=Orientation.N)
 
-    grid[Position(2, 0)] = Door(Door.Status.CLOSED, Colors.YELLOW)
+    grid[2, 0] = Door(Door.Status.CLOSED, Colors.YELLOW)
     move_agent(agent, grid, action=Actions.MOVE_LEFT)
 
-    assert agent.position == Position(2, 1)
+    assert agent.position == (2, 1)
 
 
-# TODO parametrize
-def test_move_action_blocked_by_edges(
-    grid: Grid, agent: Agent,  # pylint: disable=redefined-outer-name
-):
-    """Verify agent does not move outside of bounds"""
+# TODO integrate with previous test
+def test_move_action_can_go_on_non_block_objects():
+    grid = Grid(height=3, width=2)
+    agent = Agent(position=(2, 1), orientation=Orientation.N)
 
+    grid[2, 0] = Door(Door.Status.OPEN, Colors.YELLOW)
+    move_agent(agent, grid, action=Actions.MOVE_LEFT)
+    assert agent.position == (2, 0)
+
+    grid[2, 1] = Key(Colors.BLUE)
     move_agent(agent, grid, action=Actions.MOVE_RIGHT)
-
-    assert agent.position == Position(2, 1)
-
-
-# TODO parametrize
-def test_move_action_other_actions_are_inactive(
-    grid: Grid, agent: Agent,  # pylint: disable=redefined-outer-name
-):
-    """Make sure actions that do not _move_ are ignored"""
-
-    move_agent(agent, grid, action=Actions.TURN_RIGHT)
-    move_agent(agent, grid, action=Actions.PICK_N_DROP)
-    move_agent(agent, grid, action=Actions.ACTUATE)
-
-    assert agent.position == Position(2, 1)
-
-
-# TODO parametrize
-def test_move_action_facing_east(
-    grid: Grid, agent: Agent,  # pylint: disable=redefined-outer-name
-):
-    """Just another test to make sure orientation works as intended"""
-    agent.orientation = Orientation.E
-
-    move_agent(agent, grid, action=Actions.MOVE_LEFT)
-    move_agent(agent, grid, action=Actions.MOVE_LEFT)
-    assert agent.position == Position(0, 1)
-
-    move_agent(agent, grid, action=Actions.MOVE_BACKWARD)
-    assert agent.position == Position(0, 0)
-
-    move_agent(agent, grid, action=Actions.MOVE_FORWARD)
-    assert agent.position == Position(0, 1)
-    move_agent(agent, grid, action=Actions.MOVE_FORWARD)
-    assert agent.position == Position(0, 1)
-
-    move_agent(agent, grid, action=Actions.MOVE_RIGHT)
-    assert agent.position == Position(1, 1)
-
-
-# TODO parametrize
-def test_move_action_can_go_on_non_block_objects(
-    grid: Grid, agent: Agent,  # pylint: disable=redefined-outer-name
-):
-    grid[Position(2, 0)] = Door(Door.Status.OPEN, Colors.YELLOW)
-    move_agent(agent, grid, action=Actions.MOVE_LEFT)
-    assert agent.position == Position(2, 0)
-
-    grid[Position(2, 1)] = Key(Colors.BLUE)
-    move_agent(agent, grid, action=Actions.MOVE_RIGHT)
-    assert agent.position == Position(2, 1)
+    assert agent.position == (2, 1)
 
 
 def step_with_copy(state: State, action: Actions) -> State:
@@ -217,8 +182,8 @@ def step_with_copy(state: State, action: Actions) -> State:
 
 def test_pickup_mechanics_nothing_to_pickup():
     grid = Grid(height=3, width=4)
-    agent = Agent(position=Position(1, 2), orientation=Orientation.S)
-    item_pos = Position(2, 2)
+    agent = Agent(position=(1, 2), orientation=Orientation.S)
+    item_pos = (2, 2)
 
     state = State(grid, agent)
 
@@ -236,8 +201,8 @@ def test_pickup_mechanics_nothing_to_pickup():
 
 def test_pickup_mechanics_pickup():
     grid = Grid(height=3, width=4)
-    agent = Agent(position=Position(1, 2), orientation=Orientation.S)
-    item_pos = Position(2, 2)
+    agent = Agent(position=(1, 2), orientation=Orientation.S)
+    item_pos = (2, 2)
 
     grid[item_pos] = Key(Colors.GREEN)
     state = State(grid, agent)
@@ -255,8 +220,8 @@ def test_pickup_mechanics_pickup():
 
 def test_pickup_mechanics_drop():
     grid = Grid(height=3, width=4)
-    agent = Agent(position=Position(1, 2), orientation=Orientation.S)
-    item_pos = Position(2, 2)
+    agent = Agent(position=(1, 2), orientation=Orientation.S)
+    item_pos = (2, 2)
 
     agent.obj = Key(Colors.BLUE)
     state = State(grid, agent)
@@ -276,8 +241,8 @@ def test_pickup_mechanics_drop():
 
 def test_pickup_mechanics_swap():
     grid = Grid(height=3, width=4)
-    agent = Agent(position=Position(1, 2), orientation=Orientation.S)
-    item_pos = Position(2, 2)
+    agent = Agent(position=(1, 2), orientation=Orientation.S)
+    item_pos = (2, 2)
 
     agent.obj = Key(Colors.BLUE)
     grid[item_pos] = Key(Colors.GREEN)

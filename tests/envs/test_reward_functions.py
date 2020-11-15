@@ -10,7 +10,7 @@ from gym_gridverse.envs.reward_functions import (
     proportional_to_distance,
     reach_goal,
 )
-from gym_gridverse.geometry import Orientation, Position
+from gym_gridverse.geometry import Orientation, Position, PositionOrTuple
 from gym_gridverse.grid_object import Goal, MovingObstacle, Wall
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
@@ -19,16 +19,16 @@ from gym_gridverse.state import State
 def make_5x5_goal_state() -> State:
     """makes a simple 5x5 state with goal object in the middle"""
     grid = Grid(5, 5)
-    grid[Position(2, 2)] = Goal()
-    agent = Agent(Position(0, 0), Orientation.N)
+    grid[2, 2] = Goal()
+    agent = Agent((0, 0), Orientation.N)
     return State(grid, agent)
 
 
 def make_goal_state(agent_on_goal: bool) -> State:
     """makes a simple state with a wall in front of the agent"""
     grid = Grid(2, 1)
-    grid[Position(0, 0)] = Goal()
-    agent_position = Position(0, 0) if agent_on_goal else Position(1, 0)
+    grid[0, 0] = Goal()
+    agent_position = (0, 0) if agent_on_goal else (1, 0)
     agent = Agent(agent_position, Orientation.N)
     return State(grid, agent)
 
@@ -37,15 +37,15 @@ def make_wall_state(orientation: Orientation = Orientation.N) -> State:
     """makes a simple state with goal object and agent on or off the goal"""
     grid = Grid(2, 1)
     grid[0, 0] = Wall()
-    agent = Agent(Position(1, 0), orientation)
+    agent = Agent((1, 0), orientation)
     return State(grid, agent)
 
 
 def make_moving_obstacle_state(agent_on_obstacle: bool) -> State:
     """makes a simple state with goal object and agent on or off the goal"""
     grid = Grid(2, 1)
-    grid[Position(0, 0)] = MovingObstacle()
-    agent_position = Position(0, 0) if agent_on_obstacle else Position(1, 0)
+    grid[0, 0] = MovingObstacle()
+    agent_position = (0, 0) if agent_on_obstacle else (1, 0)
     agent = Agent(agent_position, Orientation.N)
     return State(grid, agent)
 
@@ -116,33 +116,33 @@ def test_bump_moving_obstacle_default(
     'position,kwargs,expected',
     [
         # moving agent on the top row
-        (Position(0, 0), {}, -4.0),
-        (Position(0, 1), {}, -3.0),
-        (Position(0, 2), {}, -2.0),
-        (Position(0, 3), {}, -3.0),
-        (Position(0, 4), {}, -4.0),
+        ((0, 0), {}, -4.0),
+        ((0, 1), {}, -3.0),
+        ((0, 2), {}, -2.0),
+        ((0, 3), {}, -3.0),
+        ((0, 4), {}, -4.0),
         # moving agent on the middle row
-        (Position(2, 0), {}, -2.0),
-        (Position(2, 1), {}, -1.0),
-        (Position(2, 2), {}, 0.0),
-        (Position(2, 3), {}, -1.0),
-        (Position(2, 4), {}, -2.0),
+        ((2, 0), {}, -2.0),
+        ((2, 1), {}, -1.0),
+        ((2, 2), {}, 0.0),
+        ((2, 3), {}, -1.0),
+        ((2, 4), {}, -2.0),
         # moving agent on the top row
-        (Position(0, 0), {'reward_per_unit_distance': 0.1}, 0.40),
-        (Position(0, 1), {'reward_per_unit_distance': 0.1}, 0.30),
-        (Position(0, 2), {'reward_per_unit_distance': 0.1}, 0.20),
-        (Position(0, 3), {'reward_per_unit_distance': 0.1}, 0.30),
-        (Position(0, 4), {'reward_per_unit_distance': 0.1}, 0.40),
+        ((0, 0), {'reward_per_unit_distance': 0.1}, 0.40),
+        ((0, 1), {'reward_per_unit_distance': 0.1}, 0.30),
+        ((0, 2), {'reward_per_unit_distance': 0.1}, 0.20),
+        ((0, 3), {'reward_per_unit_distance': 0.1}, 0.30),
+        ((0, 4), {'reward_per_unit_distance': 0.1}, 0.40),
         # moving agent on the middle row
-        (Position(2, 0), {'reward_per_unit_distance': 0.1}, 0.20),
-        (Position(2, 1), {'reward_per_unit_distance': 0.1}, 0.10),
-        (Position(2, 2), {'reward_per_unit_distance': 0.1}, 0.0),
-        (Position(2, 3), {'reward_per_unit_distance': 0.1}, 0.10),
-        (Position(2, 4), {'reward_per_unit_distance': 0.1}, 0.20),
+        ((2, 0), {'reward_per_unit_distance': 0.1}, 0.20),
+        ((2, 1), {'reward_per_unit_distance': 0.1}, 0.10),
+        ((2, 2), {'reward_per_unit_distance': 0.1}, 0.0),
+        ((2, 3), {'reward_per_unit_distance': 0.1}, 0.10),
+        ((2, 4), {'reward_per_unit_distance': 0.1}, 0.20),
     ],
 )
 def test_proportional_to_distance_default(
-    position: Position,
+    position: PositionOrTuple,
     kwargs,
     expected: float,
     forbidden_state_maker,
@@ -151,7 +151,8 @@ def test_proportional_to_distance_default(
     state = forbidden_state_maker()
     action = forbidden_action_maker()
     next_state = make_5x5_goal_state()
-    next_state.agent.position = position
+    # TODO find better way to construct this state
+    next_state.agent.position = Position.from_position_or_tuple(position)
 
     reward = proportional_to_distance(
         state, action, next_state, object_type=Goal, **kwargs
