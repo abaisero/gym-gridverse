@@ -21,23 +21,22 @@ class Simulator:
 
     A typical usage of this thing is as follows:
 
-    ```
-    s, a = ... # assume access to some state and action
-    s',o,r,t = simulator.sim(s, a)
+    .. code-block:: python
 
-    # store data
-    data.append(
-        simulator.state_rep.convert(s),
-        a,
-        simulator.state_rep(s'),
-        simulator.observation_rep.convert(o),
-        r,
-        t
-    )
+        s, a = ... # assume access to some state and action
+        s',o,r,t = simulator.sim(s, a)
 
-    # ... do something with data
-    ```
+        # store data
+        data.append(
+            simulator.state_rep.convert(s),
+            a,
+            simulator.state_rep(s'),
+            simulator.observation_rep.convert(o),
+            r,
+            t
+        )
 
+        # ... do something with data
     """
 
     def __init__(

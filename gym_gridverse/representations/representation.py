@@ -101,26 +101,32 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
     """Default naive convertion of a grid and agent
 
     Converts grid to a 6 channel (of height x width) representation of:
-        0. object type index
-        1. object state index
-        2. object color index
-        3. zeros except for agent's position which is agent object's type index
-        4. zeros except for agent's position which is agent object's state index
-        5. zeros except for agent's position which is agent object's color index
+
+        #. object type index
+        #. object state index
+        #. object color index
+        #. zeros except for agent's position which is agent object's type index
+        #. zeros except for agent's position which is agent object's state index
+        #. zeros except for agent's position which is agent object's color index
 
     e.g. return['grid'][h,w,2] returns the color of object on grid position (h,w)
 
-    Converts agent into a 3 feature value: [
-        agent y position,
-        agent x positoin,
-        agent orientation,
-        item type index,
-        item status index,
-        item color index
-    ]
+    Converts agent into a feature values::
 
-    NOTE: used by `DefaultStateRepresentation` and
-    `DefaultObservationRepresentation`, refactored here since DRY
+        [
+            agent y position,
+            agent x positoin,
+            agent orientation,
+            item type index,
+            item status index,
+            item color index
+        ]
+
+    NOTE: used by
+    :class:`gym_gridverse.representations.state_representations.DefaultStateRepresentation`
+    and
+    :class:`gym_gridverse.representations.observation_representations.DefaultObservationRepresentation`,
+    refactored here since DRY
 
     Args:
         grid (Grid):
