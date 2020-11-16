@@ -20,9 +20,9 @@
 import os
 import sys
 
-import gym_gridverse
-
 sys.path.insert(0, os.path.abspath('..'))
+
+import gym_gridverse  # isort:skip pylint: disable=wrong-import-position
 
 
 # -- General configuration ---------------------------------------------
