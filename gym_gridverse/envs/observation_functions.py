@@ -202,7 +202,7 @@ def factory(
             raise ValueError('invalid parameters for name `{name}`')
 
         return partial(
-            minigrid_observation, observation_space=observation_space,
+            minigrid_observation, observation_space=observation_space
         )
 
     if name == 'raytracing_observation':
@@ -210,7 +210,7 @@ def factory(
             raise ValueError('invalid parameters for name `{name}`')
 
         return partial(
-            raytracing_observation, observation_space=observation_space,
+            raytracing_observation, observation_space=observation_space
         )
 
     if name == 'stochastic_raytracing_observation':

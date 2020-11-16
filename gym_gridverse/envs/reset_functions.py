@@ -19,7 +19,7 @@ ResetFunction = Callable[[], State]
 
 
 def reset_minigrid_empty(
-    height: int, width: int, random_agent: bool = False,
+    height: int, width: int, random_agent: bool = False
 ) -> State:
     """imitates Minigrid's Empty environment"""
 

@@ -3,7 +3,6 @@ import unittest
 
 import numpy as np
 
-from gym_gridverse.geometry import Position
 from gym_gridverse.grid_object import (
     Colors,
     Door,

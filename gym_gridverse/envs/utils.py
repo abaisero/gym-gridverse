@@ -3,7 +3,7 @@ from gym_gridverse.geometry import Orientation, Position, PositionOrTuple
 
 
 def updated_agent_position_if_unobstructed(
-    agent_pos: PositionOrTuple, agent_orientation: Orientation, action: Actions,
+    agent_pos: PositionOrTuple, agent_orientation: Orientation, action: Actions
 ) -> Position:
     """Returns the desired/intended position according to `action`
 

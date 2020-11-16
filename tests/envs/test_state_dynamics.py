@@ -111,7 +111,7 @@ def test_rotate_agent(
             [Actions.MOVE_FORWARD, Actions.MOVE_FORWARD],
             (0, 1),
         ),
-        ((0, 1), Orientation.N, [Actions.MOVE_BACKWARD], (1, 1),),
+        ((0, 1), Orientation.N, [Actions.MOVE_BACKWARD], (1, 1)),
         # blocked by grid object
         # blocked by edges
         ((2, 1), Orientation.N, [Actions.MOVE_RIGHT], (2, 1)),
@@ -121,13 +121,8 @@ def test_rotate_agent(
         ((2, 1), Orientation.N, [Actions.ACTUATE], (2, 1)),
         ((2, 1), Orientation.N, [Actions.PICK_N_DROP], (2, 1)),
         # facing east
-        (
-            (2, 1),
-            Orientation.E,
-            [Actions.MOVE_LEFT, Actions.MOVE_LEFT],
-            (0, 1),
-        ),
-        ((0, 1), Orientation.E, [Actions.MOVE_BACKWARD], (0, 0),),
+        ((2, 1), Orientation.E, [Actions.MOVE_LEFT, Actions.MOVE_LEFT], (0, 1)),
+        ((0, 1), Orientation.E, [Actions.MOVE_BACKWARD], (0, 0)),
         ((0, 0), Orientation.E, [Actions.MOVE_FORWARD], (0, 1)),
         ((0, 1), Orientation.E, [Actions.MOVE_FORWARD], (0, 1)),
         ((0, 1), Orientation.E, [Actions.MOVE_RIGHT], (1, 1)),

@@ -78,7 +78,7 @@ def overlap(
     return isinstance(next_state.grid[next_state.agent.position], object_type)
 
 
-def reach_goal(state: State, action: Actions, next_state: State,) -> bool:
+def reach_goal(state: State, action: Actions, next_state: State) -> bool:
     """terminating condition for Agent reaching the Goal
 
     Args:
@@ -93,7 +93,7 @@ def reach_goal(state: State, action: Actions, next_state: State,) -> bool:
 
 
 def bump_moving_obstacle(
-    state: State, action: Actions, next_state: State,
+    state: State, action: Actions, next_state: State
 ) -> bool:
     """terminating condition for Agent bumping a moving obstacle
 

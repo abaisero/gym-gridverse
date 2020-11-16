@@ -60,7 +60,7 @@ def make_moving_obstacle_state(agent_on_obstacle: bool) -> State:
     ],
 )
 def test_living_reward(
-    kwargs, expected: float, forbidden_state_maker, forbidden_action_maker,
+    kwargs, expected: float, forbidden_state_maker, forbidden_action_maker
 ):
     state = forbidden_state_maker()
     action = forbidden_action_maker()

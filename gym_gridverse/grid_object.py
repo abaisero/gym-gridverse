@@ -281,7 +281,7 @@ class Goal(GridObject):
 
 
 class Door(GridObject):
-    """ A door is a grid
+    """A door is a grid
 
     Can be `open`, `closed` or `locked`.
 
@@ -335,7 +335,7 @@ class Door(GridObject):
         pass
 
     def actuate(self, state: State) -> None:
-        """ Attempts to open door
+        """Attempts to open door
 
         When not holding correct key with correct color:
             `open` or `closed` -> `open`
@@ -351,14 +351,11 @@ class Door(GridObject):
         if not self.locked:
             self._state = self.Status.OPEN
         else:
-            try:
-                if (
-                    isinstance(state.agent.obj, Key)
-                    and state.agent.obj.color == self.color
-                ):
-                    self._state = self.Status.OPEN
-            except:
-                pass  # door is locked but agent does not hold the correct
+            if (
+                isinstance(state.agent.obj, Key)
+                and state.agent.obj.color == self.color
+            ):
+                self._state = self.Status.OPEN
 
     @property
     def is_open(self) -> bool:

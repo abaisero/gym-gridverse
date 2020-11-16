@@ -1,6 +1,5 @@
 import importlib.resources
 from functools import partial
-from os import path
 from typing import Dict, List, Optional, TextIO, Type
 
 import yamale

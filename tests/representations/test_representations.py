@@ -44,11 +44,7 @@ def test_default_representation_space(
         max_color_value,
     ) = default_representation_fixture
 
-    max_channel_values = [
-        max_obj_type,
-        max_obj_state,
-        max_color_value,
-    ]
+    max_channel_values = [max_obj_type, max_obj_state, max_color_value]
     expected_agent_space = [
         height,
         width,
@@ -59,7 +55,7 @@ def test_default_representation_space(
     expected_grid_space = np.array([[max_channel_values * 2] * width] * height)
 
     space = default_representation_space(
-        max_obj_type, max_obj_state, max_color_value, width, height,
+        max_obj_type, max_obj_state, max_color_value, width, height
     )
 
     np.testing.assert_array_equal(space['grid'], expected_grid_space)
@@ -98,7 +94,7 @@ def test_default_representation_convert(
 
     expected_grid_representation = np.array(
         [
-            [[floor_index, 0, 0], [floor_index, 0, 0], [floor_index, 0, 0],],
+            [[floor_index, 0, 0], [floor_index, 0, 0], [floor_index, 0, 0]],
             [
                 [floor_index, 0, 0],
                 [
@@ -108,7 +104,7 @@ def test_default_representation_convert(
                 ],
                 [floor_index, 0, 0],
             ],
-            [[floor_index, 0, 0], [floor_index, 0, 0], [floor_index, 0, 0],],
+            [[floor_index, 0, 0], [floor_index, 0, 0], [floor_index, 0, 0]],
         ]
     )
 
@@ -156,7 +152,7 @@ def test_no_overlap_space(
     expected_grid_space = np.array([[max_channel_values * 2] * width] * height)
 
     space = no_overlap_representation_space(
-        max_object_type, max_object_status, max_color_value, width, height,
+        max_object_type, max_object_status, max_color_value, width, height
     )
 
     np.testing.assert_array_equal(space['grid'], expected_grid_space)
@@ -234,7 +230,7 @@ def test_no_overlap_convert(
     ]
 
     state_as_array = no_overlap_convert(
-        state.grid, state.agent, max_object_type, max_object_status,
+        state.grid, state.agent, max_object_type, max_object_status
     )
 
     np.testing.assert_array_equal(

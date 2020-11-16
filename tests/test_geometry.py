@@ -14,14 +14,14 @@ from gym_gridverse.geometry import (
 
 
 @pytest.mark.parametrize(
-    'area,expected', [(Area((0, 1), (0, 2)), 2), (Area((-1, 1), (-2, 2)), 3)],
+    'area,expected', [(Area((0, 1), (0, 2)), 2), (Area((-1, 1), (-2, 2)), 3)]
 )
 def test_area_height(area: Area, expected: int):
     assert area.height == expected
 
 
 @pytest.mark.parametrize(
-    'area,expected', [(Area((0, 1), (0, 2)), 3), (Area((-1, 1), (-2, 2)), 5)],
+    'area,expected', [(Area((0, 1), (0, 2)), 3), (Area((-1, 1), (-2, 2)), 5)]
 )
 def test_area_width(area: Area, expected: int):
     assert area.width == expected
@@ -29,7 +29,7 @@ def test_area_width(area: Area, expected: int):
 
 @pytest.mark.parametrize(
     'area,expected',
-    [(Area((0, 1), (0, 2)), (0, 0)), (Area((-1, 1), (-2, 2)), (-1, -2)),],
+    [(Area((0, 1), (0, 2)), (0, 0)), (Area((-1, 1), (-2, 2)), (-1, -2))],
 )
 def test_area_top_left(area: Area, expected: PositionOrTuple):
     assert area.top_left == expected
@@ -45,7 +45,7 @@ def test_area_top_right(area: Area, expected: PositionOrTuple):
 
 @pytest.mark.parametrize(
     'area,expected',
-    [(Area((0, 1), (0, 2)), (1, 0)), (Area((-1, 1), (-2, 2)), (1, -2)),],
+    [(Area((0, 1), (0, 2)), (1, 0)), (Area((-1, 1), (-2, 2)), (1, -2))],
 )
 def test_area_bottom_left(area: Area, expected: PositionOrTuple):
     assert area.bottom_left == expected
@@ -53,7 +53,7 @@ def test_area_bottom_left(area: Area, expected: PositionOrTuple):
 
 @pytest.mark.parametrize(
     'area,expected',
-    [(Area((0, 1), (0, 2)), (1, 2)), (Area((-1, 1), (-2, 2)), (1, 2)),],
+    [(Area((0, 1), (0, 2)), (1, 2)), (Area((-1, 1), (-2, 2)), (1, 2))],
 )
 def test_area_bottom_right(area: Area, expected: PositionOrTuple):
     assert area.bottom_right == expected

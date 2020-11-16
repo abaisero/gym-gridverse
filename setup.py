@@ -14,17 +14,8 @@ requirements = [
     'gym',
     'more_itertools',
     'numpy',
-    'pytest',
     'termcolor',
     'yamale',
-]
-
-setup_requirements = [
-    'pytest-runner',
-]
-
-test_requirements = [
-    'pytest>=3',
 ]
 
 setup(
@@ -48,6 +39,7 @@ setup(
     install_requires=requirements,
     license="MIT license",
     long_description=readme + '\n\n' + history,
+    long_description_content_type='text/x-rst',
     include_package_data=True,
     keywords='gym_gridverse',
     name='gym_gridverse',
@@ -57,15 +49,11 @@ setup(
         'scripts/gv_yaml.py',
         'scripts/gv_viewer.py',
     ],
-    setup_requires=setup_requirements,
-    test_suite='tests',
-    tests_require=test_requirements,
     url='https://github.com/abaisero/gym-gridverse',
     version='0.0.1',
     zip_safe=False,
 )
 
 # setup(
-#     long_description_content_type='text/markdown',
 #     package_data={'gym_gridverse': ['envs/resources/schema.yaml']},
 # )
