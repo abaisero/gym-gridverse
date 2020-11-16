@@ -12,7 +12,7 @@ To install gym-gridverse, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install gym-gridverse
+    $ python -m pip install gym-gridverse
 
 This is the preferred method to install gym-gridverse, as it will always install the most recent stable release.
 
@@ -44,7 +44,7 @@ Once you have a copy of the source, you can install it with:
 
 .. code-block:: console
 
-    $ python setup.py install
+    $ python -m pip install
 
 
 .. _Github repo: https://github.com/abaisero/gym-gridverse
