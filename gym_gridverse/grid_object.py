@@ -351,14 +351,11 @@ class Door(GridObject):
         if not self.locked:
             self._state = self.Status.OPEN
         else:
-            try:
-                if (
-                    isinstance(state.agent.obj, Key)
-                    and state.agent.obj.color == self.color
-                ):
-                    self._state = self.Status.OPEN
-            except:
-                pass  # door is locked but agent does not hold the correct
+            if (
+                isinstance(state.agent.obj, Key)
+                and state.agent.obj.color == self.color
+            ):
+                self._state = self.Status.OPEN
 
     @property
     def is_open(self) -> bool:

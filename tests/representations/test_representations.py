@@ -98,7 +98,7 @@ def test_default_representation_convert(
 
     expected_grid_representation = np.array(
         [
-            [[floor_index, 0, 0], [floor_index, 0, 0], [floor_index, 0, 0],],
+            [[floor_index, 0, 0], [floor_index, 0, 0], [floor_index, 0, 0]],
             [
                 [floor_index, 0, 0],
                 [
@@ -108,7 +108,7 @@ def test_default_representation_convert(
                 ],
                 [floor_index, 0, 0],
             ],
-            [[floor_index, 0, 0], [floor_index, 0, 0], [floor_index, 0, 0],],
+            [[floor_index, 0, 0], [floor_index, 0, 0], [floor_index, 0, 0]],
         ]
     )
 
