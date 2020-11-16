@@ -111,7 +111,7 @@ class CompactObservationRepresentation(ObservationRepresentation):
 
 
 def create_observation_representation(
-    name: str, observation_space: ObservationSpace,
+    name: str, observation_space: ObservationSpace
 ) -> ObservationRepresentation:
     """Factory function for observation representations
 

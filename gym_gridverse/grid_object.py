@@ -281,7 +281,7 @@ class Goal(GridObject):
 
 
 class Door(GridObject):
-    """ A door is a grid
+    """A door is a grid
 
     Can be `open`, `closed` or `locked`.
 
@@ -335,7 +335,7 @@ class Door(GridObject):
         pass
 
     def actuate(self, state: State) -> None:
-        """ Attempts to open door
+        """Attempts to open door
 
         When not holding correct key with correct color:
             `open` or `closed` -> `open`

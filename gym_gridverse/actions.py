@@ -21,7 +21,4 @@ TRANSLATION_ACTIONS = [
     Actions.MOVE_RIGHT,
 ]
 
-ROTATION_ACTIONS = [
-    Actions.TURN_LEFT,
-    Actions.TURN_RIGHT,
-]
+ROTATION_ACTIONS = [Actions.TURN_LEFT, Actions.TURN_RIGHT]

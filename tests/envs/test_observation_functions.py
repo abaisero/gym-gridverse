@@ -89,7 +89,7 @@ def test_minigrid_observation(agent: Agent):
     ],
 )
 def test_minigrid_observation_partially_observable(
-    agent: Agent, expected_objects: Sequence[Sequence[GridObject]],
+    agent: Agent, expected_objects: Sequence[Sequence[GridObject]]
 ):
     grid = Grid.from_objects(
         [

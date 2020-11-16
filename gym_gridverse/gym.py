@@ -26,9 +26,7 @@ def outer_space_to_gym_space(space: Dict[str, np.ndarray]) -> gym.spaces.Space:
 class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
     # NOTE accepting an environment instance as input is a bad idea because it
     # would need to be instantiated during gym registration
-    def __init__(
-        self, constructor: Callable[[], OuterEnv],
-    ):
+    def __init__(self, constructor: Callable[[], OuterEnv]):
         super().__init__()
         self.outer_env = constructor()
 

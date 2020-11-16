@@ -14,14 +14,14 @@ from gym_gridverse.geometry import (
 
 
 @pytest.mark.parametrize(
-    'area,expected', [(Area((0, 1), (0, 2)), 2), (Area((-1, 1), (-2, 2)), 3)],
+    'area,expected', [(Area((0, 1), (0, 2)), 2), (Area((-1, 1), (-2, 2)), 3)]
 )
 def test_area_height(area: Area, expected: int):
     assert area.height == expected
 
 
 @pytest.mark.parametrize(
-    'area,expected', [(Area((0, 1), (0, 2)), 3), (Area((-1, 1), (-2, 2)), 5)],
+    'area,expected', [(Area((0, 1), (0, 2)), 3), (Area((-1, 1), (-2, 2)), 5)]
 )
 def test_area_width(area: Area, expected: int):
     assert area.width == expected

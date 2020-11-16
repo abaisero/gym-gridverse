@@ -117,7 +117,7 @@ def reach_goal(
 
 
 def bump_moving_obstacle(
-    state: State, action: Actions, next_state: State, *, reward: float = -1.0,
+    state: State, action: Actions, next_state: State, *, reward: float = -1.0
 ) -> float:
     """reward for the Agent bumping into on a MovingObstacle
 

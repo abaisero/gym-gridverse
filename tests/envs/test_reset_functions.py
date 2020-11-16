@@ -19,7 +19,7 @@ def wall_column(size: int, state: State) -> int:
 
 
 @pytest.mark.parametrize(
-    'size', [-5, 4],  # negative size and positive-but-too-small
+    'size', [-5, 4]  # negative size and positive-but-too-small
 )
 def test_reset_minigrid_door_key_throw_if_too_small(size: int):
     """Asserts method throws if provided size is too small"""

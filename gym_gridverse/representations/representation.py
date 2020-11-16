@@ -43,7 +43,7 @@ class GridObjectRepresentation(Representation):
     """Base interface for observation representations: enforces `convert`
 
     XXX: currently not in use in the code base, at some point we may want to
-    implement this because we will like it """
+    implement this because we will like it"""
 
     @abc.abstractmethod
     def convert(self, obj: GridObject) -> Dict[str, np.ndarray]:
@@ -171,7 +171,7 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
         [
             [agent.position.y, agent.position.x, agent.orientation.value],
             agent_obj_array,
-        ],
+        ]
     )
 
     return {'grid': grid_array, 'agent': agent_array}
@@ -234,7 +234,7 @@ def no_overlap_representation_space(
 
 
 def no_overlap_convert(
-    grid: Grid, agent: Agent, max_type_index: int, max_state_index: int,
+    grid: Grid, agent: Agent, max_type_index: int, max_state_index: int
 ) -> Dict[str, np.ndarray]:
     """similar to the `default_representation_space`, but ensures no overlap between channels
 

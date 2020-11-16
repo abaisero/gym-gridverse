@@ -96,7 +96,7 @@ class CompactStateRepresentation(StateRepresentation):
 
 
 def create_state_representation(
-    name: str, state_space: StateSpace,
+    name: str, state_space: StateSpace
 ) -> StateRepresentation:
     """Factory function for state representations
 

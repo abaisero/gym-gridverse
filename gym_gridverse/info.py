@@ -24,7 +24,7 @@ class Grid:
         self.height = height
         self.width = width
         self._grid = np.array(
-            [[Floor() for _ in range(width)] for _ in range(height)],
+            [[Floor() for _ in range(width)] for _ in range(height)]
         )
 
     @staticmethod
