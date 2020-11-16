@@ -1,42 +1,71 @@
-from setuptools import setup
+#!/usr/bin/env python
 
-from gym_gridverse import __version__
+"""The setup script."""
 
-with open('README.md', 'r') as f:
-    long_description = f.read()
+from setuptools import find_packages, setup
+
+with open('README.rst') as readme_file:
+    readme = readme_file.read()
+
+with open('HISTORY.rst') as history_file:
+    history = history_file.read()
+
+requirements = [
+    'gym',
+    'more_itertools',
+    'numpy',
+    'pytest',
+    'termcolor',
+    'yamale',
+]
+
+setup_requirements = [
+    'pytest-runner',
+]
+
+test_requirements = [
+    'pytest>=3',
+]
 
 setup(
-    name='gym-gridverse',
-    version=__version__,
-    description='Gridworld domains for fully and partially observable reinforcement learning',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    author='Andrea Baisero',
+    author="Andrea Baisero",
     author_email='andrea.baisero@gmail.com',
-    url='https://github.com/abaisero/gym-gridverse',
-    packages=['gym_gridverse'],
-    install_requires=[
-        'gym',
-        'more_itertools',
-        'numpy',
-        'pytest',
-        'termcolor',
-        'yamale',
-    ],
-    package_data={'gym_gridverse': ['envs/resources/schema.yaml']},
-    scripts=['scripts/gv_gym_interface.py', 'scripts/gv_yaml.py'],
-    license='MIT',
+    python_requires='>=3.6',
     classifiers=[
-        "Development Status :: 1 - Planning",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Intended Audience :: Science/Research",
+        'Development Status :: 2 - Pre-Alpha',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    python_requires='~=3.6',
+    description="Gridworld domains for fully and partially observable reinforcement learning",
+    install_requires=requirements,
+    license="MIT license",
+    long_description=readme + '\n\n' + history,
+    include_package_data=True,
+    keywords='gym_gridverse',
+    name='gym_gridverse',
+    packages=find_packages(include=['gym_gridverse', 'gym_gridverse.*']),
+    scripts=[
+        'scripts/gv_gym_interface.py',
+        'scripts/gv_yaml.py',
+        'scripts/gv_viewer.py',
+    ],
+    setup_requires=setup_requirements,
+    test_suite='tests',
+    tests_require=test_requirements,
+    url='https://github.com/abaisero/gym-gridverse',
+    version='0.0.1',
+    zip_safe=False,
 )
+
+# setup(
+#     long_description_content_type='text/markdown',
+#     package_data={'gym_gridverse': ['envs/resources/schema.yaml']},
+# )

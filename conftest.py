@@ -5,6 +5,9 @@ import pytest
 from gym_gridverse.actions import Actions
 from gym_gridverse.state import State
 
+# avoid discovering tests in setup.py
+collect_ignore = ["setup.py"]
+
 
 @pytest.fixture
 def forbidden_state_maker():
