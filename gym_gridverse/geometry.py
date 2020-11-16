@@ -217,13 +217,13 @@ def get_manhattan_boundary(
     For distance = 1, will return the left, upper, right and lower cell of
     position. For longer distances, the extended boundary is returned:
 
-    E.g. for distance = 2 the cells denoted by 'x' are returned:
+    E.g. for distance = 2 the cells denoted by 'x' are returned::
 
-      x
-     x x
-    x . x
-     x x
-      x
+          x
+         x x
+        x . x
+         x x
+          x
 
     Args:
         position (PositionOrTuple): The center of the return boundary (excluded)

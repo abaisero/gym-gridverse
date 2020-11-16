@@ -127,9 +127,9 @@ def actuate_mechanics(state: State, action: Actions) -> None:
 def pickup_mechanics(state: State, action: Actions) -> None:
     """Implements the effect of the pickup and drop action
 
-    Pickup applies to the item _in front_ of the agent
+    Pickup applies to the item *in front* of the agent
+    There are multiple scenarii
 
-    There are multiple scenarii:
     * There is no (pick-up-able) item to pickup under the agent:
         * The agent is not holding any object -> No effect
         * The agent is holding an object:

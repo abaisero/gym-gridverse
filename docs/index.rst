@@ -1,5 +1,5 @@
 Welcome to gym-gridverse's documentation!
-======================================
+=========================================
 
 .. toctree::
    :maxdepth: 2

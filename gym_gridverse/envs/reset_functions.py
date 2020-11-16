@@ -157,13 +157,13 @@ def reset_minigrid_door_key(grid_size: int) -> State:
 
     Creates a grid_size x grid_size (including wall) grid with a random column
     of walls. The agent and a yellow key are randomly dropped left of the
-    column, while the goal is placed in the bottom right. For example:
+    column, while the goal is placed in the bottom right. For example::
 
-    #########
-    # @#    #
-    #  D    #
-    #K #   G#
-    #########
+        #########
+        # @#    #
+        #  D    #
+        #K #   G#
+        #########
 
     Args:
         grid_size (`int`): assumes rectangular grid
