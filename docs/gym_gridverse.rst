@@ -109,6 +109,7 @@ gym\_gridverse.visualize module
    :undoc-members:
    :show-inheritance:
 
+
 Module contents
 ---------------
 
