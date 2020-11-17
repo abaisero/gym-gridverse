@@ -4,12 +4,12 @@ from typing import Callable, Iterator, List, Optional
 
 import more_itertools as mitt
 import numpy as np
-import numpy.random as rnd
 
 from gym_gridverse.geometry import Area, Orientation, Position
 from gym_gridverse.grid_object import Hidden
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.observation import Observation
+from gym_gridverse.rng import get_gv_rng
 from gym_gridverse.spaces import ObservationSpace
 from gym_gridverse.state import State
 
@@ -137,9 +137,11 @@ def raytracing_visibility(grid: Grid, position: Position) -> np.ndarray:
     return visibility
 
 
-def stochastic_raytracing_visibility(
+def stochastic_raytracing_visibility(  # TODO add test
     grid: Grid, position: Position
 ) -> np.ndarray:
+    rng = get_gv_rng()
+
     area = Area((0, grid.height - 1), (0, grid.width - 1))
     rays = rays_positions(position, area)
 
@@ -157,7 +159,7 @@ def stochastic_raytracing_visibility(
             light = light and grid[pos].transparent
 
     probs = np.nan_to_num(counts_num / counts_den)
-    visibility = probs <= rnd.random((probs.shape))  # pylint: disable=no-member
+    visibility = probs <= rng.random(probs.shape)
     return visibility
 
 

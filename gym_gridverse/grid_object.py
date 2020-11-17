@@ -3,12 +3,12 @@ from __future__ import annotations
 
 import abc
 import enum
-import random
 from typing import TYPE_CHECKING, List
 
 import numpy as np
 
 from gym_gridverse.geometry import get_manhattan_boundary
+from gym_gridverse.rng import get_gv_rng
 
 if TYPE_CHECKING:
     from gym_gridverse.actions import Actions
@@ -458,6 +458,7 @@ class MovingObstacle(GridObject):
             state (`State`): current state
             action (`Actions`): action taken by agent (ignored)
         """
+        rng = get_gv_rng()
 
         cur_pos = state.grid.get_position(self)
 
@@ -473,7 +474,7 @@ class MovingObstacle(GridObject):
         if not proposed_next_positions:
             return
 
-        next_position = random.choice(proposed_next_positions)
+        next_position = rng.choice(proposed_next_positions)
         state.grid.swap(cur_pos, next_position)
 
     def actuate(self, state: State) -> None:
