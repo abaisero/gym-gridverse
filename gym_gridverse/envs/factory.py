@@ -1,7 +1,9 @@
 """ Tying the magic together into constructing specific domains """
 
 from functools import partial
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Optional
+
+import numpy.random as rnd
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs import (
@@ -29,6 +31,7 @@ from gym_gridverse.spaces import (
     ObservationSpace,
     StateSpace,
 )
+from gym_gridverse.state import State
 
 
 def create_env(
@@ -58,9 +61,11 @@ def create_env(
     """
 
     # Transitions are applied in order
-    def transition(s, a):
+    def transition(
+        state: State, action: Actions, *, rng: Optional[rnd.Generator] = None
+    ) -> None:
         for f in transition_functions:
-            f(s, a)
+            f(state, action, rng=rng)
 
     # TODO make more general
     observation = partial(
@@ -69,12 +74,12 @@ def create_env(
     )
 
     # Rewards are additive
-    def reward(s, a, next_s):
-        return sum(r(s, a, next_s) for r in rewards)
+    def reward(state: State, action: Actions, next_state: State) -> float:
+        return sum(r(state, action, next_state) for r in rewards)
 
     # Termination is a big or
-    def termination(s, a, next_s):
-        return any(t(s, a, next_s) for t in terminations)
+    def termination(state: State, action: Actions, next_state: State) -> bool:
+        return any(t(state, action, next_state) for t in terminations)
 
     return GridWorld(
         domain_space, reset, transition, observation, reward, termination

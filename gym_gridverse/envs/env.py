@@ -24,6 +24,10 @@ class Environment(metaclass=abc.ABCMeta):
         self._observation: Optional[Observation] = None
 
     @abc.abstractmethod
+    def set_seed(self, seed: Optional[int] = None):
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def functional_reset(self) -> State:
         raise NotImplementedError
 

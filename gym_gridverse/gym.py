@@ -1,9 +1,10 @@
 from functools import partial
-from typing import Callable, Dict
-
-import numpy as np
+from typing import Callable, Dict, List, Optional
 
 import gym
+import numpy as np
+from gym.utils import seeding
+
 from gym_gridverse.envs import Environment, factory
 from gym_gridverse.outer_env import OuterEnv
 from gym_gridverse.representations.observation_representations import (
@@ -43,6 +44,11 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
             if self.outer_env.observation_rep is not None
             else None
         )
+
+    def seed(self, seed: Optional[int] = None) -> List[int]:
+        actual_seed = seeding.create_seed(seed)
+        self.outer_env.inner_env.set_seed(actual_seed)
+        return [actual_seed]
 
     def set_state_representation(self, name: str):
         """Change underlying state representation"""
