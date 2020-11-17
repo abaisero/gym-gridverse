@@ -1,5 +1,8 @@
 from functools import partial
-from typing import Callable, Optional
+from typing import Optional
+
+import numpy.random as rnd
+from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid_object import (
@@ -12,21 +15,28 @@ from gym_gridverse.grid_object import (
     Wall,
 )
 from gym_gridverse.info import Agent, Grid
-from gym_gridverse.rng import get_gv_rng
+from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
 
-ResetFunction = Callable[[], State]
+
+class ResetFunction(Protocol):
+    def __call__(self, *, rng: Optional[rnd.Generator] = None) -> State:
+        ...
 
 
 def reset_minigrid_empty(
-    height: int, width: int, random_agent: bool = False
+    height: int,
+    width: int,
+    random_agent: bool = False,
+    *,
+    rng: Optional[rnd.Generator] = None,
 ) -> State:
     """imitates Minigrid's Empty environment"""
 
     if height < 4 or width < 4:
         raise ValueError('height and width need to be at least 4')
 
-    rng = get_gv_rng()
+    rng = get_gv_rng_if_none(rng)
 
     # TODO test creation (e.g. count number of walls, goals, check held item)
 
@@ -59,12 +69,14 @@ def reset_minigrid_empty(
     return State(grid, agent)
 
 
-def reset_minigrid_four_rooms(height: int, width: int) -> State:
+def reset_minigrid_four_rooms(
+    height: int, width: int, *, rng: Optional[rnd.Generator] = None
+) -> State:
     """imitates Minigrid's FourRooms environment"""
     if height < 5 or width < 5:
         raise ValueError('height and width need to be at least 5')
 
-    rng = get_gv_rng()
+    rng = get_gv_rng_if_none(rng)
 
     # TODO test creation (e.g. count number of walls, goals, check held item)
 
@@ -120,7 +132,12 @@ def reset_minigrid_four_rooms(height: int, width: int) -> State:
 
 
 def reset_minigrid_dynamic_obstacles(
-    height: int, width: int, num_obstacles: int, random_agent_pos: bool = False
+    height: int,
+    width: int,
+    num_obstacles: int,
+    random_agent_pos: bool = False,
+    *,
+    rng: Optional[rnd.Generator] = None,
 ) -> State:
     """Returns an initial state as seen in 'Minigrid-dynamic-obstacle' environment
 
@@ -129,14 +146,15 @@ def reset_minigrid_dynamic_obstacles(
         width (`int`): width of grid
         num_obstacles (`int`): number of dynamic obstacles
         random_agent (`bool, optional`): position of agent, in corner if False
+        rng: (`Generator, optional`)
 
     Returns:
         State:
     """
 
-    rng = get_gv_rng()
+    rng = get_gv_rng_if_none(rng)
 
-    state = reset_minigrid_empty(height, width, random_agent_pos)
+    state = reset_minigrid_empty(height, width, random_agent_pos, rng=rng)
     vacant_positions = [
         position
         for position in state.grid.positions()
@@ -161,7 +179,9 @@ def reset_minigrid_dynamic_obstacles(
     return state
 
 
-def reset_minigrid_door_key(grid_size: int) -> State:
+def reset_minigrid_door_key(
+    grid_size: int, *, rng: Optional[rnd.Generator] = None
+) -> State:
     """Returns a state similar to the gym minigrid 'door & key' environment
 
     Creates a grid_size x grid_size (including wall) grid with a random column
@@ -176,6 +196,7 @@ def reset_minigrid_door_key(grid_size: int) -> State:
 
     Args:
         grid_size (`int`): assumes rectangular grid
+        rng: (`Generator, optional`)
 
     Returns:
         State:
@@ -185,7 +206,7 @@ def reset_minigrid_door_key(grid_size: int) -> State:
             f"Minigrid door-key environment minimum size is 5, given {grid_size}"
         )
 
-    rng = get_gv_rng()
+    rng = get_gv_rng_if_none(rng)
 
     state = reset_minigrid_empty(grid_size, grid_size)
     assert isinstance(state.grid[grid_size - 2, grid_size - 2], Goal)

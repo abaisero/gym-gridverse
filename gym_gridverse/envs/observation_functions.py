@@ -1,25 +1,48 @@
 import math
 from functools import lru_cache, partial
-from typing import Callable, Iterator, List, Optional
+from typing import Iterator, List, Optional
 
 import more_itertools as mitt
 import numpy as np
+import numpy.random as rnd
+from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.geometry import Area, Orientation, Position
 from gym_gridverse.grid_object import Hidden
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.observation import Observation
-from gym_gridverse.rng import get_gv_rng
+from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.spaces import ObservationSpace
 from gym_gridverse.state import State
 
-ObservationFunction = Callable[[State], Observation]
-VisibilityFunction = Callable[[Grid, Position], np.array]
+
+class ObservationFunction(Protocol):
+    def __call__(
+        self, state: State, *, rng: Optional[rnd.Generator] = None
+    ) -> Observation:
+        ...
+
+
+class VisibilityFunction(Protocol):
+    def __call__(
+        self,
+        grid: Grid,
+        position: Position,
+        *,
+        rng: Optional[rnd.Generator] = None,
+    ) -> np.array:
+        ...
+
 
 # TODO write documentation
 
 
-def full_visibility(state: State, *, observation_space: ObservationSpace):
+def full_visibility(
+    state: State,
+    *,
+    observation_space: ObservationSpace,
+    rng: Optional[rnd.Generator] = None,
+):
     area = state.agent.get_pov_area(observation_space.area)
     observation_grid = state.grid.subgrid(area).change_orientation(
         state.agent.orientation
@@ -36,6 +59,7 @@ def from_visibility(
     *,
     observation_space: ObservationSpace,
     visibility_function: VisibilityFunction,
+    rng: Optional[rnd.Generator] = None,
 ):
     area = state.agent.get_pov_area(observation_space.area)
     observation_grid = state.grid.subgrid(area).change_orientation(
@@ -58,7 +82,13 @@ def from_visibility(
     return Observation(observation_grid, observation_agent)
 
 
-def minigrid_visibility(grid: Grid, position: Position) -> np.ndarray:
+def minigrid_visibility(
+    grid: Grid,
+    position: Position,
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> np.ndarray:
+
     visibility = np.zeros((grid.height, grid.width), dtype=bool)
     visibility[position.y, position.x] = True  # agent
 
@@ -112,7 +142,10 @@ def rays_positions(start_pos: Position, area: Area) -> List[List[Position]]:
     return rays
 
 
-def raytracing_visibility(grid: Grid, position: Position) -> np.ndarray:
+def raytracing_visibility(
+    grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
+) -> np.ndarray:
+
     area = Area((0, grid.height - 1), (0, grid.width - 1))
     rays = rays_positions(position, area)
 
@@ -138,9 +171,12 @@ def raytracing_visibility(grid: Grid, position: Position) -> np.ndarray:
 
 
 def stochastic_raytracing_visibility(  # TODO add test
-    grid: Grid, position: Position
+    grid: Grid,
+    position: Position,
+    *,
+    rng: Optional[rnd.Generator] = None,
 ) -> np.ndarray:
-    rng = get_gv_rng()
+    rng = get_gv_rng_if_none(rng)
 
     area = Area((0, grid.height - 1), (0, grid.width - 1))
     rays = rays_positions(position, area)

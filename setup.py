@@ -16,6 +16,7 @@ requirements = [
     'numpy',
     'termcolor',
     'yamale',
+    'typing-extensions',  # python3.7 compatibility
 ]
 
 setup(

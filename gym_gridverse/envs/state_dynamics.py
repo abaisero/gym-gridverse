@@ -1,6 +1,9 @@
 """ Functions to model dynamics """
 
-from typing import Callable, List
+from typing import List, Optional
+
+import numpy.random as rnd
+from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.actions import ROTATION_ACTIONS, TRANSLATION_ACTIONS, Actions
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
@@ -8,7 +11,16 @@ from gym_gridverse.grid_object import Floor, GridObject, NoneGridObject
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
-StateDynamics = Callable[[State, Actions], None]
+
+class StateDynamics(Protocol):
+    def __call__(
+        self,
+        state: State,
+        action: Actions,
+        *,
+        rng: Optional[rnd.Generator] = None,
+    ) -> None:
+        ...
 
 
 def move_agent(agent: Agent, grid: Grid, action: Actions) -> None:
@@ -62,7 +74,12 @@ def rotate_agent(agent: Agent, action: Actions) -> None:
         agent.orientation = agent.orientation.rotate_right()
 
 
-def update_agent(state: State, action: Actions) -> None:
+def update_agent(
+    state: State,
+    action: Actions,
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> None:
     """Simply updates the agents location and orientation based on action
 
     If action does not affect this (e.g. not turning not moving), then leaves
@@ -71,6 +88,7 @@ def update_agent(state: State, action: Actions) -> None:
     Args:
         state (`State`):
         action (`Actions`):
+        rng (`Generator, optional`)
 
     Returns:
         None
@@ -85,12 +103,18 @@ def update_agent(state: State, action: Actions) -> None:
         move_agent(state.agent, state.grid, action)
 
 
-def step_objects(state: State, action: Actions) -> None:
+def step_objects(
+    state: State,
+    action: Actions,
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> None:
     """Calls `step` on all the objects in the grid
 
     Args:
         state (`State`):
         action (`Actions`):
+        rng (`Generator, optional`)
 
     Returns:
         None:
@@ -103,10 +127,15 @@ def step_objects(state: State, action: Actions) -> None:
 
         if not any([x is obj for x in stepped_objects]):
             stepped_objects.append(obj)
-            obj.step(state, action)
+            obj.step(state, action, rng=rng)
 
 
-def actuate_mechanics(state: State, action: Actions) -> None:
+def actuate_mechanics(
+    state: State,
+    action: Actions,
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> None:
     """Implements the mechanics of actuation
 
     Calls obj.actuate(state) on the object in front of agent
@@ -114,6 +143,7 @@ def actuate_mechanics(state: State, action: Actions) -> None:
     Args:
         state (`State`):
         action (`Actions`):
+        rng (`Generator, optional`)
 
     Returns:
         None:
@@ -121,10 +151,15 @@ def actuate_mechanics(state: State, action: Actions) -> None:
 
     if action == Actions.ACTUATE:
         obj_in_front_of_agent = state.grid[state.agent.position_in_front()]
-        obj_in_front_of_agent.actuate(state)
+        obj_in_front_of_agent.actuate(state, rng=rng)
 
 
-def pickup_mechanics(state: State, action: Actions) -> None:
+def pickup_mechanics(
+    state: State,
+    action: Actions,
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> None:
     """Implements the effect of the pickup and drop action
 
     Pickup applies to the item *in front* of the agent
@@ -142,6 +177,7 @@ def pickup_mechanics(state: State, action: Actions) -> None:
     Args:
         state (`State`):
         action (`Actions`):
+        rng (`Generator, optional`)
 
     Returns:
         None:

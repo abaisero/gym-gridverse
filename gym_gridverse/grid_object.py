@@ -3,12 +3,13 @@ from __future__ import annotations
 
 import abc
 import enum
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 import numpy as np
+import numpy.random as rnd
 
 from gym_gridverse.geometry import get_manhattan_boundary
-from gym_gridverse.rng import get_gv_rng
+from gym_gridverse.rng import get_gv_rng_if_none
 
 if TYPE_CHECKING:
     from gym_gridverse.actions import Actions
@@ -69,11 +70,19 @@ class GridObject(metaclass=abc.ABCMeta):
         """ Whether the object blocks the agent """
 
     @abc.abstractmethod
-    def step(self, state: State, action: Actions) -> None:
+    def step(
+        self,
+        state: State,
+        action: Actions,
+        *,
+        rng: Optional[rnd.Generator] = None
+    ) -> None:
         """ Optional behavior of the object """
 
     @abc.abstractmethod
-    def actuate(self, state: State) -> None:
+    def actuate(
+        self, state: State, *, rng: Optional[rnd.Generator] = None
+    ) -> None:
         """ The (optional) behavior upon actuation """
 
     def as_array(self):
@@ -122,10 +131,18 @@ class NoneGridObject(GridObject):
     def blocks(self) -> bool:  # type: ignore
         assert RuntimeError('should never be called')
 
-    def step(self, state: State, action: Actions) -> None:
+    def step(
+        self,
+        state: State,
+        action: Actions,
+        *,
+        rng: Optional[rnd.Generator] = None
+    ) -> None:
         assert RuntimeError('should never be called')
 
-    def actuate(self, state: State) -> None:
+    def actuate(
+        self, state: State, *, rng: Optional[rnd.Generator] = None
+    ) -> None:
         assert RuntimeError('should never be called')
 
     def render_as_char(self) -> str:
@@ -159,10 +176,18 @@ class Hidden(GridObject):
     def blocks(self) -> bool:  # type: ignore
         assert RuntimeError('should never be called')
 
-    def step(self, state: State, action: Actions) -> None:
+    def step(
+        self,
+        state: State,
+        action: Actions,
+        *,
+        rng: Optional[rnd.Generator] = None
+    ) -> None:
         pass
 
-    def actuate(self, state: State) -> None:
+    def actuate(
+        self, state: State, *, rng: Optional[rnd.Generator] = None
+    ) -> None:
         pass
 
     def render_as_char(self) -> str:
@@ -196,10 +221,18 @@ class Floor(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def step(self, state: State, action: Actions) -> None:
+    def step(
+        self,
+        state: State,
+        action: Actions,
+        *,
+        rng: Optional[rnd.Generator] = None
+    ) -> None:
         pass
 
-    def actuate(self, state: State) -> None:
+    def actuate(
+        self, state: State, *, rng: Optional[rnd.Generator] = None
+    ) -> None:
         pass
 
     def render_as_char(self) -> str:
@@ -233,10 +266,18 @@ class Wall(GridObject):
     def blocks(self) -> bool:
         return True
 
-    def step(self, state: State, action: Actions) -> None:
+    def step(
+        self,
+        state: State,
+        action: Actions,
+        *,
+        rng: Optional[rnd.Generator] = None
+    ) -> None:
         pass
 
-    def actuate(self, state: State) -> None:
+    def actuate(
+        self, state: State, *, rng: Optional[rnd.Generator] = None
+    ) -> None:
         pass
 
     def render_as_char(self) -> str:
@@ -270,10 +311,18 @@ class Goal(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def step(self, state: State, action: Actions) -> None:
+    def step(
+        self,
+        state: State,
+        action: Actions,
+        *,
+        rng: Optional[rnd.Generator] = None
+    ) -> None:
         pass
 
-    def actuate(self, state: State) -> None:
+    def actuate(
+        self, state: State, *, rng: Optional[rnd.Generator] = None
+    ) -> None:
         pass
 
     def render_as_char(self) -> str:
@@ -331,10 +380,18 @@ class Door(GridObject):
     def blocks(self) -> bool:
         return self._state != self.Status.OPEN
 
-    def step(self, state: State, action: Actions) -> None:
+    def step(
+        self,
+        state: State,
+        action: Actions,
+        *,
+        rng: Optional[rnd.Generator] = None
+    ) -> None:
         pass
 
-    def actuate(self, state: State) -> None:
+    def actuate(
+        self, state: State, *, rng: Optional[rnd.Generator] = None
+    ) -> None:
         """Attempts to open door
 
         When not holding correct key with correct color:
@@ -406,10 +463,18 @@ class Key(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def step(self, state: State, action: Actions) -> None:
+    def step(
+        self,
+        state: State,
+        action: Actions,
+        *,
+        rng: Optional[rnd.Generator] = None
+    ) -> None:
         pass
 
-    def actuate(self, state: State) -> None:
+    def actuate(
+        self, state: State, *, rng: Optional[rnd.Generator] = None
+    ) -> None:
         pass
 
     def render_as_char(self) -> str:
@@ -446,7 +511,13 @@ class MovingObstacle(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def step(self, state: State, action: Actions) -> None:
+    def step(
+        self,
+        state: State,
+        action: Actions,
+        *,
+        rng: Optional[rnd.Generator] = None
+    ) -> None:
         """Moves randomly
 
         Moves only to cells containing _Floor_ objects, and will do so with
@@ -458,7 +529,7 @@ class MovingObstacle(GridObject):
             state (`State`): current state
             action (`Actions`): action taken by agent (ignored)
         """
-        rng = get_gv_rng()
+        rng = get_gv_rng_if_none(None)
 
         cur_pos = state.grid.get_position(self)
 
@@ -477,7 +548,9 @@ class MovingObstacle(GridObject):
         next_position = rng.choice(proposed_next_positions)
         state.grid.swap(cur_pos, next_position)
 
-    def actuate(self, state: State) -> None:
+    def actuate(
+        self, state: State, *, rng: Optional[rnd.Generator] = None
+    ) -> None:
         pass
 
     def render_as_char(self) -> str:
