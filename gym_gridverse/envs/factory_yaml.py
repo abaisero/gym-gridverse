@@ -2,24 +2,29 @@ import importlib.resources
 from functools import partial
 from typing import Dict, List, Optional, TextIO, Type
 
+import numpy.random as rnd
 import yamale
 
 from gym_gridverse import grid_object
 from gym_gridverse.actions import Actions
-from gym_gridverse.envs import observation_functions as observation_fs
-from gym_gridverse.envs import reset_functions as reset_fs
-from gym_gridverse.envs import reward_functions as reward_fs
-from gym_gridverse.envs import state_dynamics as transition_fs
-from gym_gridverse.envs import terminating_functions as terminating_fs
+from gym_gridverse.envs import (
+    observation_functions as observation_fs,
+    reset_functions as reset_fs,
+    reward_functions as reward_fs,
+    state_dynamics as transition_fs,
+    terminating_functions as terminating_fs,
+)
 from gym_gridverse.envs.env import Environment
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import DistanceFunction, Position, Shape
+from gym_gridverse.observation import Observation
 from gym_gridverse.spaces import (
     ActionSpace,
     DomainSpace,
     ObservationSpace,
     StateSpace,
 )
+from gym_gridverse.state import State
 
 
 def make_schema() -> yamale.schema.Schema:
@@ -134,9 +139,11 @@ def make_reset_function(
 def make_transition_function(data: Dict) -> transition_fs.StateDynamics:
     transition_functions = list(map(_make_transition_function, data))
 
-    def transition_function(s, a):
+    def transition_function(
+        state: State, action: Actions, *, rng: Optional[rnd.Generator] = None
+    ) -> None:
         for f in transition_functions:
-            f(s, a)
+            f(state, action, rng=rng)
 
     return transition_function
 
