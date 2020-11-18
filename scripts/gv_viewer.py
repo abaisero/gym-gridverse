@@ -76,7 +76,13 @@ def make_grid(  # pylint: disable=too-many-locals
 
 def make_grid_background() -> rendering.Geom:
     geom = rendering.make_polygon(
-        [(0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0),], filled=True,
+        [
+            (0.0, 0.0),
+            (0.0, 1.0),
+            (1.0, 1.0),
+            (1.0, 0.0),
+        ],
+        filled=True,
     )
     geom.set_color(0.65, 0.65, 0.65)
     return geom
@@ -111,7 +117,8 @@ def make_agent() -> rendering.Geom:
 
 def make_goal(goal: Goal) -> rendering.Geom:  # pylint: disable=unused-argument
     geom_goal = rendering.make_polygon(
-        [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)], filled=True,
+        [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)],
+        filled=True,
     )
     geom_goal.set_color(*GREEN)
 
@@ -130,14 +137,16 @@ def make_hidden(  # pylint: disable=unused-argument
 ) -> rendering.Geom:
 
     geom = rendering.make_polygon(
-        [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)], filled=True,
+        [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)],
+        filled=True,
     )
     return geom
 
 
 def make_wall(wall: Wall) -> rendering.Geom:  # pylint: disable=unused-argument
     geom_background = rendering.make_polygon(
-        [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)], filled=True,
+        [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)],
+        filled=True,
     )
     geom_background.set_color(*RED)
 
@@ -165,23 +174,28 @@ def _make_door_open(  # pylint: disable=unused-argument
 
     geoms_frame_background = [
         rendering.make_polygon(
-            [(-1.0, -1.0), (-1.0, 1.0), (-pad, 1.0), (-pad, -1.0)], filled=True,
+            [(-1.0, -1.0), (-1.0, 1.0), (-pad, 1.0), (-pad, -1.0)],
+            filled=True,
         ),
         rendering.make_polygon(
-            [(pad, -1.0), (pad, 1.0), (1.0, 1.0), (1.0, -1.0)], filled=True,
+            [(pad, -1.0), (pad, 1.0), (1.0, 1.0), (1.0, -1.0)],
+            filled=True,
         ),
         rendering.make_polygon(
-            [(-1.0, -1.0), (-1.0, -pad), (1.0, -pad), (1.0, -1.0)], filled=True,
+            [(-1.0, -1.0), (-1.0, -pad), (1.0, -pad), (1.0, -1.0)],
+            filled=True,
         ),
         rendering.make_polygon(
-            [(-1.0, pad), (-1.0, 1.0), (1.0, 1.0), (1.0, pad)], filled=True,
+            [(-1.0, pad), (-1.0, 1.0), (1.0, 1.0), (1.0, pad)],
+            filled=True,
         ),
     ]
     geom_frame_background = rendering.Compound(geoms_frame_background)
     geom_frame_background.set_color(*colormap[door.color])
 
     geom_frame = rendering.make_polygon(
-        [(-pad, -pad), (-pad, pad), (pad, pad), (pad, -pad)], filled=False,
+        [(-pad, -pad), (-pad, pad), (pad, pad), (pad, -pad)],
+        filled=False,
     )
 
     return Group([geom_frame_background, geom_frame])
@@ -200,7 +214,8 @@ def _make_door_closed_locked(  # pylint: disable=unused-argument
 
     pad = 0.8
     geom_frame = rendering.make_polygon(
-        [(-pad, -pad), (-pad, pad), (pad, pad), (pad, -pad)], filled=False,
+        [(-pad, -pad), (-pad, pad), (pad, pad), (pad, -pad)],
+        filled=False,
     )
 
     geom_keyhole = Group(
@@ -229,7 +244,8 @@ def _make_door_closed_unlocked(  # pylint: disable=unused-argument
 
     pad = 0.8
     geom_frame = rendering.make_polygon(
-        [(-pad, -pad), (-pad, pad), (pad, pad), (pad, -pad)], filled=False,
+        [(-pad, -pad), (-pad, pad), (pad, pad), (pad, -pad)],
+        filled=False,
     )
 
     geom_handle = rendering.make_circle(radius=0.2, res=10, filled=False)
@@ -340,29 +356,48 @@ def make_moving_obstacle(  # pylint: disable=unused-argument
 
     pad = 0.8
     geom = rendering.make_polygon(
-        [(-pad, 0.0), (0.0, pad), (pad, 0.0), (0.0, -pad),], filled=True,
+        [
+            (-pad, 0.0),
+            (0.0, pad),
+            (pad, 0.0),
+            (0.0, -pad),
+        ],
+        filled=True,
     )
     geom.set_color(*RED)
 
     geom_outline = rendering.make_polygon(
-        [(-pad, 0.0), (0.0, pad), (pad, 0.0), (0.0, -pad),], filled=False,
+        [
+            (-pad, 0.0),
+            (0.0, pad),
+            (pad, 0.0),
+            (0.0, -pad),
+        ],
+        filled=False,
     )
     geom_outline.set_linewidth(3)
 
     return Group([geom, geom_outline])
 
 
-def convert_pos(position: Position, *, num_rows: int,) -> Tuple[float, float]:
+def convert_pos(
+    position: Position,
+    *,
+    num_rows: int,
+) -> Tuple[float, float]:
     return 2 * position.x, 2 * (num_rows - 1 - position.y)
 
 
 class GridVerseViewer:
     def __init__(self, shape: Shape, *, caption: Optional[str] = None):
-        self._pos_converter = partial(convert_pos, num_rows=shape.height,)
+        self._pos_converter = partial(
+            convert_pos,
+            num_rows=shape.height,
+        )
 
         self._viewer_transforms = [
             rendering.Transform(translation=(1.0, 1.0)),
-            rendering.Transform(scale=(0.5 / shape.width, 0.5 / shape.height),),
+            rendering.Transform(scale=(0.5 / shape.width, 0.5 / shape.height)),
         ]
 
         m = 40
@@ -376,7 +411,10 @@ class GridVerseViewer:
         self._viewer.add_geom(background)
 
         self._grid = make_grid(
-            (0.0, 0.0), (1.0, 1.0), shape.height, shape.width,
+            (0.0, 0.0),
+            (1.0, 1.0),
+            shape.height,
+            shape.width,
         )
 
     def __del__(self):
