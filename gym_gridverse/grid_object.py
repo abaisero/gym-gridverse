@@ -75,7 +75,7 @@ class GridObject(metaclass=abc.ABCMeta):
         state: State,
         action: Actions,
         *,
-        rng: Optional[rnd.Generator] = None
+        rng: Optional[rnd.Generator] = None,
     ) -> None:
         """ Optional behavior of the object """
 
@@ -136,12 +136,15 @@ class NoneGridObject(GridObject):
         state: State,
         action: Actions,
         *,
-        rng: Optional[rnd.Generator] = None
+        rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
     ) -> None:
         assert RuntimeError('should never be called')
 
     def actuate(
-        self, state: State, *, rng: Optional[rnd.Generator] = None
+        self,
+        state: State,
+        *,
+        rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
     ) -> None:
         assert RuntimeError('should never be called')
 
@@ -181,12 +184,15 @@ class Hidden(GridObject):
         state: State,
         action: Actions,
         *,
-        rng: Optional[rnd.Generator] = None
+        rng: Optional[rnd.Generator] = None,
     ) -> None:
         pass
 
     def actuate(
-        self, state: State, *, rng: Optional[rnd.Generator] = None
+        self,
+        state: State,
+        *,
+        rng: Optional[rnd.Generator] = None,
     ) -> None:
         pass
 
@@ -226,12 +232,15 @@ class Floor(GridObject):
         state: State,
         action: Actions,
         *,
-        rng: Optional[rnd.Generator] = None
+        rng: Optional[rnd.Generator] = None,
     ) -> None:
         pass
 
     def actuate(
-        self, state: State, *, rng: Optional[rnd.Generator] = None
+        self,
+        state: State,
+        *,
+        rng: Optional[rnd.Generator] = None,
     ) -> None:
         pass
 
@@ -271,12 +280,15 @@ class Wall(GridObject):
         state: State,
         action: Actions,
         *,
-        rng: Optional[rnd.Generator] = None
+        rng: Optional[rnd.Generator] = None,
     ) -> None:
         pass
 
     def actuate(
-        self, state: State, *, rng: Optional[rnd.Generator] = None
+        self,
+        state: State,
+        *,
+        rng: Optional[rnd.Generator] = None,
     ) -> None:
         pass
 
@@ -316,12 +328,15 @@ class Goal(GridObject):
         state: State,
         action: Actions,
         *,
-        rng: Optional[rnd.Generator] = None
+        rng: Optional[rnd.Generator] = None,
     ) -> None:
         pass
 
     def actuate(
-        self, state: State, *, rng: Optional[rnd.Generator] = None
+        self,
+        state: State,
+        *,
+        rng: Optional[rnd.Generator] = None,
     ) -> None:
         pass
 
@@ -385,12 +400,15 @@ class Door(GridObject):
         state: State,
         action: Actions,
         *,
-        rng: Optional[rnd.Generator] = None
+        rng: Optional[rnd.Generator] = None,
     ) -> None:
         pass
 
     def actuate(
-        self, state: State, *, rng: Optional[rnd.Generator] = None
+        self,
+        state: State,
+        *,
+        rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
     ) -> None:
         """Attempts to open door
 
@@ -429,7 +447,7 @@ class Door(GridObject):
             self.Status.OPEN: "_",
             self.Status.CLOSED: "d",
             self.Status.LOCKED: "D",
-        }.get(self._state)
+        }[self._state]
 
 
 class Key(GridObject):
@@ -468,7 +486,7 @@ class Key(GridObject):
         state: State,
         action: Actions,
         *,
-        rng: Optional[rnd.Generator] = None
+        rng: Optional[rnd.Generator] = None,
     ) -> None:
         pass
 
@@ -516,7 +534,7 @@ class MovingObstacle(GridObject):
         state: State,
         action: Actions,
         *,
-        rng: Optional[rnd.Generator] = None
+        rng: Optional[rnd.Generator] = None,
     ) -> None:
         """Moves randomly
 
