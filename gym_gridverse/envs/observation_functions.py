@@ -41,7 +41,7 @@ def from_visibility(
         state.agent.orientation
     )
     visibility = visibility_function(
-        observation_grid, observation_space.agent_position
+        observation_grid, observation_space.agent_position, rng=rng
     )
 
     if visibility.shape != observation_space.grid_shape:
