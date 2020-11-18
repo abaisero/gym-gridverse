@@ -6,6 +6,7 @@ from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.envs.visibility_functions import (
     VisibilityFunction,
+    full_visibility,
     minigrid_visibility,
     raytracing_visibility,
     stochastic_raytracing_visibility,
@@ -26,23 +27,6 @@ class ObservationFunction(Protocol):
 
 
 # TODO write documentation
-
-
-def full_visibility(
-    state: State,
-    *,
-    observation_space: ObservationSpace,
-    rng: Optional[rnd.Generator] = None,
-):
-    area = state.agent.get_pov_area(observation_space.area)
-    observation_grid = state.grid.subgrid(area).change_orientation(
-        state.agent.orientation
-    )
-
-    observation_agent = Agent(
-        observation_space.agent_position, Orientation.N, state.agent.obj
-    )
-    return Observation(observation_grid, observation_agent)
 
 
 def from_visibility(
@@ -73,6 +57,8 @@ def from_visibility(
     return Observation(observation_grid, observation_agent)
 
 
+full_observation = partial(from_visibility, visibility_function=full_visibility)
+
 minigrid_observation = partial(
     from_visibility, visibility_function=minigrid_visibility
 )
@@ -94,12 +80,6 @@ def factory(
     visibility_function: Optional[VisibilityFunction] = None,
 ) -> ObservationFunction:
 
-    if name == 'full_visibility':
-        if None in [observation_space]:
-            raise ValueError('invalid parameters for name `{name}`')
-
-        return partial(full_visibility, observation_space=observation_space)
-
     if name == 'from_visibility':
         if None in [observation_space, visibility_function]:
             raise ValueError('invalid parameters for name `{name}`')
@@ -109,6 +89,12 @@ def factory(
             observation_space=observation_space,
             visibility_function=visibility_function,
         )
+
+    if name == 'full_observation':
+        if None in [observation_space]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(full_observation, observation_space=observation_space)
 
     if name == 'minigrid_observation':
         if None in [observation_space]:

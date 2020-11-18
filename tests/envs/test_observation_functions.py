@@ -110,8 +110,8 @@ def test_minigrid_observation_partially_observable(
 @pytest.mark.parametrize(
     'name,kwargs',
     [
-        ('full_visibility', {}),
         ('from_visibility', {'visibility_function': MagicMock()}),
+        ('full_observation', {}),
         ('minigrid_observation', {}),
         ('raytracing_observation', {}),
         ('stochastic_raytracing_observation', {}),
@@ -126,8 +126,8 @@ def test_factory_valid(name: str, kwargs):
     'name,kwargs,exception',
     [
         ('invalid', {}, ValueError),
-        ('full_visibility', {}, ValueError),
         ('from_visibility', {}, ValueError),
+        ('full_observation', {}, ValueError),
         ('minigrid_observation', {}, ValueError),
         ('raytracing_observation', {}, ValueError),
         ('stochastic_raytracing_observation', {}, ValueError),

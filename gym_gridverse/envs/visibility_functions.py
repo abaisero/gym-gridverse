@@ -23,6 +23,16 @@ class VisibilityFunction(Protocol):
         ...
 
 
+def full_visibility(
+    grid: Grid,
+    position: Position,  # pylint: disable = unused-argument
+    *,
+    rng: Optional[rnd.Generator] = None,  # pylint: disable = unused-argument
+) -> np.ndarray:
+
+    return np.ones((grid.height, grid.width), dtype=bool)
+
+
 def minigrid_visibility(
     grid: Grid,
     position: Position,

@@ -249,6 +249,9 @@ def make_distance_function(name) -> DistanceFunction:
 
 
 def make_visibility_function(name) -> observation_fs.VisibilityFunction:
+    if name == 'full':
+        return observation_fs.full_visibility
+
     if name == 'minigrid':
         return observation_fs.minigrid_visibility
 
