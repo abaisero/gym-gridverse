@@ -9,6 +9,7 @@ import pytest
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs.reset_functions import reset_minigrid_dynamic_obstacles
 from gym_gridverse.envs.state_dynamics import (
+    actuate_mechanics,
     factory,
     move_agent,
     pickup_mechanics,
@@ -280,6 +281,32 @@ def test_step_called_once():
 
     for obs in obstacles:
         assert obs.step.count == 1
+
+
+# TODO integrate with `test_pickup_mechanics_pickup`
+@pytest.mark.parametrize(
+    'door_color,key_color,expected_state',
+    [
+        (Colors.BLUE, Colors.BLUE, Door.Status.OPEN),
+        (Colors.GREEN, Colors.BLUE, Door.Status.LOCKED),
+    ],
+)
+def test_actuage_mechanics(
+    door_color: Colors, key_color: Colors, expected_state: Door.Status
+):
+    grid = Grid(height=3, width=4)
+    agent = Agent(position=(1, 2), orientation=Orientation.S)
+    item_pos = (2, 2)
+
+    grid[item_pos] = Door(Door.Status.LOCKED, door_color)
+    state = State(grid, agent)
+
+    actuate_mechanics(state, Actions.ACTUATE)
+    assert state.grid[item_pos].state_index == Door.Status.LOCKED.value
+
+    agent.obj = Key(key_color)
+    actuate_mechanics(state, Actions.ACTUATE)
+    assert state.grid[item_pos].state_index == expected_state.value
 
 
 @pytest.mark.parametrize(

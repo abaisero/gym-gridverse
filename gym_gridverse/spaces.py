@@ -161,7 +161,6 @@ class ObservationSpace:
 
     def contains(self, observation: Observation) -> bool:
         """True if the observation satisfies the observation-space"""
-        # TODO test
         have_same_shape = observation.grid.shape == self.grid_shape
         y_in_grid = 0 <= observation.agent.position.y < self.area.height
         x_in_grid = 0 <= observation.agent.position.x < self.area.width
