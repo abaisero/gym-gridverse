@@ -27,7 +27,7 @@ reward:
     reward: -1.0
 
 observation:
-  name: full_visibility
+  name: full_observation
 
 terminating:
   name: chain_any
