@@ -48,6 +48,8 @@ class GridWorld(Environment):
         self, observation_function: ObservationFunction
     ):
         self._functional_observation = observation_function
+        # in `Environment`: set to make sure next call to observation will
+        # actually generate a new one
         self._observation = None
 
     def functional_reset(self) -> State:
