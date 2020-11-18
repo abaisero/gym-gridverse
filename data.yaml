@@ -28,7 +28,7 @@ reward:
     reward_off: 0.0
 
 observation:
-  name: full_visibility
+  name: full_observation
 
 terminating:
   name: reach_goal

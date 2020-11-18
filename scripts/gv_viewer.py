@@ -544,29 +544,11 @@ def main():
     state_viewer.window.push_handlers(keyboard_handler)
     observation_viewer.window.push_handlers(keyboard_handler)
 
-    observation_functions = itt.cycle(
+    observation_function_names = itt.cycle(
         [
-            (
-                'full_visibility',
-                partial(
-                    observation_fs.full_visibility,
-                    observation_space=env.observation_space,
-                ),
-            ),
-            (
-                'minigrid_visibility',
-                partial(
-                    observation_fs.minigrid_observation,
-                    observation_space=env.observation_space,
-                ),
-            ),
-            (
-                'raytracing_visibility',
-                partial(
-                    observation_fs.raytracing_observation,
-                    observation_space=env.observation_space,
-                ),
-            ),
+            'full_observation',
+            'minigrid_observation',
+            'raytracing_observation',
         ]
     )
 
@@ -594,8 +576,11 @@ def main():
             break
 
         elif command is Controls.CYCLE_OBSERVATION:
-            name, observation_function = next(observation_functions)
+            name = next(observation_function_names)
             print(f'setting observation function: {name}')
+            observation_function = observation_fs.factory(
+                name, observation_space=env.observation_space
+            )
             env.set_observation_function(observation_function)
 
         state_viewer.render(env.state)
