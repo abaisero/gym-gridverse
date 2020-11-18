@@ -17,7 +17,6 @@ from gym_gridverse.envs import (
 from gym_gridverse.envs.env import Environment
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import DistanceFunction, Position, Shape
-from gym_gridverse.observation import Observation
 from gym_gridverse.spaces import (
     ActionSpace,
     DomainSpace,

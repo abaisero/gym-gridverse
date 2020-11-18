@@ -172,9 +172,7 @@ class ObservationSpace:
         grid_objs_in_space = observation.grid.object_types().issubset(
             self._grid_object_types
         )
-        agent_obj_color_in_space = (
-            observation.agent.obj.color in self.colors
-        )
+        agent_obj_color_in_space = observation.agent.obj.color in self.colors
 
         res = [
             have_same_shape,
