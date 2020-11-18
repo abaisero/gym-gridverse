@@ -141,7 +141,7 @@ class ObservationSpace:
 
         self.grid_shape = grid_shape
         self.object_types = object_types
-        self.colors = colors
+        self.colors = set(colors) | {Colors.NONE}
 
         self._grid_object_types = set(object_types) | {Hidden}
         self._agent_object_types = set(object_types) | {NoneGridObject}
@@ -162,16 +162,31 @@ class ObservationSpace:
     def contains(self, observation: Observation) -> bool:
         """True if the observation satisfies the observation-space"""
         # TODO test
-        return (
-            observation.grid.shape == self.grid_shape
-            and observation.grid.object_types().issubset(
-                self._grid_object_types
-            )
-            and 0 <= observation.agent.position.y < self.area.height
-            and 0 <= observation.agent.position.x < self.area.width
-            and observation.agent.orientation == Orientation.N
-            and type(observation.agent.obj) in self._agent_object_types
+        have_same_shape = observation.grid.shape == self.grid_shape
+        y_in_grid = 0 <= observation.agent.position.y < self.area.height
+        x_in_grid = 0 <= observation.agent.position.x < self.area.width
+        orientation_is_correct = observation.agent.orientation == Orientation.N
+        agent_obj_type_in_space = (
+            type(observation.agent.obj) in self._agent_object_types
         )
+        grid_objs_in_space = observation.grid.object_types().issubset(
+            self._grid_object_types
+        )
+        agent_obj_color_in_space = (
+            observation.agent.obj.color in self.colors
+        )
+
+        res = [
+            have_same_shape,
+            grid_objs_in_space,
+            y_in_grid,
+            x_in_grid,
+            orientation_is_correct,
+            agent_obj_type_in_space,
+            agent_obj_color_in_space,
+        ]
+
+        return all(res)
 
     @property
     def agent_state_size(self) -> Tuple[int, int, int, int, int]:

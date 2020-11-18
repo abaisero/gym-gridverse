@@ -109,7 +109,6 @@ gym\_gridverse.visualize module
     :show-inheritance:
 
 
-
 Module contents
 ---------------
 
