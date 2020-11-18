@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import abc
 import enum
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Type
 
 import numpy as np
 import numpy.random as rnd
@@ -573,3 +573,75 @@ class MovingObstacle(GridObject):
 
     def render_as_char(self) -> str:
         return "*"
+
+
+def factory(
+    name: str,
+    *,
+    status: Optional[str] = None,
+    color: Optional[str] = None,
+) -> GridObject:
+
+    if name in ['none_grid_object', 'NoneGridObject']:
+        return NoneGridObject()
+
+    if name in ['hidden', 'Hidden']:
+        return Hidden()
+
+    if name in ['floor', 'Floor']:
+        return Floor()
+
+    if name in ['wall', 'Wall']:
+        return Wall()
+
+    if name in ['goal', 'Goal']:
+        return Goal()
+
+    if name in ['door', 'Door']:
+        if not (isinstance(status, str) and isinstance(color, str)):
+            raise ValueError('invalid parameters for name `{name}`')
+
+        status_ = Door.Status[status]
+        color_ = Colors[color]
+        return Door(status_, color_)
+
+    if name in ['key', 'Key']:
+        if not isinstance(color, str):
+            raise ValueError('invalid parameters for name `{name}`')
+
+        color_ = Colors[color]
+        return Key(color_)
+
+    if name in ['moving_obstacle', 'MovingObstacle']:
+        return MovingObstacle()
+
+    raise ValueError(f'invalid grid-object name {name}')
+
+
+def factory_type(name: str) -> Type[GridObject]:
+
+    if name in ['none_grid_object', 'NoneGridObject']:
+        return NoneGridObject
+
+    if name in ['hidden', 'Hidden']:
+        return Hidden
+
+    if name in ['floor', 'Floor']:
+        return Floor
+
+    if name in ['wall', 'Wall']:
+        return Wall
+
+    if name in ['goal', 'Goal']:
+        return Goal
+
+    if name in ['door', 'Door']:
+        return Door
+
+    if name in ['key', 'Key']:
+        return Key
+
+    if name in ['moving_obstacle', 'MovingObstacle']:
+        return MovingObstacle
+
+    raise ValueError(f'invalid grid-object type name {name}')

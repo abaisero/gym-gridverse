@@ -2,6 +2,7 @@
 import unittest
 
 import numpy as np
+import pytest
 
 from gym_gridverse.grid_object import (
     Colors,
@@ -14,6 +15,7 @@ from gym_gridverse.grid_object import (
     MovingObstacle,
     NoneGridObject,
     Wall,
+    factory,
 )
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
@@ -388,3 +390,43 @@ def test_moving_obstacle_obstacle_movement():
     assert (s.grid.get_position(obs_1) == (0, 1)) or (
         s.grid.get_position(obs_1) == (1, 0)
     )
+
+
+@pytest.mark.parametrize(
+    'name,kwargs',
+    [
+        ('NoneGridObject', {}),
+        ('none_grid_object', {}),
+        ('Hidden', {}),
+        ('hidden', {}),
+        ('Floor', {}),
+        ('floor', {}),
+        ('Wall', {}),
+        ('wall', {}),
+        ('Goal', {}),
+        ('goal', {}),
+        ('Door', {'status': 'LOCKED', 'color': 'RED'}),
+        ('door', {'status': 'LOCKED', 'color': 'RED'}),
+        ('Key', {'color': 'RED'}),
+        ('key', {'color': 'RED'}),
+        ('MovingObstacle', {}),
+        ('moving_obstacle', {}),
+    ],
+)
+def test_factory_valid(name: str, kwargs):
+    factory(name, **kwargs)
+
+
+@pytest.mark.parametrize(
+    'name,kwargs,exception',
+    [
+        ('invalid', {}, ValueError),
+        ('Door', {}, ValueError),
+        ('door', {}, ValueError),
+        ('Key', {}, ValueError),
+        ('key', {}, ValueError),
+    ],
+)
+def test_factory_invalid(name: str, kwargs, exception: Exception):
+    with pytest.raises(exception):  # type: ignore
+        factory(name, **kwargs)
