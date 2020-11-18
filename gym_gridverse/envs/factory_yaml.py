@@ -13,6 +13,7 @@ from gym_gridverse.envs import (
     reward_functions as reward_fs,
     state_dynamics as transition_fs,
     terminating_functions as terminating_fs,
+    visibility_functions as visibility_fs,
 )
 from gym_gridverse.envs.env import Environment
 from gym_gridverse.envs.gridworld import GridWorld
@@ -249,19 +250,7 @@ def make_distance_function(name) -> DistanceFunction:
 
 
 def make_visibility_function(name) -> observation_fs.VisibilityFunction:
-    if name == 'full':
-        return observation_fs.full_visibility
-
-    if name == 'minigrid':
-        return observation_fs.minigrid_visibility
-
-    if name == 'raytracing':
-        return observation_fs.raytracing_visibility
-
-    if name == 'stochastic_raytracing':
-        return observation_fs.stochastic_raytracing_visibility
-
-    raise ValueError(f'invalid visibility function name `{name}`')
+    return visibility_fs.factory(name)
 
 
 def make_object_type(name) -> Type[grid_object.GridObject]:

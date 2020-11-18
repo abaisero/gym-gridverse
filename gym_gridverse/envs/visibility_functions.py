@@ -40,6 +40,11 @@ def minigrid_visibility(
     rng: Optional[rnd.Generator] = None,  # pylint: disable = unused-argument
 ) -> np.ndarray:
 
+    if position.y != grid.height - 1:
+        #  gym-minigrid does not handle this case, and we are not currently
+        #  generalizing it
+        raise NotImplementedError
+
     visibility = np.zeros((grid.height, grid.width), dtype=bool)
     visibility[position.y, position.x] = True  # agent
 
@@ -116,6 +121,7 @@ def raytracing_visibility(
 
             light = light and grid[pos].transparent
 
+    # TODO add as parameter to function
     visibility = counts_num > 0  # at least one ray makes it
     # visibility = counts_num > 0.5 * counts_den # half of the rays make it
     # visibility = counts_num > 0.1 * counts_den  # 10% of the rays make it
@@ -151,3 +157,20 @@ def stochastic_raytracing_visibility(  # TODO add test
     probs = np.nan_to_num(counts_num / counts_den)
     visibility = probs <= rng.random(probs.shape)
     return visibility
+
+
+def factory(name: str) -> VisibilityFunction:
+
+    if name == 'full_visibility':
+        return full_visibility
+
+    if name == 'minigrid_visibility':
+        return minigrid_visibility
+
+    if name == 'raytracing_visibility':
+        return raytracing_visibility
+
+    if name == 'stochastic_raytracing_visibility':
+        return stochastic_raytracing_visibility
+
+    raise ValueError(f'invalid visibility function name {name}')
