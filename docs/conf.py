@@ -31,6 +31,11 @@ with open(version_file, 'r') as file_handler:
 #
 # needs_sphinx = '1.0'
 
+# A boolean that decides whether module names are prepended to all object names
+# (for object types where a “module” of some kind is defined), e.g. for
+# py:function directives. Default is True.
+add_module_names = False
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
@@ -85,6 +90,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
+# html_theme = 'classic'
 # html_theme = 'alabaster'
 html_theme = 'neo_rtd_theme'
 import sphinx_theme  # isort:skip
