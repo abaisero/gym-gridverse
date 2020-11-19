@@ -2,42 +2,97 @@
 Reward Functions
 ================
 
+In this section we describe the reward function protocol, the reward functions
+provided in :py:mod:`~gym_gridverse.envs.reward_functions`, and how to write
+your own custom reward functions.
+
 The RewardFunction Protocol
 ===========================
 
-A reward function receives a state, an action, and a next_state, and
-deterministically returns a float associated with the given state transition.
-Using the :py:mod:`typing` standard library, the reward function type is
-defined as
+A reward function is a determinstic mapping from a state-action-state
+transition to a numeric reward.  Using the :py:mod:`typing` standard library,
+the reward function type is defined as a :py:class:`typing.Callable` which
+receives a :py:class:`~gym_gridverse.state.State`, an
+:py:class:`~gym_gridverse.actions.Actions`, and another
+:py:class:`~gym_gridverse.state.State`, and returns a :py:class:`float`.
 
 .. autodata:: gym_gridverse.envs.reward_functions.RewardFunction
    :noindex:
 
+.. note::
+    A reward function may (and often does) accept additional arguments;  this
+    is possible **so long as** the extra arguments either have default values,
+    or are binded to specific values later on, e.g., using
+    :py:func:`functools.partial`.
+
 Provided Reward Functions
 =========================
 
-.. automodule:: gym_gridverse.envs.reward_functions
-   :noindex:
-   :members: chain,factory
-   :undoc-members: RewardFunction
-   :show-inheritance:
+Some general-purpose reward functions are provided out-of-the-box (see
+:py:mod:`~gym_gridverse.envs.reward_functions` for a complete list) among
+which:
+
+- :py:func:`~gym_gridverse.envs.reward_functions.living_reward` -- a
+  constant reward;
+
+- :py:func:`~gym_gridverse.envs.reward_functions.overlap` -- a reward for being
+  on the same tile as a unique
+  :py:class:`~gym_gridverse.grid_object.GridObject`;
+
+- :py:func:`~gym_gridverse.envs.reward_functions.reach_goal` -- a reward for
+  reaching the :py:class:`~gym_gridverse.grid_object.Goal`;
+
+- :py:func:`~gym_gridverse.envs.reward_functions.getting_closer` -- a reward
+  for moving closer to a unique
+  :py:class:`~gym_gridverse.grid_object.GridObject`; and
+
+- :py:func:`~gym_gridverse.envs.reward_functions.proportional_to_distance` -- a
+  reward based on the distance to a unique
+  :py:class:`~gym_gridverse.grid_object.GridObject`.
+
+.. note::
+    Reward functions are modular and can be combined to costruct more
+    complicated or specialized rewards by calling each other, e.g.,
+    the implementation of
+    :py:func:`~gym_gridverse.envs.reward_functions.reach_goal` internally
+    refers to :py:func:`~gym_gridverse.envs.reward_functions.overlap`.  A
+    standard way to combine multiple reward functions is using
+    :py:func:`~gym_gridverse.envs.reward_functions.chain`, which returns the
+    sum of rewards determined by other reward functions.
 
 Custom Reward Functions
 =======================
 
-Users can define their own custom reward functions, as long as they satisfy the
-following rules:
+Custom reward functions can be defined so long as they satisfy some basic rules;  A
+custom reward function:
 
-1. it **MUST** satisfy the
-   :py:data:`~gym_gridverse.envs.reward_functions.RewardFunction` protocol.
+- **MUST** satisfy the
+  :py:data:`~gym_gridverse.envs.reward_functions.RewardFunction` protocol.
 
-2. it **MUST** be wholly deterministic.
+- **MUST NOT** edit the input states.
 
-3. it **MUST NOT** edit the states.
+- **SHOULD** be wholly deterministic.
 
-As an example, we are going to write a reward function which returns -1.0 if
+.. warning::
+    The reward function is usually deterministic by the definition of the
+    reinforcement learning control problem.  Regardless, introducing reward
+    stochasticity does not fundamentally change the nature of a control
+    problem, but rather "only" makes the agent feedback noisier.
+    
+    While we discourage implementing and using stochastic reward functions, you
+    may use them if you wish to.  The primary drawback will be that seeding the
+    environment using :py:meth:`~gym_gridverse.envs.env.Environment.set_seed`
+    will be insufficient to reproduce traces, runs, and experiments;  if you
+    wish to maintain reproducibility despite employing a stochastic reward
+    function, you will have to manage the external source of randomness and its
+    seeding yourself.
+
+Practical Example 1
+-------------------
+
+In this example, we are going to write a reward function which returns -1.0 if
 the two states in the transition are the same (perhaps this will help the agent
-avoid actions which have no effect!)
+avoid actions which have no effect!).
 
 .. code-block:: python
 
@@ -45,7 +100,7 @@ avoid actions which have no effect!)
   from gym_gridverse.actions import Actions
 
 
-  def custom_reward(state: State, action: Actions, next_state: State) -> float:
+  def static_reward(state: State, action: Actions, next_state: State) -> float:
       """negative reward if state is unchanged"""
       return -1.0 if state == next_state else 0.0
 
@@ -53,41 +108,133 @@ Done!  This reward function can now be used as it is; furthermore, because the
 implementation is so generic and task-independent, it can be used with any type
 of environment!  Mind you, writing a reward function is not always this easy,
 and more complicated reward functions typically have to inspect the inputs to
-check if a complicated underlying condition is met;  but regardless of
-difficulty, anything is possible!
+check if a complicated underlying condition is met (which is the subject of the
+second example in this guide);  but regardless of difficulty, anything is
+possible!
 
-Parameterization
-----------------
-
-Note that we can go one step further and be a bit more fancy with our custom
-reward functions.  Let's say that we want to generalize
-`custom_reward` such that:
-
-1. it returns a value different than 0.0 if the two states are different
-
-2. it is parametrized such that the
-
+We can go one step further and generalize :py:meth:`static_reward` such that
+different reward values can be used without having to manually edit the code
+each time.  We do this by adding appropriate arguments to the function
+signature, and then using :py:meth:`functools.partial` with values which might
+come from command line arguments or a file configuration.
 
 .. code-block:: python
 
-  def custom_reward(
-      state: State, action: Actions,
-      next_state: State,
-      *,
-      reward_if_equals: float = -1.0,
-      reward_if_not_equals: float = 0.0,
-  ) -> float:
-      """modulate reward depending on whether state is unchanged"""
-      return reward_if_equals if state == next_state else reward_if_not_equals
-
-  custom_reward_stronger = functools.partial(
-      custom_reward, reward_if_equals=5.0, reward_if_not_equals=-1.0
-  )
-  custom_reward_weaker = functools.partial(
-      custom_reward, reward_if_equale=0.5, reward_if_not_equals=-0.1
-  )
+    import functools
 
 
-Now you can use functools.partial to set the additional arguments to specific
-values, e.g., gotten by command line or some other form of dynamic
-configuration, without having to manually editing the code.
+    def generalized_static_reward(
+        state: State,
+        action: Actions,
+        next_state: State,
+        *,
+        reward_if_equals: float = -1.0,
+        reward_if_not_equals: float = 0.0,
+    ) -> float:
+        """determines reward depending on whether state is unchanged"""
+        return reward_if_equals if state == next_state else reward_if_not_equals
+
+
+    # binding two variants of generalized_static_reward
+    stronger_static_reward = functools.partial(
+        generalized_static_reward, reward_if_equals=-2.0, reward_if_not_equals=1.0
+    )
+    weaker_static_reward = functools.partial(
+        generalized_static_reward, reward_if_equale=-0.2, reward_if_not_equals=0.1
+    )
+
+Practical Example 2
+-------------------
+
+In this example, we are going to write a reward which encourages the agent to
+turn around in a given direction, clockwise or counterclockwise (perhaps this
+will help the agent gain more information by changing POV!)  We provide two
+different implementations which will hopefully demonstrate the intricacies of
+coding the correct functionality.
+
+First Implementation
+^^^^^^^^^^^^^^^^^^^^
+In the first implementation, we will simply check whether the :py:data:`action`
+argument matches one of the rotation actions
+(:py:attr:`~gym_gridverse.actions.Actions.TURN_LEFT` and
+:py:attr:`~gym_gridverse.actions.Actions.TURN_RIGHT`), and select the
+appropriate reward:
+
+.. code-block:: python
+
+    def intended_rotation_reward(
+        state: State,
+        action: Actions,
+        next_state: State,
+        *,
+        reward_clockwise: float,
+        reward_counterclockwise: float,
+    ) -> float:
+        """determines reward depending on whether agent has turned (counter)clockwise"""
+
+        if action is Actions.TURN_RIGHT:
+            return reward_clockwise
+
+        if action is Actions.TURN_LEFT:
+            return reward_counterclockwise
+
+        return 0.0
+
+Easy!  Note, however, that we did not use the :py:data:`state` and
+:py:data:`next_state` arguments at all;  should we be worried about that?  As
+it turns out, this implementation measures the agent's *intention* to turn, but
+not necessarily whether the agent *actually* turned.  The two conditions might
+(or might not) be very different, depending on the state dynamics:
+
+- the agent might have tried to turn but failed, e.g., due to a flat 10\%
+  failure rate in actually performing actions.
+
+- the agent might have turned by means other than its action, e.g., by standing
+  on a rotating tile.
+
+Second Implementation
+^^^^^^^^^^^^^^^^^^^^^
+
+If we wanted to re-implement this reward function by taking into account what
+*actually* happened in the transition, we might do it as follows:
+
+.. code-block:: python
+    
+    def actual_rotation_reward(
+        state: State,
+        action: Actions,
+        next_state: State,
+        *,
+        reward_clockwise: float,
+        reward_counterclockwise: float,
+    ) -> float:
+        """determines reward depending on whether agent has turned (counter)clockwise"""
+
+        rotation = (state.agent.orientation, next_state.agent.orientation)
+
+        clockwise_rotations = [
+            (Orientation.N, Orientation.E),
+            (Orientation.E, Orientation.S),
+            (Orientation.S, Orientation.W),
+            (Orientation.W, Orientation.N),
+        ]
+
+        if rotation in clockwise_rotations:
+            return reward_clockwise
+
+        counterclockwise_rotations = [
+            (Orientation.N, Orientation.W),
+            (Orientation.W, Orientation.S),
+            (Orientation.S, Orientation.E),
+            (Orientation.E, Orientation.N),
+        ]
+
+        if rotation in counterclockwise_rotations:
+            return reward_counterclockwise
+
+        return 0.0
+
+It is up to you, the designer, to know your environment well enough not only to
+decide what kind of behavior to reward, but also to be able to encode the
+concept of a reward into an implementation which correctly matches that
+concept.
