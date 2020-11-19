@@ -9,7 +9,8 @@ from gym_gridverse.geometry import DistanceFunction, Position
 from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle, Wall
 from gym_gridverse.state import State
 
-RewardFunction = Callable[[State, Actions, State], float]
+# XXX: the comment allows Sphinx to pick this assignment as documentation
+RewardFunction = Callable[[State, Actions, State], float]  #:
 
 
 def chain(
