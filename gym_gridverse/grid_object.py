@@ -612,11 +612,75 @@ class MovingObstacle(GridObject):
         return "*"
 
 
+class Box(GridObject):
+    """A box which can be broken and may contain another object"""
+
+    def __init__(self, obj: GridObject):
+        """Boxes have no special status or color"""
+        if isinstance(obj, (NoneGridObject, Hidden)):
+            raise ValueError(
+                'box cannot contain NoneGridObject or Hidden types'
+            )
+
+        self.obj = obj
+
+    @classmethod
+    def can_be_represented_in_state(cls) -> bool:
+        return False
+
+    @property
+    def state_index(self) -> int:
+        return 0
+
+    @property
+    def color(self) -> Colors:
+        return Colors.NONE
+
+    @classmethod
+    def num_states(cls) -> int:
+        return 0
+
+    @property
+    def transparent(self) -> bool:
+        return True
+
+    @property
+    def can_be_picked_up(self) -> bool:
+        return False
+
+    @property
+    def blocks(self) -> bool:
+        return True
+
+    def step(
+        self,
+        state: State,
+        action: Actions,
+        *,
+        rng: Optional[rnd.Generator] = None,
+    ) -> None:
+        pass
+
+    def actuate(
+        self,
+        state: State,
+        *,
+        rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+    ) -> None:
+
+        position = state.grid.get_position(self)
+        state.grid[position] = self.obj
+
+    def render_as_char(self) -> str:
+        return "b"
+
+
 def factory(
     name: str,
     *,
     status: Optional[str] = None,
     color: Optional[str] = None,
+    obj: Optional[GridObject] = None,
 ) -> GridObject:
 
     if name in ['none_grid_object', 'NoneGridObject']:
@@ -636,7 +700,7 @@ def factory(
 
     if name in ['door', 'Door']:
         if not (isinstance(status, str) and isinstance(color, str)):
-            raise ValueError('invalid parameters for name `{name}`')
+            raise ValueError(f'invalid parameters for name `{name}`')
 
         status_ = Door.Status[status]
         color_ = Colors[color]
@@ -644,13 +708,19 @@ def factory(
 
     if name in ['key', 'Key']:
         if not isinstance(color, str):
-            raise ValueError('invalid parameters for name `{name}`')
+            raise ValueError(f'invalid parameters for name `{name}`')
 
         color_ = Colors[color]
         return Key(color_)
 
     if name in ['moving_obstacle', 'MovingObstacle']:
         return MovingObstacle()
+
+    if name in ['box', 'Box']:
+        if not isinstance(obj, GridObject):
+            raise ValueError(f'invalid parameters for name `{name}`')
+
+        return Box(obj)
 
     raise ValueError(f'invalid grid-object name {name}')
 
@@ -680,5 +750,8 @@ def factory_type(name: str) -> Type[GridObject]:
 
     if name in ['moving_obstacle', 'MovingObstacle']:
         return MovingObstacle
+
+    if name in ['box', 'Box']:
+        return Box
 
     raise ValueError(f'invalid grid-object type name {name}')
