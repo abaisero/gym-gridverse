@@ -90,6 +90,7 @@ def test_none_grid_object_properties():
     )
     np.testing.assert_array_equal(none.as_array(), expected_arr_represtation)
 
+    assert none.can_be_represented_in_state()
     assert none.render_as_char() == ' '
     assert none.num_states() == 0
 
@@ -113,8 +114,8 @@ def test_hidden_properties():
     )
     np.testing.assert_array_equal(hidden.as_array(), expected_arr_represtation)
 
+    assert not hidden.can_be_represented_in_state()
     assert hidden.render_as_char() == '.'
-
     assert hidden.num_states() == 0
 
 
@@ -139,6 +140,7 @@ def test_floor_properties():
     )
     np.testing.assert_array_equal(floor.as_array(), expected_arr_represtation)
 
+    assert floor.can_be_represented_in_state()
     assert floor.render_as_char() == ' '
     assert floor.num_states() == 0
 
@@ -164,6 +166,7 @@ def test_wall_properties():
     )
     np.testing.assert_array_equal(wall.as_array(), expected_arr_represtation)
 
+    assert wall.can_be_represented_in_state()
     assert wall.render_as_char() == '#'
     assert wall.num_states() == 0
 
@@ -189,6 +192,7 @@ def test_goal_properties():
     )
     np.testing.assert_array_equal(goal.as_array(), expected_arr_represtation)
 
+    assert goal.can_be_represented_in_state()
     assert goal.render_as_char() == 'G'
     assert goal.num_states() == 0
 
@@ -202,7 +206,6 @@ def test_door_open_door_properties():
     """ Basic property tests """
 
     color = Colors.GREEN
-
     open_door = Door(Door.Status.OPEN, color)
 
     assert open_door.transparent
@@ -220,6 +223,7 @@ def test_door_open_door_properties():
         open_door.as_array(), expected_arr_represtation
     )
 
+    assert open_door.can_be_represented_in_state()
     assert open_door.render_as_char() == '_'
     assert open_door.num_states() == 3
 
@@ -228,7 +232,6 @@ def test_door_closed_door_properties():
     """ Basic property tests """
 
     color = Colors.NONE
-
     closed_door = Door(Door.Status.CLOSED, color)
 
     assert not closed_door.transparent
@@ -246,6 +249,7 @@ def test_door_closed_door_properties():
         closed_door.as_array(), expected_arr_represtation
     )
 
+    assert closed_door.can_be_represented_in_state()
     assert closed_door.render_as_char() == 'd'
 
 
@@ -253,7 +257,6 @@ def test_door_locked_door_properties():
     """ Basic property tests """
 
     color = Colors.NONE
-
     locked_door = Door(Door.Status.LOCKED, color)
 
     assert not locked_door.transparent
@@ -271,6 +274,7 @@ def test_door_locked_door_properties():
         locked_door.as_array(), expected_arr_represtation
     )
 
+    assert locked_door.can_be_represented_in_state()
     assert locked_door.render_as_char() == 'D'
 
 
@@ -336,6 +340,8 @@ def test_key_properties():
         [Key.type_index, 0, color.value]  # pylint: disable=no-member
     )
     np.testing.assert_array_equal(key.as_array(), expected_arr_represtation)
+
+    assert key.can_be_represented_in_state()
     assert key.num_states() == 0
 
 
@@ -362,6 +368,7 @@ def test_moving_obstacle_basic_properties():
         obstacle.as_array(), expected_arr_represtation
     )
 
+    assert obstacle.can_be_represented_in_state()
     assert obstacle.render_as_char() == '*'
     assert obstacle.num_states() == 0
 

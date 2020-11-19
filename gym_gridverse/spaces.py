@@ -69,6 +69,14 @@ class StateSpace:
         )
 
     @property
+    def can_be_represented(self):
+        # TODO test
+        return all(
+            object_type.can_be_represented_in_state()
+            for object_type in self.object_types
+        )
+
+    @property
     def agent_state_size(self) -> Tuple[int, int, int, int, int]:
         return (
             self.grid_shape[0],

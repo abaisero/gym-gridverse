@@ -39,6 +39,11 @@ class GridObject(metaclass=abc.ABCMeta):
             cls.type_index = len(GridObject.object_types)
             GridObject.object_types.append(cls)
 
+    @classmethod
+    @abc.abstractmethod
+    def can_be_represented_in_state(cls) -> bool:
+        """ Returns whether the state_index fully represents the object state """
+
     @property
     @abc.abstractmethod
     def state_index(self) -> int:
@@ -107,6 +112,10 @@ class GridObject(metaclass=abc.ABCMeta):
 class NoneGridObject(GridObject):
     """ object representing the absence of an object """
 
+    @classmethod
+    def can_be_represented_in_state(cls) -> bool:
+        return True
+
     @property
     def state_index(self) -> int:
         return 0
@@ -154,6 +163,10 @@ class NoneGridObject(GridObject):
 
 class Hidden(GridObject):
     """ object representing an unobservable cell """
+
+    @classmethod
+    def can_be_represented_in_state(cls) -> bool:
+        return False
 
     @property
     def state_index(self) -> int:
@@ -203,6 +216,10 @@ class Hidden(GridObject):
 class Floor(GridObject):
     """ Most basic object in the grid, represents empty cell """
 
+    @classmethod
+    def can_be_represented_in_state(cls) -> bool:
+        return True
+
     @property
     def state_index(self) -> int:
         return 0
@@ -251,6 +268,10 @@ class Floor(GridObject):
 class Wall(GridObject):
     """ The (second) most basic object in the grid: blocking cell """
 
+    @classmethod
+    def can_be_represented_in_state(cls) -> bool:
+        return True
+
     @property
     def state_index(self) -> int:
         return 0
@@ -298,6 +319,10 @@ class Wall(GridObject):
 
 class Goal(GridObject):
     """ The (second) most basic object in the grid: blocking cell """
+
+    @classmethod
+    def can_be_represented_in_state(cls) -> bool:
+        return True
 
     @property
     def state_index(self) -> int:
@@ -370,6 +395,10 @@ class Door(GridObject):
     def __init__(self, state: Status, color: Colors):
         self._color = color
         self._state = state
+
+    @classmethod
+    def can_be_represented_in_state(cls) -> bool:
+        return True
 
     @property
     def state_index(self) -> int:
@@ -457,6 +486,10 @@ class Key(GridObject):
         """ Creates a key of color `c` """
         self._color = c
 
+    @classmethod
+    def can_be_represented_in_state(cls) -> bool:
+        return True
+
     @property
     def state_index(self) -> int:
         return 0
@@ -504,6 +537,10 @@ class MovingObstacle(GridObject):
 
     def __init__(self):
         """Moving obstacles have no special status or color"""
+
+    @classmethod
+    def can_be_represented_in_state(cls) -> bool:
+        return True
 
     @property
     def state_index(self) -> int:

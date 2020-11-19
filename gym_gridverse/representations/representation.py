@@ -7,6 +7,7 @@ from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid_object import GridObject, NoneGridObject
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.observation import Observation
+from gym_gridverse.spaces import StateSpace
 from gym_gridverse.state import State
 
 
@@ -25,6 +26,14 @@ class Representation(metaclass=abc.ABCMeta):
 
 class StateRepresentation(Representation):
     """Base interface for state representations: enforces `convert`"""
+
+    def __init__(self, state_space: StateSpace):
+        if not state_space.can_be_represented:
+            raise ValueError(
+                'state space contains objects which cannot be represented in state'
+            )
+
+        self.state_space = state_space
 
     @abc.abstractmethod
     def convert(self, s: State) -> Dict[str, np.ndarray]:
