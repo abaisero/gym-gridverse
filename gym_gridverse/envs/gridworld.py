@@ -27,6 +27,9 @@ class GridWorld(Environment):
         termination_function: TerminatingFunction,
     ):
 
+        # TODO: maybe add a parameter to avoid calls to `contain` everywhere
+        # (or maybe a global setting)
+
         self._functional_reset = reset_function
         self._functional_step = step_function
         self._functional_observation = observation_function
@@ -44,6 +47,7 @@ class GridWorld(Environment):
     def set_seed(self, seed: Optional[int] = None):
         self._rng = make_rng(seed)
 
+    # TODO: remove and solve better
     def set_observation_function(
         self, observation_function: ObservationFunction
     ):
