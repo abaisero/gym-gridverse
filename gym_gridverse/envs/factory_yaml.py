@@ -1,6 +1,6 @@
 import importlib.resources
 from functools import partial
-from typing import Dict, List, Optional, TextIO, Type
+from typing import Dict, List, Optional, Sequence, TextIO
 
 import numpy.random as rnd
 import yamale
@@ -13,10 +13,12 @@ from gym_gridverse.envs import (
     reward_functions as reward_fs,
     state_dynamics as transition_fs,
     terminating_functions as terminating_fs,
+    visibility_functions as visibility_fs,
 )
 from gym_gridverse.envs.env import Environment
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import DistanceFunction, Position, Shape
+from gym_gridverse.grid_object import Colors
 from gym_gridverse.spaces import (
     ActionSpace,
     DomainSpace,
@@ -91,8 +93,8 @@ def make_environment_from_data(data: Dict) -> Environment:
 
 def make_state_space(data: Dict):
     shape = Shape(*data['shape'])
-    objects = list(map(make_object_type, data['objects']))
-    colors = list(map(make_color, data['colors']))
+    objects = list(map(grid_object.factory_type, data['objects']))
+    colors = [Colors[name] for name in data['colors']]
     return StateSpace(shape, objects, colors)
 
 
@@ -103,15 +105,15 @@ def make_action_space(data: Optional[List[str]]):
         if len(set(data)) != len(data):
             raise ValueError('Duplicate actions')
 
-        actions = list(map(make_action, data))
+        actions = list(map(Actions.__getitem__, data))
 
     return ActionSpace(actions)
 
 
 def make_observation_space(data: Dict):
     shape = Shape(*data['shape'])
-    objects = list(map(make_object_type, data['objects']))
-    colors = list(map(make_color, data['colors']))
+    objects = list(map(grid_object.factory_type, data['objects']))
+    colors = list(map(Colors.__getitem__, data['colors']))
     return ObservationSpace(shape, objects, colors)
 
 
@@ -135,7 +137,9 @@ def make_reset_function(
     )
 
 
-def make_transition_function(data: Dict) -> transition_fs.StateDynamics:
+def make_transition_function(
+    data: Sequence[Dict],
+) -> transition_fs.StateDynamics:
     transition_functions = list(map(_make_transition_function, data))
 
     def transition_function(
@@ -151,7 +155,7 @@ def _make_transition_function(data: Dict) -> transition_fs.StateDynamics:
     return transition_fs.factory(data['name'])
 
 
-def make_reward_function(data: Dict) -> reward_fs.RewardFunction:
+def make_reward_function(data: Sequence[Dict]) -> reward_fs.RewardFunction:
     reward_functions = list(map(_make_reward_function, data))
     return partial(reward_fs.chain, reward_functions=reward_functions)
 
@@ -172,7 +176,7 @@ def _make_reward_function(data: Dict) -> reward_fs.RewardFunction:
     except KeyError:
         object_type = None
     else:
-        object_type = make_object_type(data_object_type)
+        object_type = grid_object.factory_type(data_object_type)
 
     try:
         data_distance_function = data['distance_function']
@@ -204,7 +208,7 @@ def make_observation_function(
     except KeyError:
         visibility_function = None
     else:
-        visibility_function = make_visibility_function(data_visibility_function)
+        visibility_function = visibility_fs.factory(data_visibility_function)
 
     return observation_fs.factory(
         data['name'],
@@ -229,7 +233,7 @@ def make_terminating_function(data: Dict) -> terminating_fs.TerminatingFunction:
     except KeyError:
         object_type = None
     else:
-        object_type = make_object_type(data_object_type)
+        object_type = grid_object.factory_type(data_object_type)
 
     return terminating_fs.factory(
         data['name'],
@@ -246,37 +250,3 @@ def make_distance_function(name) -> DistanceFunction:
         return Position.euclidean_distance
 
     raise ValueError(f'invalid distance function name `{name}`')
-
-
-def make_visibility_function(name) -> observation_fs.VisibilityFunction:
-    if name == 'minigrid':
-        return observation_fs.minigrid_visibility
-
-    if name == 'raytracing':
-        return observation_fs.raytracing_visibility
-
-    if name == 'stochastic_raytracing':
-        return observation_fs.stochastic_raytracing_visibility
-
-    raise ValueError(f'invalid visibility function name `{name}`')
-
-
-def make_object_type(name) -> Type[grid_object.GridObject]:
-    try:
-        return getattr(grid_object, name)
-    except AttributeError:
-        raise ValueError(f'invalid object type `{name}`')
-
-
-def make_action(name) -> Actions:
-    try:
-        return getattr(Actions, name)
-    except AttributeError:
-        raise ValueError(f'invalid action name `{name}`')
-
-
-def make_color(name) -> grid_object.Colors:
-    try:
-        return getattr(grid_object.Colors, name)
-    except AttributeError:
-        raise ValueError(f'invalid color name `{name}`')

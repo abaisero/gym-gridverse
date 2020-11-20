@@ -22,9 +22,6 @@ class DefaultStateRepresentation(StateRepresentation):
     information
     """
 
-    def __init__(self, state_space: StateSpace):
-        self.state_space = state_space
-
     @property
     def space(self) -> Dict[str, np.ndarray]:
         max_type_index = self.state_space.max_agent_object_type
@@ -55,9 +52,6 @@ class NoOverlapStateRepresentation(StateRepresentation):
     and `gym_gridverse.representations.representation.no_overlap_convert` for
     more information
     """
-
-    def __init__(self, state_space: StateSpace):
-        self.state_space = state_space
 
     @property
     def space(self) -> Dict[str, np.ndarray]:
@@ -93,6 +87,10 @@ class CompactStateRepresentation(StateRepresentation):
     TODO: implement
 
     """
+
+    def __init__(self, state_space: StateSpace):
+        super().__init__(state_space)
+        raise NotImplementedError
 
 
 def create_state_representation(

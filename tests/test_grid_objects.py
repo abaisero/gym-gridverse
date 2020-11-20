@@ -1,9 +1,12 @@
 """ Tests Grid Object behavior and properties """
 import unittest
+from typing import Type
 
 import numpy as np
+import pytest
 
 from gym_gridverse.grid_object import (
+    Box,
     Colors,
     Door,
     Floor,
@@ -14,27 +17,52 @@ from gym_gridverse.grid_object import (
     MovingObstacle,
     NoneGridObject,
     Wall,
+    factory,
 )
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
 
-def test_grid_object_no_registration():
-    """ Grid Objects can be _not_ registered """
+class DummyNonRegisteredObject(  # pylint: disable=abstract-method
+    GridObject, register=False
+):
+    """ Some dummy grid object that is _not_ registered """
 
-    class DummyObject(  # pylint: disable=abstract-method
-        GridObject, register=False
-    ):
-        """ Some dummy grid objet that is _not_ registered """
 
-    assert DummyObject not in GridObject.object_types
+@pytest.mark.parametrize(
+    'object_type,expected',
+    [
+        (DummyNonRegisteredObject, False),
+        (NoneGridObject, True),
+        (Hidden, True),
+        (Floor, True),
+        (Wall, True),
+        (Goal, True),
+        (Door, True),
+        (Key, True),
+        (MovingObstacle, True),
+        (Box, True),
+    ],
+)
+def test_registration(object_type: Type[GridObject], expected: bool):
+    assert (object_type in GridObject.object_types) == expected
+
+
+def test_none_grid_object_registration():
+    """ Tests the registration as a Grid Object """
+    assert NoneGridObject in GridObject.object_types
+
+
+def test_hidden_registration():
+    """ Tests the registration as a Grid Object """
+    assert Hidden in GridObject.object_types
 
 
 def test_grid_object_registration():
     """ Test registration of type indices """
 
     # pylint: disable=no-member
-    assert len(GridObject.object_types) == 8
+    assert len(GridObject.object_types) == 9
     unittest.TestCase().assertCountEqual(
         [
             NoneGridObject.type_index,
@@ -45,6 +73,7 @@ def test_grid_object_registration():
             Door.type_index,
             Key.type_index,
             MovingObstacle.type_index,
+            Box.type_index,
         ],
         range(len(GridObject.object_types)),
     )
@@ -58,6 +87,7 @@ def test_grid_object_registration():
         Door,
         Key,
         MovingObstacle,
+        Box,
     ]:
         assert GridObject.object_types[obj_cls.type_index] is obj_cls
 
@@ -68,11 +98,6 @@ def simple_state_without_object() -> State:
         Grid(height=2, width=2),
         Agent(position=(0, 0), orientation=None, obj=Floor()),
     )
-
-
-def test_none_grid_object_registration():
-    """ Tests the registration as a Grid Object """
-    assert NoneGridObject in GridObject.object_types
 
 
 def test_none_grid_object_properties():
@@ -88,13 +113,9 @@ def test_none_grid_object_properties():
     )
     np.testing.assert_array_equal(none.as_array(), expected_arr_represtation)
 
+    assert none.can_be_represented_in_state()
     assert none.render_as_char() == ' '
     assert none.num_states() == 0
-
-
-def test_hidden_registration():
-    """ Tests the registration as a Grid Object """
-    assert Hidden in GridObject.object_types
 
 
 def test_hidden_properties():
@@ -111,14 +132,9 @@ def test_hidden_properties():
     )
     np.testing.assert_array_equal(hidden.as_array(), expected_arr_represtation)
 
+    assert not hidden.can_be_represented_in_state()
     assert hidden.render_as_char() == '.'
-
     assert hidden.num_states() == 0
-
-
-def test_floor_registration():
-    """ Tests the registration as a Grid Object """
-    assert Floor in GridObject.object_types
 
 
 def test_floor_properties():
@@ -137,13 +153,9 @@ def test_floor_properties():
     )
     np.testing.assert_array_equal(floor.as_array(), expected_arr_represtation)
 
+    assert floor.can_be_represented_in_state()
     assert floor.render_as_char() == ' '
     assert floor.num_states() == 0
-
-
-def test_wall_registration():
-    """ Tests the registration as a Grid Object """
-    assert Wall in GridObject.object_types
 
 
 def test_wall_properties():
@@ -162,13 +174,9 @@ def test_wall_properties():
     )
     np.testing.assert_array_equal(wall.as_array(), expected_arr_represtation)
 
+    assert wall.can_be_represented_in_state()
     assert wall.render_as_char() == '#'
     assert wall.num_states() == 0
-
-
-def test_goal_registration():
-    """ Tests the registration as a Grid Object """
-    assert Goal in GridObject.object_types
 
 
 def test_goal_properties():
@@ -187,20 +195,15 @@ def test_goal_properties():
     )
     np.testing.assert_array_equal(goal.as_array(), expected_arr_represtation)
 
+    assert goal.can_be_represented_in_state()
     assert goal.render_as_char() == 'G'
     assert goal.num_states() == 0
-
-
-def test_door_registration():
-    """ Tests the registration as a Grid Object """
-    assert Door in GridObject.object_types
 
 
 def test_door_open_door_properties():
     """ Basic property tests """
 
     color = Colors.GREEN
-
     open_door = Door(Door.Status.OPEN, color)
 
     assert open_door.transparent
@@ -218,6 +221,7 @@ def test_door_open_door_properties():
         open_door.as_array(), expected_arr_represtation
     )
 
+    assert open_door.can_be_represented_in_state()
     assert open_door.render_as_char() == '_'
     assert open_door.num_states() == 3
 
@@ -226,7 +230,6 @@ def test_door_closed_door_properties():
     """ Basic property tests """
 
     color = Colors.NONE
-
     closed_door = Door(Door.Status.CLOSED, color)
 
     assert not closed_door.transparent
@@ -244,6 +247,7 @@ def test_door_closed_door_properties():
         closed_door.as_array(), expected_arr_represtation
     )
 
+    assert closed_door.can_be_represented_in_state()
     assert closed_door.render_as_char() == 'd'
 
 
@@ -251,7 +255,6 @@ def test_door_locked_door_properties():
     """ Basic property tests """
 
     color = Colors.NONE
-
     locked_door = Door(Door.Status.LOCKED, color)
 
     assert not locked_door.transparent
@@ -269,6 +272,7 @@ def test_door_locked_door_properties():
         locked_door.as_array(), expected_arr_represtation
     )
 
+    assert locked_door.can_be_represented_in_state()
     assert locked_door.render_as_char() == 'D'
 
 
@@ -313,11 +317,6 @@ def test_door_opening_door_with_key():
     assert door.is_open
 
 
-def test_key_registration():
-    """ Tests the registration as a Grid Object """
-    assert Key in GridObject.object_types
-
-
 def test_key_properties():
     """ Basic property tests """
 
@@ -334,12 +333,9 @@ def test_key_properties():
         [Key.type_index, 0, color.value]  # pylint: disable=no-member
     )
     np.testing.assert_array_equal(key.as_array(), expected_arr_represtation)
+
+    assert key.can_be_represented_in_state()
     assert key.num_states() == 0
-
-
-def test_moving_obstacle_registration():
-    """ Tests the registration as a Grid Object """
-    assert MovingObstacle in GridObject.object_types
 
 
 def test_moving_obstacle_basic_properties():
@@ -360,6 +356,7 @@ def test_moving_obstacle_basic_properties():
         obstacle.as_array(), expected_arr_represtation
     )
 
+    assert obstacle.can_be_represented_in_state()
     assert obstacle.render_as_char() == '*'
     assert obstacle.num_states() == 0
 
@@ -388,3 +385,96 @@ def test_moving_obstacle_obstacle_movement():
     assert (s.grid.get_position(obs_1) == (0, 1)) or (
         s.grid.get_position(obs_1) == (1, 0)
     )
+
+
+def test_box_basic_properties():
+    """Tests basic properties of box """
+
+    box = Box(Floor())
+
+    assert box.transparent
+    assert box.blocks
+    assert box.color == Colors.NONE
+    assert not box.can_be_picked_up
+    assert box.state_index == 0
+
+    expected_arr_represtation = np.array(
+        [Box.type_index, 0, 0]  # pylint: disable=no-member
+    )
+    np.testing.assert_array_equal(box.as_array(), expected_arr_represtation)
+
+    assert not box.can_be_represented_in_state()
+    assert box.render_as_char() == 'b'
+    assert box.num_states() == 0
+
+
+@pytest.mark.parametrize(
+    'obj',
+    [
+        Floor(),
+        Wall(),
+        Goal(),
+        Door(Door.Status.CLOSED, Colors.RED),
+        Key(Colors.RED),
+        MovingObstacle(),
+        Box(Floor()),
+        Box(Box(Floor())),
+        Box(Box(Box(Floor()))),
+    ],
+)
+def test_box_movement(obj: GridObject):
+    """Test the 'actuate' behavior of box"""
+
+    box = Box(obj)
+
+    # allow for just 1 next step
+    state = simple_state_without_object()
+    state.grid[0, 0] = box
+
+    box.actuate(state)
+
+    assert state.grid[0, 0] is obj
+
+
+@pytest.mark.parametrize(
+    'name,kwargs',
+    [
+        ('NoneGridObject', {}),
+        ('none_grid_object', {}),
+        ('Hidden', {}),
+        ('hidden', {}),
+        ('Floor', {}),
+        ('floor', {}),
+        ('Wall', {}),
+        ('wall', {}),
+        ('Goal', {}),
+        ('goal', {}),
+        ('Door', {'status': 'LOCKED', 'color': 'RED'}),
+        ('door', {'status': 'LOCKED', 'color': 'RED'}),
+        ('Key', {'color': 'RED'}),
+        ('key', {'color': 'RED'}),
+        ('MovingObstacle', {}),
+        ('moving_obstacle', {}),
+        ('Box', {'obj': Floor()}),
+        ('box', {'obj': Floor()}),
+    ],
+)
+def test_factory_valid(name: str, kwargs):
+    factory(name, **kwargs)
+
+
+@pytest.mark.parametrize(
+    'name,kwargs,exception',
+    [
+        ('invalid', {}, ValueError),
+        ('Door', {}, ValueError),
+        ('door', {}, ValueError),
+        ('Key', {}, ValueError),
+        ('key', {}, ValueError),
+        ('Box', {}, ValueError),
+        ('box', {}, ValueError),
+    ],
+)
+def test_factory_invalid(name: str, kwargs, exception: Exception):
+    with pytest.raises(exception):  # type: ignore
+        factory(name, **kwargs)

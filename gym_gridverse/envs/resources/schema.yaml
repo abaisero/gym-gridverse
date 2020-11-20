@@ -66,12 +66,12 @@ reward_function_bump_into_wall:
   name: enum('bump_into_wall')
   reward: num()
 ---
-observation_function: any(include('observation_function_full_visibility'), include('observation_function_from_visibility'), include('observation_function_minigrid_visibility'), include('observation_function_raytracing_visibility'), include('observation_function_stochastic_raytracing_visibility'))
-observation_function_full_visibility:
-  name: enum('full_visibility')
+observation_function: any(include('observation_function_from_visibility'), include('observation_function_full_observation'), include('observation_function_minigrid_visibility'), include('observation_function_raytracing_visibility'), include('observation_function_stochastic_raytracing_visibility'))
 observation_function_from_visibility:
   name: enum('from_visibility')
   visibility_function: include('visibility_function')
+observation_function_full_observation:
+  name: enum('full_observation')
 observation_function_minigrid_visibility:
   name: enum('minigrid_visibility')
 observation_function_raytracing_visibility:
@@ -96,7 +96,7 @@ terminating_function_bump_moving_obstacle:
 terminating_function_bump_into_wall:
   name: enum('bump_into_wall')
 ---
-visibility_function: enum('minigrid', 'raytracing', 'stochastic_raytracing')
+visibility_function: enum('full', 'minigrid', 'raytracing', 'stochastic_raytracing')
 ---
 distance_function: enum('manhattan', 'euclidean')
 ---
