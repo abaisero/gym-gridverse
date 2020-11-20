@@ -5,7 +5,7 @@ Reward Functions
 The RewardFunction Protocol
 ===========================
 
-A reward function is a determinstic mapping from a state-action-state
+A reward function is a deterministic mapping from a state-action-state
 transition to a numeric reward.  Using the :py:mod:`typing` standard library,
 the reward function type is defined as a :py:class:`~typing.Callable` which
 receives a :py:class:`~gym_gridverse.state.State`, an
