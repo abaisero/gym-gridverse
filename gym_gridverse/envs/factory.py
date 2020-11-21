@@ -10,8 +10,8 @@ from gym_gridverse.envs import (
     observation_functions,
     reset_functions,
     reward_functions,
-    state_dynamics,
     terminating_functions,
+    transition_functions,
 )
 from gym_gridverse.envs.env import Environment
 from gym_gridverse.envs.gridworld import GridWorld
@@ -37,7 +37,7 @@ from gym_gridverse.state import State
 def create_env(
     domain_space: DomainSpace,
     reset: reset_functions.ResetFunction,
-    transition_functions: List[state_dynamics.StateDynamics],
+    transition_functions: List[transition_functions.TransitionFunction],
     rewards: List[reward_functions.RewardFunction],
     terminations: List[terminating_functions.TerminatingFunction],
 ) -> Environment:
@@ -52,7 +52,7 @@ def create_env(
     Args:
         domain_space (`DomainSpace`):
         reset (`reset_functions.ResetFunction`):
-        transition_functions (`List[state_dynamics.StateDynamics]`): called in order
+        transition_functions (`List[transition_functions.TransitionFunction]`): called in order
         rewards (`List[reward_functions.RewardFunction]`): Combined additive
         terminations (`List[terminating_functions.TerminatingFunction]`): Called as big 'or'
 
@@ -101,8 +101,8 @@ def plain_navigation_task(
         Environment: GridWorld with basic navigation dynamics
     """
 
-    transitions: List[state_dynamics.StateDynamics] = [
-        state_dynamics.update_agent
+    transitions: List[transition_functions.TransitionFunction] = [
+        transition_functions.update_agent
     ]
     rewards: List[reward_functions.RewardFunction] = [
         reward_functions.reach_goal
@@ -142,9 +142,9 @@ def dynamic_obstacle_minigrid(
         random_pos,
     )
 
-    transitions: List[state_dynamics.StateDynamics] = [
-        state_dynamics.update_agent,
-        state_dynamics.step_objects,
+    transitions: List[transition_functions.TransitionFunction] = [
+        transition_functions.update_agent,
+        transition_functions.step_objects,
     ]
     rewards: List[reward_functions.RewardFunction] = [
         reward_functions.reach_goal,
@@ -217,10 +217,10 @@ def gym_door_key_env(size: int) -> Environment:
 
     reset = partial(reset_functions.reset_minigrid_door_key, grid_size=size + 2)
 
-    transitions: List[state_dynamics.StateDynamics] = [
-        state_dynamics.update_agent,
-        state_dynamics.actuate_mechanics,
-        state_dynamics.pickup_mechanics,
+    transitions: List[transition_functions.TransitionFunction] = [
+        transition_functions.update_agent,
+        transition_functions.actuate_mechanics,
+        transition_functions.pickup_mechanics,
     ]
     rewards: List[reward_functions.RewardFunction] = [
         reward_functions.reach_goal

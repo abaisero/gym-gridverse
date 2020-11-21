@@ -12,7 +12,7 @@ from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
 
-class StateDynamics(Protocol):
+class TransitionFunction(Protocol):
     def __call__(
         self,
         state: State,
@@ -78,7 +78,7 @@ def update_agent(
     state: State,
     action: Actions,
     *,
-    rng: Optional[rnd.Generator] = None,
+    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
 ) -> None:
     """Simply updates the agents location and orientation based on action
 
@@ -104,10 +104,7 @@ def update_agent(
 
 
 def step_objects(
-    state: State,
-    action: Actions,
-    *,
-    rng: Optional[rnd.Generator] = None,
+    state: State, action: Actions, *, rng: Optional[rnd.Generator] = None
 ) -> None:
     """Calls `step` on all the objects in the grid
 
@@ -131,10 +128,7 @@ def step_objects(
 
 
 def actuate_mechanics(
-    state: State,
-    action: Actions,
-    *,
-    rng: Optional[rnd.Generator] = None,
+    state: State, action: Actions, *, rng: Optional[rnd.Generator] = None
 ) -> None:
     """Implements the mechanics of actuation
 
@@ -158,7 +152,7 @@ def pickup_mechanics(
     state: State,
     action: Actions,
     *,
-    rng: Optional[rnd.Generator] = None,
+    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
 ) -> None:
     """Implements the effect of the pickup and drop action
 
@@ -205,7 +199,7 @@ def pickup_mechanics(
     state.agent.obj = obj_in_front_of_agent if can_pickup else NoneGridObject()
 
 
-def factory(name: str) -> StateDynamics:
+def factory(name: str) -> TransitionFunction:
 
     if name == 'update_agent':
         return update_agent

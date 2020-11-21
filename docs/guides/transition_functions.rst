@@ -18,7 +18,7 @@ standard library, the transition function type is defined as a
 :py:class:`numpy.random.Generator`, and edits the input
 :py:class:`~gym_gridverse.state.State`.
 
-.. autoclass:: gym_gridverse.envs.state_dynamics.StateDynamics
+.. autoclass:: gym_gridverse.envs.transition_functions.TransitionFunction
   :noindex:
   :members: __call__
 

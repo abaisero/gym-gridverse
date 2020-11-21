@@ -11,8 +11,8 @@ from gym_gridverse.envs import (
     observation_functions as observation_fs,
     reset_functions as reset_fs,
     reward_functions as reward_fs,
-    state_dynamics as transition_fs,
     terminating_functions as terminating_fs,
+    transition_functions as transition_fs,
     visibility_functions as visibility_fs,
 )
 from gym_gridverse.envs.env import Environment
@@ -139,7 +139,7 @@ def make_reset_function(
 
 def make_transition_function(
     data: Sequence[Dict],
-) -> transition_fs.StateDynamics:
+) -> transition_fs.TransitionFunction:
     transition_functions = list(map(_make_transition_function, data))
 
     def transition_function(
@@ -151,7 +151,7 @@ def make_transition_function(
     return transition_function
 
 
-def _make_transition_function(data: Dict) -> transition_fs.StateDynamics:
+def _make_transition_function(data: Dict) -> transition_fs.TransitionFunction:
     return transition_fs.factory(data['name'])
 
 

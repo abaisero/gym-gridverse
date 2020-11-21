@@ -19,7 +19,6 @@ Collection and library for grid-like domains.
 - Method to create more compact representation
 - One-hot encoding of the state, action and observation (wrapper)
 - Refactoring
-    - Rename `StateDynamics` -> `TransitionFunction`
     - Move key/repeating functionality to grid
         - 'Object/pos in front of agent'
     - geometry module

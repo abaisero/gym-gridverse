@@ -8,8 +8,8 @@ from gym_gridverse.envs import Environment
 from gym_gridverse.envs.observation_functions import ObservationFunction
 from gym_gridverse.envs.reset_functions import ResetFunction
 from gym_gridverse.envs.reward_functions import RewardFunction
-from gym_gridverse.envs.state_dynamics import StateDynamics
 from gym_gridverse.envs.terminating_functions import TerminatingFunction
+from gym_gridverse.envs.transition_functions import TransitionFunction
 from gym_gridverse.observation import Observation
 from gym_gridverse.rng import make_rng
 from gym_gridverse.spaces import DomainSpace
@@ -21,7 +21,7 @@ class GridWorld(Environment):
         self,
         domain_space: DomainSpace,
         reset_function: ResetFunction,
-        step_function: StateDynamics,
+        step_function: TransitionFunction,
         observation_function: ObservationFunction,
         reward_function: RewardFunction,
         termination_function: TerminatingFunction,
