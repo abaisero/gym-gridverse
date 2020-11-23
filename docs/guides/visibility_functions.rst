@@ -64,8 +64,8 @@ rules;  A custom visibility function:
   :py:data:`rng` is used at all).
 
 .. warning::
-  The :py:data:`rng` argument is to control the source of randomness and allow
-  for the environment to be seeded via
+  The :py:data:`rng` argument is used to control the source of randomness and
+  allow for the environment to be seeded via
   :py:meth:`~gym_gridverse.envs.env.Environment.set_seed`, which in turn
   guarantees the reproducibility of traces, runs, and experiments;  if you wish
   to use external sources of randomness, you will have to manage them and their
