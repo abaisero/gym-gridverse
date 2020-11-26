@@ -10,8 +10,8 @@ from typing import Optional
 import gym_gridverse.envs.observation_functions as observation_fs
 import gym_gridverse.envs.reset_functions as reset_fs
 import gym_gridverse.envs.reward_functions as reward_fs
-import gym_gridverse.envs.state_dynamics as step_fs
 import gym_gridverse.envs.terminating_functions as terminating_fs
+import gym_gridverse.envs.transition_functions as step_fs
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs import Environment
 from gym_gridverse.envs.gridworld import GridWorld

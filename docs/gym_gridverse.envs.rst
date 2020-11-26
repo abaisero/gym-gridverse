@@ -68,14 +68,6 @@ gym\_gridverse.envs.reward\_functions module
    :undoc-members:
    :show-inheritance:
 
-gym\_gridverse.envs.state\_dynamics module
-------------------------------------------
-
-.. automodule:: gym_gridverse.envs.state_dynamics
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 gym\_gridverse.envs.terminating\_functions module
 -------------------------------------------------
 
@@ -84,10 +76,26 @@ gym\_gridverse.envs.terminating\_functions module
    :undoc-members:
    :show-inheritance:
 
+gym\_gridverse.envs.transition\_functions module
+------------------------------------------------
+
+.. automodule:: gym_gridverse.envs.transition_functions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 gym\_gridverse.envs.utils module
 --------------------------------
 
 .. automodule:: gym_gridverse.envs.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+gym\_gridverse.envs.visibility\_functions module
+------------------------------------------------
+
+.. automodule:: gym_gridverse.envs.visibility_functions
    :members:
    :undoc-members:
    :show-inheritance:
