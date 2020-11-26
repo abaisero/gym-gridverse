@@ -5,7 +5,6 @@ import abc
 import enum
 from typing import TYPE_CHECKING, List, Optional, Type
 
-import numpy as np
 import numpy.random as rnd
 
 from gym_gridverse.geometry import get_manhattan_boundary
@@ -89,10 +88,6 @@ class GridObject(metaclass=abc.ABCMeta):
         self, state: State, *, rng: Optional[rnd.Generator] = None
     ) -> None:
         """ The (optional) behavior upon actuation """
-
-    def as_array(self):
-        """ A (3,) array representation of the object """
-        return np.array([self.type_index, self.state_index, self.color.value])
 
     @abc.abstractmethod
     def render_as_char(self) -> str:
