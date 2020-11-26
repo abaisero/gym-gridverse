@@ -25,21 +25,21 @@ class Environment(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def set_seed(self, seed: Optional[int] = None):
-        raise NotImplementedError
+        raise AssertionError("Must be implemented by derived class")
 
     @abc.abstractmethod
     def functional_reset(self) -> State:
-        raise NotImplementedError
+        raise AssertionError("Must be implemented by derived class")
 
     @abc.abstractmethod
     def functional_step(
         self, state: State, action: Actions
     ) -> Tuple[State, float, bool]:
-        raise NotImplementedError
+        raise AssertionError("Must be implemented by derived class")
 
     @abc.abstractmethod
     def functional_observation(self, state: State) -> Observation:
-        raise NotImplementedError
+        raise AssertionError("Must be implemented by derived class")
 
     def reset(self):
         self._state = self.functional_reset()
