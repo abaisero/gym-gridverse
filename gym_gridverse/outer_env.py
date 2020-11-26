@@ -1,6 +1,6 @@
 from typing import Optional, Tuple
 
-from gym_gridverse.envs.env import Actions, Environment
+from gym_gridverse.envs.env import Actions, InnerEnv
 from gym_gridverse.representations.representation import (
     ObservationRepresentation,
     StateRepresentation,
@@ -10,7 +10,7 @@ from gym_gridverse.representations.representation import (
 class OuterEnv:
     def __init__(
         self,
-        env: Environment,
+        env: InnerEnv,
         state_rep: Optional[StateRepresentation] = None,
         observation_rep: Optional[ObservationRepresentation] = None,
     ):
@@ -20,7 +20,6 @@ class OuterEnv:
 
         # XXX: rename observation_rep -> observation_repr
         # XXX: rename state_rep -> state_repr
-        # XXX: rename Env -> Environment
 
     @property
     def action_space(self):

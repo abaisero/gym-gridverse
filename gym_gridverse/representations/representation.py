@@ -132,9 +132,9 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
         ]
 
     NOTE: used by
-    :class:`gym_gridverse.representations.state_representations.DefaultStateRepresentation`
+    :class:`~gym_gridverse.representations.state_representations.DefaultStateRepresentation`
     and
-    :class:`gym_gridverse.representations.observation_representations.DefaultObservationRepresentation`,
+    :class:`~gym_gridverse.representations.observation_representations.DefaultObservationRepresentation`,
     refactored here since DRY
 
     Args:

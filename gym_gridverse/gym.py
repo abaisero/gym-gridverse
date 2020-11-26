@@ -5,7 +5,7 @@ import gym
 import numpy as np
 from gym.utils import seeding
 
-from gym_gridverse.envs import Environment, factory
+from gym_gridverse.envs import InnerEnv, factory
 from gym_gridverse.outer_env import OuterEnv
 from gym_gridverse.representations.observation_representations import (
     create_observation_representation,
@@ -96,9 +96,7 @@ env_ids = []
 
 for key, constructor_ in factory.STRING_TO_GYM_CONSTRUCTOR.items():
 
-    def outer_env_constructor(
-        constructor: Callable[[], Environment]
-    ) -> OuterEnv:
+    def outer_env_constructor(constructor: Callable[[], InnerEnv]) -> OuterEnv:
         env = constructor()
         state_repr = None
         observation_repr = create_observation_representation(

@@ -13,7 +13,7 @@ import gym_gridverse.envs.reward_functions as reward_fs
 import gym_gridverse.envs.terminating_functions as terminating_fs
 import gym_gridverse.envs.transition_functions as step_fs
 from gym_gridverse.actions import Actions
-from gym_gridverse.envs import Environment
+from gym_gridverse.envs import InnerEnv
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid_object import Colors, Floor, Goal, GridObject, Wall
@@ -114,7 +114,7 @@ def draw_observation(window, observation: Observation):
 
 
 def main(
-    screen, env: Environment
+    screen, env: InnerEnv
 ):  # pylint: disable=too-many-locals,too-many-statements
     curses.curs_set(False)
 
@@ -236,7 +236,7 @@ def main(
         hide_state: bool
 
         @classmethod
-        def from_env(cls, env: Environment, *, hide_state: bool) -> VizState:
+        def from_env(cls, env: InnerEnv, *, hide_state: bool) -> VizState:
             state = env.functional_reset()
             observation = env.functional_observation(state)
             return VizState(
@@ -321,7 +321,7 @@ if __name__ == "__main__":
 
     terminating_function = terminating_fs.reach_goal
 
-    domain: Environment = GridWorld(
+    domain: InnerEnv = GridWorld(
         domain_space,
         reset_function,
         step_function,

@@ -6,10 +6,10 @@ from gym_gridverse.observation import Observation
 from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
 from gym_gridverse.state import State
 
-__all__ = ['Environment']
+__all__ = ['InnerEnv']
 
 
-class Environment(metaclass=abc.ABCMeta):
+class InnerEnv(metaclass=abc.ABCMeta):
     def __init__(
         self,
         state_space: StateSpace,

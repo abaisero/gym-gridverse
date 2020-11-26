@@ -7,7 +7,7 @@ returns the resulting transition
 
 from typing import Optional, Tuple
 
-from gym_gridverse.envs.env import Actions, Environment
+from gym_gridverse.envs.env import Actions, InnerEnv
 from gym_gridverse.observation import Observation
 from gym_gridverse.representations.representation import (
     ObservationRepresentation,
@@ -41,7 +41,7 @@ class Simulator:
 
     def __init__(
         self,
-        env: Environment,
+        env: InnerEnv,
         state_rep: Optional[StateRepresentation] = None,
         observation_rep: Optional[ObservationRepresentation] = None,
     ):
@@ -50,7 +50,7 @@ class Simulator:
         The representation arguments are optional because they are not
         necessary. However, it is assumed that this class will be used to
         somehow generate transitions, which require the ability to represent
-        the transitions, hence this class provides easy access toth em
+        the transitions, hence this class provides easy access to them
         """
         self.env = env
         self.state_rep = state_rep

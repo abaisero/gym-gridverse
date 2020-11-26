@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 import numpy.random as rnd
 
 from gym_gridverse.actions import Actions
-from gym_gridverse.envs import Environment
+from gym_gridverse.envs import InnerEnv
 from gym_gridverse.envs.observation_functions import ObservationFunction
 from gym_gridverse.envs.reset_functions import ResetFunction
 from gym_gridverse.envs.reward_functions import RewardFunction
@@ -16,7 +16,7 @@ from gym_gridverse.spaces import DomainSpace
 from gym_gridverse.state import State
 
 
-class GridWorld(Environment):
+class GridWorld(InnerEnv):
     def __init__(  # pylint: disable=too-many-arguments
         self,
         domain_space: DomainSpace,
@@ -52,7 +52,7 @@ class GridWorld(Environment):
         self, observation_function: ObservationFunction
     ):
         self._functional_observation = observation_function
-        # in `Environment`: set to make sure next call to observation will
+        # in `InnerEnv`: set to make sure next call to observation will
         # actually generate a new one
         self._observation = None
 

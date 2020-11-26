@@ -15,7 +15,7 @@ from gym_gridverse.envs import (
     transition_functions as transition_fs,
     visibility_functions as visibility_fs,
 )
-from gym_gridverse.envs.env import Environment
+from gym_gridverse.envs.env import InnerEnv
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import DistanceFunction, Position, Shape
 from gym_gridverse.grid_object import Colors
@@ -46,7 +46,7 @@ def make_data(stream: TextIO, *, validate=True) -> Dict:
     return data[0][0]  # weird yamale format
 
 
-def make_environment(stream: TextIO, *, validate=True) -> Environment:
+def make_environment(stream: TextIO, *, validate=True) -> InnerEnv:
     data = make_data(stream, validate=validate)
     return make_environment_from_data(data)
 
@@ -68,7 +68,7 @@ def validate_data(data: Dict, schema: yamale.schema.Schema):
         raise
 
 
-def make_environment_from_data(data: Dict) -> Environment:
+def make_environment_from_data(data: Dict) -> InnerEnv:
     state_space = make_state_space(data['state_space'])
     action_space = make_action_space(data.get('action_space'))
     observation_space = make_observation_space(data['observation_space'])
