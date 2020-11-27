@@ -9,7 +9,7 @@ from typing import Callable, Dict, List, NamedTuple
 
 import numpy as np
 
-from gym_gridverse.envs.env import Actions
+from gym_gridverse.envs.inner_env import Actions
 from gym_gridverse.simulator import Simulator
 from gym_gridverse.state import State
 

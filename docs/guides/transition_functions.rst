@@ -67,7 +67,7 @@ rules;  A custom transition function:
 .. warning::
   The :py:data:`rng` argument is used to control the source of randomness and
   allow for the environment to be seeded via
-  :py:meth:`~gym_gridverse.envs.env.InnerEnv.set_seed`, which in turn
+  :py:meth:`~gym_gridverse.envs.inner_env.InnerEnv.set_seed`, which in turn
   guarantees the reproducibility of traces, runs, and experiments;  if you wish
   to use external sources of randomness, you will have to manage them and their
   seeding yourself.

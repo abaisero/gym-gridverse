@@ -12,14 +12,6 @@ Subpackages
 Submodules
 ----------
 
-gym\_gridverse.envs.env module
-------------------------------
-
-.. automodule:: gym_gridverse.envs.env
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 gym\_gridverse.envs.factory module
 ----------------------------------
 
@@ -40,6 +32,14 @@ gym\_gridverse.envs.gridworld module
 ------------------------------------
 
 .. automodule:: gym_gridverse.envs.gridworld
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+gym\_gridverse.envs.inner\_env module
+-------------------------------------
+
+.. automodule:: gym_gridverse.envs.inner_env
    :members:
    :undoc-members:
    :show-inheritance:

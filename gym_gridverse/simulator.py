@@ -7,7 +7,7 @@ returns the resulting transition
 
 from typing import Optional, Tuple
 
-from gym_gridverse.envs.env import Actions, InnerEnv
+from gym_gridverse.envs.inner_env import Actions, InnerEnv
 from gym_gridverse.observation import Observation
 from gym_gridverse.representations.representation import (
     ObservationRepresentation,

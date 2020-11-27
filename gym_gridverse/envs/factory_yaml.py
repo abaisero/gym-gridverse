@@ -15,7 +15,7 @@ from gym_gridverse.envs import (
     transition_functions as transition_fs,
     visibility_functions as visibility_fs,
 )
-from gym_gridverse.envs.env import InnerEnv
+from gym_gridverse.envs.inner_env import InnerEnv
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import DistanceFunction, Position, Shape
 from gym_gridverse.grid_object import Colors

@@ -79,7 +79,7 @@ custom reward function:
   
   While we discourage implementing and using stochastic reward functions, you
   may use them if you wish to.  The primary drawback will be that seeding the
-  environment using :py:meth:`~gym_gridverse.envs.env.InnerEnv.set_seed`
+  environment using :py:meth:`~gym_gridverse.envs.inner_env.InnerEnv.set_seed`
   will be insufficient to reproduce traces, runs, and experiments;  if you wish
   to maintain reproducibility despite employing a stochastic reward function,
   you will have to manage the external source of randomness and its seeding

@@ -13,7 +13,7 @@ from gym_gridverse.envs import (
     terminating_functions,
     transition_functions,
 )
-from gym_gridverse.envs.env import InnerEnv
+from gym_gridverse.envs.inner_env import InnerEnv
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import Shape
 from gym_gridverse.grid_object import (
