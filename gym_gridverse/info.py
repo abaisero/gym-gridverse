@@ -20,7 +20,21 @@ ObjectFactory = Callable[[], GridObject]
 
 
 class Grid:
+    """The state of the environment (minus the agent): a two-dimensional board of objects
+
+    A container of :py:class:`~gym_gridverse.grid_object.GridObject`. This is
+    basically a two-dimensional array, with some additional functions to
+    simplify interacting with the objects, such as getting areas
+    """
+
     def __init__(self, height: int, width: int):
+        """Constructs a `height` x `width` grid of :py:class:`~gym_gridverse.grid_object.Floor`
+
+        Args:
+            height (int):
+            width (int):
+
+        """
         self.height = height
         self.width = width
         self._grid = np.array(
@@ -177,12 +191,30 @@ class Grid:
 
 
 class Agent:
+    """The agent part of the state in an environment
+
+    A container for the:
+        - :py:class:`~gym_gridverse.geometry.Position` of the agent
+        - :py:class:`~gym_gridverse.geometry.Orientation` of the agent
+        - :py:class:`~gym_gridverse.grid_object.GridObject` of the agent
+
+    Adds some API functionality
+
+    """
+
     def __init__(
         self,
         position: PositionOrTuple,
         orientation: Orientation,
         obj: Optional[GridObject] = None,
     ):
+        """Creates the agent on `position` with `orientation` and holdig `obj`
+
+        Args:
+            position:
+            orientation:
+            obj:
+        """
         if obj is None:
             obj = NoneGridObject()
 

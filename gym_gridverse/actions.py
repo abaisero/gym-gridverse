@@ -2,6 +2,13 @@ import enum
 
 
 class Actions(enum.Enum):
+    """A glorified integer
+
+    Actions have been grouped together, in particular there are
+    `TRANSLATION_ACTIONS` and `ROTATION_ACTIONS` that are lists of actions that
+    either 'move' or 'rotate'.
+    """
+
     MOVE_FORWARD = 0
     MOVE_BACKWARD = enum.auto()
     MOVE_LEFT = enum.auto()
