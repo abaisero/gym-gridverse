@@ -560,7 +560,7 @@ def print_legend():
     print(fstr('o', Controls.CYCLE_OBSERVATION))
 
 
-def set_observation_function(name: str, env: GridWorld):
+def set_observation_function(env: GridWorld, name: str):
     """Hacks into `env` in order to set the observation function used
 
     XXX: uses private members and implementation knowledge. The observation
@@ -568,8 +568,8 @@ def set_observation_function(name: str, env: GridWorld):
     available for this functionality. Hence this is more of a hack
 
     Args:
-        name: name of observation function
         env: grid world to set the observation function for
+        name: name of observation function
     """
     observation_function = observation_fs.factory(
         name, observation_space=env.observation_space
@@ -640,7 +640,7 @@ def main():
             name = next(observation_function_names)
             print(f'setting observation function: {name}')
 
-            set_observation_function(name, env)
+            set_observation_function(env, name)
 
         state_viewer.render(env.state)
         observation_viewer.render(env.observation)
