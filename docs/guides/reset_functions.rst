@@ -59,7 +59,7 @@ custom reset function:
 - **SHOULD** use the :py:data:`rng` argument as the source for any
   stochasticity.
 
-- **MUST** use :py:func:`~gym_gridverse.rng.get_rng_if_none` (only if the
+- **MUST** use :py:func:`~gym_gridverse.rng.get_gv_rng_if_none` (only if the
   :py:data:`rng` is used at all).
 
 .. warning::
