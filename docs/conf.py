@@ -38,7 +38,7 @@ add_module_names = False
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx_rtd_theme']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -92,12 +92,11 @@ html_logo = '../images/logo.svg'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
+import sphinx_rtd_theme  # isort:skip pylint: disable=unused-import,wrong-import-position
+
 # html_theme = 'classic'
 # html_theme = 'alabaster'
-html_theme = 'neo_rtd_theme'
-import sphinx_theme  # isort:skip
-
-html_theme_path = [sphinx_theme.get_html_theme_path()]
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
@@ -119,7 +118,7 @@ htmlhelp_basename = 'gym_gridversedoc'
 
 # -- Options for LaTeX output ------------------------------------------
 
-latex_elements = {
+latex_elements = {  # type: ignore
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
