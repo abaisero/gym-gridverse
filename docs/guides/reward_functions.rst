@@ -95,6 +95,8 @@ the two states in the transition are the same (perhaps this will help the agent
 avoid actions which have no effect!).
 
 .. code-block:: python
+  :caption: static reward function
+  :name: static_reward
 
   from gym_gridverse.state import State
   from gym_gridverse.actions import Actions
@@ -104,7 +106,7 @@ avoid actions which have no effect!).
       """negative reward if state is unchanged"""
       return -1.0 if state == next_state else 0.0
 
-Done!  This reward function can now be used as it is; furthermore, because the
+Done! This reward function can now be used as it is; furthermore, because the
 implementation is so generic and task-independent, it can be used with any type
 of environment!  Mind you, writing a reward function is not always this easy,
 and more complicated reward functions typically have to inspect the inputs to
@@ -112,10 +114,10 @@ check if a complicated underlying condition is met (which is the subject of the
 second example in this guide);  but regardless of difficulty, anything is
 possible!
 
-We can go one step further and generalize :py:meth:`static_reward` such that
+We can go one step further and generalize :ref:`static_reward` such that
 different reward values can be used without having to manually edit the code
 each time.  We do this by adding appropriate arguments to the function
-signature, and then using :py:meth:`functools.partial` with values which might
+signature, and then using :py:func:`functools.partial` with values which might
 come from command line arguments or a file configuration.
 
 .. code-block:: python
@@ -154,7 +156,7 @@ coding the correct functionality.
 
 First Implementation
 ^^^^^^^^^^^^^^^^^^^^
-In the first implementation, we will simply check whether the :py:data:`action`
+In the first implementation, we will simply check whether the ``action``
 argument matches one of the rotation actions
 (:py:attr:`~gym_gridverse.actions.Actions.TURN_LEFT` and
 :py:attr:`~gym_gridverse.actions.Actions.TURN_RIGHT`), and select the
@@ -180,8 +182,8 @@ appropriate reward:
 
         return 0.0
 
-Easy!  Note, however, that we did not use the :py:data:`state` and
-:py:data:`next_state` arguments at all;  should we be worried about that?  As
+Easy! Note, however, that we did not use the ``state`` and
+``next_state`` arguments at all;  should we be worried about that?  As
 it turns out, this implementation measures the agent's *intention* to turn, but
 not necessarily whether the agent *actually* turned.  The two conditions might
 (or might not) be very different, depending on the state dynamics:

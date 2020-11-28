@@ -80,7 +80,7 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
     def observation(self) -> Dict[str, np.array]:
         return self.outer_env.observation
 
-    def reset(self) -> Dict[str, np.array]:
+    def reset(self) -> Dict[str, np.ndarray]:
         self.outer_env.reset()
         return self.observation
 

@@ -3,7 +3,7 @@ Transition Functions
 ====================
 
 In this section we describe the transition function protocol, the transition
-functions provided in :py:mod:`~gym_gridverse.envs.transition_functions`, and
+functions provided in :py:mod:`~gym_gridverse.envs.state_dynamics`, and
 how to write your own custom transition functions.
 
 The TransitionFunction Protocol
@@ -18,7 +18,7 @@ standard library, the transition function type is defined as a
 :py:class:`numpy.random.Generator`, and edits the input
 :py:class:`~gym_gridverse.state.State`.
 
-.. autoclass:: gym_gridverse.envs.state_dynamics.StateDynamics
+.. autoclass:: gym_gridverse.envs.transition_functions.TransitionFunction
     :noindex:
     :members: __call__
 
@@ -41,7 +41,7 @@ Custom transition functions can be defined so long as they satisfy some basic
 rules;  A custom transition function:
 
 - **MUST** satisfy the
-  :py:data:`~gym_gridverse.envs.transition_functions.TransitionFunction`
+  :py:class:`~gym_gridverse.envs.transition_functions.TransitionFunction`
   protocol.
 
 - **MUST** edit the input state, rather than return a new state altogether.
@@ -49,7 +49,7 @@ rules;  A custom transition function:
 - **SHOULD** use the :py:data:`rng` argument as the source for any
   stochasticity.
 
-- **MUST** use :py:func:`~gym_gridverse.rng.get_rng_if_none` (only if the
+- **MUST** use :py:func:`~gym_gridverse.rng.get_gv_rng_if_none` (only if the
   :py:data:`rng` is used at all).
 
 .. warning::

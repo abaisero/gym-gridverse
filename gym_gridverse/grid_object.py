@@ -12,8 +12,9 @@ from gym_gridverse.geometry import get_manhattan_boundary
 from gym_gridverse.rng import get_gv_rng_if_none
 
 if TYPE_CHECKING:
-    from gym_gridverse.actions import Actions
     from gym_gridverse.state import State
+
+from gym_gridverse.actions import Actions
 
 
 class Colors(enum.Enum):
@@ -392,7 +393,7 @@ class Door(GridObject):
         CLOSED = enum.auto()
         LOCKED = enum.auto()
 
-    def __init__(self, state: Status, color: Colors):
+    def __init__(self, state: Door.Status, color: Colors):
         self._color = color
         self._state = state
 

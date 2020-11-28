@@ -27,5 +27,7 @@ TRANSLATION_ACTIONS = [
     Actions.MOVE_LEFT,
     Actions.MOVE_RIGHT,
 ]
+"""A list of all the actions that moves the agent"""
 
 ROTATION_ACTIONS = [Actions.TURN_LEFT, Actions.TURN_RIGHT]
+"""A list of all the actions that rotates the agent"""

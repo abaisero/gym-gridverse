@@ -38,6 +38,7 @@ add_module_names = False
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
+# extensions = ['sphinx.ext.autodoc', 'sphinx_autodoc_typehints', 'sphinx.ext.viewcode']
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
@@ -172,4 +173,25 @@ texinfo_documents = [
     ),
 ]
 
+# auto generated API will include both `class` and `__init__` docstring
 autoclass_content = 'both'
+
+set_type_checking_flag = True
+nitpicky = True
+nitpick_ignore = [
+    ('py:class', 'numpy.ndarray'),
+    ('py:class', 'numpy.random._generator.Generator'),
+    ('py:class', 'typing_extensions.Protocol'),
+    ('py:class', 'yamale.schema.schema.Schema'),
+    ('py:class', 'rnd.Generator'),
+    ('py:class', 'numpy.random.Generator'),
+    ('py:class', 'typing.Protocol'),
+    ('py:func', 'functools.partial'),
+    ('py:meth', '__call__'),
+    ('py:data', 'rng'),
+    ('py:class', 'enum.Enum'),
+    ('py:class', 'gym_gridverse.geometry._2D_Point'),
+    ('py:class', 'gym.core.Env'),
+    ('py:class', 'gym.spaces.space.Space'),
+    ('py:mod', 'typing')]
+
