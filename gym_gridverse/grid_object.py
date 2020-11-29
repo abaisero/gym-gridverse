@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import abc
 import enum
-from typing import TYPE_CHECKING, List, Optional, Type
+from typing import TYPE_CHECKING, Callable, List, Optional, Type
 
 import numpy.random as rnd
 
@@ -750,3 +750,6 @@ def factory_type(name: str) -> Type[GridObject]:
         return Box
 
     raise ValueError(f'invalid grid-object type name {name}')
+
+
+GridObjectFactory = Callable[[], GridObject]
