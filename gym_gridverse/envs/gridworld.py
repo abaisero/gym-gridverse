@@ -8,8 +8,8 @@ from gym_gridverse.envs import Environment
 from gym_gridverse.envs.observation_functions import ObservationFunction
 from gym_gridverse.envs.reset_functions import ResetFunction
 from gym_gridverse.envs.reward_functions import RewardFunction
-from gym_gridverse.envs.state_dynamics import StateDynamics
 from gym_gridverse.envs.terminating_functions import TerminatingFunction
+from gym_gridverse.envs.transition_functions import TransitionFunction
 from gym_gridverse.observation import Observation
 from gym_gridverse.rng import make_rng
 from gym_gridverse.spaces import DomainSpace
@@ -21,11 +21,14 @@ class GridWorld(Environment):
         self,
         domain_space: DomainSpace,
         reset_function: ResetFunction,
-        step_function: StateDynamics,
+        step_function: TransitionFunction,
         observation_function: ObservationFunction,
         reward_function: RewardFunction,
         termination_function: TerminatingFunction,
     ):
+
+        # TODO: maybe add a parameter to avoid calls to `contain` everywhere
+        # (or maybe a global setting)
 
         self._functional_reset = reset_function
         self._functional_step = step_function
@@ -43,14 +46,6 @@ class GridWorld(Environment):
 
     def set_seed(self, seed: Optional[int] = None):
         self._rng = make_rng(seed)
-
-    def set_observation_function(
-        self, observation_function: ObservationFunction
-    ):
-        self._functional_observation = observation_function
-        # in `Environment`: set to make sure next call to observation will
-        # actually generate a new one
-        self._observation = None
 
     def functional_reset(self) -> State:
         state = self._functional_reset(rng=self._rng)

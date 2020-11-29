@@ -3,7 +3,7 @@ Transition Functions
 ====================
 
 In this section we describe the transition function protocol, the transition
-functions provided in :py:mod:`~gym_gridverse.envs.state_dynamics`, and
+functions provided in :py:mod:`~gym_gridverse.envs.transition_functions`, and
 how to write your own custom transition functions.
 
 The TransitionFunction Protocol
@@ -31,8 +31,20 @@ standard library, the transition function type is defined as a
 Provided Transition Functions
 =============================
 
-.. warning::
-    TODO
+The :py:mod:`~gym_gridverse.envs.transition_functions` module contains some
+predefined transition functions, among which:
+
+- :py:func:`~gym_gridverse.envs.transition_functions.update_agent` -- moves and
+  turns the agent.
+
+- :py:func:`~gym_gridverse.envs.transition_functions.step_objects` -- executes
+  object dynamics.
+
+- :py:func:`~gym_gridverse.envs.transition_functions.actuate_mechanics` --
+  executes object actuation.
+
+- :py:func:`~gym_gridverse.envs.transition_functions.pickup_mechanics` -- picks
+  up and drops down objects.
 
 Custom Transition Functions
 ===========================
@@ -41,7 +53,7 @@ Custom transition functions can be defined so long as they satisfy some basic
 rules;  A custom transition function:
 
 - **MUST** satisfy the
-  :py:class:`~gym_gridverse.envs.transition_functions.TransitionFunction`
+  :py:data:`~gym_gridverse.envs.transition_functions.TransitionFunction`
   protocol.
 
 - **MUST** edit the input state, rather than return a new state altogether.
@@ -53,53 +65,21 @@ rules;  A custom transition function:
   :py:data:`rng` is used at all).
 
 .. warning::
-    The :py:data:`rng` argument is to control the source of randomness and
-    allow for the environment to be seeded via
-    :py:meth:`~gym_gridverse.envs.env.Environment.set_seed`, which in turn
-    guarantees the reproducibility of traces, runs, and experiments;  if you
-    wish to use external sources of randomness, you will have to manage them
-    and their seeding yourself.
+  The :py:data:`rng` argument is used to control the source of randomness and
+  allow for the environment to be seeded via
+  :py:meth:`~gym_gridverse.envs.env.Environment.set_seed`, which in turn
+  guarantees the reproducibility of traces, runs, and experiments;  if you wish
+  to use external sources of randomness, you will have to manage them and their
+  seeding yourself.
 
 Practical Example 1
 -------------------
 
-In this example, ...
+In this example, we are going to write a transition function in which at every
+time-step one of the Floor tiles turns into a Wall tile.
 
-.. warning::
-    TODO
-
-.. code-block:: python
-
-    from gym_gridverse.state import State
-    from gym_gridverse.actions import Actions
-    from gym_gridverse.rng import get_rng_if_none
-    from gym_gridverse.grid_object import Floor, Wall
-
-
-    def creeping_walls(
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        """randomly chooses a Floor tile and turns it into a Wall tile"""
-    
-        from gym_gridverse.grid_object import Floor, Wall
-    
-        rng = get_rng_if_none(rng)  # necessary to use rng object!
-    
-        floor_positions = [
-            position
-            for position in state.grid.positions()
-            if isinstance(state.grid[position], Floor)
-        ]
-    
-        try:
-            position = rng.choice(floor_positions)
-        except ValueError:  # no floor positions
-            pass
-        else:
-            state.grid[position] = Wall()
+.. literalinclude:: example__transition_function__creeping_walls.py
+  :language: python
 
 Practical Example 2
 -------------------
@@ -107,25 +87,5 @@ Practical Example 2
 In this example, we are going to write a transition function which randomizes
 the execution of another transition function.
 
-.. code-block:: python
-
-    from gym_gridverse.state import State
-    from gym_gridverse.actions import Actions
-    from gym_gridverse.rng import get_rng_if_none
-
-
-    def random_transition(
-        state: State,
-        action: Actions,
-        *,
-        transition_function: TransitionFunction,
-        p_success: float,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        """randomly determines whether to perform a transition or not"""
-
-        rng = get_rng_if_none(rng)  # necessary to use rng object!
-        
-        success = rng.random() <= p_success
-        if success:
-            transition_function(state, action, rng=rng)
+.. literalinclude:: example__transition_function__random_transition.py
+  :language: python

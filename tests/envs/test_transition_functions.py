@@ -8,7 +8,7 @@ import pytest
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs.reset_functions import reset_minigrid_dynamic_obstacles
-from gym_gridverse.envs.state_dynamics import (
+from gym_gridverse.envs.transition_functions import (
     actuate_mechanics,
     factory,
     move_agent,
