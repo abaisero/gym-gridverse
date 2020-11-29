@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import enum
+import itertools as itt
 import math
-from typing import Callable, List, NamedTuple, Tuple, Union
+from typing import Callable, Iterator, List, NamedTuple, Tuple, Union
 
 
 class Shape(NamedTuple):
@@ -43,6 +44,40 @@ class Area:
     @property
     def bottom_right(self) -> Position:
         return Position(self.ymax, self.xmax)
+
+    def positions(self) -> Iterator[Position]:
+        """iterator over positions"""
+
+        return (
+            Position(y, x)
+            for y in range(self.ymin, self.ymax + 1)
+            for x in range(self.xmin, self.xmax + 1)
+        )
+
+    def positions_border(self) -> Iterator[Position]:
+        """iterator over border positions"""
+
+        return itt.chain(
+            (
+                Position(y, x)
+                for y in [self.ymin, self.ymax]
+                for x in range(self.xmin, self.xmax + 1)
+            ),
+            (
+                Position(y, x)
+                for y in range(self.ymin + 1, self.ymax)
+                for x in [self.xmin, self.xmax]
+            ),
+        )
+
+    def positions_inside(self) -> Iterator[Position]:
+        """iterator over inside positions"""
+
+        return (
+            Position(y, x)
+            for y in range(self.ymin + 1, self.ymax)
+            for x in range(self.xmin + 1, self.xmax)
+        )
 
     def contains(self, position: PositionOrTuple) -> bool:
         position = Position.from_position_or_tuple(position)

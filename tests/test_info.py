@@ -56,11 +56,46 @@ def test_grid_check_contains(grid: Grid, position: PositionOrTuple):
         grid._check_contains(position)
 
 
-def test_grid_positions():
-    grid = Grid(3, 4)
-
+@pytest.mark.parametrize(
+    'grid,expected',
+    [
+        (Grid(3, 4), 12),
+        (Grid(4, 5), 20),
+    ],
+)
+def test_grid_positions(grid: Grid, expected: int):
     positions = set(grid.positions())
-    assert len(positions) == 3 * 4
+    assert len(positions) == expected
+
+    for position in positions:
+        assert position in grid
+
+
+@pytest.mark.parametrize(
+    'grid,expected',
+    [
+        (Grid(3, 4), 10),
+        (Grid(4, 5), 14),
+    ],
+)
+def test_grid_positions_border(grid: Grid, expected: int):
+    positions = set(grid.positions_border())
+    assert len(positions) == expected
+
+    for position in positions:
+        assert position in grid
+
+
+@pytest.mark.parametrize(
+    'grid,expected',
+    [
+        (Grid(3, 4), 2),
+        (Grid(4, 5), 6),
+    ],
+)
+def test_grid_positions_inside(grid: Grid, expected: int):
+    positions = set(grid.positions_inside())
+    assert len(positions) == expected
 
     for position in positions:
         assert position in grid
@@ -71,7 +106,8 @@ def test_grid_get_position():
 
     # testing position -> grid_object -> position roundtrip
     for position in grid.positions():
-        assert grid.get_position(grid[position]) == position
+        obj = grid[position]
+        assert grid.get_position(obj) == position
 
     # testing exception when object is not in grid
     with pytest.raises(ValueError):

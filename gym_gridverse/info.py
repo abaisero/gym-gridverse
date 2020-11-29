@@ -78,9 +78,16 @@ class Grid:
             raise ValueError(f'Position {position} ')
 
     def positions(self) -> Iterator[Position]:
-        for indices in iter(np.indices(self.shape).reshape(2, -1).T):
-            # tolist casts to native python types
-            yield Position(*indices.tolist())
+        """iterator over positions"""
+        return self.area.positions()
+
+    def positions_border(self) -> Iterator[Position]:
+        """iterator over border positions"""
+        return self.area.positions_border()
+
+    def positions_inside(self) -> Iterator[Position]:
+        """iterator over inside positions"""
+        return self.area.positions_inside()
 
     def get_position(self, x: GridObject) -> Position:
         for position in self.positions():
