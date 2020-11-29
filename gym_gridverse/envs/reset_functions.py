@@ -1,5 +1,6 @@
+import itertools as itt
 from functools import partial
-from typing import Optional
+from typing import Optional, Type
 
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
@@ -10,6 +11,7 @@ from gym_gridverse.grid_object import (
     Door,
     Floor,
     Goal,
+    GridObject,
     Key,
     MovingObstacle,
     Wall,
@@ -238,6 +240,118 @@ def reset_minigrid_door_key(
     return state
 
 
+def reset_minigrid_crossing(  # pylint: disable=too-many-locals
+    height: int,
+    width: int,
+    num_rivers: int,
+    object_type: Type[GridObject],
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> State:
+    """Returns a state similar to the gym minigrid 'simple/lava crossing' environment
+
+    Creates a height x width (including wall) grid with random rows/columns of
+    objects called "rivers". The agent needs to navigate river openings to
+    reach the goal.  For example::
+
+        #########
+        #@    # #
+        #### ####
+        #     # #
+        ## ######
+        #       #
+        #     # #
+        #     #G#
+        #########
+
+    Args:
+        height (`int`): odd height of grid
+        width (`int`): odd width of grid
+        num_rivers (`int`): number of `rivers`
+        object_type (`Type[GridObject]`): river's object type
+        rng: (`Generator, optional`)
+
+    Returns:
+        State:
+    """
+    if height < 5 or height % 2 == 0:
+        raise ValueError(
+            f"Minigrid crossing environment height must be odd and >= 5, given {height}"
+        )
+
+    if width < 5 or width % 2 == 0:
+        raise ValueError(
+            f"Minigrid crossing environment width must be odd and >= 5, given {width}"
+        )
+
+    if num_rivers < 0:
+        raise ValueError(
+            f"Minigrid crossing environment number of walls must be >= 0, given {height}"
+        )
+
+    rng = get_gv_rng_if_none(rng)
+
+    state = reset_minigrid_empty(height, width)
+    assert isinstance(state.grid[height - 2, width - 2], Goal)
+
+    # token `horizontal` and `vertical` objects
+    h, v = object(), object()
+
+    # all rivers specified by orientation and position
+    rivers = list(
+        itt.chain(
+            ((h, i) for i in range(2, height - 2, 2)),
+            ((v, j) for j in range(2, width - 2, 2)),
+        )
+    )
+
+    # sample subset of random rivers
+    rng.shuffle(rivers)  # NOTE: faster than rng.choice
+    rivers = rivers[:num_rivers]
+
+    # sampled horizontal and vertical rivers
+    rivers_h = sorted([pos for direction, pos in rivers if direction is h])
+    rivers_v = sorted([pos for direction, pos in rivers if direction is v])
+
+    # create rivers, without crossings
+    river_positions = itt.chain(
+        itt.product(rivers_h, range(1, width - 1)),
+        itt.product(range(1, height - 1), rivers_v),
+    )
+    for i, j in river_positions:
+        state.grid[i, j] = object_type()
+
+    # sample path to goal
+    path = [h] * len(rivers_v) + [v] * len(rivers_h)
+    rng.shuffle(path)
+
+    # create crossing
+    limits_h = [0] + rivers_h + [height - 1]  # horizontal river boundaries
+    limits_v = [0] + rivers_v + [width - 1]  # vertical river boundaries
+    room_i, room_j = 0, 0  # coordinates of current "room"
+    for step_direction in path:
+        if step_direction is h:
+            i = rng.integers(limits_h[room_i] + 1, limits_h[room_i + 1])
+            j = limits_v[room_j + 1]
+            room_j += 1
+
+        elif step_direction is v:
+            i = limits_h[room_i + 1]
+            j = rng.integers(limits_v[room_j] + 1, limits_v[room_j + 1])
+            room_i += 1
+
+        else:
+            assert False
+
+        state.grid[i, j] = Floor()
+
+    # Place agent on top left
+    state.agent.position = (1, 1)  # type: ignore
+    state.agent.orientation = Orientation.E
+
+    return state
+
+
 def factory(
     name: str,
     *,
@@ -246,6 +360,8 @@ def factory(
     size: Optional[int] = None,
     random_agent_pos: Optional[bool] = None,
     num_obstacles: Optional[int] = None,
+    num_rivers: Optional[int] = None,
+    object_type: Optional[Type[GridObject]] = None,
 ) -> ResetFunction:
 
     if name == 'minigrid_empty':
@@ -282,5 +398,17 @@ def factory(
             raise ValueError('invalid parameters for name `{name}`')
 
         return partial(reset_minigrid_door_key, grid_size=size)
+
+    if name == 'minigrid_crossing':
+        if None in [height, width, num_rivers, object_type]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            reset_minigrid_crossing,
+            height=height,
+            width=width,
+            num_rivers=num_rivers,
+            object_type=object_type,
+        )
 
     raise ValueError(f'invalid reset function name `{name}`')
