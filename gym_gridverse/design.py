@@ -1,6 +1,6 @@
-from typing import List, Tuple
+from typing import List
 
-from gym_gridverse.geometry import Area, Position
+from gym_gridverse.geometry import Area, Position, Range
 from gym_gridverse.grid_object import GridObjectFactory
 from gym_gridverse.info import Grid
 
@@ -24,7 +24,7 @@ def draw_area(
 
 
 def draw_line_horizontal(
-    grid: Grid, y: int, xs: Tuple[int, int], factory: GridObjectFactory
+    grid: Grid, y: int, xs: Range, factory: GridObjectFactory
 ):
     """use factory-created grid-objects to draw horizontal line on grid"""
     xmin, xmax = min(xs), max(xs)
@@ -36,7 +36,7 @@ def draw_line_horizontal(
 
 
 def draw_line_vertical(
-    grid: Grid, ys: Tuple[int, int], x: int, factory: GridObjectFactory
+    grid: Grid, ys: Range, x: int, factory: GridObjectFactory
 ) -> List[Position]:
     """use factory-created grid-objects to draw vertical line on grid"""
     ymin, ymax = min(ys), max(ys)

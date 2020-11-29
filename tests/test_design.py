@@ -1,5 +1,3 @@
-from typing import Tuple
-
 import pytest
 
 from gym_gridverse.design import (
@@ -8,7 +6,7 @@ from gym_gridverse.design import (
     draw_line_vertical,
     draw_room,
 )
-from gym_gridverse.geometry import Area
+from gym_gridverse.geometry import Area, Range
 from gym_gridverse.grid_object import Wall
 from gym_gridverse.info import Grid
 
@@ -52,9 +50,7 @@ def test_draw_area(grid: Grid, area: Area, fill: bool, expected: int):
         (Grid(4, 5), 1, (1, 3), 3),
     ],
 )
-def test_draw_line_horizontal(
-    grid: Grid, y: int, xs: Tuple[int, int], expected: int
-):
+def test_draw_line_horizontal(grid: Grid, y: int, xs: Range, expected: int):
     positions = draw_line_horizontal(grid, y, xs, Wall)
     assert len(positions) == len(set(positions))
 
@@ -69,9 +65,7 @@ def test_draw_line_horizontal(
         (Grid(4, 5), (1, 2), 1, 2),
     ],
 )
-def test_draw_line_vertical(
-    grid: Grid, ys: Tuple[int, int], x: int, expected: int
-):
+def test_draw_line_vertical(grid: Grid, ys: Range, x: int, expected: int):
     positions = draw_line_vertical(grid, ys, x, Wall)
     assert len(positions) == len(set(positions))
 

@@ -16,10 +16,14 @@ class Shape(NamedTuple):
     width: int
 
 
+# semantic type
+Range = Tuple[int, int]
+
+
 class Area:
-    def __init__(self, y: Tuple[int, int], x: Tuple[int, int]):
-        self.ymin, self.ymax = min(y), max(y)
-        self.xmin, self.xmax = min(x), max(x)
+    def __init__(self, ys: Range, xs: Range):
+        self.ymin, self.ymax = min(ys), max(ys)
+        self.xmin, self.xmax = min(xs), max(xs)
 
     @property
     def height(self) -> int:
