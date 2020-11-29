@@ -52,7 +52,7 @@ class StateSpace:
         colors: Sequence[Colors],
     ):
         self.grid_shape = grid_shape
-        self.object_types = object_types
+        self.object_types = list(object_types)
         self.colors = colors
 
         self._agent_object_types = set(object_types) | {NoneGridObject}
@@ -148,7 +148,7 @@ class ObservationSpace:
             raise ValueError('shape should have an odd width')
 
         self.grid_shape = grid_shape
-        self.object_types = object_types
+        self.object_types = list(object_types)
         self.colors = set(colors) | {Colors.NONE}
 
         self._grid_object_types = set(object_types) | {Hidden}

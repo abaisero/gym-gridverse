@@ -1,7 +1,7 @@
 """ Tying the magic together into constructing specific domains """
 
 from functools import partial
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, Optional, Type
 
 import numpy.random as rnd
 
@@ -21,6 +21,7 @@ from gym_gridverse.grid_object import (
     Door,
     Floor,
     Goal,
+    GridObject,
     Key,
     MovingObstacle,
     Wall,
@@ -230,7 +231,7 @@ def gym_door_key_env(size: int) -> Environment:
     ]
 
     grid_shape = reset().grid.shape  # XXX: we hate this
-    objects = [Wall, Floor, Goal, Door, Key]
+    objects: List[Type[GridObject]] = [Wall, Floor, Goal, Door, Key]
     colors = [Colors.NONE, Colors.YELLOW]
     observation_shape = Shape(7, 7)
 
