@@ -5,6 +5,11 @@ from typing import Optional, Type
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
+from gym_gridverse.design import (
+    draw_line_horizontal,
+    draw_line_vertical,
+    draw_room,
+)
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid_object import (
     Colors,
@@ -42,18 +47,9 @@ def reset_minigrid_empty(
 
     # TODO test creation (e.g. count number of walls, goals, check held item)
 
-    objects = []
-    objects.append([Wall() for x in range(width)])
-    for _ in range(1, height - 2):
-        objects.append(
-            [Wall()] + [Floor() for _ in range(1, width - 1)] + [Wall()]  # type: ignore
-        )
-
-    objects.append(
-        [Wall()] + [Floor() for _ in range(1, width - 2)] + [Goal(), Wall()]  # type: ignore
-    )
-    objects.append([Wall() for x in range(width)])
-    grid = Grid.from_objects(objects)
+    grid = Grid(height, width)
+    draw_room(grid, grid.area, Wall)
+    grid[height - 2, width - 2] = Goal()
 
     if random_agent:
         agent_position = rng.choice(
@@ -214,27 +210,24 @@ def reset_minigrid_door_key(
     assert isinstance(state.grid[grid_size - 2, grid_size - 2], Goal)
 
     # Generate vertical splitting wall
-    wall_column = rng.integers(2, grid_size - 3, endpoint=True)
-    # XXX: potential general function
-    for h in range(0, grid_size):
-        state.grid[h, wall_column] = Wall()
+    x_wall = rng.integers(2, grid_size - 3, endpoint=True)
+    line_wall = draw_line_vertical(state.grid, (1, grid_size - 2), x_wall, Wall)
 
     # Place yellow, locked door
-    door_row = rng.integers(2, grid_size - 2, endpoint=True)
-    state.grid[door_row, wall_column] = Door(Door.Status.LOCKED, Colors.YELLOW)
+    pos_wall = rng.choice(line_wall)
+    state.grid[pos_wall] = Door(Door.Status.LOCKED, Colors.YELLOW)
 
     # Place yellow key left of wall
     # XXX: potential general function
-    y = rng.integers(1, grid_size - 2, endpoint=True)
-    x = rng.integers(1, wall_column - 1, endpoint=True)
-    key_pos = (y, x)
-    state.grid[key_pos] = Key(Colors.YELLOW)
+    y_key = rng.integers(1, grid_size - 2, endpoint=True)
+    x_key = rng.integers(1, x_wall - 1, endpoint=True)
+    state.grid[y_key, x_key] = Key(Colors.YELLOW)
 
     # Place agent left of wall
     # XXX: potential general function
-    y = rng.integers(1, grid_size - 2, endpoint=True)
-    x = rng.integers(1, wall_column - 1, endpoint=True)
-    state.agent.position = (y, x)  # type: ignore
+    y_agent = rng.integers(1, grid_size - 2, endpoint=True)
+    x_agent = rng.integers(1, x_wall - 1, endpoint=True)
+    state.agent.position = (y_agent, x_agent)  # type: ignore
     state.agent.orientation = rng.choice(list(Orientation))
 
     return state
@@ -309,17 +302,15 @@ def reset_minigrid_crossing(  # pylint: disable=too-many-locals
     rng.shuffle(rivers)  # NOTE: faster than rng.choice
     rivers = rivers[:num_rivers]
 
-    # sampled horizontal and vertical rivers
+    # create horizontal rivers without crossings
     rivers_h = sorted([pos for direction, pos in rivers if direction is h])
-    rivers_v = sorted([pos for direction, pos in rivers if direction is v])
+    for y in rivers_h:
+        draw_line_horizontal(state.grid, y, (1, width - 2), object_type)
 
-    # create rivers, without crossings
-    river_positions = itt.chain(
-        itt.product(rivers_h, range(1, width - 1)),
-        itt.product(range(1, height - 1), rivers_v),
-    )
-    for i, j in river_positions:
-        state.grid[i, j] = object_type()
+    # create vertical rivers without crossings
+    rivers_v = sorted([pos for direction, pos in rivers if direction is v])
+    for x in rivers_v:
+        draw_line_vertical(state.grid, (1, height - 2), x, object_type)
 
     # sample path to goal
     path = [h] * len(rivers_v) + [v] * len(rivers_h)
