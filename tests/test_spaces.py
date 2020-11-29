@@ -258,16 +258,17 @@ def test_observation_space_position_in_grid(
 
 
 @pytest.mark.parametrize(
-    'space_objs,obj_in_grid,contains',
+    'space_objs,space_colors,obj_in_grid,contains',
     [
-        ([Floor], Floor(), True),
-        ([Floor], Key(Colors.BLUE), False),
-        ([Floor, Key], Key(Colors.BLUE), True),
-        ([Floor, Key], Floor(), True),
+        ([Floor], [], Floor(), True),
+        ([Floor], [Colors.BLUE], Key(Colors.BLUE), False),
+        ([Floor, Key], [Colors.BLUE], Key(Colors.BLUE), True),
+        ([Floor, Key], [], Floor(), True),
     ],
 )
 def test_observation_space_contains_object_type(
     space_objs: Sequence[Type[GridObject]],
+    space_colors: Sequence[Colors],
     obj_in_grid: GridObject,
     contains: bool,
 ):
@@ -275,7 +276,10 @@ def test_observation_space_contains_object_type(
     grid[0, 1] = obj_in_grid
 
     assert (
-        space_contains_observation(grid=grid, space_objs=space_objs) == contains
+        space_contains_observation(
+            grid=grid, space_objs=space_objs, space_colors=space_colors
+        )
+        == contains
     )
 
 

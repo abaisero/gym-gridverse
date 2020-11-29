@@ -1,12 +1,12 @@
 state_space:
   shape: [ 10, 10 ]
   objects: [ Wall, Floor, Goal, Door, Key ]
-  colors: [ NONE ]
+  colors: [ NONE, YELLOW ]
 
 observation_space:
   shape: [ 7, 7 ]
   objects: [ Wall, Floor, Goal, Door, Key ]
-  colors: [ NONE ]
+  colors: [ NONE, YELLOW ]
 
 reset:
   name: minigrid_door_key
