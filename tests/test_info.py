@@ -148,21 +148,6 @@ def test_grid_set_item():
     assert grid[pos] is obj
 
 
-def test_grid_draw_area():
-    grid = Grid(3, 4)
-    grid.draw_area(Area((0, 2), (0, 3)), object_factory=Wall)
-
-    grid_expected = Grid.from_objects(
-        [
-            [Wall(), Wall(), Wall(), Wall()],
-            [Wall(), Floor(), Floor(), Wall()],
-            [Wall(), Wall(), Wall(), Wall()],
-        ]
-    )
-
-    assert grid == grid_expected
-
-
 def test_grid_swap():
     grid = Grid(3, 4)
 
