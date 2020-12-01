@@ -1,5 +1,5 @@
 state_space:
-  shape: [ 11, 11 ]
+  shape: [ 13, 13 ]
   objects: [ Wall, Floor, Goal ]
   colors: [ NONE ]
 
@@ -10,7 +10,7 @@ observation_space:
 
 reset:
   name: minigrid_rooms
-  layout: [ 2, 2 ]
+  layout: [ 3, 3 ]
 
 transition:
   - name: update_agent
