@@ -76,7 +76,8 @@ to browse all projects to get a clearer picture on which best suits your needs.
             Customizable,           |check|,    "",         |check|
             YAML-Configurable,      |check|,    "",         ""
 
-.. [1] While :py:class:`gym_minigrid.wrappers.FullyObsWrapper` extends the observation range, it does not represents true full-state observability.
+.. [1] While :py:class:`gym_minigrid.wrappers.FullyObsWrapper` extends the
+   observation range, it does not represents true full-state observability.
 
 .. _GridVerse: https://github.com/abaisero/gym-gridverse
 .. _MiniGrid: https://github.com/maximecb/gym-minigrid

@@ -20,8 +20,8 @@ returns a boolean :py:class:`numpy.ndarray` indicating whether each tile is
 visible or not.
 
 .. autoclass:: gym_gridverse.envs.visibility_functions.VisibilityFunction
-  :noindex:
-  :members: __call__
+    :noindex:
+    :members: __call__
 
 .. note::
   A visibility function may accept additional arguments;  this is possible **so
@@ -34,11 +34,11 @@ Provided Visibility Functions
 The :py:mod:`~gym_gridverse.envs.visibility_functions` module contains some
 predefined visibility functions, among which:
 
-- :py:func:`~gym_gridvserse.envs.visibility_functions.full_visibility` -- every
+- :py:func:`~gym_gridverse.envs.visibility_functions.full_visibility` -- every
   tile is visible; used to implement
   :py:func:`~gym_gridverse.envs.observation_functions.full_observation`.
 
-- :py:func:`~gym_gridvserse.envs.visibility_functions.minigrid_visibility` --
+- :py:func:`~gym_gridverse.envs.visibility_functions.minigrid_visibility` --
   the visibility used by the :py:mod:`gym_minigrid` package; used to implement
   :py:func:`~gym_gridverse.envs.observation_functions.minigrid_observation`.
 

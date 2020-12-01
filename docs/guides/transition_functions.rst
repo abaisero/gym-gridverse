@@ -19,14 +19,14 @@ standard library, the transition function type is defined as a
 :py:class:`~gym_gridverse.state.State`.
 
 .. autoclass:: gym_gridverse.envs.transition_functions.TransitionFunction
-  :noindex:
-  :members: __call__
+    :noindex:
+    :members: __call__
 
 .. note::
-  A transition function may (and often does) accept additional arguments;
-  this is possible **so long as** the extra arguments either have default
-  values, or are binded to specific values later on, e.g., using
-  :py:func:`functools.partial`.
+    A transition function may (and often does) accept additional arguments;
+    this is possible **so long as** the extra arguments either have default
+    values, or are binded to specific values later on, e.g., using
+    :py:func:`functools.partial`.
 
 Provided Transition Functions
 =============================

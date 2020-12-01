@@ -29,6 +29,14 @@ gym\_gridverse.data\_gen module
    :undoc-members:
    :show-inheritance:
 
+gym\_gridverse.design module
+----------------------------
+
+.. automodule:: gym_gridverse.design
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 gym\_gridverse.geometry module
 ------------------------------
 

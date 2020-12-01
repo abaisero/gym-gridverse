@@ -174,6 +174,7 @@ class Position(_2D_Point):
 
 
 PositionOrTuple = Union[Position, Tuple[int, int]]
+"""Type to describe a position either through its class or two integers"""
 
 
 class DeltaPosition(_2D_Point):
