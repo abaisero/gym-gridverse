@@ -15,8 +15,8 @@ from gym_gridverse.envs import (
     transition_functions as transition_fs,
     visibility_functions as visibility_fs,
 )
-from gym_gridverse.envs.inner_env import InnerEnv
 from gym_gridverse.envs.gridworld import GridWorld
+from gym_gridverse.envs.inner_env import InnerEnv
 from gym_gridverse.geometry import DistanceFunction, Position, Shape
 from gym_gridverse.grid_object import Colors
 from gym_gridverse.spaces import (
@@ -139,6 +139,7 @@ def make_reset_function(
         height=state_space.grid_shape.height,
         width=state_space.grid_shape.width,
         size=size,
+        layout=data.get('layout'),
         random_agent_pos=data.get('random_agent'),
         num_obstacles=data.get('num_obstacles'),
         num_rivers=data.get('num_rivers'),

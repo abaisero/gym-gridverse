@@ -379,7 +379,7 @@ def factory(
 
     if name == 'minigrid_empty':
         if None in [height, width, random_agent_pos]:
-            raise ValueError('invalid parameters for name `{name}`')
+            raise ValueError(f'invalid parameters for name `{name}`')
 
         return partial(
             reset_minigrid_empty,
@@ -390,7 +390,7 @@ def factory(
 
     if name == 'minigrid_rooms':
         if None in [height, width, layout]:
-            raise ValueError('invalid parameters for name `{name}`')
+            raise ValueError(f'invalid parameters for name `{name}`')
 
         return partial(
             reset_minigrid_rooms, height=height, width=width, layout=layout
@@ -398,7 +398,7 @@ def factory(
 
     if name == 'minigrid_dynamic_obstacles':
         if None in [height, width, num_obstacles, random_agent_pos]:
-            raise ValueError('invalid parameters for name `{name}`')
+            raise ValueError(f'invalid parameters for name `{name}`')
 
         return partial(
             reset_minigrid_dynamic_obstacles,
@@ -410,13 +410,13 @@ def factory(
 
     if name == 'minigrid_door_key':
         if None in [size]:
-            raise ValueError('invalid parameters for name `{name}`')
+            raise ValueError(f'invalid parameters for name `{name}`')
 
         return partial(reset_minigrid_door_key, grid_size=size)
 
     if name == 'minigrid_crossing':
         if None in [height, width, num_rivers, object_type]:
-            raise ValueError('invalid parameters for name `{name}`')
+            raise ValueError(f'invalid parameters for name `{name}`')
 
         return partial(
             reset_minigrid_crossing,
