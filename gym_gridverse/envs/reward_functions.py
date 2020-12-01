@@ -234,7 +234,7 @@ def bump_into_wall(
         state (State):
         action (Actions):
         next_state (State):
-        reward (float, optional): The reward to provide if bumping into wall
+        reward (float): (optional) The reward to provide if bumping into wall 
     """
 
     attempted_next_position = updated_agent_position_if_unobstructed(

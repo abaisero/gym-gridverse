@@ -73,11 +73,11 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
         return cls(lambda: env)
 
     @property
-    def state(self) -> Dict[str, np.array]:
+    def state(self) -> Dict[str, np.ndarray]:
         return self.outer_env.state
 
     @property
-    def observation(self) -> Dict[str, np.array]:
+    def observation(self) -> Dict[str, np.ndarray]:
         return self.outer_env.observation
 
     def reset(self) -> Dict[str, np.ndarray]:

@@ -38,7 +38,12 @@ add_module_names = False
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx_rtd_theme']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode',
+    'sphinx_rtd_theme',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -173,10 +178,13 @@ texinfo_documents = [
     ),
 ]
 
+napoleon_include_init_with_doc = True
+
 # auto generated API will include both `class` and `__init__` doc-string
 autoclass_content = 'both'
 
 nitpicky = True
+
 nitpick_ignore = [
     ('py:meth', '__call__'),
     ('py:data', 'rng'),
@@ -189,11 +197,14 @@ nitpick_ignore = [
     ('py:class', 'typing_extensions.Protocol'),
     ('py:class', 'yamale.schema.schema.Schema'),
     ('py:class', 'numpy.ndarray'),
+    ('py:class', 'np.ndarray'),
     ('py:class', 'numpy.random._generator.Generator'),
     ('py:class', 'numpy.random.Generator'),
     ('py:class', 'gym.core.Env'),
+    ('py:class', 'list<bigint>'),
     ('py:class', 'gym.spaces.space.Space'),
     ('py:mod', 'gym_minigrid'),
     ('py:class', 'gym_minigrid.wrappers.FullyObsWrapper'),
-    ('py:class', 'gym_gridverse.geometry._2D_Point'), ]
-
+    ('py:class', 'gym_gridverse.geometry._2D_Point'),
+    ('py:class', 'PositionOrTuple'),
+]

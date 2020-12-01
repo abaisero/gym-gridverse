@@ -17,6 +17,7 @@ from .geometry import (
 from .grid_object import Floor, GridObject, Hidden, NoneGridObject
 
 ObjectFactory = Callable[[], GridObject]
+"""Signature for a function that generates grid objects on call"""
 
 
 class Grid:
@@ -148,7 +149,7 @@ class Grid:
 
         Args:
             area (Area): The area to be sliced
-        Returnd:
+        Returns:
             Grid: New instance, sliced appropriately
         """
         subgrid = Grid(area.height, area.width)
@@ -199,7 +200,6 @@ class Agent:
         - :py:class:`~gym_gridverse.grid_object.GridObject` of the agent
 
     Adds some API functionality
-
     """
 
     def __init__(
@@ -208,13 +208,14 @@ class Agent:
         orientation: Orientation,
         obj: Optional[GridObject] = None,
     ):
-        """Creates the agent on `position` with `orientation` and holdig `obj`
+        """Creates the agent on `position` with `orientation` and holding `obj`
 
         Args:
-            position:
-            orientation:
-            obj:
+            position (PositionOrTuple):
+            orientation (Orientation):
+            obj (Optional[GridObject]):
         """
+
         if obj is None:
             obj = NoneGridObject()
 

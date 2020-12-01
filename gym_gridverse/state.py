@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .info import Agent, Grid
+from gym_gridverse.info import Agent, Grid
 
 
 class State:
@@ -16,6 +16,12 @@ class State:
     """
 
     def __init__(self, grid: Grid, agent: Agent):
+        """Initializes the state with `grid` and `agent`
+
+        Args:
+            grid:
+            agent:
+        """
         self.grid = grid
         self.agent = agent
 
