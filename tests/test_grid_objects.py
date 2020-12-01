@@ -2,9 +2,9 @@
 import unittest
 from typing import Type
 
-import numpy as np
 import pytest
 
+from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid_object import (
     Box,
     Colors,
@@ -96,7 +96,7 @@ def simple_state_without_object() -> State:
     """ Returns a 2x2 (empty) grid with an agent without an item """
     return State(
         Grid(height=2, width=2),
-        Agent(position=(0, 0), orientation=None, obj=Floor()),
+        Agent(position=(0, 0), orientation=Orientation.N, obj=Floor()),
     )
 
 
@@ -107,11 +107,6 @@ def test_none_grid_object_properties():
 
     assert none.color == Colors.NONE
     assert none.state_index == 0
-
-    expected_arr_represtation = np.array(
-        [NoneGridObject.type_index, 0, 0]  # pylint: disable=no-member
-    )
-    np.testing.assert_array_equal(none.as_array(), expected_arr_represtation)
 
     assert none.can_be_represented_in_state()
     assert none.render_as_char() == ' '
@@ -126,11 +121,6 @@ def test_hidden_properties():
     assert not hidden.transparent
     assert hidden.color == Colors.NONE
     assert hidden.state_index == 0
-
-    expected_arr_represtation = np.array(
-        [Hidden.type_index, 0, 0]  # pylint: disable=no-member
-    )
-    np.testing.assert_array_equal(hidden.as_array(), expected_arr_represtation)
 
     assert not hidden.can_be_represented_in_state()
     assert hidden.render_as_char() == '.'
@@ -148,11 +138,6 @@ def test_floor_properties():
     assert not floor.can_be_picked_up
     assert floor.state_index == 0
 
-    expected_arr_represtation = np.array(
-        [Floor.type_index, 0, 0]  # pylint: disable=no-member
-    )
-    np.testing.assert_array_equal(floor.as_array(), expected_arr_represtation)
-
     assert floor.can_be_represented_in_state()
     assert floor.render_as_char() == ' '
     assert floor.num_states() == 0
@@ -169,11 +154,6 @@ def test_wall_properties():
     assert not wall.can_be_picked_up
     assert wall.state_index == 0
 
-    expected_arr_represtation = np.array(
-        [Wall.type_index, 0, 0]  # pylint: disable=no-member
-    )
-    np.testing.assert_array_equal(wall.as_array(), expected_arr_represtation)
-
     assert wall.can_be_represented_in_state()
     assert wall.render_as_char() == '#'
     assert wall.num_states() == 0
@@ -189,11 +169,6 @@ def test_goal_properties():
     assert goal.color == Colors.NONE
     assert not goal.can_be_picked_up
     assert goal.state_index == 0
-
-    expected_arr_represtation = np.array(
-        [Goal.type_index, 0, 0]  # pylint: disable=no-member
-    )
-    np.testing.assert_array_equal(goal.as_array(), expected_arr_represtation)
 
     assert goal.can_be_represented_in_state()
     assert goal.render_as_char() == 'G'
@@ -214,13 +189,6 @@ def test_door_open_door_properties():
     assert not open_door.locked
     assert not open_door.blocks
 
-    expected_arr_represtation = np.array(
-        [Door.type_index, 0, color.value]  # pylint: disable=no-member
-    )
-    np.testing.assert_array_equal(
-        open_door.as_array(), expected_arr_represtation
-    )
-
     assert open_door.can_be_represented_in_state()
     assert open_door.render_as_char() == '_'
     assert open_door.num_states() == 3
@@ -240,13 +208,6 @@ def test_door_closed_door_properties():
     assert not closed_door.locked
     assert closed_door.blocks
 
-    expected_arr_represtation = np.array(
-        [Door.type_index, 1, color.value]  # pylint: disable=no-member
-    )
-    np.testing.assert_array_equal(
-        closed_door.as_array(), expected_arr_represtation
-    )
-
     assert closed_door.can_be_represented_in_state()
     assert closed_door.render_as_char() == 'd'
 
@@ -264,13 +225,6 @@ def test_door_locked_door_properties():
     assert not locked_door.is_open
     assert locked_door.locked
     assert locked_door.blocks
-
-    expected_arr_represtation = np.array(
-        [Door.type_index, 2, color.value]  # pylint: disable=no-member
-    )
-    np.testing.assert_array_equal(
-        locked_door.as_array(), expected_arr_represtation
-    )
 
     assert locked_door.can_be_represented_in_state()
     assert locked_door.render_as_char() == 'D'
@@ -329,11 +283,6 @@ def test_key_properties():
     assert key.can_be_picked_up
     assert key.state_index == 0
 
-    expected_arr_represtation = np.array(
-        [Key.type_index, 0, color.value]  # pylint: disable=no-member
-    )
-    np.testing.assert_array_equal(key.as_array(), expected_arr_represtation)
-
     assert key.can_be_represented_in_state()
     assert key.num_states() == 0
 
@@ -348,13 +297,6 @@ def test_moving_obstacle_basic_properties():
     assert obstacle.color == Colors.NONE
     assert not obstacle.can_be_picked_up
     assert obstacle.state_index == 0
-
-    expected_arr_represtation = np.array(
-        [MovingObstacle.type_index, 0, 0]  # pylint: disable=no-member
-    )
-    np.testing.assert_array_equal(
-        obstacle.as_array(), expected_arr_represtation
-    )
 
     assert obstacle.can_be_represented_in_state()
     assert obstacle.render_as_char() == '*'
@@ -397,11 +339,6 @@ def test_box_basic_properties():
     assert box.color == Colors.NONE
     assert not box.can_be_picked_up
     assert box.state_index == 0
-
-    expected_arr_represtation = np.array(
-        [Box.type_index, 0, 0]  # pylint: disable=no-member
-    )
-    np.testing.assert_array_equal(box.as_array(), expected_arr_represtation)
 
     assert not box.can_be_represented_in_state()
     assert box.render_as_char() == 'b'

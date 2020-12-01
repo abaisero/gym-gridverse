@@ -19,14 +19,14 @@ standard library, the transition function type is defined as a
 :py:class:`~gym_gridverse.state.State`.
 
 .. autoclass:: gym_gridverse.envs.transition_functions.TransitionFunction
-  :noindex:
-  :members: __call__
+    :noindex:
+    :members: __call__
 
 .. note::
-  A transition function may (and often does) accept additional arguments;
-  this is possible **so long as** the extra arguments either have default
-  values, or are binded to specific values later on, e.g., using
-  :py:func:`functools.partial`.
+    A transition function may (and often does) accept additional arguments;
+    this is possible **so long as** the extra arguments either have default
+    values, or are binded to specific values later on, e.g., using
+    :py:func:`functools.partial`.
 
 Provided Transition Functions
 =============================
@@ -61,7 +61,7 @@ rules;  A custom transition function:
 - **SHOULD** use the :py:data:`rng` argument as the source for any
   stochasticity.
 
-- **MUST** use :py:func:`~gym_gridverse.rng.get_rng_if_none` (only if the
+- **MUST** use :py:func:`~gym_gridverse.rng.get_gv_rng_if_none` (only if the
   :py:data:`rng` is used at all).
 
 .. warning::

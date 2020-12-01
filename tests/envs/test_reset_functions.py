@@ -2,6 +2,7 @@ import pytest
 
 from gym_gridverse.envs.reset_functions import (
     factory,
+    reset_minigrid_crossing,
     reset_minigrid_door_key,
     reset_minigrid_dynamic_obstacles,
 )
@@ -87,20 +88,12 @@ def test_reset_minigrid_door_key_goal(size: int):
 @pytest.mark.parametrize('height', [10, 20])
 @pytest.mark.parametrize('width', [10, 20])
 @pytest.mark.parametrize('num_obstacles', [5, 10])
-def test_reset_minigrid_dynamic_obstacles_num_obstacles_grid_size(
+def test_reset_minigrid_dynamic_obstacles(
     height: int, width: int, num_obstacles: int
 ):
     state = reset_minigrid_dynamic_obstacles(height, width, num_obstacles)
     assert state.grid.shape == Shape(height, width)
 
-
-@pytest.mark.parametrize('height', [10, 20])
-@pytest.mark.parametrize('width', [10, 20])
-@pytest.mark.parametrize('num_obstacles', [5, 10])
-def test_reset_minigrid_dynamic_obstacles_num_obstacles(
-    height: int, width: int, num_obstacles: int
-):
-    state = reset_minigrid_dynamic_obstacles(height, width, num_obstacles)
     state_num_obstacles = sum(
         isinstance(state.grid[position], MovingObstacle)
         for position in state.grid.positions()
@@ -108,14 +101,33 @@ def test_reset_minigrid_dynamic_obstacles_num_obstacles(
     assert state_num_obstacles == num_obstacles
 
 
+@pytest.mark.parametrize('height', [9, 13])
+@pytest.mark.parametrize('width', [9, 13])
+@pytest.mark.parametrize('num_rivers', [3, 5])
+def test_reset_minigrid_crossing(height: int, width: int, num_rivers: int):
+    state = reset_minigrid_crossing(height, width, num_rivers, object_type=Wall)
+    assert state.grid.shape == Shape(height, width)
+
+
 @pytest.mark.parametrize(
     'name,kwargs',
     [
         (
             'minigrid_empty',
-            {'height': 10, 'width': 10, 'random_agent_pos': True},
+            {
+                'height': 10,
+                'width': 10,
+                'random_agent_pos': True,
+            },
         ),
-        ('minigrid_four_rooms', {'height': 10, 'width': 10}),
+        (
+            'minigrid_rooms',
+            {
+                'height': 10,
+                'width': 10,
+                'layout': (2, 2),
+            },
+        ),
         (
             'minigrid_dynamic_obstacles',
             {
@@ -125,7 +137,21 @@ def test_reset_minigrid_dynamic_obstacles_num_obstacles(
                 'random_agent_pos': True,
             },
         ),
-        ('minigrid_door_key', {'size': 10}),
+        (
+            'minigrid_door_key',
+            {
+                'size': 10,
+            },
+        ),
+        (
+            'minigrid_crossing',
+            {
+                'height': 9,
+                'width': 9,
+                'num_rivers': 3,
+                'object_type': Wall,
+            },
+        ),
     ],
 )
 def test_factory_valid(name: str, kwargs):
@@ -137,9 +163,10 @@ def test_factory_valid(name: str, kwargs):
     [
         ('invalid', {}, ValueError),
         ('minigrid_empty', {}, ValueError),
-        ('minigrid_four_rooms', {}, ValueError),
+        ('minigrid_rooms', {}, ValueError),
         ('minigrid_dynamic_obstacles', {}, ValueError),
         ('minigrid_door_key', {}, ValueError),
+        ('minigrid_crossing', {}, ValueError),
     ],
 )
 def test_factory_invalid(name: str, kwargs, exception: Exception):

@@ -52,14 +52,15 @@ class StateSpace:
         colors: Sequence[Colors],
     ):
         self.grid_shape = grid_shape
-        self.object_types = object_types
-        self.colors = colors
+        self.object_types = list(object_types)
+        self.colors = set(colors) | {Colors.NONE}
 
         self._agent_object_types = set(object_types) | {NoneGridObject}
 
     def contains(self, state: State) -> bool:
         """True if the state satisfies the state-space"""
         # TODO test
+        # TODO implement like the ObservationSpace one
         return (
             state.grid.shape == self.grid_shape
             and state.grid.object_types().issubset(self.object_types)
@@ -148,7 +149,7 @@ class ObservationSpace:
             raise ValueError('shape should have an odd width')
 
         self.grid_shape = grid_shape
-        self.object_types = object_types
+        self.object_types = list(object_types)
         self.colors = set(colors) | {Colors.NONE}
 
         self._grid_object_types = set(object_types) | {Hidden}
@@ -179,11 +180,15 @@ class ObservationSpace:
         grid_objs_in_space = observation.grid.object_types().issubset(
             self._grid_object_types
         )
+        grid_objs_colors_in_space = set(
+            observation.grid[pos].color for pos in observation.grid.positions()
+        ).issubset(self.colors)
         agent_obj_color_in_space = observation.agent.obj.color in self.colors
 
         res = [
             have_same_shape,
             grid_objs_in_space,
+            grid_objs_colors_in_space,
             y_in_grid,
             x_in_grid,
             orientation_is_correct,

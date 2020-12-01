@@ -127,6 +127,13 @@ def make_reset_function(
         else None
     )
 
+    try:
+        data_object_type = data['object_type']
+    except KeyError:
+        object_type = None
+    else:
+        object_type = grid_object.factory_type(data_object_type)
+
     return reset_fs.factory(
         data['name'],
         height=state_space.grid_shape.height,
@@ -134,6 +141,8 @@ def make_reset_function(
         size=size,
         random_agent_pos=data.get('random_agent'),
         num_obstacles=data.get('num_obstacles'),
+        num_rivers=data.get('num_rivers'),
+        object_type=object_type,
     )
 
 

@@ -1,20 +1,20 @@
 state_space:
-  shape: [ 10, 10 ]
-  objects: [ Wall, Floor, Goal, Door, Key ]
-  colors: [ NONE, YELLOW ]
+  shape: [ 9, 9 ]
+  objects: [ Wall, Floor, Goal ]
+  colors: [ NONE ]
 
 observation_space:
   shape: [ 7, 7 ]
-  objects: [ Wall, Floor, Goal, Door, Key ]
-  colors: [ NONE, YELLOW ]
+  objects: [ Wall, Floor, Goal ]
+  colors: [ NONE ]
 
 reset:
-  name: minigrid_door_key
+  name: minigrid_crossing
+  num_rivers: 4
+  object_type: Wall
 
 transition:
   - name: update_agent
-  - name: actuate_mechanics
-  - name: pickup_mechanics
 
 reward:
   - name: living_reward

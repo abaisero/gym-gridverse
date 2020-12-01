@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import itertools as itt
 from copy import deepcopy
 from typing import Callable, Iterator, Optional, Sequence, Set, Type
 
@@ -17,10 +16,25 @@ from .geometry import (
 from .grid_object import Floor, GridObject, Hidden, NoneGridObject
 
 ObjectFactory = Callable[[], GridObject]
+"""Signature for a function that generates grid objects on call"""
 
 
 class Grid:
+    """The state of the environment (minus the agent): a two-dimensional board of objects
+
+    A container of :py:class:`~gym_gridverse.grid_object.GridObject`. This is
+    basically a two-dimensional array, with some additional functions to
+    simplify interacting with the objects, such as getting areas
+    """
+
     def __init__(self, height: int, width: int):
+        """Constructs a `height` x `width` grid of :py:class:`~gym_gridverse.grid_object.Floor`
+
+        Args:
+            height (int):
+            width (int):
+
+        """
         self.height = height
         self.width = width
         self._grid = np.array(
@@ -78,9 +92,16 @@ class Grid:
             raise ValueError(f'Position {position} ')
 
     def positions(self) -> Iterator[Position]:
-        for indices in iter(np.indices(self.shape).reshape(2, -1).T):
-            # tolist casts to native python types
-            yield Position(*indices.tolist())
+        """iterator over positions"""
+        return self.area.positions()
+
+    def positions_border(self) -> Iterator[Position]:
+        """iterator over border positions"""
+        return self.area.positions_border()
+
+    def positions_inside(self) -> Iterator[Position]:
+        """iterator over inside positions"""
+        return self.area.positions_inside()
 
     def get_position(self, x: GridObject) -> Position:
         for position in self.positions():
@@ -104,22 +125,6 @@ class Grid:
         position = Position.from_position_or_tuple(position)
         self._grid[position] = obj
 
-    def draw_area(self, area: Area, *, object_factory: ObjectFactory):
-        """set objects returned by a factory on the perimeter of the area
-
-        Args:
-            area (Area): The area over which to draw
-            object_factory (ObjectFactory):
-        """
-        coordinates = itt.chain(
-            ((area.ymin, x) for x in range(area.xmin, area.xmax)),
-            ((y, area.xmax) for y in range(area.ymin, area.ymax)),
-            ((area.ymax, x) for x in range(area.xmax, area.xmin, -1)),
-            ((y, area.xmin) for y in range(area.ymax, area.ymin, -1)),
-        )
-        for y, x in coordinates:
-            self[y, x] = object_factory()
-
     def swap(self, p: Position, q: Position):
         """swap the objects at two positions"""
         self._check_contains(p)
@@ -134,7 +139,7 @@ class Grid:
 
         Args:
             area (Area): The area to be sliced
-        Returnd:
+        Returns:
             Grid: New instance, sliced appropriately
         """
         subgrid = Grid(area.height, area.width)
@@ -177,12 +182,30 @@ class Grid:
 
 
 class Agent:
+    """The agent part of the state in an environment
+
+    A container for the:
+        - :py:class:`~gym_gridverse.geometry.Position` of the agent
+        - :py:class:`~gym_gridverse.geometry.Orientation` of the agent
+        - :py:class:`~gym_gridverse.grid_object.GridObject` of the agent
+
+    Adds some API functionality
+    """
+
     def __init__(
         self,
         position: PositionOrTuple,
         orientation: Orientation,
         obj: Optional[GridObject] = None,
     ):
+        """Creates the agent on `position` with `orientation` and holding `obj`
+
+        Args:
+            position (PositionOrTuple):
+            orientation (Orientation):
+            obj (Optional[GridObject]):
+        """
+
         if obj is None:
             obj = NoneGridObject()
 

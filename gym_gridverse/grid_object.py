@@ -3,17 +3,17 @@ from __future__ import annotations
 
 import abc
 import enum
-from typing import TYPE_CHECKING, List, Optional, Type
+from typing import TYPE_CHECKING, Callable, List, Optional, Type
 
-import numpy as np
 import numpy.random as rnd
 
 from gym_gridverse.geometry import get_manhattan_boundary
 from gym_gridverse.rng import get_gv_rng_if_none
 
 if TYPE_CHECKING:
-    from gym_gridverse.actions import Actions
     from gym_gridverse.state import State
+
+from gym_gridverse.actions import Actions
 
 
 class Colors(enum.Enum):
@@ -89,10 +89,6 @@ class GridObject(metaclass=abc.ABCMeta):
         self, state: State, *, rng: Optional[rnd.Generator] = None
     ) -> None:
         """ The (optional) behavior upon actuation """
-
-    def as_array(self):
-        """ A (3,) array representation of the object """
-        return np.array([self.type_index, self.state_index, self.color.value])
 
     @abc.abstractmethod
     def render_as_char(self) -> str:
@@ -392,7 +388,7 @@ class Door(GridObject):
         CLOSED = enum.auto()
         LOCKED = enum.auto()
 
-    def __init__(self, state: Status, color: Colors):
+    def __init__(self, state: Door.Status, color: Colors):
         self._color = color
         self._state = state
 
@@ -755,3 +751,6 @@ def factory_type(name: str) -> Type[GridObject]:
         return Box
 
     raise ValueError(f'invalid grid-object type name {name}')
+
+
+GridObjectFactory = Callable[[], GridObject]

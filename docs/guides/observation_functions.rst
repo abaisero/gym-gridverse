@@ -18,14 +18,14 @@ standard library, the observation function type is defined as a
 :py:class:`~gym_gridverse.observation.Observation`.
 
 .. autoclass:: gym_gridverse.envs.observation_functions.ObservationFunction
-  :noindex:
-  :members: __call__
+    :noindex:
+    :members: __call__
 
 .. note::
-  An observation function may (and often does) accept additional arguments;
-  this is possible **so long as** the extra arguments either have default
-  values, or are binded to specific values later on, e.g., using
-  :py:func:`functools.partial`.
+    An observation function may (and often does) accept additional arguments;
+    this is possible **so long as** the extra arguments either have default
+    values, or are binded to specific values later on, e.g., using
+    :py:func:`functools.partial`.
 
 Provided Observation Functions
 ==============================
@@ -37,11 +37,11 @@ predefined observation functions, among which:
   a :py:data:`~gym_gridverse.envs.visibility_functions.VisibilityFunction` to
   determine which tiles are visible.
 
-- :py:func:`~gym_gridvserse.envs.observation_functions.full_observation` --
+- :py:data:`~gym_gridverse.envs.observation_functions.full_observation` --
   every tile is visible;  implemented via
-  :py:func:`~gym_gridverse.envs.observation_functions.full_visibility`.
+  :py:func:`~gym_gridverse.envs.visibility_functions.full_visibility`.
 
-- :py:func:`~gym_gridvserse.envs.observation_functions.minigrid_observation` --
+- :py:data:`~gym_gridverse.envs.observation_functions.minigrid_observation` --
   the observation used by the :py:mod:`gym_minigrid` package;  implemented via
   :py:func:`~gym_gridverse.envs.visibility_functions.minigrid_visibility`.
 
@@ -72,7 +72,7 @@ rules;  A custom observation function:
 - **SHOULD** use the :py:data:`rng` argument as the source for any
   stochasticity.
 
-- **MUST** use :py:func:`~gym_gridverse.rng.get_rng_if_none` (only if the
+- **MUST** use :py:func:`~gym_gridverse.rng.get_gv_rng_if_none` (only if the
   :py:data:`rng` is used at all).
 
 .. warning::

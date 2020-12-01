@@ -22,7 +22,7 @@ requirements = [
 setup(
     author="Andrea Baisero",
     author_email='andrea.baisero@gmail.com',
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

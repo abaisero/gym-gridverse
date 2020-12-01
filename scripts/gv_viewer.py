@@ -15,6 +15,7 @@ from gym.envs.classic_control import rendering
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs import observation_functions as observation_fs
 from gym_gridverse.envs.factory_yaml import make_environment
+from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid_object import (
     Colors,
@@ -559,6 +560,28 @@ def print_legend():
     print(fstr('o', Controls.CYCLE_OBSERVATION))
 
 
+def set_observation_function(env: GridWorld, name: str):
+    """Hacks into `env` in order to set the observation function used
+
+    XXX: uses private members and implementation knowledge. The observation
+    function used in `GridWorld` is meant to be static, so there is no API
+    available for this functionality. Hence this is more of a hack
+
+    Args:
+        env: grid world to set the observation function for
+        name: name of observation function
+    """
+    observation_function = observation_fs.factory(
+        name, observation_space=env.observation_space
+    )
+
+    # XXX: hack
+    env._functional_observation = observation_function
+
+    # ensure a new observation is generated
+    env._observation = None
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('env_path', help='env YAML file')
@@ -616,10 +639,8 @@ def main():
         elif command is Controls.CYCLE_OBSERVATION:
             name = next(observation_function_names)
             print(f'setting observation function: {name}')
-            observation_function = observation_fs.factory(
-                name, observation_space=env.observation_space
-            )
-            env.set_observation_function(observation_function)
+
+            set_observation_function(env, name)
 
         state_viewer.render(env.state)
         observation_viewer.render(env.observation)

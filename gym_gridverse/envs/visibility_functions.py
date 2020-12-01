@@ -19,7 +19,7 @@ class VisibilityFunction(Protocol):
         position: Position,
         *,
         rng: Optional[rnd.Generator] = None,
-    ) -> np.array:
+    ) -> np.ndarray:
         ...
 
 

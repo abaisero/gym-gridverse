@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import enum
+import itertools as itt
 import math
-from typing import Callable, List, NamedTuple, Tuple, Union
+from typing import Callable, Iterator, List, NamedTuple, Tuple, Union
 
 
 class Shape(NamedTuple):
@@ -15,10 +16,14 @@ class Shape(NamedTuple):
     width: int
 
 
+# semantic type
+Range = Tuple[int, int]
+
+
 class Area:
-    def __init__(self, y: Tuple[int, int], x: Tuple[int, int]):
-        self.ymin, self.ymax = min(y), max(y)
-        self.xmin, self.xmax = min(x), max(x)
+    def __init__(self, ys: Range, xs: Range):
+        self.ymin, self.ymax = min(ys), max(ys)
+        self.xmin, self.xmax = min(xs), max(xs)
 
     @property
     def height(self) -> int:
@@ -43,6 +48,40 @@ class Area:
     @property
     def bottom_right(self) -> Position:
         return Position(self.ymax, self.xmax)
+
+    def positions(self) -> Iterator[Position]:
+        """iterator over positions"""
+
+        return (
+            Position(y, x)
+            for y in range(self.ymin, self.ymax + 1)
+            for x in range(self.xmin, self.xmax + 1)
+        )
+
+    def positions_border(self) -> Iterator[Position]:
+        """iterator over border positions"""
+
+        return itt.chain(
+            (
+                Position(y, x)
+                for y in [self.ymin, self.ymax]
+                for x in range(self.xmin, self.xmax + 1)
+            ),
+            (
+                Position(y, x)
+                for y in range(self.ymin + 1, self.ymax)
+                for x in [self.xmin, self.xmax]
+            ),
+        )
+
+    def positions_inside(self) -> Iterator[Position]:
+        """iterator over inside positions"""
+
+        return (
+            Position(y, x)
+            for y in range(self.ymin + 1, self.ymax)
+            for x in range(self.xmin + 1, self.xmax)
+        )
 
     def contains(self, position: PositionOrTuple) -> bool:
         position = Position.from_position_or_tuple(position)
@@ -135,6 +174,7 @@ class Position(_2D_Point):
 
 
 PositionOrTuple = Union[Position, Tuple[int, int]]
+"""Type to describe a position either through its class or two integers"""
 
 
 class DeltaPosition(_2D_Point):

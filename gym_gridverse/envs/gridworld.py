@@ -47,15 +47,6 @@ class GridWorld(InnerEnv):
     def set_seed(self, seed: Optional[int] = None):
         self._rng = make_rng(seed)
 
-    # TODO: remove and solve better
-    def set_observation_function(
-        self, observation_function: ObservationFunction
-    ):
-        self._functional_observation = observation_function
-        # in `InnerEnv`: set to make sure next call to observation will
-        # actually generate a new one
-        self._observation = None
-
     def functional_reset(self) -> State:
         state = self._functional_reset(rng=self._rng)
         if not self.state_space.contains(state):

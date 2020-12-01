@@ -58,19 +58,23 @@ def from_visibility(
 
 
 full_observation = partial(from_visibility, visibility_function=full_visibility)
+"""`ObservationFunction` where every tile is visible"""
 
 minigrid_observation = partial(
     from_visibility, visibility_function=minigrid_visibility
 )
+"""`ObservationFunction` implementation as done in 'MiniGrid'"""
 
 raytracing_observation = partial(
     from_visibility, visibility_function=raytracing_visibility
 )
+"""`ObservationFunction` with ray tracing"""
 
 stochastic_raytracing_observation = partial(
     from_visibility,
     visibility_function=stochastic_raytracing_visibility,
 )
+"""`ObservationFunction` with stochastic ray tracing"""
 
 
 def factory(
