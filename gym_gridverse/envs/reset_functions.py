@@ -8,7 +8,7 @@ from typing_extensions import Protocol  # python3.7 compatibility
 from gym_gridverse.design import (
     draw_line_horizontal,
     draw_line_vertical,
-    draw_room,
+    draw_wall_boundary,
 )
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid_object import (
@@ -35,6 +35,7 @@ def reset_minigrid_empty(
     height: int,
     width: int,
     random_agent: bool = False,
+    random_goal: bool = False,
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> State:
@@ -48,8 +49,16 @@ def reset_minigrid_empty(
     # TODO test creation (e.g. count number of walls, goals, check held item)
 
     grid = Grid(height, width)
-    draw_room(grid, grid.area, Wall)
-    grid[height - 2, width - 2] = Goal()
+    draw_wall_boundary(grid)
+
+    if random_goal:
+        goal_y = rng.integers(1, height - 2, endpoint=True)
+        goal_x = rng.integers(1, width - 2, endpoint=True)
+    else:
+        goal_y = height - 2
+        goal_x = width - 2
+
+    grid[goal_y, goal_x] = Goal()
 
     if random_agent:
         agent_position = rng.choice(
@@ -211,7 +220,9 @@ def reset_minigrid_door_key(
 
     # Generate vertical splitting wall
     x_wall = rng.integers(2, grid_size - 3, endpoint=True)
-    line_wall = draw_line_vertical(state.grid, (1, grid_size - 2), x_wall, Wall)
+    line_wall = draw_line_vertical(
+        state.grid, range(1, grid_size - 1), x_wall, Wall
+    )
 
     # Place yellow, locked door
     pos_wall = rng.choice(line_wall)
@@ -305,12 +316,12 @@ def reset_minigrid_crossing(  # pylint: disable=too-many-locals
     # create horizontal rivers without crossings
     rivers_h = sorted([pos for direction, pos in rivers if direction is h])
     for y in rivers_h:
-        draw_line_horizontal(state.grid, y, (1, width - 2), object_type)
+        draw_line_horizontal(state.grid, y, range(1, width - 1), object_type)
 
     # create vertical rivers without crossings
     rivers_v = sorted([pos for direction, pos in rivers if direction is v])
     for x in rivers_v:
-        draw_line_vertical(state.grid, (1, height - 2), x, object_type)
+        draw_line_vertical(state.grid, range(1, height - 1), x, object_type)
 
     # sample path to goal
     path = [h] * len(rivers_v) + [v] * len(rivers_h)
