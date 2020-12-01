@@ -35,8 +35,8 @@ predefined reset functions, among which:
 - :py:func:`~gym_gridvserse.envs.reset_functions.reset_minigrid_empty` -- a
   room with a :py:class:`~gym_gridverse.grid_object.Goal`.
 
-- :py:func:`~gym_gridvserse.envs.reset_functions.reset_minigrid_four_rooms` --
-  four connected rooms with a :py:class:`~gym_gridverse.grid_object.Goal`.
+- :py:func:`~gym_gridvserse.envs.reset_functions.reset_minigrid_rooms` --
+  connected rooms with a :py:class:`~gym_gridverse.grid_object.Goal`.
 
 - :py:func:`~gym_gridverse.envs.reset_functions.reset_minigrid_door_key` -- two
   rooms connected by a locked :py:class:`~gym_gridverse.grid_object.Door`; on

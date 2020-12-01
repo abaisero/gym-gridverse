@@ -162,7 +162,10 @@ def main(
         state_width + 2 + observation_width + 2 + 3,
     )
     legend_window_inner = legend_window_outer.derwin(
-        screen_height - 2, screen_width - panel_width - 2 - 2, 1, 1,
+        screen_height - 2,
+        screen_width - panel_width - 2 - 2,
+        1,
+        1,
     )
 
     def update(
@@ -292,7 +295,7 @@ if __name__ == "__main__":
         ObservationSpace(Shape(7, 7), [Floor, Wall, Goal], [Colors.NONE]),
     )
 
-    # reset_function = partial(reset_fs.reset_minigrid_four_rooms, 10, 10)
+    # reset_function = partial(reset_fs.reset_minigrid_rooms, 10, 10, (2, 2))
     reset_function = partial(reset_fs.reset_minigrid_empty, 10, 10, True)
 
     step_function = step_fs.update_agent
@@ -302,7 +305,8 @@ if __name__ == "__main__":
     # observation_function = observation_fs.raytracing_observation
     # observation_function = observation_fs.stochastic_raytracing_observation
     observation_function = partial(
-        observation_function, observation_space=domain_space.observation_space,
+        observation_function,
+        observation_space=domain_space.observation_space,
     )
 
     reward_function = partial(

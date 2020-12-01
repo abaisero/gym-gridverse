@@ -121,10 +121,11 @@ def test_reset_minigrid_crossing(height: int, width: int, num_rivers: int):
             },
         ),
         (
-            'minigrid_four_rooms',
+            'minigrid_rooms',
             {
                 'height': 10,
                 'width': 10,
+                'layout': (2, 2),
             },
         ),
         (
@@ -162,7 +163,7 @@ def test_factory_valid(name: str, kwargs):
     [
         ('invalid', {}, ValueError),
         ('minigrid_empty', {}, ValueError),
-        ('minigrid_four_rooms', {}, ValueError),
+        ('minigrid_rooms', {}, ValueError),
         ('minigrid_dynamic_obstacles', {}, ValueError),
         ('minigrid_door_key', {}, ValueError),
         ('minigrid_crossing', {}, ValueError),

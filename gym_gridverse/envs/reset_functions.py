@@ -1,13 +1,16 @@
 import itertools as itt
 from functools import partial
-from typing import Optional, Type
+from typing import Optional, Tuple, Type
 
+import more_itertools as mitt
+import numpy as np
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.design import (
     draw_line_horizontal,
     draw_line_vertical,
+    draw_room_grid,
     draw_wall_boundary,
 )
 from gym_gridverse.geometry import Orientation
@@ -69,71 +72,78 @@ def reset_minigrid_empty(
             ]
         )
         agent_orientation = rng.choice(list(Orientation))
-        agent = Agent(agent_position, agent_orientation)
     else:
-        agent = Agent((1, 1), Orientation.E)
+        agent_position = (1, 1)
+        agent_orientation = Orientation.E
 
+    agent = Agent(agent_position, agent_orientation)
     return State(grid, agent)
 
 
-def reset_minigrid_four_rooms(
-    height: int, width: int, *, rng: Optional[rnd.Generator] = None
+def reset_minigrid_rooms(  # pylint: disable=too-many-locals
+    height: int,
+    width: int,
+    layout: Tuple[int, int],
+    *,
+    rng: Optional[rnd.Generator] = None,
 ) -> State:
-    """imitates Minigrid's FourRooms environment"""
-    if height < 5 or width < 5:
-        raise ValueError('height and width need to be at least 5')
 
     rng = get_gv_rng_if_none(rng)
 
     # TODO test creation (e.g. count number of walls, goals, check held item)
 
-    height_split = height // 2
-    width_split = width // 2
+    layout_height, layout_width = layout
+
+    y_splits = np.linspace(
+        0,
+        height - 1,
+        num=layout_height + 1,
+        dtype=int,
+    )
+
+    if len(y_splits) != len(set(y_splits)):
+        raise ValueError(
+            f'insufficient height ({height}) for layout ({layout})'
+        )
+
+    x_splits = np.linspace(
+        0,
+        width - 1,
+        num=layout_width + 1,
+        dtype=int,
+    )
+
+    if len(x_splits) != len(set(x_splits)):
+        raise ValueError(f'insufficient width ({height}) for layout ({layout})')
 
     grid = Grid(height, width)
+    draw_room_grid(grid, y_splits, x_splits, Wall)
 
-    # making walls
-    for y in range(height):
-        grid[y, 0] = Wall()
-        grid[y, width_split] = Wall()
-        grid[y, width - 1] = Wall()
+    # passages in horizontal walls
+    for y in y_splits[1:-1]:
+        for x_from, x_to in mitt.pairwise(x_splits):
+            x = rng.integers(x_from + 1, x_to)
+            grid[y, x] = Floor()
 
-    for x in range(width):
-        grid[0, x] = Wall()
-        grid[height_split, x] = Wall()
-        grid[height - 1, x] = Wall()
+    # passages in vertical walls
+    for y_from, y_to in mitt.pairwise(y_splits):
+        for x in x_splits[1:-1]:
+            y = rng.integers(y_from + 1, y_to)
+            grid[y, x] = Floor()
 
-    # creating openings in walls
-    y = rng.choice(range(1, height_split - 1))
-    grid[y, width_split] = Floor()
-    y = rng.choice(range(height_split + 1, height - 1))
-    grid[y, width_split] = Floor()
-
-    x = rng.choice(range(1, width_split - 1))
-    grid[height_split, x] = Floor()
-    x = rng.choice(range(width_split + 1, width - 1))
-    grid[height_split, x] = Floor()
-
-    # random goal
-    goal_position = rng.choice(
+    # sample agent and goal positions
+    agent_position, goal_position = rng.choice(
         [
             position
             for position in grid.positions()
             if isinstance(grid[position], Floor)
-        ]
-    )
-    grid[goal_position] = Goal()
-
-    # random agent
-    agent_position = rng.choice(
-        [
-            position
-            for position in grid.positions()
-            if isinstance(grid[position], Floor)
-        ]
+        ],
+        size=2,
+        replace=False,
     )
     agent_orientation = rng.choice(list(Orientation))
 
+    grid[goal_position] = Goal()
     agent = Agent(agent_position, agent_orientation)
     return State(grid, agent)
 
@@ -360,6 +370,7 @@ def factory(
     height: Optional[int] = None,
     width: Optional[int] = None,
     size: Optional[int] = None,
+    layout: Optional[Tuple[int, int]] = None,
     random_agent_pos: Optional[bool] = None,
     num_obstacles: Optional[int] = None,
     num_rivers: Optional[int] = None,
@@ -377,11 +388,13 @@ def factory(
             random_agent=random_agent_pos,
         )
 
-    if name == 'minigrid_four_rooms':
-        if None in [height, width]:
+    if name == 'minigrid_rooms':
+        if None in [height, width, layout]:
             raise ValueError('invalid parameters for name `{name}`')
 
-        return partial(reset_minigrid_four_rooms, height=height, width=width)
+        return partial(
+            reset_minigrid_rooms, height=height, width=width, layout=layout
+        )
 
     if name == 'minigrid_dynamic_obstacles':
         if None in [height, width, num_obstacles, random_agent_pos]:

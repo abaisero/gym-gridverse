@@ -13,12 +13,13 @@ reward: include('reward_function')
 observation: include('observation_function')
 terminating: include('terminating_function')
 ---
-reset_function: any(include('reset_function_minigrid_empty'), include('reset_function_minigrid_four_rooms'), include('reset_function_minigrid_dynamic_obstacles'), include('reset_function_minigrid_door_key'), include('reset_function_minigrid_crossing'))
+reset_function: any(include('reset_function_minigrid_empty'), include('reset_function_minigrid_rooms'), include('reset_function_minigrid_dynamic_obstacles'), include('reset_function_minigrid_door_key'), include('reset_function_minigrid_crossing'))
 reset_function_minigrid_empty:
   name: enum('minigrid_empty')
   random_agent: bool(required=False)
-reset_function_minigrid_four_rooms:
-  name: enum('minigrid_four_rooms')
+reset_function_minigrid_rooms:
+  name: enum('minigrid_rooms')
+  layout: list(int(), min=2, max=2)
 reset_function_minigrid_dynamic_obstacles:
   name: enum('minigrid_dynamic_obstacles')
   num_obstacles: int(min=1)

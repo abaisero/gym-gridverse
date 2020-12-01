@@ -201,7 +201,7 @@ def gym_minigrid_four_room() -> Environment:
         Environment:
     """
 
-    reset = partial(reset_functions.reset_minigrid_four_rooms, 19, 19)
+    reset = partial(reset_functions.reset_minigrid_rooms, 19, 19, layout=(2, 2))
 
     return plain_navigation_task(reset)
 
