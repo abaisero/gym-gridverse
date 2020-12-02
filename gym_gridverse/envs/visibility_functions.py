@@ -1,8 +1,5 @@
-import math
-from functools import lru_cache
-from typing import Iterator, List, Optional
+from typing import Optional
 
-import more_itertools as mitt
 import numpy as np
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
@@ -10,6 +7,7 @@ from typing_extensions import Protocol  # python3.7 compatibility
 from gym_gridverse.geometry import Area, Position
 from gym_gridverse.info import Grid
 from gym_gridverse.rng import get_gv_rng_if_none
+from gym_gridverse.utils.raytracing import compute_rays_fancy
 
 
 class VisibilityFunction(Protocol):
@@ -66,38 +64,6 @@ def minigrid_visibility(
     return visibility
 
 
-# TODO test this
-def ray_positions(
-    start_pos: Position, area: Area, *, radians: float, step_size: float
-) -> Iterator[Position]:
-    y, x = float(start_pos.y), float(start_pos.x)
-    dy = -math.sin(radians)
-    dx = math.cos(radians)
-
-    pos = start_pos
-    while area.contains(pos):
-        yield pos
-
-        y += step_size * dy
-        x += step_size * dx
-        pos = Position(round(y), round(x))
-
-
-# TODO test this
-@lru_cache()
-def rays_positions(start_pos: Position, area: Area) -> List[List[Position]]:
-    rays: List[List[Position]] = []
-
-    for degrees in range(360):
-        # conversion to radians
-        radians = degrees * math.pi / 180.0
-        ray = ray_positions(start_pos, area, radians=radians, step_size=0.01)
-        ray = mitt.unique_justseen(ray)
-        rays.append(list(ray))
-
-    return rays
-
-
 def raytracing_visibility(
     grid: Grid,
     position: Position,
@@ -106,7 +72,7 @@ def raytracing_visibility(
 ) -> np.ndarray:
 
     area = Area((0, grid.height - 1), (0, grid.width - 1))
-    rays = rays_positions(position, area)
+    rays = compute_rays_fancy(position, area)
 
     counts_num = np.zeros((area.height, area.width), dtype=int)
     counts_den = np.zeros((area.height, area.width), dtype=int)
@@ -139,7 +105,7 @@ def stochastic_raytracing_visibility(  # TODO add test
     rng = get_gv_rng_if_none(rng)
 
     area = Area((0, grid.height - 1), (0, grid.width - 1))
-    rays = rays_positions(position, area)
+    rays = compute_rays_fancy(position, area)
 
     counts_num = np.zeros((area.height, area.width), dtype=int)
     counts_den = np.zeros((area.height, area.width), dtype=int)
