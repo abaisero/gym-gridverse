@@ -9,6 +9,7 @@ Subpackages
 
    gym_gridverse.envs
    gym_gridverse.representations
+   gym_gridverse.utils
 
 Submodules
 ----------
