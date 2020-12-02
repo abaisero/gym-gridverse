@@ -4,7 +4,7 @@ import argparse
 import gym
 
 import gym_gridverse
-from gym_gridverse.visualize import str_render_obs, str_render_state
+from gym_gridverse.render_as_string import str_render_obs, str_render_state
 
 
 def main(args):
