@@ -11,21 +11,38 @@ from gym_gridverse.geometry import Area, Position, PositionOrTuple
 Ray = List[Position]
 
 
-# TODO test this
 def compute_ray(
-    start_pos: PositionOrTuple,
+    position: PositionOrTuple,
     area: Area,
     *,
     radians: float,
     step_size: float,
-    unique: bool
-) -> List[Position]:
-    """returns ray of positions"""
+    unique: bool = True,
+) -> Ray:
+    """Returns a ray from a given position.
 
-    start_pos = Position.from_position_or_tuple(start_pos)
+    A ray is a list of positions which are hit by a direct line starting at the
+    center of the given position and moving along the given direction (in
+    radians) until the area is left.
 
-    y0, x0 = float(start_pos.y), float(start_pos.x)
-    dy = step_size * -math.sin(radians)
+    Args:
+        position (PositionOrTuple): initial position, must be in area.
+        area (Area): boundary over rays.
+        radians (float): ray direction.
+        step_size (float): ray step granularity.
+        unique (bool): If true, the same position can appear twice in the ray.
+
+    Returns:
+        Ray: ray from the given position until the area boundary
+    """
+
+    if not area.contains(position):
+        raise ValueError(f'position {position} must be inside area {area}')
+
+    position = Position.from_position_or_tuple(position)
+
+    y0, x0 = float(position.y), float(position.x)
+    dy = step_size * math.sin(radians)
     dx = step_size * math.cos(radians)
 
     ys = (y0 + i * dy for i in itt.count())
@@ -38,34 +55,58 @@ def compute_ray(
     return list(positions)
 
 
-# TODO test this
-@lru_cache()
-def compute_rays(start_pos: Position, area: Area) -> List[List[Position]]:
+def compute_rays(position: PositionOrTuple, area: Area) -> List[Ray]:
+    """Returns rays obtained at 1° granularity.
+
+    A ray is a list of positions which are hit by a direct line starting at the
+    center of the given position and moving along a direction until the area is
+    left.  This method will search for the ingeter directions between 0° and
+    359°.
+
+    Args:
+        position (PositionOrTuple): initial position, must be in area.
+        area (Area): boundary over rays.
+
+    Returns:
+        List[Ray]:
+    """
     rays: List[Ray] = []
 
     radians_over_degrees = math.pi / 180.0
     degrees = range(360)
     radians = (deg * radians_over_degrees for deg in degrees)
     rays = [
-        compute_ray(start_pos, area, radians=rad, step_size=0.01, unique=True)
+        compute_ray(position, area, radians=rad, step_size=0.01)
         for rad in radians
     ]
 
     return rays
 
 
-# TODO test this
-@lru_cache()
-def compute_rays_fancy(start_pos: Position, area: Area) -> List[List[Position]]:
-    rays: List[Ray] = []
+def compute_rays_fancy(position: PositionOrTuple, area: Area) -> List[Ray]:
+    """Returns rays obtained by targeting edge points.
+
+    A ray is a list of positions which are hit by a direct line starting at the
+    center of the given position and moving along a direction until the area is
+    left.  This method will search in the directions towards all other cell
+    edges.
+
+    Args:
+        position (PositionOrTuple): initial position, must be in area.
+        area (Area): boundary over rays.
+
+    Returns:
+        List[Ray]:
+    """
+    position = Position.from_position_or_tuple(position)
 
     # compute corners of each cell
     ys = np.linspace(area.ymin, area.ymax + 1, num=area.height + 1) - 0.5
     xs = np.linspace(area.xmin, area.xmax + 1, num=area.width + 1) - 0.5
 
-    #  re-center and flip y axis
-    ys = start_pos.y - ys
-    xs = xs - start_pos.x
+    # center all positions
+    ys = ys - position.y
+    xs = xs - position.x
 
     # compute points and angles
     yys, xxs = np.meshgrid(ys, xs)
@@ -73,8 +114,14 @@ def compute_rays_fancy(start_pos: Position, area: Area) -> List[List[Position]]:
     radians = np.sort(radians, axis=None)
 
     rays = [
-        compute_ray(start_pos, area, radians=rad, step_size=0.01, unique=True)
+        compute_ray(position, area, radians=rad, step_size=0.01)
         for rad in radians
     ]
 
     return rays
+
+
+# the ray functions are deterministic and can be cached for efficiency (extra
+# calls for python3.7 compatibility)
+cached_compute_rays = lru_cache()(compute_rays)
+cached_compute_rays_fancy = lru_cache()(compute_rays_fancy)

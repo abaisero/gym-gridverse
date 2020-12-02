@@ -7,7 +7,7 @@ from typing_extensions import Protocol  # python3.7 compatibility
 from gym_gridverse.geometry import Area, Position
 from gym_gridverse.info import Grid
 from gym_gridverse.rng import get_gv_rng_if_none
-from gym_gridverse.utils.raytracing import compute_rays_fancy
+from gym_gridverse.utils.raytracing import cached_compute_rays_fancy
 
 
 class VisibilityFunction(Protocol):
@@ -72,7 +72,7 @@ def raytracing_visibility(
 ) -> np.ndarray:
 
     area = Area((0, grid.height - 1), (0, grid.width - 1))
-    rays = compute_rays_fancy(position, area)
+    rays = cached_compute_rays_fancy(position, area)
 
     counts_num = np.zeros((area.height, area.width), dtype=int)
     counts_den = np.zeros((area.height, area.width), dtype=int)
@@ -105,7 +105,7 @@ def stochastic_raytracing_visibility(  # TODO add test
     rng = get_gv_rng_if_none(rng)
 
     area = Area((0, grid.height - 1), (0, grid.width - 1))
-    rays = compute_rays_fancy(position, area)
+    rays = cached_compute_rays_fancy(position, area)
 
     counts_num = np.zeros((area.height, area.width), dtype=int)
     counts_den = np.zeros((area.height, area.width), dtype=int)
