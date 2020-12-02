@@ -122,7 +122,7 @@ class NoneGridObject(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:  # type: ignore
@@ -174,7 +174,7 @@ class Hidden(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:
@@ -226,7 +226,7 @@ class Floor(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:
@@ -278,7 +278,7 @@ class Wall(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:
@@ -330,7 +330,7 @@ class Goal(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:
@@ -496,7 +496,7 @@ class Key(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:
@@ -548,7 +548,7 @@ class MovingObstacle(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:
@@ -634,7 +634,7 @@ class Box(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:

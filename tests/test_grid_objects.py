@@ -110,7 +110,7 @@ def test_none_grid_object_properties():
 
     assert none.can_be_represented_in_state()
     assert none.render_as_char() == ' '
-    assert none.num_states() == 0
+    assert none.num_states() == 1
 
 
 def test_hidden_properties():
@@ -124,7 +124,7 @@ def test_hidden_properties():
 
     assert not hidden.can_be_represented_in_state()
     assert hidden.render_as_char() == '.'
-    assert hidden.num_states() == 0
+    assert hidden.num_states() == 1
 
 
 def test_floor_properties():
@@ -140,7 +140,7 @@ def test_floor_properties():
 
     assert floor.can_be_represented_in_state()
     assert floor.render_as_char() == ' '
-    assert floor.num_states() == 0
+    assert floor.num_states() == 1
 
 
 def test_wall_properties():
@@ -156,7 +156,7 @@ def test_wall_properties():
 
     assert wall.can_be_represented_in_state()
     assert wall.render_as_char() == '#'
-    assert wall.num_states() == 0
+    assert wall.num_states() == 1
 
 
 def test_goal_properties():
@@ -172,7 +172,7 @@ def test_goal_properties():
 
     assert goal.can_be_represented_in_state()
     assert goal.render_as_char() == 'G'
-    assert goal.num_states() == 0
+    assert goal.num_states() == 1
 
 
 def test_door_open_door_properties():
@@ -284,7 +284,7 @@ def test_key_properties():
     assert key.state_index == 0
 
     assert key.can_be_represented_in_state()
-    assert key.num_states() == 0
+    assert key.num_states() == 1
 
 
 def test_moving_obstacle_basic_properties():
@@ -300,7 +300,7 @@ def test_moving_obstacle_basic_properties():
 
     assert obstacle.can_be_represented_in_state()
     assert obstacle.render_as_char() == '*'
-    assert obstacle.num_states() == 0
+    assert obstacle.num_states() == 1
 
 
 def test_moving_obstacle_obstacle_movement():
@@ -342,7 +342,7 @@ def test_box_basic_properties():
 
     assert not box.can_be_represented_in_state()
     assert box.render_as_char() == 'b'
-    assert box.num_states() == 0
+    assert box.num_states() == 1
 
 
 @pytest.mark.parametrize(
