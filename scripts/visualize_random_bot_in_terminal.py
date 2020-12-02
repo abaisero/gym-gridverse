@@ -7,16 +7,13 @@ from typing import Dict
 import numpy as np
 
 from gym_gridverse.actions import Actions
-from gym_gridverse.envs.factory import (
-    STRING_TO_GYM_CONSTRUCTOR,
-    gym_minigrid_from_descr,
-)
+from gym_gridverse.envs.factory_yaml import make_environment
 from gym_gridverse.outer_env import OuterEnv
+from gym_gridverse.render_as_string import str_render_obs, str_render_state
 from gym_gridverse.representations.observation_representations import (
     DefaultObservationRepresentation,
 )
 from gym_gridverse.spaces import ActionSpace
-from gym_gridverse.render_as_string import str_render_obs, str_render_state
 
 
 def random_action_selection(
@@ -54,12 +51,12 @@ def visualize_random_bot(domain: OuterEnv):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        'descr',
-        help=f"Gym description: {list(STRING_TO_GYM_CONSTRUCTOR.keys())}",
-    )
+    parser.add_argument('env_path', help='env YAML file')
+    args = parser.parse_args()
 
-    inner_env = gym_minigrid_from_descr(parser.parse_args().descr)
+    with open(args.env_path) as f:
+        inner_env = make_environment(f)
+
     rep = DefaultObservationRepresentation(inner_env.observation_space)
     outer_env = OuterEnv(inner_env, observation_rep=rep)
 
