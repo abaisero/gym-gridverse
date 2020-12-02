@@ -11,9 +11,8 @@ from gym_gridverse.geometry import get_manhattan_boundary
 from gym_gridverse.rng import get_gv_rng_if_none
 
 if TYPE_CHECKING:
+    from gym_gridverse.actions import Actions
     from gym_gridverse.state import State
-
-from gym_gridverse.actions import Actions
 
 
 class Colors(enum.Enum):

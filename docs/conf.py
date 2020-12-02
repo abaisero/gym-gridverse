@@ -43,6 +43,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinx_rtd_theme',
+    'sphinx.ext.todo',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -178,13 +179,17 @@ texinfo_documents = [
     ),
 ]
 
-napoleon_include_init_with_doc = True
+# -- Configurations ----------------------------------------------------
 
 # auto generated API will include both `class` and `__init__` doc-string
 autoclass_content = 'both'
+napoleon_include_init_with_doc = True
+
+# dev options
+todo_emit_warnings = True
+todo_include_todos = True
 
 nitpicky = True
-
 nitpick_ignore = [
     ('py:meth', '__call__'),
     ('py:data', 'rng'),

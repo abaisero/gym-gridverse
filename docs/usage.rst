@@ -8,6 +8,13 @@ To use gym-gridverse in a project::
 
 .. toctree::
    :maxdepth: 2
+   :caption: Getting Started:
+
+   getting-started/creating_environments
+   getting-started/using_environments
+
+.. toctree::
+   :maxdepth: 2
    :caption: Guides:
 
    guides/reset_functions

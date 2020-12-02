@@ -1,4 +1,4 @@
-""" Manually control the agent in an environment """
+"""Print random interaction with environment to terminal"""
 
 import argparse
 import random
