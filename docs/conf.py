@@ -181,8 +181,6 @@ texinfo_documents = [
 
 # -- Configurations ----------------------------------------------------
 
-# auto generated API will include both `class` and `__init__` doc-string
-autoclass_content = 'both'
 napoleon_include_init_with_doc = True
 
 # dev options
@@ -212,4 +210,6 @@ nitpick_ignore = [
     ('py:class', 'gym_minigrid.wrappers.FullyObsWrapper'),
     ('py:class', 'gym_gridverse.geometry._2D_Point'),
     ('py:class', 'PositionOrTuple'),
+    ('py:class', 'State'),
+    ('py:class', 'Actions'),
 ]

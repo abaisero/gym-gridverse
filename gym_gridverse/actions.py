@@ -1,12 +1,20 @@
+"""Defines the Action class"""
+
 import enum
 
 
 class Actions(enum.Enum):
-    """A glorified integer
+    """An action is a glorified integer.
 
-    Actions have been grouped together, in particular there are
-    `TRANSLATION_ACTIONS` and `ROTATION_ACTIONS` that are lists of actions that
-    either 'move' or 'rotate'.
+    In particular, there are 8 actions, each is assigned an integer:
+
+    - 4 translations (forward, backwards, left & right)
+    - 2 rotations (left & right)
+    - ``actuate``
+    - ``pick and drop``
+
+    The effects of ``actuate`` depends on the object in front of the agent, but could
+    open doors for example. ``pick and drop`` attempts to pick up the object.
     """
 
     MOVE_FORWARD = 0

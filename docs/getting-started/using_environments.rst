@@ -2,27 +2,13 @@
 Using Environments
 ==================
 
-.. todo::
-
-  - Finish
-
-You will typically interact with our package through the
-:py:class:`~gym_gridverse.outer_env.OuterEnv`, which bundles together the actual
-:py:class:`~gym_gridverse.envs.inner_env.InnerEnv` with a
-:py:class:`~gym_gridverse.representations.representation.StateRepresentation`
-and
-:py:class:`~gym_gridverse.representations.representation.ObservationRepresentation`.
-
-.. autoclass:: gym_gridverse.outer_env.OuterEnv
-  :noindex:
-  :members:
-
-Example scripts
-===============
-
-A script that prints the interactions of a random agent to the terminal
+Our package provides tools for generating kinds of environments and
+representations, which we will discuss in detail. Here we preview how one could
+go about designing interactions with an environment once constructed. The below
 (:download:`scripts/visualize_random_bot_in_terminal.py
-<../../scripts/visualize_random_bot_in_terminal.py>`):
+<../../scripts/visualize_random_bot_in_terminal.py>`) is an example that prints
+the interactions of an agent in an environment created from `YAML` to the
+terminal.
 
 .. literalinclude:: ../../scripts/visualize_random_bot_in_terminal.py
   :language: python

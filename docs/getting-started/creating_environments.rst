@@ -2,14 +2,14 @@
 Creating Environments
 =====================
 
-Gridverse is a library for constructing and developing environments. In this
+`Gridverse` is a library for constructing and developing environments. In this
 section we cover how to use YAML_ to define and create them.
 
 Play with GUI
 =============
 
 The interactive GUI gives an idea of the features provided in this package. The
-script expects a single input, the YAML_ file describing the environment, for
+script expects a single input, the `YAML` file describing the environment, for
 example::
 
   >> scripts/gv_viewer.py envs_yaml/env_minigrid_four_rooms.yaml
@@ -23,13 +23,18 @@ Other environments provided out of the box are located in the directory
 - :download:`envs_yaml/env_minigrid_empty.yaml <../../envs_yaml/env_minigrid_empty.yaml>`
 - :download:`envs_yaml/env_minigrid_four_rooms.yaml <../../envs_yaml/env_minigrid_four_rooms.yaml>`
 
-Create environments programatically
-===================================
+Create environments
+===================
+
+To use environments in your own code, you can call the factory function with a
+path to the `YAML` configurations::
+
+  from gym_gridverse.envs.factory_yaml import make_environment
+  env = make_environment(path_to_yaml_file)
 
 .. todo::
 
-  - what function to call with path name to create programatically
-  - example script
+  A seamless integration with the GYM_ interface is provided....
 
 YAML scheme
 ===========
@@ -39,3 +44,4 @@ YAML scheme
   Describe fields somehow
 
 .. _YAML: https://yaml.org/
+.. _GYM: https://gym.openai.com/

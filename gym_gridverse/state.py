@@ -1,3 +1,5 @@
+"""Defines the State class"""
+
 from __future__ import annotations
 
 from gym_gridverse.info import Agent, Grid
@@ -19,8 +21,8 @@ class State:
         """Initializes the state with `grid` and `agent`
 
         Args:
-            grid:
-            agent:
+            grid (Grid):
+            agent (Agent):
         """
         self.grid = grid
         self.agent = agent
