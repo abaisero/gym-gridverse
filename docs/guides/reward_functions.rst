@@ -94,8 +94,6 @@ avoid actions which have no effect!).
 
 .. literalinclude:: example__reward_function__static_reward.py
   :language: python
-  :caption: example static reward function
-  :name: static_reward
 
 Done! This reward function can now be used as it is; furthermore, because the
 implementation is so generic and task-independent, it can be used with any type
@@ -105,7 +103,7 @@ check if a complicated underlying condition is met (which is the subject of the
 second example in this guide);  but regardless of difficulty, anything is
 possible!
 
-We can go one step further and generalize :ref:`static_reward` such that
+We can go one step further and generalize the static reward function such that
 different reward values can be used without having to manually edit the code
 each time.  We do this by adding appropriate arguments to the function
 signature, and then using :py:func:`functools.partial` with values which might
