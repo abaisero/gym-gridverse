@@ -42,6 +42,8 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'env_id', choices=gym_gridverse.gym.env_ids, help='Gym environment id',
+        'env_id',
+        choices=gym_gridverse.gym.env_ids,
+        help='Gym environment id',
     )
     main(parser.parse_args())

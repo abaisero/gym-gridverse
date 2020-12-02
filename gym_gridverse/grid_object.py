@@ -7,13 +7,12 @@ from typing import TYPE_CHECKING, Callable, List, Optional, Type
 
 import numpy.random as rnd
 
+from gym_gridverse.actions import Actions
 from gym_gridverse.geometry import get_manhattan_boundary
 from gym_gridverse.rng import get_gv_rng_if_none
 
 if TYPE_CHECKING:
     from gym_gridverse.state import State
-
-from gym_gridverse.actions import Actions
 
 
 class Colors(enum.Enum):
@@ -108,6 +107,8 @@ class GridObject(metaclass=abc.ABCMeta):
 class NoneGridObject(GridObject):
     """ object representing the absence of an object """
 
+    type_index: int
+
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
@@ -159,6 +160,8 @@ class NoneGridObject(GridObject):
 
 class Hidden(GridObject):
     """ object representing an unobservable cell """
+
+    type_index: int
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -212,6 +215,8 @@ class Hidden(GridObject):
 class Floor(GridObject):
     """ Most basic object in the grid, represents empty cell """
 
+    type_index: int
+
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
@@ -264,6 +269,8 @@ class Floor(GridObject):
 class Wall(GridObject):
     """ The (second) most basic object in the grid: blocking cell """
 
+    type_index: int
+
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
@@ -315,6 +322,8 @@ class Wall(GridObject):
 
 class Goal(GridObject):
     """ The (second) most basic object in the grid: blocking cell """
+
+    type_index: int
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -380,6 +389,8 @@ class Door(GridObject):
         any state -> `open`
 
     """
+
+    type_index: int
 
     class Status(enum.Enum):
         """ open, closed or locked """
@@ -478,6 +489,8 @@ class Door(GridObject):
 class Key(GridObject):
     """ A key opens a door with the same color """
 
+    type_index: int
+
     def __init__(self, c: Colors):
         """ Creates a key of color `c` """
         self._color = c
@@ -530,6 +543,8 @@ class Key(GridObject):
 
 class MovingObstacle(GridObject):
     """An obstacle to be avoided that moves in the grid"""
+
+    type_index: int
 
     def __init__(self):
         """Moving obstacles have no special status or color"""
@@ -610,6 +625,8 @@ class MovingObstacle(GridObject):
 
 class Box(GridObject):
     """A box which can be broken and may contain another object"""
+
+    type_index: int
 
     def __init__(self, obj: GridObject):
         """Boxes have no special status or color"""
