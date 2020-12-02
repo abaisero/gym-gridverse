@@ -16,7 +16,7 @@ from gym_gridverse.representations.observation_representations import (
     DefaultObservationRepresentation,
 )
 from gym_gridverse.spaces import ActionSpace
-from gym_gridverse.visualize import str_render_obs, str_render_state
+from gym_gridverse.render_as_string import str_render_obs, str_render_state
 
 
 def random_action_selection(

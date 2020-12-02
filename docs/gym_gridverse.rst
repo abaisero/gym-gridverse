@@ -85,6 +85,14 @@ gym\_gridverse.outer\_env module
    :undoc-members:
    :show-inheritance:
 
+gym\_gridverse.render\_as\_string module
+----------------------------------------
+
+.. automodule:: gym_gridverse.render_as_string
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 gym\_gridverse.rng module
 -------------------------
 
@@ -113,14 +121,6 @@ gym\_gridverse.state module
 ---------------------------
 
 .. automodule:: gym_gridverse.state
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-gym\_gridverse.visualize module
--------------------------------
-
-.. automodule:: gym_gridverse.visualize
    :members:
    :undoc-members:
    :show-inheritance:
