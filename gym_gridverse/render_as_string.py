@@ -9,6 +9,7 @@ from termcolor import colored
 
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid_object import Colors, GridObject, Wall
+from gym_gridverse.observation import Observation
 from gym_gridverse.state import Grid, State
 
 COLORS_TO_TERMCOLOR = {
@@ -75,7 +76,11 @@ def str_render_state(state: State) -> str:
     return grid_descr + "\nAgent holding: " + str_render_object(state.agent.obj)
 
 
-def str_render_obs(state: State) -> str:
-    string_grid = str_render_grid(state.grid)
+def str_render_obs(observation: Observation) -> str:
+    string_grid = str_render_grid(observation.grid)
     grid_descr = "\n".join([''.join(row) for row in string_grid])
-    return grid_descr + "\nAgent holding: " + str_render_object(state.agent.obj)
+    return (
+        grid_descr
+        + "\nAgent holding: "
+        + str_render_object(observation.agent.obj)
+    )
