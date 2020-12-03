@@ -1,3 +1,4 @@
+import time
 from functools import partial
 from typing import Callable, Dict, List, Optional
 
@@ -7,6 +8,7 @@ from gym.utils import seeding
 
 from gym_gridverse.envs import InnerEnv, factory
 from gym_gridverse.outer_env import OuterEnv
+from gym_gridverse.rendering import GridVerseViewer
 from gym_gridverse.representations.observation_representations import (
     create_observation_representation,
 )
@@ -25,6 +27,11 @@ def outer_space_to_gym_space(space: Dict[str, np.ndarray]) -> gym.spaces.Space:
 
 
 class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
+    metadata = {
+        'render.modes': ['human'],
+        'video.frames_per_second': 50,
+    }
+
     # NOTE accepting an environment instance as input is a bad idea because it
     # would need to be instantiated during gym registration
     def __init__(self, constructor: Callable[[], OuterEnv]):
@@ -44,6 +51,9 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
             if self.outer_env.observation_rep is not None
             else None
         )
+
+        self._state_viewer: Optional[GridVerseViewer] = None
+        self._observation_viewer: Optional[GridVerseViewer] = None
 
     def seed(self, seed: Optional[int] = None) -> List[int]:
         actual_seed = seeding.create_seed(seed)
@@ -89,7 +99,57 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
         reward, done = self.outer_env.step(action_)
         return self.observation, reward, done, {}
 
-    # TODO implement render method
+    def render(  # pylint: disable=arguments-differ
+        self, mode='human', *, what='both'
+    ):
+        if mode not in ['human', 'rgb_array']:
+            super().render(mode)
+
+        if what not in ['state', 'observation', 'both']:
+            raise ValueError(f'invalid {what}')
+
+        # not reset yet
+        if self.outer_env.inner_env.state is None:
+            return
+
+        if mode == 'human':
+
+            if what in ['state', 'both']:
+
+                if self._state_viewer is None:
+                    self._state_viewer = GridVerseViewer(
+                        self.outer_env.inner_env.state_space.grid_shape,
+                        caption='State',
+                    )
+
+                    # without sleep the first frame could be black
+                    time.sleep(0.05)
+
+                self._state_viewer.render(self.outer_env.inner_env.state)
+
+            if what in ['observation', 'both']:
+
+                if self._observation_viewer is None:
+                    self._observation_viewer = GridVerseViewer(
+                        self.outer_env.inner_env.observation_space.grid_shape,
+                        caption='Observation',
+                    )
+
+                    # without sleep the first frame could be black
+                    time.sleep(0.05)
+
+                self._observation_viewer.render(
+                    self.outer_env.inner_env.observation
+                )
+
+    def close(self):
+        if self._state_viewer is not None:
+            self._state_viewer.close()
+            self._state_viewer = None
+
+        if self._observation_viewer is not None:
+            self._observation_viewer.close()
+            self._observation_viewer = None
 
 
 env_ids = []

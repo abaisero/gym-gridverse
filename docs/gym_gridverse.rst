@@ -94,6 +94,14 @@ gym\_gridverse.render\_as\_string module
    :undoc-members:
    :show-inheritance:
 
+gym\_gridverse.rendering module
+-------------------------------
+
+.. automodule:: gym_gridverse.rendering
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 gym\_gridverse.rng module
 -------------------------
 
