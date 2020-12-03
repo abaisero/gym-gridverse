@@ -1,5 +1,5 @@
 state_space:
-  shape: [ 11, 11 ]
+  shape: [ 13, 13 ]
   objects: [ Wall, Floor, Goal ]
   colors: [ NONE ]
 
@@ -8,14 +8,14 @@ observation_space:
   objects: [ Wall, Floor, Goal ]
   colors: [ NONE ]
 
-reset:
+reset_function:
   name: minigrid_rooms
-  layout: [ 2, 2 ]
+  layout: [ 3, 3 ]
 
-transition:
+transition_functions:
   - name: update_agent
 
-reward:
+reward_functions:
   - name: living_reward
     reward: -0.01
   - name: getting_closer
@@ -27,8 +27,8 @@ reward:
     reward_on: 5.0
     reward_off: 0.0
 
-observation:
+observation_function:
   name: full_observation
 
-terminating:
+terminating_function:
   name: reach_goal

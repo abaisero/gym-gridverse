@@ -195,7 +195,6 @@ nitpick_ignore = [
     ('py:mod', 'typing'),
     ('py:class', 'typing.Protocol'),
     ('py:class', 'typing_extensions.Protocol'),
-    ('py:class', 'yamale.schema.schema.Schema'),
     ('py:class', 'numpy.ndarray'),
     ('py:class', 'np.ndarray'),
     ('py:class', 'numpy.random._generator.Generator'),

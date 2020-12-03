@@ -409,9 +409,16 @@ def factory(
         )
 
     if name == 'minigrid_door_key':
-        if None in [size]:
+        if None in [size] and None in [height, width]:
             raise ValueError(f'invalid parameters for name `{name}`')
 
+        if size is None:
+            if height != width:
+                raise ValueError('height and width should be the same')
+
+            size = height
+
+        # TODO generalize shape, remove grid_size
         return partial(reset_minigrid_door_key, grid_size=size)
 
     if name == 'minigrid_crossing':

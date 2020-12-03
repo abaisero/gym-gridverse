@@ -14,8 +14,9 @@ requirements = [
     'gym',
     'more_itertools',
     'numpy',
+    'pyyaml',
+    'schema',
     'termcolor',
-    'yamale',
     'typing-extensions',  # python3.7 compatibility
 ]
 
@@ -47,6 +48,7 @@ setup(
     packages=find_packages(include=['gym_gridverse', 'gym_gridverse.*']),
     scripts=[
         'scripts/gv_gym_interface.py',
+        'scripts/gv_yaml_schema.py',
         'scripts/gv_yaml.py',
         'scripts/gv_viewer.py',
     ],
@@ -54,7 +56,3 @@ setup(
     version='0.0.1',
     zip_safe=False,
 )
-
-# setup(
-#     package_data={'gym_gridverse': ['envs/resources/schema.yaml']},
-# )
