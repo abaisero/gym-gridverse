@@ -26,9 +26,9 @@ def outer_space_to_gym_space(space: Dict[str, np.ndarray]) -> gym.spaces.Space:
     )
 
 
-class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
+class GymEnvironment(gym.Env):
     metadata = {
-        'render.modes': ['human'],
+        'render.modes': ['human', 'human_state', 'human_observation'],
         'video.frames_per_second': 50,
     }
 
@@ -99,48 +99,41 @@ class GymEnvironment(gym.Env):  # pylint: disable=abstract-method
         reward, done = self.outer_env.step(action_)
         return self.observation, reward, done, {}
 
-    def render(  # pylint: disable=arguments-differ
-        self, mode='human', *, what='both'
-    ):
-        if mode not in ['human', 'rgb_array']:
+    def render(self, mode='human'):
+        if mode not in ['human', 'human_state', 'human_observation']:
             super().render(mode)
-
-        if what not in ['state', 'observation', 'both']:
-            raise ValueError(f'invalid {what}')
 
         # not reset yet
         if self.outer_env.inner_env.state is None:
             return
 
-        if mode == 'human':
+        if mode in ['human', 'human_state']:
 
-            if what in ['state', 'both']:
-
-                if self._state_viewer is None:
-                    self._state_viewer = GridVerseViewer(
-                        self.outer_env.inner_env.state_space.grid_shape,
-                        caption='State',
-                    )
-
-                    # without sleep the first frame could be black
-                    time.sleep(0.05)
-
-                self._state_viewer.render(self.outer_env.inner_env.state)
-
-            if what in ['observation', 'both']:
-
-                if self._observation_viewer is None:
-                    self._observation_viewer = GridVerseViewer(
-                        self.outer_env.inner_env.observation_space.grid_shape,
-                        caption='Observation',
-                    )
-
-                    # without sleep the first frame could be black
-                    time.sleep(0.05)
-
-                self._observation_viewer.render(
-                    self.outer_env.inner_env.observation
+            if self._state_viewer is None:
+                self._state_viewer = GridVerseViewer(
+                    self.outer_env.inner_env.state_space.grid_shape,
+                    caption='State',
                 )
+
+                # without sleep the first frame could be black
+                time.sleep(0.05)
+
+            self._state_viewer.render(self.outer_env.inner_env.state)
+
+        if mode in ['human', 'human_observation']:
+
+            if self._observation_viewer is None:
+                self._observation_viewer = GridVerseViewer(
+                    self.outer_env.inner_env.observation_space.grid_shape,
+                    caption='Observation',
+                )
+
+                # without sleep the first frame could be black
+                time.sleep(0.05)
+
+            self._observation_viewer.render(
+                self.outer_env.inner_env.observation
+            )
 
     def close(self):
         if self._state_viewer is not None:

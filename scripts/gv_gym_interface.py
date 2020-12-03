@@ -14,7 +14,7 @@ def main(args):
         done = False
 
         gym_env.reset()
-        gym_env.render(what='both')
+        gym_env.render()
 
         while not done:
             action_int = gym_env.action_space.sample()
@@ -25,7 +25,7 @@ def main(args):
             )
 
             _, reward, done, _ = gym_env.step(action_int)
-            gym_env.render(what='both')
+            gym_env.render()
 
             print(f'Reward {reward}')
 
