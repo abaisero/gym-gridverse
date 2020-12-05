@@ -11,8 +11,8 @@ import pyglet
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs import observation_functions as observation_fs
-from gym_gridverse.envs.factory_yaml import GridVerseValidator
 from gym_gridverse.envs.gridworld import GridWorld
+from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 from gym_gridverse.rendering import GridVerseViewer
 
 
@@ -126,8 +126,7 @@ def main():
     args = parser.parse_args()
     args.spf = 1 / args.fps
 
-    env = GridVerseValidator().make_env_from_path(args.env_path)
-    # env = GridVerseValidator().validate_env_from_yaml(args.env_path)
+    env = factory_env_from_yaml(args.env_path)
 
     print_legend()
 
