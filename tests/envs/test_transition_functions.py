@@ -310,13 +310,26 @@ def test_actuage_mechanics(
 
 
 @pytest.mark.parametrize(
-    'name',
-    ['update_agent', 'step_objects', 'actuate_mechanics', 'pickup_mechanics'],
+    'name,kwargs',
+    [
+        ('chain', {'transition_functions': []}),
+        ('update_agent', {}),
+        ('step_objects', {}),
+        ('actuate_mechanics', {}),
+        ('pickup_mechanics', {}),
+    ],
 )
-def test_factory_valid(name):
-    factory(name)
+def test_factory_valid(name: str, kwargs):
+    factory(name, **kwargs)
 
 
-def test_factory_invalid():
+@pytest.mark.parametrize(
+    'name,kwargs',
+    [
+        ('chain', {}),
+        ('invalid', {}),
+    ],
+)
+def test_factory_invalid(name: str, kwargs):
     with pytest.raises(ValueError):
-        factory('invalid')
+        factory(name, **kwargs)

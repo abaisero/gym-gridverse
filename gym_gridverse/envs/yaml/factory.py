@@ -1,7 +1,7 @@
+from functools import partial
 from typing import List, Optional, Tuple, Type
 
 import yaml
-
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs import (
     InnerEnv,
@@ -114,12 +114,9 @@ def factory_transition_function(data) -> transition_fs.TransitionFunction:
     data = schemas.transition_functions_schema().validate(data)
 
     transition_functions = [transition_fs.factory(d['name']) for d in data]
-
-    def transition_function(*args, **kwargs):
-        for f in transition_functions:
-            f(*args, **kwargs)
-
-    return transition_function
+    return partial(
+        transition_fs.chain, transition_functions=transition_functions
+    )
 
 
 def factory_reward_function(data) -> reward_fs.RewardFunction:

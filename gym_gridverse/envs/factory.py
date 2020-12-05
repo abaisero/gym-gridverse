@@ -1,9 +1,7 @@
 """ Tying the magic together into constructing specific domains """
 
 from functools import partial
-from typing import Callable, Dict, List, Optional, Type
-
-import numpy.random as rnd
+from typing import Callable, Dict, List, Type
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs import (
@@ -11,10 +9,10 @@ from gym_gridverse.envs import (
     reset_functions,
     reward_functions,
     terminating_functions,
-    transition_functions,
+    transition_functions as transition_fs,
 )
-from gym_gridverse.envs.inner_env import InnerEnv
 from gym_gridverse.envs.gridworld import GridWorld
+from gym_gridverse.envs.inner_env import InnerEnv
 from gym_gridverse.geometry import Shape
 from gym_gridverse.grid_object import (
     Colors,
@@ -38,7 +36,7 @@ from gym_gridverse.state import State
 def create_env(
     domain_space: DomainSpace,
     reset: reset_functions.ResetFunction,
-    transition_functions: List[transition_functions.TransitionFunction],
+    transition_functions: List[transition_fs.TransitionFunction],
     rewards: List[reward_functions.RewardFunction],
     terminations: List[terminating_functions.TerminatingFunction],
 ) -> InnerEnv:
@@ -53,7 +51,7 @@ def create_env(
     Args:
         domain_space (`DomainSpace`):
         reset (`reset_functions.ResetFunction`):
-        transition_functions (`List[transition_functions.TransitionFunction]`): called in order
+        transition_functions (`List[transition_fs.TransitionFunction]`): called in order
         rewards (`List[reward_functions.RewardFunction]`): Combined additive
         terminations (`List[terminating_functions.TerminatingFunction]`): Called as big 'or'
 
@@ -62,11 +60,9 @@ def create_env(
     """
 
     # Transitions are applied in order
-    def transition(
-        state: State, action: Actions, *, rng: Optional[rnd.Generator] = None
-    ) -> None:
-        for f in transition_functions:
-            f(state, action, rng=rng)
+    transition = partial(
+        transition_fs.chain, transition_functions=transition_functions
+    )
 
     # TODO make more general
     observation = partial(
@@ -102,8 +98,8 @@ def plain_navigation_task(
         InnerEnv: GridWorld with basic navigation dynamics
     """
 
-    transitions: List[transition_functions.TransitionFunction] = [
-        transition_functions.update_agent
+    transitions: List[transition_fs.TransitionFunction] = [
+        transition_fs.update_agent
     ]
     rewards: List[reward_functions.RewardFunction] = [
         reward_functions.reach_goal
@@ -143,9 +139,9 @@ def dynamic_obstacle_minigrid(
         random_pos,
     )
 
-    transitions: List[transition_functions.TransitionFunction] = [
-        transition_functions.update_agent,
-        transition_functions.step_objects,
+    transitions: List[transition_fs.TransitionFunction] = [
+        transition_fs.update_agent,
+        transition_fs.step_objects,
     ]
     rewards: List[reward_functions.RewardFunction] = [
         reward_functions.reach_goal,
@@ -218,10 +214,10 @@ def gym_door_key_env(size: int) -> InnerEnv:
 
     reset = partial(reset_functions.reset_minigrid_door_key, grid_size=size + 2)
 
-    transitions: List[transition_functions.TransitionFunction] = [
-        transition_functions.update_agent,
-        transition_functions.actuate_mechanics,
-        transition_functions.pickup_mechanics,
+    transitions: List[transition_fs.TransitionFunction] = [
+        transition_fs.update_agent,
+        transition_fs.actuate_mechanics,
+        transition_fs.pickup_mechanics,
     ]
     rewards: List[reward_functions.RewardFunction] = [
         reward_functions.reach_goal

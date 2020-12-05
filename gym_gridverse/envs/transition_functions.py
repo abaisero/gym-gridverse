@@ -1,6 +1,7 @@
 """ Functions to model dynamics """
 
-from typing import List, Optional
+from functools import partial
+from typing import List, Optional, Sequence
 
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
@@ -21,6 +22,31 @@ class TransitionFunction(Protocol):
         rng: Optional[rnd.Generator] = None,
     ) -> None:
         ...
+
+
+def chain(
+    state: State,
+    action: Actions,
+    *,
+    transition_functions: Sequence[TransitionFunction],
+    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+) -> None:
+    """Run multiple transition functions in a row
+
+    Args:
+        state (`State`):
+        action (`Actions`):
+        transition_functions (`Sequence[TransitionFunction]`): transition functions
+        rng (`Generator, optional`)
+
+    Returns:
+        None
+    """
+    for transition_function in transition_functions:
+        transition_function(state, action, rng=rng)
+
+
+# TODO move these non-transition functions elsewhere; they are confusing
 
 
 def move_agent(agent: Agent, grid: Grid, action: Actions) -> None:
@@ -199,7 +225,16 @@ def pickup_mechanics(
     state.agent.obj = obj_in_front_of_agent if can_pickup else NoneGridObject()
 
 
-def factory(name: str) -> TransitionFunction:
+def factory(
+    name: str,
+    transition_functions: Optional[Sequence[TransitionFunction]] = None,
+) -> TransitionFunction:
+
+    if name == 'chain':
+        if None in [transition_functions]:
+            raise ValueError(f'invalid parameters for name `{name}`')
+
+        return partial(chain, transition_functions=transition_functions)
 
     if name == 'update_agent':
         return update_agent
