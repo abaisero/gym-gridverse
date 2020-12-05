@@ -6,7 +6,13 @@ import more_itertools as mitt
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import DistanceFunction, Position
-from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle, Wall
+from gym_gridverse.grid_object import (
+    Door,
+    Goal,
+    GridObject,
+    MovingObstacle,
+    Wall,
+)
 from gym_gridverse.state import State
 
 RewardFunction = Callable[[State, Actions, State], float]
@@ -247,6 +253,50 @@ def bump_into_wall(
     return 0.0
 
 
+def actuate_door(
+    state: State,
+    action: Actions,
+    next_state: State,
+    *,
+    reward_open: float = 1.0,
+    reward_close: float = -1.0,
+):
+    """Returns `reward_open` when opening and `reward_close` when closing door.
+
+    Opening/closing is checked by making sure the actuate action is performed,
+    and checking the status of the door in front of the agent.
+
+    Args:
+        state (State):
+        action (Actions):
+        next_state (State):
+        reward_open (float): (optional) The reward to provide if opening a door
+        reward_close (float): (optional) The reward to provide if closing a door
+    """
+
+    if action is not Actions.ACTUATE:
+        return 0.0
+
+    position = state.agent.position_in_front()
+
+    door = state.grid[position]
+    if not isinstance(door, Door):
+        return 0.0
+
+    # assumes same door
+    next_door = next_state.grid[position]
+    if not isinstance(next_door, Door):
+        return 0.0
+
+    return (
+        reward_open
+        if not door.is_open and next_door.is_open
+        else reward_close
+        if door.is_open and not next_door.is_open
+        else 0.0
+    )
+
+
 def factory(  # pylint: disable=too-many-branches
     name: str,
     *,
@@ -259,6 +309,8 @@ def factory(  # pylint: disable=too-many-branches
     reward_per_unit_distance: Optional[float] = None,
     reward_closer: Optional[float] = None,
     reward_further: Optional[float] = None,
+    reward_open: Optional[float] = None,
+    reward_close: Optional[float] = None,
 ) -> RewardFunction:
 
     if name == 'chain':
@@ -329,5 +381,13 @@ def factory(  # pylint: disable=too-many-branches
             raise ValueError('invalid parameters for name `{name}`')
 
         return partial(bump_into_wall, reward=reward)
+
+    if name == 'actuate_door':
+        if None in [reward_open, reward_close]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            actuate_door, reward_open=reward_open, reward_close=reward_close
+        )
 
     raise ValueError('invalid reward function name {name}')

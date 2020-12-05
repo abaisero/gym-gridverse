@@ -227,6 +227,8 @@ def _reward_function_schemas():
             Optional('reward_further'): float,
             Optional('distance_function'): distance_function_schema(),
             Optional('object_type'): object_type_schema(),
+            Optional('reward_open'): float,
+            Optional('reward_close'): float,
         },
         description='A reward function',
         name='reward_function',

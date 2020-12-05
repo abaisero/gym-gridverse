@@ -164,6 +164,8 @@ def factory_reward_function(data) -> reward_fs.RewardFunction:
         reward_per_unit_distance=data.get('reward_per_unit_distance'),
         reward_closer=data.get('reward_closer'),
         reward_further=data.get('reward_further'),
+        reward_open=data.get('reward_open'),
+        reward_close=data.get('reward_close'),
     )
 
 

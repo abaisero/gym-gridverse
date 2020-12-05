@@ -3,6 +3,12 @@ state_space:
   objects: [ Wall, Floor, Goal ]
   colors: [ NONE ]
 
+action_space:
+  - MOVE_FORWARD
+  - MOVE_BACKWARD
+  - TURN_LEFT
+  - TURN_RIGHT
+
 observation_space:
   shape: [ 7, 7 ]
   objects: [ Wall, Floor, Goal ]
