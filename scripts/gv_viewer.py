@@ -158,7 +158,10 @@ def main():
         command = keyboard_handler.get_command()
 
         if isinstance(command, Actions):
-            _, done = env.step(command)
+            action = command
+
+            if env.action_space.contains(action):
+                _, done = env.step(action)
 
         if command is Controls.HIDE_STATE:
             state_viewer.flip_visibility()
