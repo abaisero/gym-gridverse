@@ -10,7 +10,6 @@ from gym_gridverse.grid_object import (
     Door,
     Goal,
     GridObject,
-    Key,
     MovingObstacle,
     Wall,
 )
