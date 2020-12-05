@@ -229,6 +229,8 @@ def _reward_function_schemas():
             Optional('object_type'): object_type_schema(),
             Optional('reward_open'): float,
             Optional('reward_close'): float,
+            Optional('reward_pick'): float,
+            Optional('reward_drop'): float,
         },
         description='A reward function',
         name='reward_function',

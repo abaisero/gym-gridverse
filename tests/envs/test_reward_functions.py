@@ -8,6 +8,7 @@ from gym_gridverse.envs.reward_functions import (
     factory,
     getting_closer,
     living_reward,
+    pickndrop,
     proportional_to_distance,
     reach_goal,
 )
@@ -54,6 +55,14 @@ def make_door_state(door_status: Door.Status) -> State:
     grid = Grid(2, 1)
     grid[0, 0] = Door(door_status, Colors.RED)
     agent = Agent((1, 0), Orientation.N)
+    return State(grid, agent)
+
+
+def make_key_state(has_key: bool) -> State:
+    """makes a simple state with a door"""
+    grid = Grid(1, 1)
+    obj = Key(Colors.RED) if has_key else None
+    agent = Agent((0, 0), Orientation.N, obj)
     return State(grid, agent)
 
 
@@ -326,6 +335,92 @@ def test_actuate_door(
 
 
 @pytest.mark.parametrize(
+    'state,next_state,kwargs,expected',
+    [
+        # default values
+        (
+            make_key_state(False),
+            make_key_state(False),
+            {'object_type': Key},
+            0.0,
+        ),
+        (
+            make_key_state(False),
+            make_key_state(True),
+            {'object_type': Key},
+            1.0,
+        ),
+        (
+            make_key_state(True),
+            make_key_state(False),
+            {'object_type': Key},
+            -1.0,
+        ),
+        (make_key_state(True), make_key_state(True), {'object_type': Key}, 0.0),
+        # custom values
+        (
+            make_key_state(False),
+            make_key_state(False),
+            {'object_type': Key, 'reward_pick': -1.5, 'reward_drop': 1.5},
+            0.0,
+        ),
+        (
+            make_key_state(False),
+            make_key_state(True),
+            {'object_type': Key, 'reward_pick': -1.5, 'reward_drop': 1.5},
+            -1.5,
+        ),
+        (
+            make_key_state(True),
+            make_key_state(False),
+            {'object_type': Key, 'reward_pick': -1.5, 'reward_drop': 1.5},
+            1.5,
+        ),
+        (
+            make_key_state(True),
+            make_key_state(True),
+            {'object_type': Key, 'reward_pick': -1.5, 'reward_drop': 1.5},
+            0.0,
+        ),
+        # wrong object
+        (
+            make_key_state(False),
+            make_key_state(False),
+            {'object_type': Wall},
+            0.0,
+        ),
+        (
+            make_key_state(False),
+            make_key_state(True),
+            {'object_type': Wall},
+            0.0,
+        ),
+        (
+            make_key_state(True),
+            make_key_state(False),
+            {'object_type': Wall},
+            0.0,
+        ),
+        (
+            make_key_state(True),
+            make_key_state(True),
+            {'object_type': Wall},
+            0.0,
+        ),
+    ],
+)
+def test_pickndrop(
+    state: State,
+    next_state: State,
+    kwargs,
+    expected: float,
+    forbidden_action_maker,
+):
+    action = forbidden_action_maker()
+    assert pickndrop(state, action, next_state, **kwargs) == expected
+
+
+@pytest.mark.parametrize(
     'name,kwargs',
     [
         ('chain', {'reward_functions': []}),
@@ -361,6 +456,14 @@ def test_actuate_door(
                 'reward_close': -1.0,
             },
         ),
+        (
+            'pickndrop',
+            {
+                'object_type': Key,
+                'reward_pick': 1.0,
+                'reward_drop': -1.0,
+            },
+        ),
     ],
 )
 def test_factory_valid(name: str, kwargs):
@@ -380,6 +483,7 @@ def test_factory_valid(name: str, kwargs):
         ('getting_closer', {}, ValueError),
         ('bump_into_wall', {}, ValueError),
         ('actuate_door', {}, ValueError),
+        ('pickndrop', {}, ValueError),
     ],
 )
 def test_factory_invalid(name: str, kwargs, exception: Exception):

@@ -166,6 +166,8 @@ def factory_reward_function(data) -> reward_fs.RewardFunction:
         reward_further=data.get('reward_further'),
         reward_open=data.get('reward_open'),
         reward_close=data.get('reward_close'),
+        reward_pick=data.get('reward_pick'),
+        reward_drop=data.get('reward_drop'),
     )
 
 

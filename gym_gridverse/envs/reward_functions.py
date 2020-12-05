@@ -10,6 +10,7 @@ from gym_gridverse.grid_object import (
     Door,
     Goal,
     GridObject,
+    Key,
     MovingObstacle,
     Wall,
 )
@@ -297,6 +298,39 @@ def actuate_door(
     )
 
 
+def pickndrop(
+    state: State,
+    action: Actions,  # pylint: disable=unused-argument
+    next_state: State,
+    *,
+    object_type: Type[GridObject],
+    reward_pick: float = 1.0,
+    reward_drop: float = -1.0,
+):
+    """Returns `reward_pick` / `reward_drop` when an object is picked / dropped.
+
+    Picking/dropping is checked by the agent's object, and not the action.
+
+    Args:
+        state (State):
+        action (Actions):
+        next_state (State):
+        reward_pick (float): (optional) The reward to provide if picking a key
+        reward_drop (float): (optional) The reward to provide if dropping a key
+    """
+
+    has_key = isinstance(state.agent.obj, object_type)
+    next_has_key = isinstance(next_state.agent.obj, object_type)
+
+    return (
+        reward_pick
+        if not has_key and next_has_key
+        else reward_drop
+        if has_key and not next_has_key
+        else 0.0
+    )
+
+
 def factory(  # pylint: disable=too-many-branches
     name: str,
     *,
@@ -311,6 +345,8 @@ def factory(  # pylint: disable=too-many-branches
     reward_further: Optional[float] = None,
     reward_open: Optional[float] = None,
     reward_close: Optional[float] = None,
+    reward_pick: Optional[float] = None,
+    reward_drop: Optional[float] = None,
 ) -> RewardFunction:
 
     if name == 'chain':
@@ -388,6 +424,17 @@ def factory(  # pylint: disable=too-many-branches
 
         return partial(
             actuate_door, reward_open=reward_open, reward_close=reward_close
+        )
+
+    if name == 'pickndrop':
+        if None in [object_type, reward_pick, reward_drop]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            actuate_door,
+            object_type=object_type,
+            reward_pick=reward_pick,
+            reward_drop=reward_drop,
         )
 
     raise ValueError('invalid reward function name {name}')
