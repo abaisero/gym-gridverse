@@ -21,6 +21,7 @@ class Controls(enum.Enum):
     QUIT = enum.auto()
     RESET = enum.auto()
     HIDE_STATE = enum.auto()
+    FLIP_HUD = enum.auto()
     CYCLE_OBSERVATION = enum.auto()
 
 
@@ -44,6 +45,7 @@ class KeyboardHandler:
         pyglet.window.key.Q: Controls.QUIT,
         pyglet.window.key.R: Controls.RESET,
         pyglet.window.key.H: Controls.HIDE_STATE,
+        pyglet.window.key.U: Controls.FLIP_HUD,
         pyglet.window.key.O: Controls.CYCLE_OBSERVATION,
     }
 
@@ -90,6 +92,7 @@ def print_legend():
     print(fstr('q', Controls.QUIT))
     print(fstr('r', Controls.RESET))
     print(fstr('h', Controls.HIDE_STATE))
+    print(fstr('u', Controls.FLIP_HUD))
     print(fstr('o', Controls.CYCLE_OBSERVATION))
 
 
@@ -147,10 +150,24 @@ def main():
         ]
     )
 
+    def make_compute_return(discount: float):
+        state = {
+            'return': 0.0,
+            'cum_discount': 1.0,
+        }
+
+        def compute_return(reward: float):
+            state['return'] += state['cum_discount'] * reward
+            state['cum_discount'] *= discount
+            return state['return']
+
+        return compute_return
+
     done = True
     while True:
         if done:
             env.reset()
+            compute_return = make_compute_return(0.99)
             state_viewer.render(env.state)
             observation_viewer.render(env.observation)
             done = False
@@ -161,10 +178,17 @@ def main():
             action = command
 
             if env.action_space.contains(action):
-                _, done = env.step(action)
+                reward, done = env.step(action)
+                ret = compute_return(reward)
+                state_viewer.set_text(action, reward, ret, done)
+                observation_viewer.set_text(action, reward, ret, done)
 
         if command is Controls.HIDE_STATE:
             state_viewer.flip_visibility()
+
+        if command is Controls.FLIP_HUD:
+            state_viewer.flip_hud()
+            observation_viewer.flip_hud()
 
         elif command is Controls.RESET:
             done = True

@@ -4,9 +4,12 @@ import math
 from functools import partial
 from typing import Optional, Sequence, Tuple, Union
 
+import numpy as np
 import pyglet
 from gym.envs.classic_control import rendering
+from pyglet.gl import glClearColor
 
+from gym_gridverse.actions import Actions
 from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid_object import (
     Colors,
@@ -380,6 +383,58 @@ def convert_pos(
     return 2 * position.x, 2 * (num_rows - 1 - position.y)
 
 
+# TODO clean this code;  this is barely working
+class _CustomViewer(rendering.Viewer):
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+        self.window = pyglet.window.Window(width=width, height=height)
+        self.window.on_close = self.window_closed_by_user
+        self.isopen = True
+        self.geoms = []
+        self.onetime_geoms = []
+        self.transform = rendering.Transform()
+
+        pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
+        pyglet.gl.glBlendFunc(
+            pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA
+        )
+
+    def render(self, return_rgb_array=False, *, other_drawables=[]):
+        glClearColor(1, 1, 1, 1)
+        self.window.switch_to()
+        self.window.dispatch_events()
+        self.window.clear()
+
+        self.transform.enable()
+        for geom in self.geoms:
+            geom.render()
+        for geom in self.onetime_geoms:
+            geom.render()
+        self.transform.disable()
+
+        for drawable in other_drawables:
+            drawable.draw()
+
+        arr = None
+        if return_rgb_array:
+            buff = pyglet.image.get_buffer_manager().get_color_buffer()
+            image_data = buff.get_image_data()
+            arr = np.frombuffer(image_data.get_data(), dtype=np.uint8)
+            # In https://github.com/openai/gym-http-api/issues/2, we
+            # discovered that someone using Xmonad on Arch was having
+            # a window of size 598 x 398, though a 600 x 400 window
+            # was requested. (Guess Xmonad was preserving a pixel for
+            # the boundary.) So we use the buffer height/width rather
+            # than the requested one.
+            arr = arr.reshape(buff.height, buff.width, 4)
+            arr = arr[::-1, :, 0:3]
+
+        self.window.flip()
+        self.onetime_geoms = []
+        return arr if return_rgb_array else self.isopen
+
+
 class GridVerseViewer:
     def __init__(self, shape: Shape, *, caption: Optional[str] = None):
         self._pos_converter = partial(
@@ -393,7 +448,7 @@ class GridVerseViewer:
         ]
 
         m = 40
-        self._viewer = rendering.Viewer(m * shape.width, m * shape.height)
+        self._viewer = _CustomViewer(m * shape.width, m * shape.height)
         self._viewer.set_bounds(0.0, 1.0, 0.0, 1.0)
 
         if caption is not None:
@@ -409,6 +464,42 @@ class GridVerseViewer:
             shape.width,
         )
 
+        self._draw_hud = False
+        self._text_format = (
+            'action: {action}'
+            '\nreward: {reward}'
+            '\nreturn: {ret}'
+            '\ndone: {done}'
+        )
+        self._document = pyglet.text.document.UnformattedDocument(
+            self._text_format.format(action="", reward="", ret="", done="")
+        )
+        self._document.set_style(
+            None,
+            None,
+            {'color': (255, 255, 255, 255), 'background_color': (0, 0, 0, 100)},
+        )
+        self._layout = pyglet.text.layout.TextLayout(
+            self._document,
+            self.window.width,
+            self.window.height,
+            multiline=True,
+        )
+        self._layout.x = 0
+        self._layout.y = (
+            self._viewer.height
+        )  # window.height uses the first window?
+        self._layout.anchor_x = 'left'
+        self._layout.anchor_y = 'top'
+
+    def set_text(self, action: Actions, reward: float, ret: float, done: bool):
+        self._document.text = self._text_format.format(
+            action=action.name,
+            reward=f'{reward:-.2f}',
+            ret=f'{ret:-.2f}',
+            done=done,
+        )
+
     def __del__(self):
         self.close()
 
@@ -417,6 +508,9 @@ class GridVerseViewer:
 
     def flip_visibility(self):
         self.window.set_visible(not self.window.visible)
+
+    def flip_hud(self):
+        self._draw_hud = not self._draw_hud
 
     @property
     def window(self) -> pyglet.window.Window:
@@ -460,7 +554,8 @@ class GridVerseViewer:
         )
 
         self._viewer.add_onetime(self._grid)
-        self._viewer.render(return_rgb_array=True)
+        other_drawables = [self._layout] if self._draw_hud else []
+        return self._viewer.render(other_drawables=other_drawables)
 
     def _draw_geom_onetime(
         self,
