@@ -464,40 +464,45 @@ class GridVerseViewer:
             shape.width,
         )
 
-        self._draw_hud = False
-        self._text_format = (
+        self._draw_hud = True
+        self._hud_format = (
             'action: {action}'
             '\nreward: {reward}'
             '\nreturn: {ret}'
             '\ndone: {done}'
         )
-        self._document = pyglet.text.document.UnformattedDocument(
-            self._text_format.format(action="", reward="", ret="", done="")
-        )
-        self._document.set_style(
+        self._hud_document = pyglet.text.document.UnformattedDocument()
+        self._hud_document.set_style(
             None,
             None,
             {'color': (255, 255, 255, 255), 'background_color': (0, 0, 0, 100)},
         )
-        self._layout = pyglet.text.layout.TextLayout(
-            self._document,
+        self._hud_layout = pyglet.text.layout.TextLayout(
+            self._hud_document,
             self.window.width,
             self.window.height,
             multiline=True,
         )
-        self._layout.x = 0
-        self._layout.y = (
+        self._hud_layout.x = 0
+        self._hud_layout.y = (
             self._viewer.height
         )  # window.height uses the first window?
-        self._layout.anchor_x = 'left'
-        self._layout.anchor_y = 'top'
+        self._hud_layout.anchor_x = 'left'
+        self._hud_layout.anchor_y = 'top'
 
-    def set_text(self, action: Actions, reward: float, ret: float, done: bool):
-        self._document.text = self._text_format.format(
-            action=action.name,
-            reward=f'{reward:-.2f}',
-            ret=f'{ret:-.2f}',
-            done=done,
+    def _update_hud(
+        self,
+        *,
+        action: Optional[Actions] = None,
+        reward: Optional[float] = None,
+        ret: Optional[float] = None,
+        done: Optional[bool] = None,
+    ):
+        self._hud_document.text = self._hud_format.format(
+            action='' if action is None else action.name,
+            reward='' if reward is None else f'{reward:-.2f}',
+            ret='' if ret is None else f'{ret:-.2f}',
+            done='' if done is None else done,
         )
 
     def __del__(self):
@@ -516,7 +521,17 @@ class GridVerseViewer:
     def window(self) -> pyglet.window.Window:
         return self._viewer.window
 
-    def render(self, state_or_observation: Union[State, Observation]):
+    def render(
+        self,
+        state_or_observation: Union[State, Observation],
+        *,
+        action: Optional[Actions] = None,
+        reward: Optional[float] = None,
+        ret: Optional[float] = None,
+        done: Optional[bool] = None,
+    ):
+        self._update_hud(action=action, reward=reward, ret=ret, done=done)
+
         for position in state_or_observation.grid.positions():
             obj = state_or_observation.grid[position]
             if isinstance(obj, Floor):
@@ -554,7 +569,7 @@ class GridVerseViewer:
         )
 
         self._viewer.add_onetime(self._grid)
-        other_drawables = [self._layout] if self._draw_hud else []
+        other_drawables = [self._hud_layout] if self._draw_hud else []
         return self._viewer.render(other_drawables=other_drawables)
 
     def _draw_geom_onetime(

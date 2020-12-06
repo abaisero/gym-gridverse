@@ -168,8 +168,15 @@ def main():
         if reset:
             env.reset()
             compute_return = make_compute_return(0.99)
-            state_viewer.render(env.state)
-            observation_viewer.render(env.observation)
+            hud_info = {
+                'action': None,
+                'reward': None,
+                'ret': None,
+                'done': None,
+            }
+
+            state_viewer.render(env.state, **hud_info)
+            observation_viewer.render(env.observation, **hud_info)
             done, reset = False, False
 
         command = keyboard_handler.get_command()
@@ -180,8 +187,13 @@ def main():
             if not done and env.action_space.contains(action):
                 reward, done = env.step(action)
                 ret = compute_return(reward)
-                state_viewer.set_text(action, reward, ret, done)
-                observation_viewer.set_text(action, reward, ret, done)
+
+                hud_info = {
+                    'action': action,
+                    'reward': reward,
+                    'ret': ret,
+                    'done': done,
+                }
 
         if command is Controls.HIDE_STATE:
             state_viewer.flip_visibility()
@@ -202,8 +214,8 @@ def main():
             print(f'setting observation function: {name}')
             set_observation_function(env, name)
 
-        state_viewer.render(env.state)
-        observation_viewer.render(env.observation)
+        state_viewer.render(env.state, **hud_info)
+        observation_viewer.render(env.observation, **hud_info)
         time.sleep(args.spf)
 
 
