@@ -197,11 +197,11 @@ def reset_minigrid_dynamic_obstacles(
 
 
 def reset_minigrid_keydoor(
-    grid_size: int, *, rng: Optional[rnd.Generator] = None
+    height: int, width: int, *, rng: Optional[rnd.Generator] = None
 ) -> State:
     """Returns a state similar to the gym minigrid 'door & key' environment
 
-    Creates a grid_size x grid_size (including wall) grid with a random column
+    Creates a height x width (including outer walls) grid with a random column
     of walls. The agent and a yellow key are randomly dropped left of the
     column, while the goal is placed in the bottom right. For example::
 
@@ -212,26 +212,27 @@ def reset_minigrid_keydoor(
         #########
 
     Args:
-        grid_size (`int`): assumes rectangular grid
+        height (`int`):
+        width (`int`):
         rng: (`Generator, optional`)
 
     Returns:
         State:
     """
-    if grid_size < 5:
+    if height < 3 or width < 5 or (height, width) == (3, 5):
         raise ValueError(
-            f"Minigrid door-key environment minimum size is 5, given {grid_size}"
+            f'Shape must larger than (3, 5), given {(height, width)}'
         )
 
     rng = get_gv_rng_if_none(rng)
 
-    state = reset_minigrid_empty(grid_size, grid_size)
-    assert isinstance(state.grid[grid_size - 2, grid_size - 2], Goal)
+    state = reset_minigrid_empty(height, width)
+    assert isinstance(state.grid[height - 2, width - 2], Goal)
 
     # Generate vertical splitting wall
-    x_wall = rng.integers(2, grid_size - 3, endpoint=True)
+    x_wall = rng.integers(2, width - 3, endpoint=True)
     line_wall = draw_line_vertical(
-        state.grid, range(1, grid_size - 1), x_wall, Wall
+        state.grid, range(1, height - 1), x_wall, Wall
     )
 
     # Place yellow, locked door
@@ -240,13 +241,13 @@ def reset_minigrid_keydoor(
 
     # Place yellow key left of wall
     # XXX: potential general function
-    y_key = rng.integers(1, grid_size - 2, endpoint=True)
+    y_key = rng.integers(1, height - 2, endpoint=True)
     x_key = rng.integers(1, x_wall - 1, endpoint=True)
     state.grid[y_key, x_key] = Key(Colors.YELLOW)
 
     # Place agent left of wall
     # XXX: potential general function
-    y_agent = rng.integers(1, grid_size - 2, endpoint=True)
+    y_agent = rng.integers(1, height - 2, endpoint=True)
     x_agent = rng.integers(1, x_wall - 1, endpoint=True)
     state.agent.position = (y_agent, x_agent)  # type: ignore
     state.agent.orientation = rng.choice(list(Orientation))
@@ -369,7 +370,6 @@ def factory(
     *,
     height: Optional[int] = None,
     width: Optional[int] = None,
-    size: Optional[int] = None,
     layout: Optional[Tuple[int, int]] = None,
     random_agent_pos: Optional[bool] = None,
     num_obstacles: Optional[int] = None,
@@ -409,17 +409,10 @@ def factory(
         )
 
     if name == 'minigrid_keydoor':
-        if None in [size] and None in [height, width]:
+        if None in [height, width]:
             raise ValueError(f'invalid parameters for name `{name}`')
 
-        if size is None:
-            if height != width:
-                raise ValueError('height and width should be the same')
-
-            size = height
-
-        # TODO generalize shape, remove grid_size
-        return partial(reset_minigrid_keydoor, grid_size=size)
+        return partial(reset_minigrid_keydoor, height, width)
 
     if name == 'minigrid_crossing':
         if None in [height, width, num_rivers, object_type]:

@@ -212,7 +212,7 @@ def gym_keydoor_env(size: int) -> InnerEnv:
         InnerEnv:
     """
 
-    reset = partial(reset_functions.reset_minigrid_keydoor, grid_size=size + 2)
+    reset = partial(reset_functions.reset_minigrid_keydoor, size + 2, size + 2)
 
     transitions: List[transition_fs.TransitionFunction] = [
         transition_fs.update_agent,

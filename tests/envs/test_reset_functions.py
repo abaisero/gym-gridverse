@@ -25,13 +25,13 @@ def wall_column(size: int, state: State) -> int:
 def test_reset_minigrid_keydoor_throw_if_too_small(size: int):
     """Asserts method throws if provided size is too small"""
     with pytest.raises(ValueError):
-        reset_minigrid_keydoor(size)
+        reset_minigrid_keydoor(size, size)
 
 
 @pytest.mark.parametrize('size', range(5, 12))
 def test_reset_minigrid_keydoor_wall(size: int):
     """Tests whether the reset state contains a wall column"""
-    state = reset_minigrid_keydoor(size)
+    state = reset_minigrid_keydoor(size, size)
 
     # Surrounded by walls
     for i in range(0, size):
@@ -57,7 +57,7 @@ def test_reset_minigrid_keydoor_wall(size: int):
 
 @pytest.mark.parametrize('size', range(5, 12))
 def test_reset_minigrid_keydoor_agent_is_left_of_wall(size: int):
-    state = reset_minigrid_keydoor(size)
+    state = reset_minigrid_keydoor(size, size)
     assert state.agent.position.x < wall_column(
         size, state
     ), "Agent should be left of wall"
@@ -65,7 +65,7 @@ def test_reset_minigrid_keydoor_agent_is_left_of_wall(size: int):
 
 @pytest.mark.parametrize('size', range(5, 12))
 def test_reset_minigrid_keydoor_key(size: int):
-    state = reset_minigrid_keydoor(size)
+    state = reset_minigrid_keydoor(size, size)
 
     key_pos = [
         pos
@@ -79,7 +79,7 @@ def test_reset_minigrid_keydoor_key(size: int):
 
 @pytest.mark.parametrize('size', range(5, 12))
 def test_reset_minigrid_keydoor_goal(size: int):
-    state = reset_minigrid_keydoor(size)
+    state = reset_minigrid_keydoor(size, size)
     assert isinstance(
         state.grid[size - 2, size - 2], Goal
     ), "There should be a goal bottom right"
@@ -140,7 +140,8 @@ def test_reset_minigrid_crossing(height: int, width: int, num_rivers: int):
         (
             'minigrid_keydoor',
             {
-                'size': 10,
+                'height': 10,
+                'width': 10,
             },
         ),
         (
