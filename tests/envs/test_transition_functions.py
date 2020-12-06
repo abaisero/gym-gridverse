@@ -19,6 +19,7 @@ from gym_gridverse.envs.transition_functions import (
     pickup_mechanics,
     rotate_agent,
     step_moving_obstacles,
+    step_telepod,
 )
 from gym_gridverse.geometry import Position
 from gym_gridverse.grid_object import (
@@ -30,6 +31,7 @@ from gym_gridverse.grid_object import (
     Key,
     MovingObstacle,
     NoneGridObject,
+    Telepod,
     Wall,
 )
 from gym_gridverse.info import Agent, Grid, Orientation, PositionOrTuple
@@ -449,6 +451,37 @@ def test_actuate_box(
 
 
 @pytest.mark.parametrize(
+    'position_telepod1,position_telepod2,position_agent,expected',
+    [
+        ((0, 0), (1, 1), (0, 0), (1, 1)),
+        ((0, 0), (1, 1), (0, 1), (0, 1)),
+        ((0, 0), (1, 1), (1, 0), (1, 0)),
+        ((0, 0), (1, 1), (1, 1), (0, 0)),
+        ((1, 1), (0, 0), (0, 0), (1, 1)),
+        ((1, 1), (0, 0), (0, 1), (0, 1)),
+        ((1, 1), (0, 0), (1, 0), (1, 0)),
+        ((1, 1), (0, 0), (1, 1), (0, 0)),
+    ],
+)
+def test_teleport(
+    position_telepod1: Position,
+    position_telepod2: Position,
+    position_agent: Position,
+    expected: Position,
+):
+    telepods = Telepod.make(2, Colors.RED)
+    grid = Grid(2, 2)
+    grid[position_telepod1] = telepods[0]
+    grid[position_telepod2] = telepods[1]
+
+    agent = Agent(position_agent, Orientation.N)
+    state = State(grid, agent)
+
+    step_telepod(state, Actions.ACTUATE)
+    assert state.agent.position == expected
+
+
+@pytest.mark.parametrize(
     'name,kwargs',
     [
         ('chain', {'transition_functions': []}),
@@ -457,6 +490,7 @@ def test_actuate_box(
         ('step_moving_obstacles', {}),
         ('actuate_door', {}),
         ('actuate_box', {}),
+        ('step_telepod', {}),
     ],
 )
 def test_factory_valid(name: str, kwargs):

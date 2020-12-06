@@ -5,9 +5,17 @@ from gym_gridverse.envs.reset_functions import (
     reset_minigrid_crossing,
     reset_minigrid_dynamic_obstacles,
     reset_minigrid_keydoor,
+    reset_minigrid_teleport,
 )
 from gym_gridverse.geometry import Shape
-from gym_gridverse.grid_object import Door, Goal, Key, MovingObstacle, Wall
+from gym_gridverse.grid_object import (
+    Door,
+    Goal,
+    Key,
+    MovingObstacle,
+    Telepod,
+    Wall,
+)
 from gym_gridverse.state import State
 
 
@@ -107,6 +115,18 @@ def test_reset_minigrid_dynamic_obstacles(
 def test_reset_minigrid_crossing(height: int, width: int, num_rivers: int):
     state = reset_minigrid_crossing(height, width, num_rivers, object_type=Wall)
     assert state.grid.shape == Shape(height, width)
+
+
+@pytest.mark.parametrize('height', [9, 13])
+@pytest.mark.parametrize('width', [9, 13])
+def test_reset_minigrid_teleport(height: int, width: int):
+    state = reset_minigrid_teleport(height, width)
+    assert state.grid.shape == Shape(height, width)
+
+    num_telepods = sum(
+        isinstance(state.grid[pos], Telepod) for pos in state.grid.positions()
+    )
+    assert num_telepods == 2
 
 
 @pytest.mark.parametrize(

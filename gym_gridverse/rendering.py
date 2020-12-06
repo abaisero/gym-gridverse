@@ -19,6 +19,7 @@ from gym_gridverse.grid_object import (
     Hidden,
     Key,
     MovingObstacle,
+    Telepod,
     Wall,
 )
 from gym_gridverse.observation import Observation
@@ -67,6 +68,14 @@ def make_grid(  # pylint: disable=too-many-locals
 
     geom = Group(lines)
     return geom
+
+
+def make_spiral(
+    polar_from: Tuple[float, float], polar_to: Tuple[float, float], res: int
+):
+    polar = np.linspace(polar_from, polar_to, res)
+    points = [(math.cos(ang) * rad, math.sin(ang) * rad) for rad, ang in polar]
+    return rendering.make_polyline(points)
 
 
 def make_grid_background() -> rendering.Geom:
@@ -375,6 +384,18 @@ def make_moving_obstacle(  # pylint: disable=unused-argument
     return Group([geom, geom_outline])
 
 
+def make_telepod(telepod: Telepod) -> rendering.Geom:
+
+    res = 100
+    geom_circle = rendering.make_circle(0.8, res=res, filled=True)
+    geom_circle.set_color(*colormap[telepod.color])
+    geom_boundary = rendering.make_circle(0.8, res=res, filled=False)
+    geom_boundary.set_linewidth(2)
+    geom_spiral = make_spiral((0.8, 0.0), (0.0, 4 * math.pi), res)
+    geom_spiral.set_linewidth(2)
+    return Group([geom_circle, geom_boundary, geom_spiral])
+
+
 def convert_pos(
     position: Position,
     *,
@@ -559,6 +580,10 @@ class GridVerseViewer:
 
             if isinstance(obj, MovingObstacle):
                 geom = make_moving_obstacle(obj)
+                self._draw_geom_onetime(geom, position)
+
+            if isinstance(obj, Telepod):
+                geom = make_telepod(obj)
                 self._draw_geom_onetime(geom, position)
 
         geom = make_agent()

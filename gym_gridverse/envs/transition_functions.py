@@ -16,6 +16,7 @@ from gym_gridverse.grid_object import (
     Key,
     MovingObstacle,
     NoneGridObject,
+    Telepod,
 )
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.rng import get_gv_rng_if_none
@@ -331,6 +332,26 @@ def actuate_box(
     state.grid[position] = box.content
 
 
+def step_telepod(
+    state: State,
+    action: Actions,  # pylint: disable=unused-argument
+    *,
+    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+) -> None:
+    """Teleports the agent if positioned on the telepod"""
+
+    rng = get_gv_rng_if_none(rng)
+
+    telepod = state.grid[state.agent.position]
+
+    if isinstance(telepod, Telepod):
+        positions = [
+            state.grid.get_position(other_telepod)
+            for other_telepod in telepod.telepods
+        ]
+        state.agent.position = rng.choice(positions)
+
+
 def factory(
     name: str,
     transition_functions: Optional[Sequence[TransitionFunction]] = None,
@@ -356,5 +377,8 @@ def factory(
 
     if name == 'actuate_box':
         return actuate_box
+
+    if name == 'step_telepod':
+        return step_telepod
 
     raise ValueError(f'invalid transition function name `{name}`')

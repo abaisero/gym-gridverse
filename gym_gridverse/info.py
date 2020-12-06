@@ -35,11 +35,18 @@ class Grid:
             width (int):
 
         """
-        self.height = height
-        self.width = width
+        self.shape = Shape(height, width)
         self._grid = np.array(
             [[Floor() for _ in range(width)] for _ in range(height)]
         )
+
+    @property
+    def height(self):
+        return self.shape.height
+
+    @property
+    def width(self):
+        return self.shape.width
 
     @staticmethod
     def from_objects(objects: Sequence[Sequence[GridObject]]) -> Grid:
@@ -73,13 +80,10 @@ class Grid:
         return True
 
     @property
-    def shape(self) -> Shape:
-        return Shape(self.height, self.width)
-
-    @property
     def area(self) -> Area:
         return Area((0, self.height - 1), (0, self.width - 1))
 
+    # TODO remove;  Grid is not a collection of positions
     def __contains__(self, position: PositionOrTuple) -> bool:
         """checks if position is in the grid"""
         position = Position.from_position_or_tuple(position)

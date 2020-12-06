@@ -16,6 +16,7 @@ from gym_gridverse.grid_object import (
     Key,
     MovingObstacle,
     NoneGridObject,
+    Telepod,
     Wall,
     factory,
 )
@@ -42,6 +43,7 @@ class DummyNonRegisteredObject(  # pylint: disable=abstract-method
         (Key, True),
         (MovingObstacle, True),
         (Box, True),
+        (Telepod, True),
     ],
 )
 def test_registration(object_type: Type[GridObject], expected: bool):
@@ -62,7 +64,7 @@ def test_grid_object_registration():
     """ Test registration of type indices """
 
     # pylint: disable=no-member
-    assert len(GridObject.object_types) == 9
+    assert len(GridObject.object_types) == 10
     unittest.TestCase().assertCountEqual(
         [
             NoneGridObject.type_index,
@@ -74,6 +76,7 @@ def test_grid_object_registration():
             Key.type_index,
             MovingObstacle.type_index,
             Box.type_index,
+            Telepod.type_index,
         ],
         range(len(GridObject.object_types)),
     )
@@ -88,6 +91,7 @@ def test_grid_object_registration():
         Key,
         MovingObstacle,
         Box,
+        Telepod,
     ]:
         assert GridObject.object_types[obj_cls.type_index] is obj_cls
 
@@ -278,6 +282,22 @@ def test_box_basic_properties():
     assert box.num_states() == 1
 
 
+def test_telepod_properties():
+    """Basic property tests of telepod"""
+
+    color = Colors.YELLOW
+    telepod = Telepod(color)
+
+    assert telepod.transparent
+    assert not telepod.blocks
+    assert telepod.color == color
+    assert not telepod.can_be_picked_up
+    assert telepod.state_index == 0
+
+    assert not telepod.can_be_represented_in_state()
+    assert telepod.num_states() == 1
+
+
 @pytest.mark.parametrize(
     'name,kwargs',
     [
@@ -299,6 +319,8 @@ def test_box_basic_properties():
         ('moving_obstacle', {}),
         ('Box', {'obj': Floor()}),
         ('box', {'obj': Floor()}),
+        ('Telepod', {'color': 'RED'}),
+        ('telepod', {'color': 'RED'}),
     ],
 )
 def test_factory_valid(name: str, kwargs):

@@ -477,6 +477,57 @@ class Box(GridObject):
         return "b"
 
 
+class Telepod(GridObject):
+    """A teleportation pod"""
+
+    type_index: int
+
+    @classmethod
+    def make(cls, num_telepods: int, color: Colors) -> List[Telepod]:
+        """make linked telepods"""
+        telepods = [Telepod(color) for _ in range(num_telepods)]
+        for i, telepod in enumerate(telepods):
+            telepod.telepods.extend(telepods[:i])
+            telepod.telepods.extend(telepods[i + 1 :])
+
+        return telepods
+
+    def __init__(self, color: Colors):
+        self.telepods: List[Telepod] = []
+        self._color = color
+
+    @classmethod
+    def can_be_represented_in_state(cls) -> bool:
+        return False
+
+    @property
+    def state_index(self) -> int:
+        return 0
+
+    @property
+    def color(self) -> Colors:
+        return self._color
+
+    @classmethod
+    def num_states(cls) -> int:
+        return 1
+
+    @property
+    def transparent(self) -> bool:
+        return True
+
+    @property
+    def can_be_picked_up(self) -> bool:
+        return False
+
+    @property
+    def blocks(self) -> bool:
+        return False
+
+    def render_as_char(self) -> str:
+        return "T"
+
+
 def factory(
     name: str,
     *,
@@ -524,6 +575,13 @@ def factory(
 
         return Box(obj)
 
+    if name in ['telepod', 'Telepod']:
+        if not isinstance(color, str):
+            raise ValueError(f'invalid parameters for name `{name}`')
+
+        color_ = Colors[color]
+        return Telepod(color_)
+
     raise ValueError(f'invalid grid-object name {name}')
 
 
@@ -555,6 +613,9 @@ def factory_type(name: str) -> Type[GridObject]:
 
     if name in ['box', 'Box']:
         return Box
+
+    if name in ['telepod', 'Telepod']:
+        return Telepod
 
     raise ValueError(f'invalid grid-object type name {name}')
 

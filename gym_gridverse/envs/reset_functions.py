@@ -22,6 +22,7 @@ from gym_gridverse.grid_object import (
     GridObject,
     Key,
     MovingObstacle,
+    Telepod,
     Wall,
 )
 from gym_gridverse.info import Agent, Grid
@@ -365,6 +366,35 @@ def reset_minigrid_crossing(  # pylint: disable=too-many-locals
     return state
 
 
+def reset_minigrid_teleport(
+    height: int, width: int, *, rng: Optional[rnd.Generator] = None
+) -> State:
+
+    rng = get_gv_rng_if_none(rng)
+
+    state = reset_minigrid_empty(height, width)
+    assert isinstance(state.grid[height - 2, width - 2], Goal)
+
+    telepods = Telepod.make(2, Colors.RED)
+    positions = rng.choice(
+        [
+            position
+            for position in state.grid.positions()
+            if isinstance(state.grid[position], Floor)
+        ],
+        size=2,
+        replace=False,
+    )
+    for position, telepod in zip(positions, telepods):
+        state.grid[position] = telepod
+
+    # Place agent on top left
+    state.agent.position = (1, 1)  # type: ignore
+    state.agent.orientation = rng.choice([Orientation.E, Orientation.S])
+
+    return state
+
+
 def factory(
     name: str,
     *,
@@ -425,5 +455,11 @@ def factory(
             num_rivers=num_rivers,
             object_type=object_type,
         )
+
+    if name == 'minigrid_teleport':
+        if None in [height, width]:
+            raise ValueError(f'invalid parameters for name `{name}`')
+
+        return partial(reset_minigrid_teleport, height=height, width=width)
 
     raise ValueError(f'invalid reset function name `{name}`')

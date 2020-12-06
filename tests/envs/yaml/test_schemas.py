@@ -54,6 +54,7 @@ def test_layout_schema(data, expected: bool):
         ('key', True),
         ('moving_obstacle', True),
         ('box', True),
+        ('telepod', True),
         # TODO remove these
         ('Floor', True),
         ('Wall', True),
@@ -62,6 +63,7 @@ def test_layout_schema(data, expected: bool):
         ('Key', True),
         ('MovingObstacle', True),
         ('Box', True),
+        ('Telepod', True),
         # invalid
         ('invalid', False),
     ],

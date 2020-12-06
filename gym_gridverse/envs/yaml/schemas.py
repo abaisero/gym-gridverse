@@ -90,6 +90,7 @@ def object_type_schema():
             'key',
             'moving_obstacle',
             'box',
+            'telepod',
             # XXX remove these
             'Floor',
             'Wall',
@@ -98,6 +99,7 @@ def object_type_schema():
             'Key',
             'MovingObstacle',
             'Box',
+            'Telepod',
         )
     )
 
