@@ -151,33 +151,33 @@ def main():
     )
 
     def make_compute_return(discount: float):
-        state = {
-            'return': 0.0,
-            'cum_discount': 1.0,
-        }
+        cumreturn = 0.0
+        cumdiscount = 1.0
 
-        def compute_return(reward: float):
-            state['return'] += state['cum_discount'] * reward
-            state['cum_discount'] *= discount
-            return state['return']
+        def compute_return(reward: float) -> float:
+            nonlocal cumreturn
+            nonlocal cumdiscount
+            cumreturn += cumdiscount * reward
+            cumdiscount *= discount
+            return cumreturn
 
         return compute_return
 
-    done = True
+    reset = True
     while True:
-        if done:
+        if reset:
             env.reset()
             compute_return = make_compute_return(0.99)
             state_viewer.render(env.state)
             observation_viewer.render(env.observation)
-            done = False
+            done, reset = False, False
 
         command = keyboard_handler.get_command()
 
         if isinstance(command, Actions):
             action = command
 
-            if env.action_space.contains(action):
+            if not done and env.action_space.contains(action):
                 reward, done = env.step(action)
                 ret = compute_return(reward)
                 state_viewer.set_text(action, reward, ret, done)
@@ -191,7 +191,7 @@ def main():
             observation_viewer.flip_hud()
 
         elif command is Controls.RESET:
-            done = True
+            reset = True
             continue
 
         elif command is Controls.QUIT:
