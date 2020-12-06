@@ -12,6 +12,7 @@ from gym_gridverse.actions import Actions
 from gym_gridverse.envs.reset_functions import reset_minigrid_dynamic_obstacles
 from gym_gridverse.envs.transition_functions import (
     _step_moving_obstacle,
+    actuate_box,
     actuate_door,
     actuate_mechanics,
     factory,
@@ -22,6 +23,7 @@ from gym_gridverse.envs.transition_functions import (
 )
 from gym_gridverse.geometry import Position
 from gym_gridverse.grid_object import (
+    Box,
     Colors,
     Door,
     Floor,
@@ -441,6 +443,38 @@ def test_actuate_door(
     actuate_door(state, action)
     assert door.state == door_state
 
+
+@pytest.mark.parametrize(
+    'content,orientation,action,expected',
+    [
+        # empty box
+        (Floor(), Orientation.N, Actions.ACTUATE, True),
+        (Floor(), Orientation.S, Actions.ACTUATE, False),
+        (Floor(), Orientation.N, Actions.PICK_N_DROP, False),
+        (Floor(), Orientation.S, Actions.PICK_N_DROP, False),
+        # content is key
+        (Key(Colors.RED), Orientation.N, Actions.ACTUATE, True),
+        (Key(Colors.RED), Orientation.S, Actions.ACTUATE, False),
+        (Key(Colors.RED), Orientation.N, Actions.PICK_N_DROP, False),
+        (Key(Colors.RED), Orientation.S, Actions.PICK_N_DROP, False),
+    ],
+)
+def test_actuate_box(
+    content: GridObject,
+    orientation: Orientation,
+    action: Actions,
+    expected: bool,
+):
+    grid = Grid(2, 1)
+    grid[0, 0] = box = Box(content)
+    agent = Agent((1, 0), orientation)
+    state = State(grid, agent)
+
+    actuate_box(state, action)
+    assert (grid[0, 0] is box) != expected
+    assert (grid[0, 0] is content) == expected
+
+
 @pytest.mark.parametrize(
     'name,kwargs',
     [
@@ -450,6 +484,7 @@ def test_actuate_door(
         ('pickup_mechanics', {}),
         ('step_moving_obstacles', {}),
         ('actuate_door', {}),
+        ('actuate_box', {}),
     ],
 )
 def test_factory_valid(name: str, kwargs):

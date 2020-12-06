@@ -525,14 +525,14 @@ class Box(GridObject):
 
     type_index: int
 
-    def __init__(self, obj: GridObject):
+    def __init__(self, content: GridObject):
         """Boxes have no special status or color"""
-        if isinstance(obj, (NoneGridObject, Hidden)):
+        if isinstance(content, (NoneGridObject, Hidden)):
             raise ValueError(
                 'box cannot contain NoneGridObject or Hidden types'
             )
 
-        self.obj = obj
+        self.content = content
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -570,7 +570,7 @@ class Box(GridObject):
     ) -> None:
 
         position = state.grid.get_position(self)
-        state.grid[position] = self.obj
+        state.grid[position] = self.content
 
     def render_as_char(self) -> str:
         return "b"
