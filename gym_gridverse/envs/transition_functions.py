@@ -138,27 +138,6 @@ def update_agent(
         move_agent(state.agent, state.grid, action)
 
 
-def actuate_mechanics(
-    state: State, action: Actions, *, rng: Optional[rnd.Generator] = None
-) -> None:
-    """Implements the mechanics of actuation
-
-    Calls obj.actuate(state) on the object in front of agent
-
-    Args:
-        state (`State`):
-        action (`Actions`):
-        rng (`Generator, optional`)
-
-    Returns:
-        None:
-    """
-
-    if action == Actions.ACTUATE:
-        obj_in_front_of_agent = state.grid[state.agent.position_in_front()]
-        obj_in_front_of_agent.actuate(state, rng=rng)
-
-
 def pickup_mechanics(
     state: State,
     action: Actions,
@@ -365,9 +344,6 @@ def factory(
 
     if name == 'update_agent':
         return update_agent
-
-    if name == 'actuate_mechanics':
-        return actuate_mechanics
 
     if name == 'pickup_mechanics':
         return pickup_mechanics

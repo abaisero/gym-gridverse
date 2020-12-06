@@ -216,7 +216,7 @@ def gym_door_key_env(size: int) -> InnerEnv:
 
     transitions: List[transition_fs.TransitionFunction] = [
         transition_fs.update_agent,
-        transition_fs.actuate_mechanics,
+        transition_fs.actuate_door,
         transition_fs.pickup_mechanics,
     ]
     rewards: List[reward_functions.RewardFunction] = [

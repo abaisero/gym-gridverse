@@ -230,47 +230,6 @@ def test_door_locked_door_properties():
     assert locked_door.render_as_char() == 'D'
 
 
-def test_door_opening_door():
-    """ Testing the simple FNS of the door """
-
-    color = Colors.GREEN
-    s = None
-
-    door = Door(Door.Status.CLOSED, color)
-    assert not door.is_open
-
-    door.actuate(s)
-    assert door.is_open
-
-    door.actuate(s)
-    assert door.is_open
-
-
-def test_door_opening_door_with_key():
-    """ Testing the simple FNS of the door """
-
-    color = Colors.BLUE
-
-    # Agent holding wrong key
-    s = simple_state_without_object()
-    s.agent.obj = Key(Colors.YELLOW)
-
-    door = Door(Door.Status.LOCKED, color)
-    assert not door.is_open
-
-    door.actuate(s)
-    assert not door.is_open
-
-    s.agent.obj = Key(color)
-    assert not door.is_open
-
-    door.actuate(s)
-    assert door.is_open
-
-    door.actuate(s)
-    assert door.is_open
-
-
 def test_key_properties():
     """ Basic property tests """
 
@@ -317,34 +276,6 @@ def test_box_basic_properties():
     assert not box.can_be_represented_in_state()
     assert box.render_as_char() == 'b'
     assert box.num_states() == 1
-
-
-@pytest.mark.parametrize(
-    'obj',
-    [
-        Floor(),
-        Wall(),
-        Goal(),
-        Door(Door.Status.CLOSED, Colors.RED),
-        Key(Colors.RED),
-        MovingObstacle(),
-        Box(Floor()),
-        Box(Box(Floor())),
-        Box(Box(Box(Floor()))),
-    ],
-)
-def test_box_movement(obj: GridObject):
-    """Test the 'actuate' behavior of box"""
-
-    box = Box(obj)
-
-    # allow for just 1 next step
-    state = simple_state_without_object()
-    state.grid[0, 0] = box
-
-    box.actuate(state)
-
-    assert state.grid[0, 0] is obj
 
 
 @pytest.mark.parametrize(

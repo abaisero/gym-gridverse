@@ -3,12 +3,7 @@ from __future__ import annotations
 
 import abc
 import enum
-from typing import TYPE_CHECKING, Callable, List, Optional, Type
-
-import numpy.random as rnd
-
-if TYPE_CHECKING:
-    from gym_gridverse.state import State
+from typing import Callable, List, Optional, Type
 
 
 class Colors(enum.Enum):
@@ -70,12 +65,6 @@ class GridObject(metaclass=abc.ABCMeta):
         """ Whether the object blocks the agent """
 
     @abc.abstractmethod
-    def actuate(
-        self, state: State, *, rng: Optional[rnd.Generator] = None
-    ) -> None:
-        """ The (optional) behavior upon actuation """
-
-    @abc.abstractmethod
     def render_as_char(self) -> str:
         """ A single char representation of the object"""
 
@@ -123,14 +112,6 @@ class NoneGridObject(GridObject):
     def blocks(self) -> bool:  # type: ignore
         assert RuntimeError('should never be called')
 
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
-    ) -> None:
-        assert RuntimeError('should never be called')
-
     def render_as_char(self) -> str:
         return " "
 
@@ -167,14 +148,6 @@ class Hidden(GridObject):
     @property
     def blocks(self) -> bool:  # type: ignore
         assert RuntimeError('should never be called')
-
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
 
     def render_as_char(self) -> str:
         return "."
@@ -213,14 +186,6 @@ class Floor(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
-
     def render_as_char(self) -> str:
         return " "
 
@@ -258,14 +223,6 @@ class Wall(GridObject):
     def blocks(self) -> bool:
         return True
 
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
-
     def render_as_char(self) -> str:
         return "#"
 
@@ -302,14 +259,6 @@ class Goal(GridObject):
     @property
     def blocks(self) -> bool:
         return False
-
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
 
     def render_as_char(self) -> str:
         return "G"
@@ -383,34 +332,6 @@ class Door(GridObject):
     def blocks(self) -> bool:
         return self._state != self.Status.OPEN
 
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
-    ) -> None:
-        """Attempts to open door
-
-        When not holding correct key with correct color:
-            `open` or `closed` -> `open`
-            `locked` -> `locked`
-
-        When holding correct key:
-            any state -> `open`
-
-        """
-
-        if self.is_open:
-            return
-        if not self.locked:
-            self._state = self.Status.OPEN
-        else:
-            if (
-                isinstance(state.agent.obj, Key)
-                and state.agent.obj.color == self.color
-            ):
-                self._state = self.Status.OPEN
-
     @property
     def is_open(self) -> bool:
         """ returns whether the door is opened """
@@ -466,11 +387,6 @@ class Key(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def actuate(
-        self, state: State, *, rng: Optional[rnd.Generator] = None
-    ) -> None:
-        pass
-
     def render_as_char(self) -> str:
         return "K"
 
@@ -510,11 +426,6 @@ class MovingObstacle(GridObject):
     @property
     def blocks(self) -> bool:
         return False
-
-    def actuate(
-        self, state: State, *, rng: Optional[rnd.Generator] = None
-    ) -> None:
-        pass
 
     def render_as_char(self) -> str:
         return "*"
@@ -561,16 +472,6 @@ class Box(GridObject):
     @property
     def blocks(self) -> bool:
         return True
-
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
-    ) -> None:
-
-        position = state.grid.get_position(self)
-        state.grid[position] = self.content
 
     def render_as_char(self) -> str:
         return "b"

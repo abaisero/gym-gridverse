@@ -14,7 +14,6 @@ from gym_gridverse.envs.transition_functions import (
     _step_moving_obstacle,
     actuate_box,
     actuate_door,
-    actuate_mechanics,
     factory,
     move_agent,
     pickup_mechanics,
@@ -298,32 +297,6 @@ def test_step_moving_obstacles_once_per_obstacle():
     assert all(count == 1 for count in counts.values())
 
 
-# TODO integrate with `test_pickup_mechanics_pickup`
-@pytest.mark.parametrize(
-    'door_color,key_color,expected_state',
-    [
-        (Colors.BLUE, Colors.BLUE, Door.Status.OPEN),
-        (Colors.GREEN, Colors.BLUE, Door.Status.LOCKED),
-    ],
-)
-def test_actuage_mechanics(
-    door_color: Colors, key_color: Colors, expected_state: Door.Status
-):
-    grid = Grid(height=3, width=4)
-    agent = Agent(position=(1, 2), orientation=Orientation.S)
-    item_pos = (2, 2)
-
-    grid[item_pos] = Door(Door.Status.LOCKED, door_color)
-    state = State(grid, agent)
-
-    actuate_mechanics(state, Actions.ACTUATE)
-    assert state.grid[item_pos].state_index == Door.Status.LOCKED.value
-
-    agent.obj = Key(key_color)
-    actuate_mechanics(state, Actions.ACTUATE)
-    assert state.grid[item_pos].state_index == expected_state.value
-
-
 @pytest.mark.parametrize(
     'objects,expected_objects',
     [
@@ -480,7 +453,6 @@ def test_actuate_box(
     [
         ('chain', {'transition_functions': []}),
         ('update_agent', {}),
-        ('actuate_mechanics', {}),
         ('pickup_mechanics', {}),
         ('step_moving_obstacles', {}),
         ('actuate_door', {}),

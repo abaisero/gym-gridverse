@@ -13,7 +13,7 @@ reset_function:
 
 transition_functions:
   - name: update_agent
-  - name: actuate_mechanics
+  - name: actuate_door
   - name: pickup_mechanics
 
 reward_functions:
