@@ -430,7 +430,7 @@ def factory(  # pylint: disable=too-many-branches
             raise ValueError('invalid parameters for name `{name}`')
 
         return partial(
-            actuate_door,
+            pickndrop,
             object_type=object_type,
             reward_pick=reward_pick,
             reward_drop=reward_drop,
