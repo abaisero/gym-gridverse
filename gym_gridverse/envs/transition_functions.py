@@ -1,6 +1,6 @@
 """ Functions to model dynamics """
 from functools import partial
-from typing import Iterator, List, Optional, Sequence, Set, Tuple, Type
+from typing import Iterator, List, Optional, Sequence, Tuple, Type
 
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
@@ -135,30 +135,6 @@ def update_agent(
         move_agent(state.agent, state.grid, action)
 
 
-def step_objects(
-    state: State, action: Actions, *, rng: Optional[rnd.Generator] = None
-) -> None:
-    """Calls `step` on all the objects in the grid
-
-    Args:
-        state (`State`):
-        action (`Actions`):
-        rng (`Generator, optional`)
-
-    Returns:
-        None:
-    """
-
-    stepped_objects: List[GridObject] = []
-
-    for pos in state.grid.positions():
-        obj = state.grid[pos]
-
-        if not any([x is obj for x in stepped_objects]):
-            stepped_objects.append(obj)
-            obj.step(state, action, rng=rng)
-
-
 def actuate_mechanics(
     state: State, action: Actions, *, rng: Optional[rnd.Generator] = None
 ) -> None:
@@ -234,6 +210,11 @@ def pickup_mechanics(
 def _unique_object_type_positions(
     grid: Grid, object_type: Type[GridObject]
 ) -> Iterator[Tuple[Position, GridObject]]:
+    """Utility for iterating *once* over position/objects.
+
+    Every object is only yielded once, even if the objects move during the
+    interleaved iteration.
+    """
 
     objects: List[GridObject] = []
     for position in grid.positions():
@@ -304,9 +285,6 @@ def factory(
 
     if name == 'update_agent':
         return update_agent
-
-    if name == 'step_objects':
-        return step_objects
 
     if name == 'actuate_mechanics':
         return actuate_mechanics

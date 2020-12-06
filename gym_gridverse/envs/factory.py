@@ -141,7 +141,7 @@ def dynamic_obstacle_minigrid(
 
     transitions: List[transition_fs.TransitionFunction] = [
         transition_fs.update_agent,
-        transition_fs.step_objects,
+        transition_fs.step_moving_obstacles,
     ]
     rewards: List[reward_functions.RewardFunction] = [
         reward_functions.reach_goal,

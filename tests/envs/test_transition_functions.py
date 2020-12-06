@@ -2,9 +2,10 @@
 
 import copy
 import random
-from typing import Sequence
-from unittest.mock import MagicMock
+from typing import Optional, Sequence
+from unittest.mock import MagicMock, patch
 
+import numpy.random as rnd
 import pytest
 
 from gym_gridverse.actions import Actions
@@ -17,8 +18,8 @@ from gym_gridverse.envs.transition_functions import (
     pickup_mechanics,
     rotate_agent,
     step_moving_obstacles,
-    step_objects,
 )
+from gym_gridverse.geometry import Position
 from gym_gridverse.grid_object import (
     Colors,
     Door,
@@ -260,8 +261,8 @@ def test_pickup_mechanics_swap():
     assert state.agent.obj == next_state.grid[item_pos]
 
 
-def test_step_called_once():
-    """Tests step is called exactly once on all objects
+def test_step_moving_obstacles_once_per_obstacle():
+    """Tests step is called exactly once on all moving obstacles
 
     There was this naive implementation that looped over all positions, and
     called `.step()` on it. Unfortunately, when `step` caused the object to
@@ -269,29 +270,29 @@ def test_step_called_once():
     position, hence being called twice. This test is here to make sure that
     does not happen again.
     """
+    state = reset_minigrid_dynamic_obstacles(height=6, width=6, num_obstacles=4)
 
-    def call_counter(func):
-        def helper(*args, **kwargs):
-            helper.count += 1
-            return func(*args, **kwargs)
+    counts = {}
 
-        helper.count = 0
-        return helper
+    def patched_step_moving_obstacle(
+        grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
+    ):
+        key = id(grid[position])
+        try:
+            counts[key] += 1
+        except KeyError:
+            counts[key] = 1
 
-    w, h, n = 6, 6, 4
-    state = reset_minigrid_dynamic_obstacles(h, w, n)
+        _step_moving_obstacle(grid, position, rng=rng)
 
-    # replace obstacles with those that count step
-    obstacles = []
-    for pos in state.grid.positions():
-        if isinstance(state.grid[pos], MovingObstacle):
-            state.grid[pos].step = call_counter(state.grid[pos].step)
-            obstacles.append(state.grid[pos])
+    with patch(
+        'gym_gridverse.envs.transition_functions._step_moving_obstacle',
+        new=patched_step_moving_obstacle,
+    ):
+        step_moving_obstacles(state, Actions.PICK_N_DROP)
 
-    step_objects(state, Actions.PICK_N_DROP)
-
-    for obs in obstacles:
-        assert obs.step.count == 1
+    assert len(counts) == 4
+    assert all(count == 1 for count in counts.values())
 
 
 # TODO integrate with `test_pickup_mechanics_pickup`
@@ -354,7 +355,6 @@ def test_step_moving_obstacles(
     [
         ('chain', {'transition_functions': []}),
         ('update_agent', {}),
-        ('step_objects', {}),
         ('actuate_mechanics', {}),
         ('pickup_mechanics', {}),
         ('step_moving_obstacles', {}),

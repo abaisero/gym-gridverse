@@ -7,10 +7,6 @@ from typing import TYPE_CHECKING, Callable, List, Optional, Type
 
 import numpy.random as rnd
 
-from gym_gridverse.actions import Actions
-from gym_gridverse.geometry import get_manhattan_boundary
-from gym_gridverse.rng import get_gv_rng_if_none
-
 if TYPE_CHECKING:
     from gym_gridverse.state import State
 
@@ -74,16 +70,6 @@ class GridObject(metaclass=abc.ABCMeta):
         """ Whether the object blocks the agent """
 
     @abc.abstractmethod
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        """ Optional behavior of the object """
-
-    @abc.abstractmethod
     def actuate(
         self, state: State, *, rng: Optional[rnd.Generator] = None
     ) -> None:
@@ -137,15 +123,6 @@ class NoneGridObject(GridObject):
     def blocks(self) -> bool:  # type: ignore
         assert RuntimeError('should never be called')
 
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
-    ) -> None:
-        assert RuntimeError('should never be called')
-
     def actuate(
         self,
         state: State,
@@ -190,15 +167,6 @@ class Hidden(GridObject):
     @property
     def blocks(self) -> bool:  # type: ignore
         assert RuntimeError('should never be called')
-
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
 
     def actuate(
         self,
@@ -245,15 +213,6 @@ class Floor(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
-
     def actuate(
         self,
         state: State,
@@ -299,15 +258,6 @@ class Wall(GridObject):
     def blocks(self) -> bool:
         return True
 
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
-
     def actuate(
         self,
         state: State,
@@ -352,15 +302,6 @@ class Goal(GridObject):
     @property
     def blocks(self) -> bool:
         return False
-
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
 
     def actuate(
         self,
@@ -430,15 +371,6 @@ class Door(GridObject):
     @property
     def blocks(self) -> bool:
         return self._state != self.Status.OPEN
-
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
 
     def actuate(
         self,
@@ -523,15 +455,6 @@ class Key(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
-
     def actuate(
         self, state: State, *, rng: Optional[rnd.Generator] = None
     ) -> None:
@@ -576,43 +499,6 @@ class MovingObstacle(GridObject):
     @property
     def blocks(self) -> bool:
         return False
-
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        """Moves randomly
-
-        Moves only to cells containing _Floor_ objects, and will do so with
-        random walk. In current implementation can only move 1 cell
-        non-diagonally. If (and only if) no open cells are available will it
-        stay put
-
-        Args:
-            state (`State`): current state
-            action (`Actions`): action taken by agent (ignored)
-        """
-        rng = get_gv_rng_if_none(None)
-
-        cur_pos = state.grid.get_position(self)
-
-        proposed_next_positions = get_manhattan_boundary(cur_pos, distance=1)
-
-        # Filter on next position is Floor and in grid
-        proposed_next_positions = [
-            x
-            for x in proposed_next_positions
-            if x in state.grid and isinstance(state.grid[x], Floor)
-        ]
-
-        if not proposed_next_positions:
-            return
-
-        next_position = rng.choice(proposed_next_positions)
-        state.grid.swap(cur_pos, next_position)
 
     def actuate(
         self, state: State, *, rng: Optional[rnd.Generator] = None
@@ -664,15 +550,6 @@ class Box(GridObject):
     @property
     def blocks(self) -> bool:
         return True
-
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
 
     def actuate(
         self,
