@@ -196,7 +196,7 @@ def reset_minigrid_dynamic_obstacles(
     return state
 
 
-def reset_minigrid_door_key(
+def reset_minigrid_keydoor(
     grid_size: int, *, rng: Optional[rnd.Generator] = None
 ) -> State:
     """Returns a state similar to the gym minigrid 'door & key' environment
@@ -408,7 +408,7 @@ def factory(
             random_agent_pos=random_agent_pos,
         )
 
-    if name == 'minigrid_door_key':
+    if name == 'minigrid_keydoor':
         if None in [size] and None in [height, width]:
             raise ValueError(f'invalid parameters for name `{name}`')
 
@@ -419,7 +419,7 @@ def factory(
             size = height
 
         # TODO generalize shape, remove grid_size
-        return partial(reset_minigrid_door_key, grid_size=size)
+        return partial(reset_minigrid_keydoor, grid_size=size)
 
     if name == 'minigrid_crossing':
         if None in [height, width, num_rivers, object_type]:

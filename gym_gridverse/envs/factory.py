@@ -202,7 +202,7 @@ def gym_minigrid_four_room() -> InnerEnv:
     return plain_navigation_task(reset)
 
 
-def gym_door_key_env(size: int) -> InnerEnv:
+def gym_keydoor_env(size: int) -> InnerEnv:
     """Creates the 'door key' gym environment
 
     Args:
@@ -212,7 +212,7 @@ def gym_door_key_env(size: int) -> InnerEnv:
         InnerEnv:
     """
 
-    reset = partial(reset_functions.reset_minigrid_door_key, grid_size=size + 2)
+    reset = partial(reset_functions.reset_minigrid_keydoor, grid_size=size + 2)
 
     transitions: List[transition_fs.TransitionFunction] = [
         transition_fs.update_agent,
@@ -281,10 +281,10 @@ STRING_TO_GYM_CONSTRUCTOR: Dict[str, Callable[[], InnerEnv]] = {
     "MiniGrid-Dynamic-Obstacles-16x16-v0": partial(
         dynamic_obstacle_minigrid, size=16, random_pos=False, num_obstacles=8
     ),
-    "MiniGrid-DoorKey-5x5-v0": partial(gym_door_key_env, size=5),
-    "MiniGrid-DoorKey-6x6-v0": partial(gym_door_key_env, size=6),
-    "MiniGrid-DoorKey-8x8-v0": partial(gym_door_key_env, size=8),
-    "MiniGrid-DoorKey-16x16-v0": partial(gym_door_key_env, size=16),
+    "MiniGrid-KeyDoor-5x5-v0": partial(gym_keydoor_env, size=5),
+    "MiniGrid-KeyDoor-6x6-v0": partial(gym_keydoor_env, size=6),
+    "MiniGrid-KeyDoor-8x8-v0": partial(gym_keydoor_env, size=8),
+    "MiniGrid-KeyDoor-16x16-v0": partial(gym_keydoor_env, size=16),
 }
 
 

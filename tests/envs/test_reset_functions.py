@@ -3,8 +3,8 @@ import pytest
 from gym_gridverse.envs.reset_functions import (
     factory,
     reset_minigrid_crossing,
-    reset_minigrid_door_key,
     reset_minigrid_dynamic_obstacles,
+    reset_minigrid_keydoor,
 )
 from gym_gridverse.geometry import Shape
 from gym_gridverse.grid_object import Door, Goal, Key, MovingObstacle, Wall
@@ -22,16 +22,16 @@ def wall_column(size: int, state: State) -> int:
 @pytest.mark.parametrize(
     'size', [-5, 4]  # negative size and positive-but-too-small
 )
-def test_reset_minigrid_door_key_throw_if_too_small(size: int):
+def test_reset_minigrid_keydoor_throw_if_too_small(size: int):
     """Asserts method throws if provided size is too small"""
     with pytest.raises(ValueError):
-        reset_minigrid_door_key(size)
+        reset_minigrid_keydoor(size)
 
 
 @pytest.mark.parametrize('size', range(5, 12))
-def test_reset_minigrid_door_key_wall(size: int):
+def test_reset_minigrid_keydoor_wall(size: int):
     """Tests whether the reset state contains a wall column"""
-    state = reset_minigrid_door_key(size)
+    state = reset_minigrid_keydoor(size)
 
     # Surrounded by walls
     for i in range(0, size):
@@ -56,16 +56,16 @@ def test_reset_minigrid_door_key_wall(size: int):
 
 
 @pytest.mark.parametrize('size', range(5, 12))
-def test_reset_minigrid_door_key_agent_is_left_of_wall(size: int):
-    state = reset_minigrid_door_key(size)
+def test_reset_minigrid_keydoor_agent_is_left_of_wall(size: int):
+    state = reset_minigrid_keydoor(size)
     assert state.agent.position.x < wall_column(
         size, state
     ), "Agent should be left of wall"
 
 
 @pytest.mark.parametrize('size', range(5, 12))
-def test_reset_minigrid_door_key_key(size: int):
-    state = reset_minigrid_door_key(size)
+def test_reset_minigrid_keydoor_key(size: int):
+    state = reset_minigrid_keydoor(size)
 
     key_pos = [
         pos
@@ -78,8 +78,8 @@ def test_reset_minigrid_door_key_key(size: int):
 
 
 @pytest.mark.parametrize('size', range(5, 12))
-def test_reset_minigrid_door_key_goal(size: int):
-    state = reset_minigrid_door_key(size)
+def test_reset_minigrid_keydoor_goal(size: int):
+    state = reset_minigrid_keydoor(size)
     assert isinstance(
         state.grid[size - 2, size - 2], Goal
     ), "There should be a goal bottom right"
@@ -138,7 +138,7 @@ def test_reset_minigrid_crossing(height: int, width: int, num_rivers: int):
             },
         ),
         (
-            'minigrid_door_key',
+            'minigrid_keydoor',
             {
                 'size': 10,
             },
@@ -165,7 +165,7 @@ def test_factory_valid(name: str, kwargs):
         ('minigrid_empty', {}, ValueError),
         ('minigrid_rooms', {}, ValueError),
         ('minigrid_dynamic_obstacles', {}, ValueError),
-        ('minigrid_door_key', {}, ValueError),
+        ('minigrid_keydoor', {}, ValueError),
         ('minigrid_crossing', {}, ValueError),
     ],
 )
