@@ -3,23 +3,27 @@
 import copy
 import random
 from typing import Sequence
+from unittest.mock import MagicMock
 
 import pytest
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs.reset_functions import reset_minigrid_dynamic_obstacles
 from gym_gridverse.envs.transition_functions import (
+    _step_moving_obstacle,
     actuate_mechanics,
     factory,
     move_agent,
     pickup_mechanics,
     rotate_agent,
+    step_moving_obstacles,
     step_objects,
 )
 from gym_gridverse.grid_object import (
     Colors,
     Door,
     Floor,
+    GridObject,
     Key,
     MovingObstacle,
     NoneGridObject,
@@ -27,6 +31,13 @@ from gym_gridverse.grid_object import (
 )
 from gym_gridverse.info import Agent, Grid, Orientation, PositionOrTuple
 from gym_gridverse.state import State
+
+
+def make_moving_obstacle_state():
+    grid = Grid(3, 3)
+    grid[1, 1] = MovingObstacle()
+    agent = MagicMock()
+    return State(grid, agent)
 
 
 @pytest.mark.parametrize(
@@ -310,6 +321,35 @@ def test_actuage_mechanics(
 
 
 @pytest.mark.parametrize(
+    'objects,expected_objects',
+    [
+        (
+            [[Floor(), MovingObstacle(), MovingObstacle()]],
+            [[MovingObstacle(), MovingObstacle(), Floor()]],
+        ),
+        (
+            [[MovingObstacle(), Floor(), MovingObstacle()]],
+            [[Floor(), MovingObstacle(), MovingObstacle()]],
+        ),
+        (
+            [[MovingObstacle(), MovingObstacle(), Floor()]],
+            [[MovingObstacle(), Floor(), MovingObstacle()]],
+        ),
+    ],
+)
+def test_step_moving_obstacles(
+    objects: Sequence[Sequence[GridObject]],
+    expected_objects: Sequence[Sequence[GridObject]],
+):
+    state = State(Grid.from_objects(objects), MagicMock())
+    expected_state = State(Grid.from_objects(expected_objects), MagicMock())
+
+    action = MagicMock()
+    step_moving_obstacles(state, action)
+    assert state.grid == expected_state.grid
+
+
+@pytest.mark.parametrize(
     'name,kwargs',
     [
         ('chain', {'transition_functions': []}),
@@ -317,6 +357,7 @@ def test_actuage_mechanics(
         ('step_objects', {}),
         ('actuate_mechanics', {}),
         ('pickup_mechanics', {}),
+        ('step_moving_obstacles', {}),
     ],
 )
 def test_factory_valid(name: str, kwargs):

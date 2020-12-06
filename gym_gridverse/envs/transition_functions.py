@@ -1,15 +1,21 @@
 """ Functions to model dynamics """
-
 from functools import partial
-from typing import List, Optional, Sequence
+from typing import Iterator, List, Optional, Sequence, Set, Tuple, Type
 
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.actions import ROTATION_ACTIONS, TRANSLATION_ACTIONS, Actions
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
-from gym_gridverse.grid_object import Floor, GridObject, NoneGridObject
+from gym_gridverse.geometry import Position, get_manhattan_boundary
+from gym_gridverse.grid_object import (
+    Floor,
+    GridObject,
+    MovingObstacle,
+    NoneGridObject,
+)
 from gym_gridverse.info import Agent, Grid
+from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
 
 
@@ -225,6 +231,66 @@ def pickup_mechanics(
     state.agent.obj = obj_in_front_of_agent if can_pickup else NoneGridObject()
 
 
+def _unique_object_type_positions(
+    grid: Grid, object_type: Type[GridObject]
+) -> Iterator[Tuple[Position, GridObject]]:
+
+    objects: List[GridObject] = []
+    for position in grid.positions():
+        obj = grid[position]
+
+        if isinstance(obj, object_type) and not any(obj is x for x in objects):
+            objects.append(obj)
+            yield position, obj
+
+
+def _step_moving_obstacle(
+    grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
+):
+    """Utility for moving a single MovingObstacle randomly"""
+    assert isinstance(grid[position], MovingObstacle)
+
+    rng = get_gv_rng_if_none(rng)
+
+    next_positions = [
+        next_position
+        for next_position in get_manhattan_boundary(position, distance=1)
+        if next_position in grid and isinstance(grid[next_position], Floor)
+    ]
+
+    try:
+        next_position = rng.choice(next_positions)
+    except ValueError:
+        pass
+    else:
+        grid.swap(position, next_position)
+
+
+def step_moving_obstacles(
+    state: State,
+    action: Actions,
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> None:
+    """Moves moving obstacles randomly
+
+    Moves each MovingObstacle only to cells containing _Floor_ objects, and
+    will do so with random walk. In current implementation can only move 1 cell
+    non-diagonally. If (and only if) no open cells are available will it stay
+    put
+
+    Args:
+        state (`State`): current state
+        action (`Actions`): action taken by agent (ignored)
+    """
+    rng = get_gv_rng_if_none(rng)
+
+    for position, obj in _unique_object_type_positions(
+        state.grid, MovingObstacle
+    ):
+        _step_moving_obstacle(state.grid, position, rng=rng)
+
+
 def factory(
     name: str,
     transition_functions: Optional[Sequence[TransitionFunction]] = None,
@@ -247,5 +313,8 @@ def factory(
 
     if name == 'pickup_mechanics':
         return pickup_mechanics
+
+    if name == 'step_moving_obstacles':
+        return step_moving_obstacles
 
     raise ValueError(f'invalid transition function name `{name}`')
