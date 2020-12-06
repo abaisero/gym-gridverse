@@ -1,3 +1,5 @@
+import glob
+
 import pytest
 
 import yaml
@@ -120,15 +122,8 @@ def test_observation_space_schema(data, expected: bool):
 # NOTE: individual xxx_function_schema are annoying to test comprehensively;
 # they are tested indirectly by testing the entire format in the following test
 
-
-@pytest.mark.parametrize(
-    'path',
-    [
-        'yaml/env_minigrid_empty.yaml',
-        'yaml/env_minigrid_door_key.yaml',
-        'yaml/env_minigrid_dynamic_obstacles_16x16_random.v0.yaml',
-    ],
-)
+# NOTE testing all yaml files in yaml/
+@pytest.mark.parametrize('path', glob.glob('yaml/*.yaml'))
 def test_env_schema(path: str):
     with open(path) as f:
         data = yaml.safe_load(f)

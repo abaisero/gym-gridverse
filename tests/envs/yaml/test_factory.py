@@ -1,3 +1,5 @@
+import glob
+
 import pytest
 from schema import SchemaError
 
@@ -166,14 +168,8 @@ def test_factory_observation_space_fail(data):
 # they are tested indirectly by testing the entire format in the following test
 
 
-@pytest.mark.parametrize(
-    'path',
-    [
-        'yaml/env_minigrid_empty.yaml',
-        'yaml/env_minigrid_door_key.yaml',
-        'yaml/env_minigrid_dynamic_obstacles_16x16_random.v0.yaml',
-    ],
-)
+# NOTE testing all yaml files in yaml/
+@pytest.mark.parametrize('path', glob.glob('yaml/*.yaml'))
 def test_factory_rnv_from_yaml(path: str):
     env = yaml_factory.factory_env_from_yaml(path)
     assert isinstance(env, InnerEnv)
