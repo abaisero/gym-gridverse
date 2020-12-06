@@ -12,6 +12,7 @@ from gym_gridverse.actions import Actions
 from gym_gridverse.envs.reset_functions import reset_minigrid_dynamic_obstacles
 from gym_gridverse.envs.transition_functions import (
     _step_moving_obstacle,
+    actuate_door,
     actuate_mechanics,
     factory,
     move_agent,
@@ -351,6 +352,96 @@ def test_step_moving_obstacles(
 
 
 @pytest.mark.parametrize(
+    'door_state,door_color,key_color,action,expected_state',
+    [
+        # LOCKED
+        (
+            Door.Status.LOCKED,
+            Colors.RED,
+            Colors.RED,
+            Actions.ACTUATE,
+            Door.Status.OPEN,
+        ),
+        (
+            Door.Status.LOCKED,
+            Colors.RED,
+            Colors.BLUE,
+            Actions.ACTUATE,
+            Door.Status.LOCKED,
+        ),
+        # CLOSED
+        (
+            Door.Status.CLOSED,
+            Colors.RED,
+            Colors.BLUE,
+            Actions.ACTUATE,
+            Door.Status.OPEN,
+        ),
+        # OPEN
+        (
+            Door.Status.OPEN,
+            Colors.RED,
+            Colors.RED,
+            Actions.ACTUATE,
+            Door.Status.OPEN,
+        ),
+        # not ACTUATE
+        (
+            Door.Status.LOCKED,
+            Colors.RED,
+            Colors.RED,
+            Actions.PICK_N_DROP,
+            Door.Status.LOCKED,
+        ),
+        (
+            Door.Status.LOCKED,
+            Colors.RED,
+            Colors.BLUE,
+            Actions.PICK_N_DROP,
+            Door.Status.LOCKED,
+        ),
+        (
+            Door.Status.CLOSED,
+            Colors.RED,
+            Colors.BLUE,
+            Actions.PICK_N_DROP,
+            Door.Status.CLOSED,
+        ),
+        (
+            Door.Status.OPEN,
+            Colors.RED,
+            Colors.RED,
+            Actions.PICK_N_DROP,
+            Door.Status.OPEN,
+        ),
+    ],
+)
+def test_actuate_door(
+    door_state: Door.Status,
+    door_color: Colors,
+    key_color: Colors,
+    action: Actions,
+    expected_state: Door.Status,
+):
+    # agent facing door
+    grid = Grid(2, 1)
+    grid[0, 0] = door = Door(door_state, door_color)
+    agent = Agent((1, 0), Orientation.N, Key(key_color))
+    state = State(grid, agent)
+
+    actuate_door(state, action)
+    assert door.state == expected_state
+
+    # agent facing away
+    grid = Grid(2, 1)
+    grid[0, 0] = door = Door(door_state, door_color)
+    agent = Agent((1, 0), Orientation.S, Key(key_color))
+    state = State(grid, agent)
+
+    actuate_door(state, action)
+    assert door.state == door_state
+
+@pytest.mark.parametrize(
     'name,kwargs',
     [
         ('chain', {'transition_functions': []}),
@@ -358,6 +449,7 @@ def test_step_moving_obstacles(
         ('actuate_mechanics', {}),
         ('pickup_mechanics', {}),
         ('step_moving_obstacles', {}),
+        ('actuate_door', {}),
     ],
 )
 def test_factory_valid(name: str, kwargs):

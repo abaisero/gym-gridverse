@@ -9,8 +9,10 @@ from gym_gridverse.actions import ROTATION_ACTIONS, TRANSLATION_ACTIONS, Actions
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import Position, get_manhattan_boundary
 from gym_gridverse.grid_object import (
+    Door,
     Floor,
     GridObject,
+    Key,
     MovingObstacle,
     NoneGridObject,
 )
@@ -272,6 +274,50 @@ def step_moving_obstacles(
         _step_moving_obstacle(state.grid, position, rng=rng)
 
 
+def actuate_door(
+    state: State,
+    action: Actions,
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> None:
+    """Attempts to open door
+
+    When not holding correct key with correct color:
+        `open` or `closed` -> `open`
+        `locked` -> `locked`
+
+    When holding correct key:
+        any state -> `open`
+
+    """
+
+    if action is not Actions.ACTUATE:
+        return
+
+    position = state.agent.position_in_front()
+
+    try:
+        door = state.grid[position]
+    except IndexError:
+        return
+
+    if not isinstance(door, Door):
+        return
+
+    if door.is_open:
+        pass
+
+    elif not door.locked:
+        door.state = Door.Status.OPEN
+
+    else:
+        if (
+            isinstance(state.agent.obj, Key)
+            and state.agent.obj.color == door.color
+        ):
+            door.state = Door.Status.OPEN
+
+
 def factory(
     name: str,
     transition_functions: Optional[Sequence[TransitionFunction]] = None,
@@ -294,5 +340,8 @@ def factory(
 
     if name == 'step_moving_obstacles':
         return step_moving_obstacles
+
+    if name == 'actuate_door':
+        return actuate_door
 
     raise ValueError(f'invalid transition function name `{name}`')

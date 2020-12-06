@@ -344,6 +344,17 @@ class Door(GridObject):
         self._color = color
         self._state = state
 
+    @property
+    def state(self) -> Door.Status:
+        return self._state
+
+    @state.setter
+    def state(self, value: Door.Status):
+        if not isinstance(value, Door.Status):
+            return TypeError('value ({value}) must be of type Door.Status')
+
+        self._state = value
+
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
