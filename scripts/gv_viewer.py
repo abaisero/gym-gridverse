@@ -124,6 +124,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('env_path', help='env YAML file')
     parser.add_argument(
+        '--discount', type=float, default=1.0, help='discount factor'
+    )
+    parser.add_argument(
         '--fps', type=float, default=30.0, help='frames per second'
     )
     args = parser.parse_args()
@@ -167,7 +170,7 @@ def main():
     while True:
         if reset:
             env.reset()
-            compute_return = make_compute_return(0.99)
+            compute_return = make_compute_return(args.discount)
             hud_info = {
                 'action': None,
                 'reward': None,
