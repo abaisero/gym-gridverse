@@ -2,31 +2,47 @@
 
 import copy
 import random
-from typing import Sequence
+from typing import Optional, Sequence
+from unittest.mock import MagicMock, patch
 
+import numpy.random as rnd
 import pytest
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs.reset_functions import reset_minigrid_dynamic_obstacles
 from gym_gridverse.envs.transition_functions import (
-    actuate_mechanics,
+    _step_moving_obstacle,
+    actuate_box,
+    actuate_door,
     factory,
     move_agent,
     pickup_mechanics,
     rotate_agent,
-    step_objects,
+    step_moving_obstacles,
+    step_telepod,
 )
+from gym_gridverse.geometry import Position
 from gym_gridverse.grid_object import (
+    Box,
     Colors,
     Door,
     Floor,
+    GridObject,
     Key,
     MovingObstacle,
     NoneGridObject,
+    Telepod,
     Wall,
 )
 from gym_gridverse.info import Agent, Grid, Orientation, PositionOrTuple
 from gym_gridverse.state import State
+
+
+def make_moving_obstacle_state():
+    grid = Grid(3, 3)
+    grid[1, 1] = MovingObstacle()
+    agent = MagicMock()
+    return State(grid, agent)
 
 
 @pytest.mark.parametrize(
@@ -249,8 +265,8 @@ def test_pickup_mechanics_swap():
     assert state.agent.obj == next_state.grid[item_pos]
 
 
-def test_step_called_once():
-    """Tests step is called exactly once on all objects
+def test_step_moving_obstacles_once_per_obstacle():
+    """Tests step is called exactly once on all moving obstacles
 
     There was this naive implementation that looped over all positions, and
     called `.step()` on it. Unfortunately, when `step` caused the object to
@@ -258,65 +274,236 @@ def test_step_called_once():
     position, hence being called twice. This test is here to make sure that
     does not happen again.
     """
+    state = reset_minigrid_dynamic_obstacles(height=6, width=6, num_obstacles=4)
 
-    def call_counter(func):
-        def helper(*args, **kwargs):
-            helper.count += 1
-            return func(*args, **kwargs)
+    counts = {}
 
-        helper.count = 0
-        return helper
+    def patched_step_moving_obstacle(
+        grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
+    ):
+        key = id(grid[position])
+        try:
+            counts[key] += 1
+        except KeyError:
+            counts[key] = 1
 
-    w, h, n = 6, 6, 4
-    state = reset_minigrid_dynamic_obstacles(h, w, n)
+        _step_moving_obstacle(grid, position, rng=rng)
 
-    # replace obstacles with those that count step
-    obstacles = []
-    for pos in state.grid.positions():
-        if isinstance(state.grid[pos], MovingObstacle):
-            state.grid[pos].step = call_counter(state.grid[pos].step)
-            obstacles.append(state.grid[pos])
+    with patch(
+        'gym_gridverse.envs.transition_functions._step_moving_obstacle',
+        new=patched_step_moving_obstacle,
+    ):
+        step_moving_obstacles(state, Actions.PICK_N_DROP)
 
-    step_objects(state, Actions.PICK_N_DROP)
-
-    for obs in obstacles:
-        assert obs.step.count == 1
+    assert len(counts) == 4
+    assert all(count == 1 for count in counts.values())
 
 
-# TODO integrate with `test_pickup_mechanics_pickup`
 @pytest.mark.parametrize(
-    'door_color,key_color,expected_state',
+    'objects,expected_objects',
     [
-        (Colors.BLUE, Colors.BLUE, Door.Status.OPEN),
-        (Colors.GREEN, Colors.BLUE, Door.Status.LOCKED),
+        (
+            [[Floor(), MovingObstacle(), MovingObstacle()]],
+            [[MovingObstacle(), MovingObstacle(), Floor()]],
+        ),
+        (
+            [[MovingObstacle(), Floor(), MovingObstacle()]],
+            [[Floor(), MovingObstacle(), MovingObstacle()]],
+        ),
+        (
+            [[MovingObstacle(), MovingObstacle(), Floor()]],
+            [[MovingObstacle(), Floor(), MovingObstacle()]],
+        ),
     ],
 )
-def test_actuage_mechanics(
-    door_color: Colors, key_color: Colors, expected_state: Door.Status
+def test_step_moving_obstacles(
+    objects: Sequence[Sequence[GridObject]],
+    expected_objects: Sequence[Sequence[GridObject]],
 ):
-    grid = Grid(height=3, width=4)
-    agent = Agent(position=(1, 2), orientation=Orientation.S)
-    item_pos = (2, 2)
+    state = State(Grid.from_objects(objects), MagicMock())
+    expected_state = State(Grid.from_objects(expected_objects), MagicMock())
 
-    grid[item_pos] = Door(Door.Status.LOCKED, door_color)
-    state = State(grid, agent)
-
-    actuate_mechanics(state, Actions.ACTUATE)
-    assert state.grid[item_pos].state_index == Door.Status.LOCKED.value
-
-    agent.obj = Key(key_color)
-    actuate_mechanics(state, Actions.ACTUATE)
-    assert state.grid[item_pos].state_index == expected_state.value
+    action = MagicMock()
+    step_moving_obstacles(state, action)
+    assert state.grid == expected_state.grid
 
 
 @pytest.mark.parametrize(
-    'name',
-    ['update_agent', 'step_objects', 'actuate_mechanics', 'pickup_mechanics'],
+    'door_state,door_color,key_color,action,expected_state',
+    [
+        # LOCKED
+        (
+            Door.Status.LOCKED,
+            Colors.RED,
+            Colors.RED,
+            Actions.ACTUATE,
+            Door.Status.OPEN,
+        ),
+        (
+            Door.Status.LOCKED,
+            Colors.RED,
+            Colors.BLUE,
+            Actions.ACTUATE,
+            Door.Status.LOCKED,
+        ),
+        # CLOSED
+        (
+            Door.Status.CLOSED,
+            Colors.RED,
+            Colors.BLUE,
+            Actions.ACTUATE,
+            Door.Status.OPEN,
+        ),
+        # OPEN
+        (
+            Door.Status.OPEN,
+            Colors.RED,
+            Colors.RED,
+            Actions.ACTUATE,
+            Door.Status.OPEN,
+        ),
+        # not ACTUATE
+        (
+            Door.Status.LOCKED,
+            Colors.RED,
+            Colors.RED,
+            Actions.PICK_N_DROP,
+            Door.Status.LOCKED,
+        ),
+        (
+            Door.Status.LOCKED,
+            Colors.RED,
+            Colors.BLUE,
+            Actions.PICK_N_DROP,
+            Door.Status.LOCKED,
+        ),
+        (
+            Door.Status.CLOSED,
+            Colors.RED,
+            Colors.BLUE,
+            Actions.PICK_N_DROP,
+            Door.Status.CLOSED,
+        ),
+        (
+            Door.Status.OPEN,
+            Colors.RED,
+            Colors.RED,
+            Actions.PICK_N_DROP,
+            Door.Status.OPEN,
+        ),
+    ],
 )
-def test_factory_valid(name):
-    factory(name)
+def test_actuate_door(
+    door_state: Door.Status,
+    door_color: Colors,
+    key_color: Colors,
+    action: Actions,
+    expected_state: Door.Status,
+):
+    # agent facing door
+    grid = Grid(2, 1)
+    grid[0, 0] = door = Door(door_state, door_color)
+    agent = Agent((1, 0), Orientation.N, Key(key_color))
+    state = State(grid, agent)
+
+    actuate_door(state, action)
+    assert door.state == expected_state
+
+    # agent facing away
+    grid = Grid(2, 1)
+    grid[0, 0] = door = Door(door_state, door_color)
+    agent = Agent((1, 0), Orientation.S, Key(key_color))
+    state = State(grid, agent)
+
+    actuate_door(state, action)
+    assert door.state == door_state
 
 
-def test_factory_invalid():
+@pytest.mark.parametrize(
+    'content,orientation,action,expected',
+    [
+        # empty box
+        (Floor(), Orientation.N, Actions.ACTUATE, True),
+        (Floor(), Orientation.S, Actions.ACTUATE, False),
+        (Floor(), Orientation.N, Actions.PICK_N_DROP, False),
+        (Floor(), Orientation.S, Actions.PICK_N_DROP, False),
+        # content is key
+        (Key(Colors.RED), Orientation.N, Actions.ACTUATE, True),
+        (Key(Colors.RED), Orientation.S, Actions.ACTUATE, False),
+        (Key(Colors.RED), Orientation.N, Actions.PICK_N_DROP, False),
+        (Key(Colors.RED), Orientation.S, Actions.PICK_N_DROP, False),
+    ],
+)
+def test_actuate_box(
+    content: GridObject,
+    orientation: Orientation,
+    action: Actions,
+    expected: bool,
+):
+    grid = Grid(2, 1)
+    grid[0, 0] = box = Box(content)
+    agent = Agent((1, 0), orientation)
+    state = State(grid, agent)
+
+    actuate_box(state, action)
+    assert (grid[0, 0] is box) != expected
+    assert (grid[0, 0] is content) == expected
+
+
+@pytest.mark.parametrize(
+    'position_telepod1,position_telepod2,position_agent,expected',
+    [
+        ((0, 0), (1, 1), (0, 0), (1, 1)),
+        ((0, 0), (1, 1), (0, 1), (0, 1)),
+        ((0, 0), (1, 1), (1, 0), (1, 0)),
+        ((0, 0), (1, 1), (1, 1), (0, 0)),
+        ((1, 1), (0, 0), (0, 0), (1, 1)),
+        ((1, 1), (0, 0), (0, 1), (0, 1)),
+        ((1, 1), (0, 0), (1, 0), (1, 0)),
+        ((1, 1), (0, 0), (1, 1), (0, 0)),
+    ],
+)
+def test_teleport(
+    position_telepod1: Position,
+    position_telepod2: Position,
+    position_agent: Position,
+    expected: Position,
+):
+    telepods = Telepod.make(2, Colors.RED)
+    grid = Grid(2, 2)
+    grid[position_telepod1] = telepods[0]
+    grid[position_telepod2] = telepods[1]
+
+    agent = Agent(position_agent, Orientation.N)
+    state = State(grid, agent)
+
+    step_telepod(state, Actions.ACTUATE)
+    assert state.agent.position == expected
+
+
+@pytest.mark.parametrize(
+    'name,kwargs',
+    [
+        ('chain', {'transition_functions': []}),
+        ('update_agent', {}),
+        ('pickup_mechanics', {}),
+        ('step_moving_obstacles', {}),
+        ('actuate_door', {}),
+        ('actuate_box', {}),
+        ('step_telepod', {}),
+    ],
+)
+def test_factory_valid(name: str, kwargs):
+    factory(name, **kwargs)
+
+
+@pytest.mark.parametrize(
+    'name,kwargs',
+    [
+        ('chain', {}),
+        ('invalid', {}),
+    ],
+)
+def test_factory_invalid(name: str, kwargs):
     with pytest.raises(ValueError):
-        factory('invalid')
+        factory(name, **kwargs)

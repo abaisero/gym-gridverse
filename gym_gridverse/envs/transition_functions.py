@@ -1,14 +1,25 @@
 """ Functions to model dynamics """
-
-from typing import List, Optional
+from functools import partial
+from typing import Iterator, List, Optional, Sequence, Tuple, Type
 
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.actions import ROTATION_ACTIONS, TRANSLATION_ACTIONS, Actions
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
-from gym_gridverse.grid_object import Floor, GridObject, NoneGridObject
+from gym_gridverse.geometry import Position, get_manhattan_boundary
+from gym_gridverse.grid_object import (
+    Box,
+    Door,
+    Floor,
+    GridObject,
+    Key,
+    MovingObstacle,
+    NoneGridObject,
+    Telepod,
+)
 from gym_gridverse.info import Agent, Grid
+from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
 
 
@@ -21,6 +32,31 @@ class TransitionFunction(Protocol):
         rng: Optional[rnd.Generator] = None,
     ) -> None:
         ...
+
+
+def chain(
+    state: State,
+    action: Actions,
+    *,
+    transition_functions: Sequence[TransitionFunction],
+    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+) -> None:
+    """Run multiple transition functions in a row
+
+    Args:
+        state (`State`):
+        action (`Actions`):
+        transition_functions (`Sequence[TransitionFunction]`): transition functions
+        rng (`Generator, optional`)
+
+    Returns:
+        None
+    """
+    for transition_function in transition_functions:
+        transition_function(state, action, rng=rng)
+
+
+# TODO move these non-transition functions elsewhere; they are confusing
 
 
 def move_agent(agent: Agent, grid: Grid, action: Actions) -> None:
@@ -103,51 +139,6 @@ def update_agent(
         move_agent(state.agent, state.grid, action)
 
 
-def step_objects(
-    state: State, action: Actions, *, rng: Optional[rnd.Generator] = None
-) -> None:
-    """Calls `step` on all the objects in the grid
-
-    Args:
-        state (`State`):
-        action (`Actions`):
-        rng (`Generator, optional`)
-
-    Returns:
-        None:
-    """
-
-    stepped_objects: List[GridObject] = []
-
-    for pos in state.grid.positions():
-        obj = state.grid[pos]
-
-        if not any([x is obj for x in stepped_objects]):
-            stepped_objects.append(obj)
-            obj.step(state, action, rng=rng)
-
-
-def actuate_mechanics(
-    state: State, action: Actions, *, rng: Optional[rnd.Generator] = None
-) -> None:
-    """Implements the mechanics of actuation
-
-    Calls obj.actuate(state) on the object in front of agent
-
-    Args:
-        state (`State`):
-        action (`Actions`):
-        rng (`Generator, optional`)
-
-    Returns:
-        None:
-    """
-
-    if action == Actions.ACTUATE:
-        obj_in_front_of_agent = state.grid[state.agent.position_in_front()]
-        obj_in_front_of_agent.actuate(state, rng=rng)
-
-
 def pickup_mechanics(
     state: State,
     action: Actions,
@@ -199,18 +190,195 @@ def pickup_mechanics(
     state.agent.obj = obj_in_front_of_agent if can_pickup else NoneGridObject()
 
 
-def factory(name: str) -> TransitionFunction:
+def _unique_object_type_positions(
+    grid: Grid, object_type: Type[GridObject]
+) -> Iterator[Tuple[Position, GridObject]]:
+    """Utility for iterating *once* over position/objects.
+
+    Every object is only yielded once, even if the objects move during the
+    interleaved iteration.
+    """
+
+    objects: List[GridObject] = []
+    for position in grid.positions():
+        obj = grid[position]
+
+        if isinstance(obj, object_type) and not any(obj is x for x in objects):
+            objects.append(obj)
+            yield position, obj
+
+
+def _step_moving_obstacle(
+    grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
+):
+    """Utility for moving a single MovingObstacle randomly"""
+    assert isinstance(grid[position], MovingObstacle)
+
+    rng = get_gv_rng_if_none(rng)
+
+    next_positions = [
+        next_position
+        for next_position in get_manhattan_boundary(position, distance=1)
+        if next_position in grid and isinstance(grid[next_position], Floor)
+    ]
+
+    try:
+        next_position = rng.choice(next_positions)
+    except ValueError:
+        pass
+    else:
+        grid.swap(position, next_position)
+
+
+def step_moving_obstacles(
+    state: State,
+    action: Actions,
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> None:
+    """Moves moving obstacles randomly
+
+    Moves each MovingObstacle only to cells containing _Floor_ objects, and
+    will do so with random walk. In current implementation can only move 1 cell
+    non-diagonally. If (and only if) no open cells are available will it stay
+    put
+
+    Args:
+        state (`State`): current state
+        action (`Actions`): action taken by agent (ignored)
+    """
+    rng = get_gv_rng_if_none(rng)
+
+    for position, obj in _unique_object_type_positions(
+        state.grid, MovingObstacle
+    ):
+        _step_moving_obstacle(state.grid, position, rng=rng)
+
+
+def actuate_door(
+    state: State,
+    action: Actions,
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> None:
+    """Attempts to open door
+
+    When not holding correct key with correct color:
+        `open` or `closed` -> `open`
+        `locked` -> `locked`
+
+    When holding correct key:
+        any state -> `open`
+
+    """
+
+    if action is not Actions.ACTUATE:
+        return
+
+    position = state.agent.position_in_front()
+
+    try:
+        door = state.grid[position]
+    except IndexError:
+        return
+
+    if not isinstance(door, Door):
+        return
+
+    if door.is_open:
+        pass
+
+    elif not door.locked:
+        door.state = Door.Status.OPEN
+
+    else:
+        if (
+            isinstance(state.agent.obj, Key)
+            and state.agent.obj.color == door.color
+        ):
+            door.state = Door.Status.OPEN
+
+
+def actuate_box(
+    state: State,
+    action: Actions,
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> None:
+    """Attempts to open door
+
+    When not holding correct key with correct color:
+        `open` or `closed` -> `open`
+        `locked` -> `locked`
+
+    When holding correct key:
+        any state -> `open`
+
+    """
+
+    if action is not Actions.ACTUATE:
+        return
+
+    position = state.agent.position_in_front()
+
+    try:
+        box = state.grid[position]
+    except IndexError:
+        return
+
+    if not isinstance(box, Box):
+        return
+
+    state.grid[position] = box.content
+
+
+def step_telepod(
+    state: State,
+    action: Actions,  # pylint: disable=unused-argument
+    *,
+    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+) -> None:
+    """Teleports the agent if positioned on the telepod"""
+
+    rng = get_gv_rng_if_none(rng)
+
+    telepod = state.grid[state.agent.position]
+
+    if isinstance(telepod, Telepod):
+        positions = [
+            state.grid.get_position(other_telepod)
+            for other_telepod in telepod.telepods
+        ]
+        state.agent.position = rng.choice(positions)
+
+
+def factory(
+    name: str,
+    transition_functions: Optional[Sequence[TransitionFunction]] = None,
+) -> TransitionFunction:
+
+    if name == 'chain':
+        if None in [transition_functions]:
+            raise ValueError(f'invalid parameters for name `{name}`')
+
+        return partial(chain, transition_functions=transition_functions)
 
     if name == 'update_agent':
         return update_agent
 
-    if name == 'step_objects':
-        return step_objects
-
-    if name == 'actuate_mechanics':
-        return actuate_mechanics
-
     if name == 'pickup_mechanics':
         return pickup_mechanics
+
+    if name == 'step_moving_obstacles':
+        return step_moving_obstacles
+
+    if name == 'actuate_door':
+        return actuate_door
+
+    if name == 'actuate_box':
+        return actuate_box
+
+    if name == 'step_telepod':
+        return step_telepod
 
     raise ValueError(f'invalid transition function name `{name}`')

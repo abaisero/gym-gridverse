@@ -3,19 +3,25 @@ state_space:
   objects: [ Wall, Floor, Goal ]
   colors: [ NONE ]
 
+action_space:
+  - MOVE_FORWARD
+  - MOVE_BACKWARD
+  - TURN_LEFT
+  - TURN_RIGHT
+
 observation_space:
   shape: [ 7, 7 ]
   objects: [ Wall, Floor, Goal ]
   colors: [ NONE ]
 
-reset:
+reset_function:
   name: minigrid_empty
   random_agent: True
 
-transition:
+transition_functions:
   - name: update_agent
 
-reward:
+reward_functions:
   - name: living_reward
     reward: -0.01
   - name: getting_closer
@@ -27,8 +33,8 @@ reward:
     reward_on: 5.0
     reward_off: 0.0
 
-observation:
+observation_function:
   name: full_observation
 
-terminating:
+terminating_function:
   name: reach_goal

@@ -1,22 +1,21 @@
 state_space:
-  shape: [ 10, 10 ]
-  objects: [ Wall, Floor, Goal, Door, Key ]
-  colors: [ NONE, YELLOW ]
+  shape: [ 11, 11 ]
+  objects: [ Wall, Floor, Goal ]
+  colors: [ NONE ]
 
 observation_space:
   shape: [ 7, 7 ]
-  objects: [ Wall, Floor, Goal, Door, Key ]
-  colors: [ NONE, YELLOW ]
+  objects: [ Wall, Floor, Goal ]
+  colors: [ NONE ]
 
-reset:
-  name: minigrid_door_key
+reset_function:
+  name: minigrid_rooms
+  layout: [ 2, 2 ]
 
-transition:
+transition_functions:
   - name: update_agent
-  - name: actuate_mechanics
-  - name: pickup_mechanics
 
-reward:
+reward_functions:
   - name: living_reward
     reward: -0.01
   - name: getting_closer
@@ -28,8 +27,8 @@ reward:
     reward_on: 5.0
     reward_off: 0.0
 
-observation:
+observation_function:
   name: full_observation
 
-terminating:
+terminating_function:
   name: reach_goal

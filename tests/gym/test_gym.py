@@ -21,10 +21,10 @@ import pytest
         'GridVerse-MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
         'GridVerse-MiniGrid-Dynamic-Obstacles-8x8-v0',
         'GridVerse-MiniGrid-Dynamic-Obstacles-16x16-v0',
-        'GridVerse-MiniGrid-DoorKey-5x5-v0',
-        'GridVerse-MiniGrid-DoorKey-6x6-v0',
-        'GridVerse-MiniGrid-DoorKey-8x8-v0',
-        'GridVerse-MiniGrid-DoorKey-16x16-v0',
+        'GridVerse-MiniGrid-KeyDoor-5x5-v0',
+        'GridVerse-MiniGrid-KeyDoor-6x6-v0',
+        'GridVerse-MiniGrid-KeyDoor-8x8-v0',
+        'GridVerse-MiniGrid-KeyDoor-16x16-v0',
     ],
 )
 def test_gym_registration(env_id: str):

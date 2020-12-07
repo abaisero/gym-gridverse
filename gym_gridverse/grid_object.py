@@ -3,16 +3,7 @@ from __future__ import annotations
 
 import abc
 import enum
-from typing import TYPE_CHECKING, Callable, List, Optional, Type
-
-import numpy.random as rnd
-
-from gym_gridverse.actions import Actions
-from gym_gridverse.geometry import get_manhattan_boundary
-from gym_gridverse.rng import get_gv_rng_if_none
-
-if TYPE_CHECKING:
-    from gym_gridverse.state import State
+from typing import Callable, List, Optional, Type
 
 
 class Colors(enum.Enum):
@@ -74,22 +65,6 @@ class GridObject(metaclass=abc.ABCMeta):
         """ Whether the object blocks the agent """
 
     @abc.abstractmethod
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        """ Optional behavior of the object """
-
-    @abc.abstractmethod
-    def actuate(
-        self, state: State, *, rng: Optional[rnd.Generator] = None
-    ) -> None:
-        """ The (optional) behavior upon actuation """
-
-    @abc.abstractmethod
     def render_as_char(self) -> str:
         """ A single char representation of the object"""
 
@@ -107,6 +82,8 @@ class GridObject(metaclass=abc.ABCMeta):
 class NoneGridObject(GridObject):
     """ object representing the absence of an object """
 
+    type_index: int
+
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
@@ -121,7 +98,7 @@ class NoneGridObject(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:  # type: ignore
@@ -135,29 +112,14 @@ class NoneGridObject(GridObject):
     def blocks(self) -> bool:  # type: ignore
         assert RuntimeError('should never be called')
 
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
-    ) -> None:
-        assert RuntimeError('should never be called')
-
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
-    ) -> None:
-        assert RuntimeError('should never be called')
-
     def render_as_char(self) -> str:
         return " "
 
 
 class Hidden(GridObject):
     """ object representing an unobservable cell """
+
+    type_index: int
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -173,7 +135,7 @@ class Hidden(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:
@@ -187,29 +149,14 @@ class Hidden(GridObject):
     def blocks(self) -> bool:  # type: ignore
         assert RuntimeError('should never be called')
 
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
-
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
-
     def render_as_char(self) -> str:
         return "."
 
 
 class Floor(GridObject):
     """ Most basic object in the grid, represents empty cell """
+
+    type_index: int
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -225,7 +172,7 @@ class Floor(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:
@@ -238,23 +185,6 @@ class Floor(GridObject):
     @property
     def blocks(self) -> bool:
         return False
-
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
-
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
 
     def render_as_char(self) -> str:
         return " "
@@ -263,6 +193,8 @@ class Floor(GridObject):
 class Wall(GridObject):
     """ The (second) most basic object in the grid: blocking cell """
 
+    type_index: int
+
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
@@ -277,7 +209,7 @@ class Wall(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:
@@ -290,23 +222,6 @@ class Wall(GridObject):
     @property
     def blocks(self) -> bool:
         return True
-
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
-
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
 
     def render_as_char(self) -> str:
         return "#"
@@ -315,6 +230,8 @@ class Wall(GridObject):
 class Goal(GridObject):
     """ The (second) most basic object in the grid: blocking cell """
 
+    type_index: int
+
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
@@ -329,7 +246,7 @@ class Goal(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:
@@ -342,23 +259,6 @@ class Goal(GridObject):
     @property
     def blocks(self) -> bool:
         return False
-
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
-
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
 
     def render_as_char(self) -> str:
         return "G"
@@ -380,6 +280,8 @@ class Door(GridObject):
 
     """
 
+    type_index: int
+
     class Status(enum.Enum):
         """ open, closed or locked """
 
@@ -390,6 +292,17 @@ class Door(GridObject):
     def __init__(self, state: Door.Status, color: Colors):
         self._color = color
         self._state = state
+
+    @property
+    def state(self) -> Door.Status:
+        return self._state
+
+    @state.setter
+    def state(self, value: Door.Status):
+        if not isinstance(value, Door.Status):
+            return TypeError('value ({value}) must be of type Door.Status')
+
+        self._state = value
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -419,43 +332,6 @@ class Door(GridObject):
     def blocks(self) -> bool:
         return self._state != self.Status.OPEN
 
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
-
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
-    ) -> None:
-        """Attempts to open door
-
-        When not holding correct key with correct color:
-            `open` or `closed` -> `open`
-            `locked` -> `locked`
-
-        When holding correct key:
-            any state -> `open`
-
-        """
-
-        if self.is_open:
-            return
-        if not self.locked:
-            self._state = self.Status.OPEN
-        else:
-            if (
-                isinstance(state.agent.obj, Key)
-                and state.agent.obj.color == self.color
-            ):
-                self._state = self.Status.OPEN
-
     @property
     def is_open(self) -> bool:
         """ returns whether the door is opened """
@@ -477,6 +353,8 @@ class Door(GridObject):
 class Key(GridObject):
     """ A key opens a door with the same color """
 
+    type_index: int
+
     def __init__(self, c: Colors):
         """ Creates a key of color `c` """
         self._color = c
@@ -495,7 +373,7 @@ class Key(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:
@@ -509,26 +387,14 @@ class Key(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
-
-    def actuate(
-        self, state: State, *, rng: Optional[rnd.Generator] = None
-    ) -> None:
-        pass
-
     def render_as_char(self) -> str:
         return "K"
 
 
 class MovingObstacle(GridObject):
     """An obstacle to be avoided that moves in the grid"""
+
+    type_index: int
 
     def __init__(self):
         """Moving obstacles have no special status or color"""
@@ -547,7 +413,7 @@ class MovingObstacle(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:
@@ -561,48 +427,6 @@ class MovingObstacle(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        """Moves randomly
-
-        Moves only to cells containing _Floor_ objects, and will do so with
-        random walk. In current implementation can only move 1 cell
-        non-diagonally. If (and only if) no open cells are available will it
-        stay put
-
-        Args:
-            state (`State`): current state
-            action (`Actions`): action taken by agent (ignored)
-        """
-        rng = get_gv_rng_if_none(None)
-
-        cur_pos = state.grid.get_position(self)
-
-        proposed_next_positions = get_manhattan_boundary(cur_pos, distance=1)
-
-        # Filter on next position is Floor and in grid
-        proposed_next_positions = [
-            x
-            for x in proposed_next_positions
-            if x in state.grid and isinstance(state.grid[x], Floor)
-        ]
-
-        if not proposed_next_positions:
-            return
-
-        next_position = rng.choice(proposed_next_positions)
-        state.grid.swap(cur_pos, next_position)
-
-    def actuate(
-        self, state: State, *, rng: Optional[rnd.Generator] = None
-    ) -> None:
-        pass
-
     def render_as_char(self) -> str:
         return "*"
 
@@ -610,14 +434,16 @@ class MovingObstacle(GridObject):
 class Box(GridObject):
     """A box which can be broken and may contain another object"""
 
-    def __init__(self, obj: GridObject):
+    type_index: int
+
+    def __init__(self, content: GridObject):
         """Boxes have no special status or color"""
-        if isinstance(obj, (NoneGridObject, Hidden)):
+        if isinstance(content, (NoneGridObject, Hidden)):
             raise ValueError(
                 'box cannot contain NoneGridObject or Hidden types'
             )
 
-        self.obj = obj
+        self.content = content
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -633,7 +459,7 @@ class Box(GridObject):
 
     @classmethod
     def num_states(cls) -> int:
-        return 0
+        return 1
 
     @property
     def transparent(self) -> bool:
@@ -647,27 +473,59 @@ class Box(GridObject):
     def blocks(self) -> bool:
         return True
 
-    def step(
-        self,
-        state: State,
-        action: Actions,
-        *,
-        rng: Optional[rnd.Generator] = None,
-    ) -> None:
-        pass
-
-    def actuate(
-        self,
-        state: State,
-        *,
-        rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
-    ) -> None:
-
-        position = state.grid.get_position(self)
-        state.grid[position] = self.obj
-
     def render_as_char(self) -> str:
         return "b"
+
+
+class Telepod(GridObject):
+    """A teleportation pod"""
+
+    type_index: int
+
+    @classmethod
+    def make(cls, num_telepods: int, color: Colors) -> List[Telepod]:
+        """make linked telepods"""
+        telepods = [Telepod(color) for _ in range(num_telepods)]
+        for i, telepod in enumerate(telepods):
+            telepod.telepods.extend(telepods[:i])
+            telepod.telepods.extend(telepods[i + 1 :])
+
+        return telepods
+
+    def __init__(self, color: Colors):
+        self.telepods: List[Telepod] = []
+        self._color = color
+
+    @classmethod
+    def can_be_represented_in_state(cls) -> bool:
+        return False
+
+    @property
+    def state_index(self) -> int:
+        return 0
+
+    @property
+    def color(self) -> Colors:
+        return self._color
+
+    @classmethod
+    def num_states(cls) -> int:
+        return 1
+
+    @property
+    def transparent(self) -> bool:
+        return True
+
+    @property
+    def can_be_picked_up(self) -> bool:
+        return False
+
+    @property
+    def blocks(self) -> bool:
+        return False
+
+    def render_as_char(self) -> str:
+        return "T"
 
 
 def factory(
@@ -717,6 +575,13 @@ def factory(
 
         return Box(obj)
 
+    if name in ['telepod', 'Telepod']:
+        if not isinstance(color, str):
+            raise ValueError(f'invalid parameters for name `{name}`')
+
+        color_ = Colors[color]
+        return Telepod(color_)
+
     raise ValueError(f'invalid grid-object name {name}')
 
 
@@ -748,6 +613,9 @@ def factory_type(name: str) -> Type[GridObject]:
 
     if name in ['box', 'Box']:
         return Box
+
+    if name in ['telepod', 'Telepod']:
+        return Telepod
 
     raise ValueError(f'invalid grid-object type name {name}')
 

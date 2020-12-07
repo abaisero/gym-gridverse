@@ -17,11 +17,12 @@ example::
 Other environments provided out of the box are located in the directory
 `envs_yaml`, and include:
 
-- :download:`envs_yaml/env_minigrid_crossing.yaml <../../envs_yaml/env_minigrid_crossing.yaml>`
-- :download:`envs_yaml/env_minigrid_door_key.yaml <../../envs_yaml/env_minigrid_door_key.yaml>`
-- :download:`envs_yaml/env_minigrid_dynamic_obstacles_16x16_random.v0.yaml <../../envs_yaml/env_minigrid_dynamic_obstacles_16x16_random.v0.yaml>`
-- :download:`envs_yaml/env_minigrid_empty.yaml <../../envs_yaml/env_minigrid_empty.yaml>`
-- :download:`envs_yaml/env_minigrid_four_rooms.yaml <../../envs_yaml/env_minigrid_four_rooms.yaml>`
+- :download:`yaml/env_minigrid_crossing.yaml <../../yaml/env_minigrid_crossing.yaml>`
+- :download:`yaml/env_minigrid_keydoor.yaml <../../yaml/env_minigrid_keydoor.yaml>`
+- :download:`yaml/env_minigrid_dynamic_obstacles_16x16_random.v0.yaml <../../yaml/env_minigrid_dynamic_obstacles_16x16_random.v0.yaml>`
+- :download:`yaml/env_minigrid_empty.yaml <../../yaml/env_minigrid_empty.yaml>`
+- :download:`yaml/env_minigrid_four_rooms.yaml <../../yaml/env_minigrid_four_rooms.yaml>`
+- :download:`yaml/env_minigrid_nine_rooms.yaml <../../yaml/env_minigrid_nine_rooms.yaml>`
 
 Create environments
 ===================

@@ -2,16 +2,25 @@ import pytest
 
 from gym_gridverse.actions import Actions
 from gym_gridverse.envs.reward_functions import (
+    actuate_door,
     bump_into_wall,
     bump_moving_obstacle,
     factory,
     getting_closer,
     living_reward,
+    pickndrop,
     proportional_to_distance,
     reach_goal,
 )
 from gym_gridverse.geometry import Orientation, Position, PositionOrTuple
-from gym_gridverse.grid_object import Goal, MovingObstacle, Wall
+from gym_gridverse.grid_object import (
+    Colors,
+    Door,
+    Goal,
+    Key,
+    MovingObstacle,
+    Wall,
+)
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
@@ -38,6 +47,22 @@ def make_wall_state(orientation: Orientation = Orientation.N) -> State:
     grid = Grid(2, 1)
     grid[0, 0] = Wall()
     agent = Agent((1, 0), orientation)
+    return State(grid, agent)
+
+
+def make_door_state(door_status: Door.Status) -> State:
+    """makes a simple state with a door"""
+    grid = Grid(2, 1)
+    grid[0, 0] = Door(door_status, Colors.RED)
+    agent = Agent((1, 0), Orientation.N)
+    return State(grid, agent)
+
+
+def make_key_state(has_key: bool) -> State:
+    """makes a simple state with a door"""
+    grid = Grid(1, 1)
+    obj = Key(Colors.RED) if has_key else None
+    agent = Agent((0, 0), Orientation.N, obj)
     return State(grid, agent)
 
 
@@ -216,6 +241,186 @@ def test_bump_into_wall(
 
 
 @pytest.mark.parametrize(
+    'door_status,next_door_status,action,kwargs,expected',
+    [
+        # not opening
+        (Door.Status.CLOSED, Door.Status.OPEN, Actions.MOVE_LEFT, {}, 0.0),
+        (Door.Status.CLOSED, Door.Status.OPEN, Actions.PICK_N_DROP, {}, 0.0),
+        # default values
+        (Door.Status.OPEN, Door.Status.OPEN, Actions.ACTUATE, {}, 0.0),
+        (Door.Status.OPEN, Door.Status.CLOSED, Actions.ACTUATE, {}, -1.0),
+        (Door.Status.OPEN, Door.Status.LOCKED, Actions.ACTUATE, {}, -1.0),
+        (Door.Status.CLOSED, Door.Status.OPEN, Actions.ACTUATE, {}, 1.0),
+        (Door.Status.CLOSED, Door.Status.CLOSED, Actions.ACTUATE, {}, 0.0),
+        (Door.Status.CLOSED, Door.Status.LOCKED, Actions.ACTUATE, {}, 0.0),
+        (Door.Status.LOCKED, Door.Status.OPEN, Actions.ACTUATE, {}, 1.0),
+        (Door.Status.LOCKED, Door.Status.CLOSED, Actions.ACTUATE, {}, 0.0),
+        (Door.Status.LOCKED, Door.Status.LOCKED, Actions.ACTUATE, {}, 0.0),
+        # custom values
+        (
+            Door.Status.OPEN,
+            Door.Status.OPEN,
+            Actions.ACTUATE,
+            {'reward_open': -1.5, 'reward_close': 1.5},
+            0.0,
+        ),
+        (
+            Door.Status.OPEN,
+            Door.Status.CLOSED,
+            Actions.ACTUATE,
+            {'reward_open': -1.5, 'reward_close': 1.5},
+            1.5,
+        ),
+        (
+            Door.Status.OPEN,
+            Door.Status.LOCKED,
+            Actions.ACTUATE,
+            {'reward_open': -1.5, 'reward_close': 1.5},
+            1.5,
+        ),
+        (
+            Door.Status.CLOSED,
+            Door.Status.OPEN,
+            Actions.ACTUATE,
+            {'reward_open': -1.5, 'reward_close': 1.5},
+            -1.5,
+        ),
+        (
+            Door.Status.CLOSED,
+            Door.Status.CLOSED,
+            Actions.ACTUATE,
+            {'reward_open': -1.5, 'reward_close': 1.5},
+            0.0,
+        ),
+        (
+            Door.Status.CLOSED,
+            Door.Status.LOCKED,
+            Actions.ACTUATE,
+            {'reward_open': -1.5, 'reward_close': 1.5},
+            0.0,
+        ),
+        (
+            Door.Status.LOCKED,
+            Door.Status.OPEN,
+            Actions.ACTUATE,
+            {'reward_open': -1.5, 'reward_close': 1.5},
+            -1.5,
+        ),
+        (
+            Door.Status.LOCKED,
+            Door.Status.CLOSED,
+            Actions.ACTUATE,
+            {'reward_open': -1.5, 'reward_close': 1.5},
+            0.0,
+        ),
+        (
+            Door.Status.LOCKED,
+            Door.Status.LOCKED,
+            Actions.ACTUATE,
+            {'reward_open': -1.5, 'reward_close': 1.5},
+            0.0,
+        ),
+    ],
+)
+def test_actuate_door(
+    door_status: Door.Status,
+    next_door_status: Door.Status,
+    action: Actions,
+    kwargs,
+    expected: float,
+):
+    state = make_door_state(door_status)
+    next_state = make_door_state(next_door_status)
+    assert actuate_door(state, action, next_state, **kwargs) == expected
+
+
+@pytest.mark.parametrize(
+    'state,next_state,kwargs,expected',
+    [
+        # default values
+        (
+            make_key_state(False),
+            make_key_state(False),
+            {'object_type': Key},
+            0.0,
+        ),
+        (
+            make_key_state(False),
+            make_key_state(True),
+            {'object_type': Key},
+            1.0,
+        ),
+        (
+            make_key_state(True),
+            make_key_state(False),
+            {'object_type': Key},
+            -1.0,
+        ),
+        (make_key_state(True), make_key_state(True), {'object_type': Key}, 0.0),
+        # custom values
+        (
+            make_key_state(False),
+            make_key_state(False),
+            {'object_type': Key, 'reward_pick': -1.5, 'reward_drop': 1.5},
+            0.0,
+        ),
+        (
+            make_key_state(False),
+            make_key_state(True),
+            {'object_type': Key, 'reward_pick': -1.5, 'reward_drop': 1.5},
+            -1.5,
+        ),
+        (
+            make_key_state(True),
+            make_key_state(False),
+            {'object_type': Key, 'reward_pick': -1.5, 'reward_drop': 1.5},
+            1.5,
+        ),
+        (
+            make_key_state(True),
+            make_key_state(True),
+            {'object_type': Key, 'reward_pick': -1.5, 'reward_drop': 1.5},
+            0.0,
+        ),
+        # wrong object
+        (
+            make_key_state(False),
+            make_key_state(False),
+            {'object_type': Wall},
+            0.0,
+        ),
+        (
+            make_key_state(False),
+            make_key_state(True),
+            {'object_type': Wall},
+            0.0,
+        ),
+        (
+            make_key_state(True),
+            make_key_state(False),
+            {'object_type': Wall},
+            0.0,
+        ),
+        (
+            make_key_state(True),
+            make_key_state(True),
+            {'object_type': Wall},
+            0.0,
+        ),
+    ],
+)
+def test_pickndrop(
+    state: State,
+    next_state: State,
+    kwargs,
+    expected: float,
+    forbidden_action_maker,
+):
+    action = forbidden_action_maker()
+    assert pickndrop(state, action, next_state, **kwargs) == expected
+
+
+@pytest.mark.parametrize(
     'name,kwargs',
     [
         ('chain', {'reward_functions': []}),
@@ -244,6 +449,21 @@ def test_bump_into_wall(
             },
         ),
         ('bump_into_wall', {'reward': -1.0}),
+        (
+            'actuate_door',
+            {
+                'reward_open': 1.0,
+                'reward_close': -1.0,
+            },
+        ),
+        (
+            'pickndrop',
+            {
+                'object_type': Key,
+                'reward_pick': 1.0,
+                'reward_drop': -1.0,
+            },
+        ),
     ],
 )
 def test_factory_valid(name: str, kwargs):
@@ -262,6 +482,8 @@ def test_factory_valid(name: str, kwargs):
         ('proportional_to_distance', {}, ValueError),
         ('getting_closer', {}, ValueError),
         ('bump_into_wall', {}, ValueError),
+        ('actuate_door', {}, ValueError),
+        ('pickndrop', {}, ValueError),
     ],
 )
 def test_factory_invalid(name: str, kwargs, exception: Exception):

@@ -37,7 +37,10 @@ def test_max_color_index():
 
 @pytest.mark.parametrize(
     'object_types,expected',
-    [([Floor, Goal], 0), ([Door, Goal], len(Door.Status))],
+    [
+        ([Floor, Goal], 1),
+        ([Door, Goal], 3),
+    ],
 )
 def test_max_object_status(
     object_types: Sequence[Type[GridObject]], expected: int
@@ -47,7 +50,10 @@ def test_max_object_status(
 
 @pytest.mark.parametrize(
     'object_types,expected',
-    [([Floor, Goal], Goal.type_index), ([Door, Goal], Door.type_index)],
+    [
+        ([Floor, Goal], Goal.type_index),
+        ([Door, Goal], Door.type_index),
+    ],
 )
 def test_max_object_type(
     object_types: Sequence[Type[GridObject]], expected: int

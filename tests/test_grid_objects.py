@@ -16,6 +16,7 @@ from gym_gridverse.grid_object import (
     Key,
     MovingObstacle,
     NoneGridObject,
+    Telepod,
     Wall,
     factory,
 )
@@ -42,6 +43,7 @@ class DummyNonRegisteredObject(  # pylint: disable=abstract-method
         (Key, True),
         (MovingObstacle, True),
         (Box, True),
+        (Telepod, True),
     ],
 )
 def test_registration(object_type: Type[GridObject], expected: bool):
@@ -62,7 +64,7 @@ def test_grid_object_registration():
     """ Test registration of type indices """
 
     # pylint: disable=no-member
-    assert len(GridObject.object_types) == 9
+    assert len(GridObject.object_types) == 10
     unittest.TestCase().assertCountEqual(
         [
             NoneGridObject.type_index,
@@ -74,6 +76,7 @@ def test_grid_object_registration():
             Key.type_index,
             MovingObstacle.type_index,
             Box.type_index,
+            Telepod.type_index,
         ],
         range(len(GridObject.object_types)),
     )
@@ -88,6 +91,7 @@ def test_grid_object_registration():
         Key,
         MovingObstacle,
         Box,
+        Telepod,
     ]:
         assert GridObject.object_types[obj_cls.type_index] is obj_cls
 
@@ -110,7 +114,7 @@ def test_none_grid_object_properties():
 
     assert none.can_be_represented_in_state()
     assert none.render_as_char() == ' '
-    assert none.num_states() == 0
+    assert none.num_states() == 1
 
 
 def test_hidden_properties():
@@ -124,7 +128,7 @@ def test_hidden_properties():
 
     assert not hidden.can_be_represented_in_state()
     assert hidden.render_as_char() == '.'
-    assert hidden.num_states() == 0
+    assert hidden.num_states() == 1
 
 
 def test_floor_properties():
@@ -140,7 +144,7 @@ def test_floor_properties():
 
     assert floor.can_be_represented_in_state()
     assert floor.render_as_char() == ' '
-    assert floor.num_states() == 0
+    assert floor.num_states() == 1
 
 
 def test_wall_properties():
@@ -156,7 +160,7 @@ def test_wall_properties():
 
     assert wall.can_be_represented_in_state()
     assert wall.render_as_char() == '#'
-    assert wall.num_states() == 0
+    assert wall.num_states() == 1
 
 
 def test_goal_properties():
@@ -172,7 +176,7 @@ def test_goal_properties():
 
     assert goal.can_be_represented_in_state()
     assert goal.render_as_char() == 'G'
-    assert goal.num_states() == 0
+    assert goal.num_states() == 1
 
 
 def test_door_open_door_properties():
@@ -230,47 +234,6 @@ def test_door_locked_door_properties():
     assert locked_door.render_as_char() == 'D'
 
 
-def test_door_opening_door():
-    """ Testing the simple FNS of the door """
-
-    color = Colors.GREEN
-    s = None
-
-    door = Door(Door.Status.CLOSED, color)
-    assert not door.is_open
-
-    door.actuate(s)
-    assert door.is_open
-
-    door.actuate(s)
-    assert door.is_open
-
-
-def test_door_opening_door_with_key():
-    """ Testing the simple FNS of the door """
-
-    color = Colors.BLUE
-
-    # Agent holding wrong key
-    s = simple_state_without_object()
-    s.agent.obj = Key(Colors.YELLOW)
-
-    door = Door(Door.Status.LOCKED, color)
-    assert not door.is_open
-
-    door.actuate(s)
-    assert not door.is_open
-
-    s.agent.obj = Key(color)
-    assert not door.is_open
-
-    door.actuate(s)
-    assert door.is_open
-
-    door.actuate(s)
-    assert door.is_open
-
-
 def test_key_properties():
     """ Basic property tests """
 
@@ -284,7 +247,7 @@ def test_key_properties():
     assert key.state_index == 0
 
     assert key.can_be_represented_in_state()
-    assert key.num_states() == 0
+    assert key.num_states() == 1
 
 
 def test_moving_obstacle_basic_properties():
@@ -300,33 +263,7 @@ def test_moving_obstacle_basic_properties():
 
     assert obstacle.can_be_represented_in_state()
     assert obstacle.render_as_char() == '*'
-    assert obstacle.num_states() == 0
-
-
-def test_moving_obstacle_obstacle_movement():
-    """Test the 'step' behavior of the obstacle"""
-
-    obs_1 = MovingObstacle()
-    obs_2 = MovingObstacle()
-
-    # allow for just 1 next step
-    s = simple_state_without_object()
-
-    s.grid[1, 0] = obs_1
-    s.grid[1, 1] = obs_2
-    obs_1.step(s, action=None)
-
-    assert s.grid.get_position(obs_1) == (0, 0)
-
-    # two possible moves out of corner
-    s = simple_state_without_object()
-
-    s.grid[1, 1] = obs_1
-    obs_1.step(s, action=None)
-
-    assert (s.grid.get_position(obs_1) == (0, 1)) or (
-        s.grid.get_position(obs_1) == (1, 0)
-    )
+    assert obstacle.num_states() == 1
 
 
 def test_box_basic_properties():
@@ -342,35 +279,23 @@ def test_box_basic_properties():
 
     assert not box.can_be_represented_in_state()
     assert box.render_as_char() == 'b'
-    assert box.num_states() == 0
+    assert box.num_states() == 1
 
 
-@pytest.mark.parametrize(
-    'obj',
-    [
-        Floor(),
-        Wall(),
-        Goal(),
-        Door(Door.Status.CLOSED, Colors.RED),
-        Key(Colors.RED),
-        MovingObstacle(),
-        Box(Floor()),
-        Box(Box(Floor())),
-        Box(Box(Box(Floor()))),
-    ],
-)
-def test_box_movement(obj: GridObject):
-    """Test the 'actuate' behavior of box"""
+def test_telepod_properties():
+    """Basic property tests of telepod"""
 
-    box = Box(obj)
+    color = Colors.YELLOW
+    telepod = Telepod(color)
 
-    # allow for just 1 next step
-    state = simple_state_without_object()
-    state.grid[0, 0] = box
+    assert telepod.transparent
+    assert not telepod.blocks
+    assert telepod.color == color
+    assert not telepod.can_be_picked_up
+    assert telepod.state_index == 0
 
-    box.actuate(state)
-
-    assert state.grid[0, 0] is obj
+    assert not telepod.can_be_represented_in_state()
+    assert telepod.num_states() == 1
 
 
 @pytest.mark.parametrize(
@@ -394,6 +319,8 @@ def test_box_movement(obj: GridObject):
         ('moving_obstacle', {}),
         ('Box', {'obj': Floor()}),
         ('box', {'obj': Floor()}),
+        ('Telepod', {'color': 'RED'}),
+        ('telepod', {'color': 'RED'}),
     ],
 )
 def test_factory_valid(name: str, kwargs):

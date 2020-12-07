@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 import argparse
 
-from gym_gridverse.envs.factory_yaml import make_environment
+from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('data_path', help='YAML data file')
+    parser.add_argument('path', help='YAML data file')
     args = parser.parse_args()
 
-    with open(args.data_path) as f:
-        env = make_environment(f)
-
+    env = factory_env_from_yaml(args.path)
     print(env)
 
 

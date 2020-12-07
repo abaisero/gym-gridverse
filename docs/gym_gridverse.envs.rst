@@ -7,7 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   gym_gridverse.envs.resources
+   gym_gridverse.envs.yaml
 
 Submodules
 ----------
@@ -16,14 +16,6 @@ gym\_gridverse.envs.factory module
 ----------------------------------
 
 .. automodule:: gym_gridverse.envs.factory
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-gym\_gridverse.envs.factory\_yaml module
-----------------------------------------
-
-.. automodule:: gym_gridverse.envs.factory_yaml
    :members:
    :undoc-members:
    :show-inheritance:

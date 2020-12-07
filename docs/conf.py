@@ -198,7 +198,6 @@ nitpick_ignore = [
     ('py:mod', 'typing'),
     ('py:class', 'typing.Protocol'),
     ('py:class', 'typing_extensions.Protocol'),
-    ('py:class', 'yamale.schema.schema.Schema'),
     ('py:class', 'numpy.ndarray'),
     ('py:class', 'np.ndarray'),
     ('py:class', 'numpy.random._generator.Generator'),
@@ -210,6 +209,6 @@ nitpick_ignore = [
     ('py:class', 'gym_minigrid.wrappers.FullyObsWrapper'),
     ('py:class', 'gym_gridverse.geometry._2D_Point'),
     ('py:class', 'PositionOrTuple'),
-    ('py:class', 'State'),
-    ('py:class', 'Actions'),
+    ('py:class', 'gym.envs.classic_control.rendering.Geom'),
+    ('py:class', 'Ray'),
 ]
