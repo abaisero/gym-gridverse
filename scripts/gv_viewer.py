@@ -5,7 +5,7 @@ import argparse
 import enum
 import itertools as itt
 import time
-from typing import Dict, Union
+from typing import Dict, Generator, Union
 
 import pyglet
 
@@ -14,6 +14,7 @@ from gym_gridverse.envs import observation_functions as observation_fs
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 from gym_gridverse.rendering import GridVerseViewer
+from gym_gridverse.utils.rl import make_return_computer
 
 
 class Controls(enum.Enum):
@@ -120,7 +121,7 @@ def set_observation_function(env: GridWorld, name: str):
     env._observation = None
 
 
-def main():
+def main():  # pylint: disable=too-many-locals
     parser = argparse.ArgumentParser()
     parser.add_argument('env_path', help='env YAML file')
     parser.add_argument(
@@ -153,24 +154,12 @@ def main():
         ]
     )
 
-    def make_compute_return(discount: float):
-        cumreturn = 0.0
-        cumdiscount = 1.0
-
-        def compute_return(reward: float) -> float:
-            nonlocal cumreturn
-            nonlocal cumdiscount
-            cumreturn += cumdiscount * reward
-            cumdiscount *= discount
-            return cumreturn
-
-        return compute_return
-
     reset = True
     while True:
         if reset:
             env.reset()
-            compute_return = make_compute_return(args.discount)
+            return_computer = make_return_computer(args.discount)
+
             hud_info = {
                 'action': None,
                 'reward': None,
@@ -189,7 +178,7 @@ def main():
 
             if not done and env.action_space.contains(action):
                 reward, done = env.step(action)
-                ret = compute_return(reward)
+                ret = return_computer(reward)
 
                 hud_info = {
                     'action': action,
