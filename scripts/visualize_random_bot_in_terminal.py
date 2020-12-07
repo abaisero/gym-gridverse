@@ -7,7 +7,7 @@ from typing import Dict
 import numpy as np
 
 from gym_gridverse.actions import Actions
-from gym_gridverse.envs.factory_yaml import make_environment
+from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 from gym_gridverse.outer_env import OuterEnv
 from gym_gridverse.render_as_string import str_render_obs, str_render_state
 from gym_gridverse.representations.observation_representations import (
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     with open(args.env_path) as f:
-        inner_env = make_environment(f)
+        inner_env = factory_env_from_yaml(args.env_path)
 
     rep = DefaultObservationRepresentation(inner_env.observation_space)
     outer_env = OuterEnv(inner_env, observation_rep=rep)
