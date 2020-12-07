@@ -1,0 +1,353 @@
+{
+    "type": "object",
+    "properties": {
+        "state_space": {
+            "description": "The shape and contents of a state",
+            "type": "object",
+            "properties": {
+                "shape": {
+                    "description": "A pair of positive integers",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "objects": {
+                    "description": "A non-empty list of unique grid-object names",
+                    "type": "array",
+                    "items": {
+                        "enum": [
+                            "floor",
+                            "wall",
+                            "goal",
+                            "door",
+                            "key",
+                            "moving_obstacle",
+                            "box",
+                            "Floor",
+                            "Wall",
+                            "Goal",
+                            "Door",
+                            "Key",
+                            "MovingObstacle",
+                            "Box"
+                        ]
+                    }
+                },
+                "colors": {
+                    "description": "A non-empty list of unique color names",
+                    "type": "array",
+                    "items": {
+                        "enum": [
+                            "NONE",
+                            "RED",
+                            "GREEN",
+                            "BLUE",
+                            "YELLOW"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "shape",
+                "objects",
+                "colors"
+            ],
+            "additionalProperties": false
+        },
+        "action_space": {
+            "description": "A non-empty list of unique action names",
+            "type": "array",
+            "items": {
+                "enum": [
+                    "MOVE_FORWARD",
+                    "MOVE_BACKWARD",
+                    "MOVE_LEFT",
+                    "MOVE_RIGHT",
+                    "TURN_LEFT",
+                    "TURN_RIGHT",
+                    "ACTUATE",
+                    "PICK_N_DROP"
+                ]
+            }
+        },
+        "observation_space": {
+            "description": "The shape and contents of an observation;  shape should have an off width.",
+            "type": "object",
+            "properties": {
+                "shape": {
+                    "description": "A pair of positive integers",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "objects": {
+                    "description": "A non-empty list of unique grid-object names",
+                    "type": "array",
+                    "items": {
+                        "enum": [
+                            "floor",
+                            "wall",
+                            "goal",
+                            "door",
+                            "key",
+                            "moving_obstacle",
+                            "box",
+                            "Floor",
+                            "Wall",
+                            "Goal",
+                            "Door",
+                            "Key",
+                            "MovingObstacle",
+                            "Box"
+                        ]
+                    }
+                },
+                "colors": {
+                    "description": "A non-empty list of unique color names",
+                    "type": "array",
+                    "items": {
+                        "enum": [
+                            "NONE",
+                            "RED",
+                            "GREEN",
+                            "BLUE",
+                            "YELLOW"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "shape",
+                "objects",
+                "colors"
+            ],
+            "additionalProperties": false
+        },
+        "reset_function": {
+            "$ref": "#/definitions/reset_function"
+        },
+        "transition_functions": {
+            "description": "A list of transition functions",
+            "type": "array",
+            "items": {
+                "description": "A transition function",
+                "$ref": "#/definitions/transition_function"
+            }
+        },
+        "reward_functions": {
+            "description": "A list of reward functions",
+            "type": "array",
+            "items": {
+                "description": "A reward function",
+                "$ref": "#/definitions/reward_function"
+            }
+        },
+        "observation_function": {
+            "description": "An observation function",
+            "$ref": "#/definitions/observation_function"
+        },
+        "terminating_function": {
+            "description": "A terminating function",
+            "$ref": "#/definitions/terminating_function"
+        }
+    },
+    "required": [
+        "state_space",
+        "observation_space",
+        "reset_function",
+        "transition_functions",
+        "reward_functions",
+        "observation_function",
+        "terminating_function"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "reset_function": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "random_agent": {
+                    "type": "boolean"
+                },
+                "layout": {
+                    "description": "A pair of positive integers",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "num_obstacles": {
+                    "type": "integer"
+                },
+                "num_rivers": {
+                    "type": "integer"
+                },
+                "object_type": {
+                    "enum": [
+                        "floor",
+                        "wall",
+                        "goal",
+                        "door",
+                        "key",
+                        "moving_obstacle",
+                        "box",
+                        "Floor",
+                        "Wall",
+                        "Goal",
+                        "Door",
+                        "Key",
+                        "MovingObstacle",
+                        "Box"
+                    ]
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "additionalProperties": false
+        },
+        "transition_function": {
+            "description": "A transition function",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "additionalProperties": false
+        },
+        "reward_function": {
+            "description": "A reward function",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "reward": {
+                    "type": "number"
+                },
+                "reward_on": {
+                    "type": "number"
+                },
+                "reward_off": {
+                    "type": "number"
+                },
+                "reward_per_unit_distance": {
+                    "type": "number"
+                },
+                "reward_closer": {
+                    "type": "number"
+                },
+                "reward_further": {
+                    "type": "number"
+                },
+                "distance_function": {
+                    "description": "A distance function",
+                    "enum": [
+                        "manhattan",
+                        "euclidean"
+                    ]
+                },
+                "object_type": {
+                    "enum": [
+                        "floor",
+                        "wall",
+                        "goal",
+                        "door",
+                        "key",
+                        "moving_obstacle",
+                        "box",
+                        "Floor",
+                        "Wall",
+                        "Goal",
+                        "Door",
+                        "Key",
+                        "MovingObstacle",
+                        "Box"
+                    ]
+                },
+                "reward_functions": {
+                    "description": "A list of reward functions",
+                    "type": "array",
+                    "items": {
+                        "description": "A reward function",
+                        "$ref": "#/definitions/reward_function"
+                    }
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "additionalProperties": false
+        },
+        "observation_function": {
+            "description": "An observation function",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "visibility_function": {
+                    "description": "A visibility functions",
+                    "enum": [
+                        "full_visibility",
+                        "minigrid_visibility",
+                        "raytracing_visibility",
+                        "stochastic_raytracing_visibility"
+                    ]
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "additionalProperties": false
+        },
+        "terminating_function": {
+            "description": "A terminating function",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "object_type": {
+                    "enum": [
+                        "floor",
+                        "wall",
+                        "goal",
+                        "door",
+                        "key",
+                        "moving_obstacle",
+                        "box",
+                        "Floor",
+                        "Wall",
+                        "Goal",
+                        "Door",
+                        "Key",
+                        "MovingObstacle",
+                        "Box"
+                    ]
+                },
+                "terminating_functions": {
+                    "description": "A list of terminating functions",
+                    "type": "array",
+                    "items": {
+                        "description": "A terminating function",
+                        "$ref": "#/definitions/terminating_function"
+                    }
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "additionalProperties": false
+        }
+    }
+}

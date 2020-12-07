@@ -22,6 +22,7 @@ from gym_gridverse.grid_object import (
     GridObject,
     Key,
     MovingObstacle,
+    Telepod,
     Wall,
 )
 from gym_gridverse.info import Agent, Grid
@@ -196,12 +197,12 @@ def reset_minigrid_dynamic_obstacles(
     return state
 
 
-def reset_minigrid_door_key(
-    grid_size: int, *, rng: Optional[rnd.Generator] = None
+def reset_minigrid_keydoor(
+    height: int, width: int, *, rng: Optional[rnd.Generator] = None
 ) -> State:
     """Returns a state similar to the gym minigrid 'door & key' environment
 
-    Creates a grid_size x grid_size (including wall) grid with a random column
+    Creates a height x width (including outer walls) grid with a random column
     of walls. The agent and a yellow key are randomly dropped left of the
     column, while the goal is placed in the bottom right. For example::
 
@@ -212,26 +213,27 @@ def reset_minigrid_door_key(
         #########
 
     Args:
-        grid_size (`int`): assumes rectangular grid
+        height (`int`):
+        width (`int`):
         rng: (`Generator, optional`)
 
     Returns:
         State:
     """
-    if grid_size < 5:
+    if height < 3 or width < 5 or (height, width) == (3, 5):
         raise ValueError(
-            f"Minigrid door-key environment minimum size is 5, given {grid_size}"
+            f'Shape must larger than (3, 5), given {(height, width)}'
         )
 
     rng = get_gv_rng_if_none(rng)
 
-    state = reset_minigrid_empty(grid_size, grid_size)
-    assert isinstance(state.grid[grid_size - 2, grid_size - 2], Goal)
+    state = reset_minigrid_empty(height, width)
+    assert isinstance(state.grid[height - 2, width - 2], Goal)
 
     # Generate vertical splitting wall
-    x_wall = rng.integers(2, grid_size - 3, endpoint=True)
+    x_wall = rng.integers(2, width - 3, endpoint=True)
     line_wall = draw_line_vertical(
-        state.grid, range(1, grid_size - 1), x_wall, Wall
+        state.grid, range(1, height - 1), x_wall, Wall
     )
 
     # Place yellow, locked door
@@ -240,13 +242,13 @@ def reset_minigrid_door_key(
 
     # Place yellow key left of wall
     # XXX: potential general function
-    y_key = rng.integers(1, grid_size - 2, endpoint=True)
+    y_key = rng.integers(1, height - 2, endpoint=True)
     x_key = rng.integers(1, x_wall - 1, endpoint=True)
     state.grid[y_key, x_key] = Key(Colors.YELLOW)
 
     # Place agent left of wall
     # XXX: potential general function
-    y_agent = rng.integers(1, grid_size - 2, endpoint=True)
+    y_agent = rng.integers(1, height - 2, endpoint=True)
     x_agent = rng.integers(1, x_wall - 1, endpoint=True)
     state.agent.position = (y_agent, x_agent)  # type: ignore
     state.agent.orientation = rng.choice(list(Orientation))
@@ -364,12 +366,40 @@ def reset_minigrid_crossing(  # pylint: disable=too-many-locals
     return state
 
 
+def reset_minigrid_teleport(
+    height: int, width: int, *, rng: Optional[rnd.Generator] = None
+) -> State:
+
+    rng = get_gv_rng_if_none(rng)
+
+    state = reset_minigrid_empty(height, width)
+    assert isinstance(state.grid[height - 2, width - 2], Goal)
+
+    telepods = Telepod.make(2, Colors.RED)
+    positions = rng.choice(
+        [
+            position
+            for position in state.grid.positions()
+            if isinstance(state.grid[position], Floor)
+        ],
+        size=2,
+        replace=False,
+    )
+    for position, telepod in zip(positions, telepods):
+        state.grid[position] = telepod
+
+    # Place agent on top left
+    state.agent.position = (1, 1)  # type: ignore
+    state.agent.orientation = rng.choice([Orientation.E, Orientation.S])
+
+    return state
+
+
 def factory(
     name: str,
     *,
     height: Optional[int] = None,
     width: Optional[int] = None,
-    size: Optional[int] = None,
     layout: Optional[Tuple[int, int]] = None,
     random_agent_pos: Optional[bool] = None,
     num_obstacles: Optional[int] = None,
@@ -379,7 +409,7 @@ def factory(
 
     if name == 'minigrid_empty':
         if None in [height, width, random_agent_pos]:
-            raise ValueError('invalid parameters for name `{name}`')
+            raise ValueError(f'invalid parameters for name `{name}`')
 
         return partial(
             reset_minigrid_empty,
@@ -390,7 +420,7 @@ def factory(
 
     if name == 'minigrid_rooms':
         if None in [height, width, layout]:
-            raise ValueError('invalid parameters for name `{name}`')
+            raise ValueError(f'invalid parameters for name `{name}`')
 
         return partial(
             reset_minigrid_rooms, height=height, width=width, layout=layout
@@ -398,7 +428,7 @@ def factory(
 
     if name == 'minigrid_dynamic_obstacles':
         if None in [height, width, num_obstacles, random_agent_pos]:
-            raise ValueError('invalid parameters for name `{name}`')
+            raise ValueError(f'invalid parameters for name `{name}`')
 
         return partial(
             reset_minigrid_dynamic_obstacles,
@@ -408,15 +438,15 @@ def factory(
             random_agent_pos=random_agent_pos,
         )
 
-    if name == 'minigrid_door_key':
-        if None in [size]:
-            raise ValueError('invalid parameters for name `{name}`')
+    if name == 'minigrid_keydoor':
+        if None in [height, width]:
+            raise ValueError(f'invalid parameters for name `{name}`')
 
-        return partial(reset_minigrid_door_key, grid_size=size)
+        return partial(reset_minigrid_keydoor, height, width)
 
     if name == 'minigrid_crossing':
         if None in [height, width, num_rivers, object_type]:
-            raise ValueError('invalid parameters for name `{name}`')
+            raise ValueError(f'invalid parameters for name `{name}`')
 
         return partial(
             reset_minigrid_crossing,
@@ -425,5 +455,11 @@ def factory(
             num_rivers=num_rivers,
             object_type=object_type,
         )
+
+    if name == 'minigrid_teleport':
+        if None in [height, width]:
+            raise ValueError(f'invalid parameters for name `{name}`')
+
+        return partial(reset_minigrid_teleport, height=height, width=width)
 
     raise ValueError(f'invalid reset function name `{name}`')

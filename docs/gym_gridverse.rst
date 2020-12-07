@@ -9,6 +9,7 @@ Subpackages
 
    gym_gridverse.envs
    gym_gridverse.representations
+   gym_gridverse.utils
 
 Submodules
 ----------
@@ -89,6 +90,14 @@ gym\_gridverse.render\_as\_string module
 ----------------------------------------
 
 .. automodule:: gym_gridverse.render_as_string
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+gym\_gridverse.rendering module
+-------------------------------
+
+.. automodule:: gym_gridverse.rendering
    :members:
    :undoc-members:
    :show-inheritance:

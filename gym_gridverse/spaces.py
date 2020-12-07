@@ -242,7 +242,7 @@ class ObservationSpace:
         return _max_object_status(self.object_types + [NoneGridObject])
 
 
-@dataclass
+@dataclass(eq=True, frozen=True)
 class DomainSpace:
     state_space: StateSpace
     action_space: ActionSpace
