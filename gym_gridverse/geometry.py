@@ -4,7 +4,7 @@ import enum
 import itertools as itt
 import math
 from dataclasses import dataclass
-from typing import Callable, Iterable, List, NamedTuple, Tuple, Union
+from typing import Callable, Iterable, Iterator, List, Tuple, Union
 
 from cached_property import cached_property
 
@@ -142,68 +142,89 @@ class Area:
         return area
 
 
-class _2D_Point(NamedTuple):
-    """
-    2D coordinates which follow matrix notation: first index indicates rows
-    from top to bottom, and second index indicates columns from left to right.
-    """
-
+@dataclass(frozen=True)
+class Position:
     y: int
     x: int
 
-    @staticmethod
-    def add(p1, p2) -> Position:
-        return Position(p1[0] + p2[0], p1[1] + p2[1])
-
-    @staticmethod
-    def subtract(p1, p2) -> Position:
-        return Position(p1[0] - p2[0], p1[1] - p2[1])
-
-    @staticmethod
-    def manhattan_distance(p1, p2) -> float:
-        diff = _2D_Point.subtract(p1, p2)
-        return abs(diff.y) + abs(diff.x)
-
-    @staticmethod
-    def euclidean_distance(p1, p2) -> float:
-        diff = _2D_Point.subtract(p1, p2)
-        return math.sqrt(diff.y ** 2 + diff.x ** 2)
-
-
-# using inheritance to allow checking semantic types with isinstance without
-# aliasing Position with DeltaPosition
-
-
-class Position(_2D_Point):
     @staticmethod
     def from_position_or_tuple(position: PositionOrTuple) -> Position:
         return (
             position if isinstance(position, Position) else Position(*position)
         )
 
+    def astuple(self) -> Tuple[int, int]:
+        return (self.y, self.x)
 
-PositionOrTuple = Union[Position, Tuple[int, int]]
-"""Type to describe a position either through its class or two integers"""
+    def __add__(self, other) -> Position:
+        try:
+            y, x = other
+        except TypeError:
+            return NotImplemented
+        else:
+            return Position(self.y + y, self.x + x)
 
+    def __sub__(self, other) -> Position:
+        try:
+            y, x = other
+        except TypeError:
+            return NotImplemented
+        else:
+            return Position(self.y - y, self.x - x)
 
-class DeltaPosition(_2D_Point):
-    def rotate(self, orientation: Orientation) -> DeltaPosition:
+    def __radd__(self, other) -> Position:
+        return self + other
+
+    def __rsub__(self, other) -> Position:
+        return self - other
+
+    def __iter__(self) -> Iterator[int]:
+        return iter((self.y, self.x))
+
+    def __eq__(self, other):
+        try:
+            y, x = other
+        except TypeError:
+            return NotImplemented
+        else:
+            return self.y == y and self.x == x
+
+    def rotate(self, orientation: Orientation) -> Position:
+
         if orientation is Orientation.N:
-            rotated_dpos = DeltaPosition(self.y, self.x)
+            rotated_dpos = Position(self.y, self.x)
 
         elif orientation is Orientation.S:
-            rotated_dpos = DeltaPosition(-self.y, -self.x)
+            rotated_dpos = Position(-self.y, -self.x)
 
         elif orientation is Orientation.E:
-            rotated_dpos = DeltaPosition(self.x, -self.y)
+            rotated_dpos = Position(self.x, -self.y)
 
         elif orientation is Orientation.W:
-            rotated_dpos = DeltaPosition(-self.x, self.y)
+            rotated_dpos = Position(-self.x, self.y)
 
         else:
             assert False
 
         return rotated_dpos
+
+    @staticmethod
+    def manhattan_distance(p: PositionOrTuple, q: PositionOrTuple) -> float:
+        p = Position.from_position_or_tuple(p)
+        q = Position.from_position_or_tuple(q)
+        diff = p - q
+        return abs(diff.y) + abs(diff.x)
+
+    @staticmethod
+    def euclidean_distance(p: PositionOrTuple, q: PositionOrTuple) -> float:
+        p = Position.from_position_or_tuple(p)
+        q = Position.from_position_or_tuple(q)
+        diff = p - q
+        return math.sqrt(diff.y ** 2 + diff.x ** 2)
+
+
+PositionOrTuple = Union[Position, Tuple[int, int]]
+"""Type to describe a position either through its class or two integers"""
 
 
 class Orientation(enum.Enum):
@@ -212,18 +233,18 @@ class Orientation(enum.Enum):
     E = enum.auto()
     W = enum.auto()
 
-    def as_delta_position(self, dist: int = 1) -> DeltaPosition:
+    def as_position(self, dist: int = 1) -> Position:
         if self is Orientation.N:
-            return DeltaPosition(-dist, 0)
+            return Position(-dist, 0)
 
         if self is Orientation.S:
-            return DeltaPosition(dist, 0)
+            return Position(dist, 0)
 
         if self is Orientation.E:
-            return DeltaPosition(0, dist)
+            return Position(0, dist)
 
         if self is Orientation.W:
-            return DeltaPosition(0, -dist)
+            return Position(0, -dist)
 
         raise RuntimeError
 
@@ -253,6 +274,16 @@ class Orientation(enum.Enum):
             Orientation.E: Orientation.S,
             Orientation.S: Orientation.W,
             Orientation.W: Orientation.N,
+        }
+
+        return rotations[self]
+
+    def rotate_back(self) -> Orientation:
+        rotations = {
+            Orientation.N: Orientation.S,
+            Orientation.E: Orientation.W,
+            Orientation.S: Orientation.N,
+            Orientation.W: Orientation.E,
         }
 
         return rotations[self]

@@ -176,7 +176,7 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
             for y in range(grid.shape.height)
         ]
     )
-    grid_array_agent_channels[agent.position] = agent_obj_array
+    grid_array_agent_channels[agent.position.astuple()] = agent_obj_array
 
     grid_array = np.concatenate(
         (grid_array_agent_channels, grid_array_object_channels), axis=-1

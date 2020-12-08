@@ -4,7 +4,6 @@ import pytest
 
 from gym_gridverse.geometry import (
     Area,
-    DeltaPosition,
     Orientation,
     Position,
     PositionOrTuple,
@@ -298,20 +297,20 @@ def test_get_pov_area(
 @pytest.mark.parametrize(
     'position,orientation,delta_position,expected',
     [
-        ((0, 0), Orientation.N, DeltaPosition(1, -1), (1, -1)),
-        ((0, 0), Orientation.S, DeltaPosition(1, -1), (-1, 1)),
-        ((0, 0), Orientation.E, DeltaPosition(1, -1), (-1, -1)),
-        ((0, 0), Orientation.W, DeltaPosition(1, -1), (1, 1)),
-        ((1, 2), Orientation.N, DeltaPosition(2, -2), (3, 0)),
-        ((1, 2), Orientation.S, DeltaPosition(2, -2), (-1, 4)),
-        ((1, 2), Orientation.E, DeltaPosition(2, -2), (-1, 0)),
-        ((1, 2), Orientation.W, DeltaPosition(2, -2), (3, 4)),
+        ((0, 0), Orientation.N, Position(1, -1), (1, -1)),
+        ((0, 0), Orientation.S, Position(1, -1), (-1, 1)),
+        ((0, 0), Orientation.E, Position(1, -1), (-1, -1)),
+        ((0, 0), Orientation.W, Position(1, -1), (1, 1)),
+        ((1, 2), Orientation.N, Position(2, -2), (3, 0)),
+        ((1, 2), Orientation.S, Position(2, -2), (-1, 4)),
+        ((1, 2), Orientation.E, Position(2, -2), (-1, 0)),
+        ((1, 2), Orientation.W, Position(2, -2), (3, 4)),
     ],
 )
 def test_agent_position_relative(
     position: PositionOrTuple,
     orientation: Orientation,
-    delta_position: DeltaPosition,
+    delta_position: Position,
     expected: PositionOrTuple,
 ):
     agent = Agent(position, orientation)
