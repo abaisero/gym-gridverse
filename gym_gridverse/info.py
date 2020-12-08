@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Callable, Iterator, Optional, Sequence, Set, Type
+from typing import Callable, Iterable, Optional, Sequence, Set, Type
 
 import numpy as np
 
@@ -95,15 +95,15 @@ class Grid:
         if position not in self:
             raise ValueError(f'Position {position} ')
 
-    def positions(self) -> Iterator[Position]:
+    def positions(self) -> Iterable[Position]:
         """iterator over positions"""
         return self.area.positions()
 
-    def positions_border(self) -> Iterator[Position]:
+    def positions_border(self) -> Iterable[Position]:
         """iterator over border positions"""
         return self.area.positions_border()
 
-    def positions_inside(self) -> Iterator[Position]:
+    def positions_inside(self) -> Iterable[Position]:
         """iterator over inside positions"""
         return self.area.positions_inside()
 

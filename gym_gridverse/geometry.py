@@ -4,8 +4,9 @@ import enum
 import itertools as itt
 import math
 from dataclasses import dataclass
-from typing import Callable, Iterator, List, NamedTuple, Tuple, Union
+from typing import Callable, Iterable, List, NamedTuple, Tuple, Union
 
+from cached_property import cached_property
 
 
 @dataclass(frozen=True)
@@ -20,40 +21,61 @@ class Shape:
     width: int
 
 
-# semantic type
-Range = Tuple[int, int]
-
-
+@dataclass(frozen=True)
 class Area:
-    def __init__(self, ys: Range, xs: Range):
-        self.ymin, self.ymax = min(ys), max(ys)
-        self.xmin, self.xmax = min(xs), max(xs)
+    """2D area, which extends vertically and horizontally"""
 
-    @property
+    ys: Tuple[int, int]
+    xs: Tuple[int, int]
+
+    def __post_init__(self):
+        if self.ys[0] > self.ys[1]:
+            raise ValueError(f'ys ({self.ys}) should be non-decreasing')
+
+        if self.xs[0] > self.xs[1]:
+            raise ValueError(f'xs ({self.xs}) should be non-decreasing')
+
+    @cached_property
+    def ymin(self) -> int:
+        return min(self.ys)
+
+    @cached_property
+    def ymax(self) -> int:
+        return max(self.ys)
+
+    @cached_property
+    def xmin(self) -> int:
+        return min(self.xs)
+
+    @cached_property
+    def xmax(self) -> int:
+        return max(self.xs)
+
+    @cached_property
     def height(self) -> int:
         return self.ymax - self.ymin + 1
 
-    @property
+    @cached_property
     def width(self) -> int:
         return self.xmax - self.xmin + 1
 
-    @property
+    @cached_property
     def top_left(self) -> Position:
         return Position(self.ymin, self.xmin)
 
-    @property
+    @cached_property
     def top_right(self) -> Position:
         return Position(self.ymin, self.xmax)
 
-    @property
+    @cached_property
     def bottom_left(self) -> Position:
         return Position(self.ymax, self.xmin)
 
-    @property
+    @cached_property
     def bottom_right(self) -> Position:
         return Position(self.ymax, self.xmax)
 
-    def positions(self) -> Iterator[Position]:
+    def positions(self) -> Iterable[Position]:
         """iterator over positions"""
 
         return (
@@ -62,7 +84,7 @@ class Area:
             for x in range(self.xmin, self.xmax + 1)
         )
 
-    def positions_border(self) -> Iterator[Position]:
+    def positions_border(self) -> Iterable[Position]:
         """iterator over border positions"""
 
         return itt.chain(
@@ -78,7 +100,7 @@ class Area:
             ),
         )
 
-    def positions_inside(self) -> Iterator[Position]:
+    def positions_inside(self) -> Iterable[Position]:
         """iterator over inside positions"""
 
         return (
@@ -106,7 +128,7 @@ class Area:
             area = Area((self.ymin, self.ymax), (self.xmin, self.xmax))
 
         elif orientation is Orientation.S:
-            area = Area((-self.ymin, -self.ymax), (-self.xmin, -self.xmax))
+            area = Area((-self.ymax, -self.ymin), (-self.xmax, -self.xmin))
 
         elif orientation is Orientation.E:
             area = Area((self.xmin, self.xmax), (-self.ymax, -self.ymin))
@@ -118,23 +140,6 @@ class Area:
             assert False
 
         return area
-
-    def __hash__(self):
-        return hash(((self.ymin, self.ymax), (self.xmin, self.xmax)))
-
-    def __eq__(self, other):
-        if not isinstance(other, Area):
-            return NotImplemented
-
-        return (
-            self.ymin == other.ymin
-            and self.ymax == other.ymax
-            and self.xmin == other.xmin
-            and self.xmax == other.xmax
-        )
-
-    def __repr__(self):
-        return f'Area(({self.ymin}, {self.ymax}), ({self.xmin}, {self.xmax}))'
 
 
 class _2D_Point(NamedTuple):

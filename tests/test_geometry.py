@@ -106,7 +106,7 @@ def test_area_translate(area: Area, position: PositionOrTuple, expected: Area):
         (Area((0, 1), (0, 2)), Orientation.W, Area((-2, 0), (0, 1))),
         #
         (Area((-1, 1), (-2, 2)), Orientation.N, Area((-1, 1), (-2, 2))),
-        (Area((-1, 1), (-2, 2)), Orientation.S, Area((1, -1), (2, -2))),
+        (Area((-1, 1), (-2, 2)), Orientation.S, Area((-1, 1), (-2, 2))),
         (Area((-1, 1), (-2, 2)), Orientation.E, Area((-2, 2), (-1, 1))),
         (Area((-1, 1), (-2, 2)), Orientation.W, Area((-2, 2), (-1, 1))),
     ],
