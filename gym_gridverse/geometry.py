@@ -3,13 +3,17 @@ from __future__ import annotations
 import enum
 import itertools as itt
 import math
+from dataclasses import dataclass
 from typing import Callable, Iterator, List, NamedTuple, Tuple, Union
 
 
-class Shape(NamedTuple):
-    """
-    2D shape which follow matrix notation: first index indicates number of
-    rows, and second index indicates number of columns.
+
+@dataclass(frozen=True)
+class Shape:
+    """2D shape, with integer height and width.
+
+    Follows matrix notation:  first index is number of rows, and second index
+    is number of columns.
     """
 
     height: int

@@ -11,7 +11,7 @@ from gym_gridverse.envs.visibility_functions import (
     raytracing_visibility,
     stochastic_raytracing_visibility,
 )
-from gym_gridverse.geometry import Orientation
+from gym_gridverse.geometry import Orientation, Shape
 from gym_gridverse.grid_object import Hidden
 from gym_gridverse.info import Agent
 from gym_gridverse.observation import Observation
@@ -44,7 +44,7 @@ def from_visibility(
         observation_grid, observation_space.agent_position, rng=rng
     )
 
-    if visibility.shape != observation_space.grid_shape:
+    if Shape(*visibility.shape) != observation_space.grid_shape:
         raise ValueError('incorrect shape of visibility mask')
 
     for pos in observation_grid.positions():
