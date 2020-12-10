@@ -7,6 +7,7 @@ from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle, Wall
 from gym_gridverse.state import State
 
 TerminatingFunction = Callable[[State, Actions, State], bool]
+"""Signature for functions to determine whether a transition is terminal"""
 
 
 def chain_any(

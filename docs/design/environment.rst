@@ -67,6 +67,61 @@ Every state transition is associated with a ``reward`` (:py:class:`float`).
 This reward is a numerical evaluation of the transition, generally the agent
 attempts to maximize over the reward it receives over time.
 
+Inner Environment
+=================
+
+The inner environment handles the dynamics of the system: how to
+
+- (re)set initial :py:func:`~gym_gridverse.state.State`
+- update :py:func:`~gym_gridverse.state.State` (and generate the
+  initial one)
+- generate :py:meth:`~gym_gridverse.observation.Observation`
+- generate ``rewards`` and ``terminal signals``
+
+These responsibilities are split into one functions and two properties:
+:py:meth:`~gym_gridverse.envs.inner_env.InnerEnv.reset`,
+:py:meth:`~gym_gridverse.envs.inner_env.InnerEnv.step`,
+:py:meth:`~gym_gridverse.envs.inner_env.InnerEnv.observation` and
+:py:meth:`~gym_gridverse.envs.inner_env.InnerEnv.state`:
+
+.. automethod:: gym_gridverse.envs.inner_env.InnerEnv.reset
+  :noindex:
+
+.. automethod:: gym_gridverse.envs.inner_env.InnerEnv.step
+  :noindex:
+
+.. autoattribute:: gym_gridverse.envs.inner_env.InnerEnv.observation
+  :noindex:
+
+.. autoattribute:: gym_gridverse.envs.inner_env.InnerEnv.state
+  :noindex:
+
+Under the hood, the step function work through the following functions:
+
+- :py:class:`~gym_gridverse.envs.transition_functions.TransitionFunction`
+- :py:class:`~gym_gridverse.envs.observation_functions.ObservationFunction`
+- :py:class:`~gym_gridverse.envs.reward_functions.RewardFunction`
+- :py:data:`~gym_gridverse.envs.terminating_functions.TerminatingFunction`
+
+.. note::
+
+  :py:class:`~gym_gridverse.envs.inner_env.InnerEnv` is an interface, but there
+  is only one implementation
+  (:py:class:`~gym_gridverse.envs.gridworld.GridWorld`). Technically other
+  environments can be implemented, for which the rest of this section would not
+  necessarily hold. Our argument for doing this way is to separate the
+  responsibility of *maintaining state* (in
+  :py:class:`~gym_gridverse.envs.inner_env.InnerEnv`) from the *functional
+  dynamics* (in :py:class:`~gym_gridverse.envs.gridworld.GridWorld`).
+
+
+Their relationship (excluding the reset function) is best described by the
+following figure. The section starting on the next page describes how to use or
+create your own.
+
+.. image:: ../figures/inner-env-design.png
+
+
 Representations
 ===============
 
@@ -104,42 +159,4 @@ Anything that implements the ``convert`` signature below suffices:
 Available representations can be found in
 :py:mod:`~gym_gridverse.representations.observation_representations`.
 
-Inner Environment
-=================
 
-The inner environment handles the dynamics of the system: how to
-
-- update :py:func:`~gym_gridverse.state.State` (and generate the
-  initial one)
-- generate :py:meth:`~gym_gridverse.observation.Observation`
-- generate ``rewards`` and ``terminal signals``
-
-These responsibilities are split into one functions and two properties:
-:py:meth:`~gym_gridverse.envs.inner_env.InnerEnv.step`,
-:py:meth:`~gym_gridverse.envs.inner_env.InnerEnv.observation` and
-:py:meth:`~gym_gridverse.envs.inner_env.InnerEnv.state`.
-
-.. automethod:: gym_gridverse.envs.inner_env.InnerEnv.step
-  :noindex:
-
-.. autoattribute:: gym_gridverse.envs.inner_env.InnerEnv.observation
-  :noindex:
-
-.. autoattribute:: gym_gridverse.envs.inner_env.InnerEnv.state
-  :noindex:
-
-.. note::
-
-  :py:class:`~gym_gridverse.envs.inner_env.InnerEnv` is an interface, but there
-  is only one implementation
-  (:py:class:`~gym_gridverse.envs.gridworld.GridWorld`). Technically other
-  environments can be implemented, for which the rest of this section would not
-  necessarily hold. Our argument for doing this way is to separate the
-  responsibility of *maintaining state* (in
-  :py:class:`~gym_gridverse.envs.inner_env.InnerEnv`) from the *functional
-  dynamics* (in :py:class:`~gym_gridverse.envs.gridworld.GridWorld`).
-
-.. todo::
-
-  - Add image of inner environment design
-  - Describe in words
