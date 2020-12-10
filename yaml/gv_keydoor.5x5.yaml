@@ -1,5 +1,5 @@
 state_space:
-  shape: [ 10, 10 ]
+  shape: [ 5, 5 ]
   objects: [ Wall, Floor, Goal, Door, Key ]
   colors: [ NONE, YELLOW ]
 
@@ -17,16 +17,23 @@ transition_functions:
   - name: pickup_mechanics
 
 reward_functions:
-  - name: living_reward
-    reward: -0.01
-  - name: getting_closer
-    distance_function: manhattan
-    object_type: Goal
-    reward_closer: 0.1
-    reward_further: -0.1
   - name: reach_goal
     reward_on: 5.0
     reward_off: 0.0
+  - name: pickndrop
+    object_type: Key
+    reward_pick: 1.0
+    reward_drop: -1.0
+  - name: actuate_door
+    reward_open: 1.0
+    reward_close: -1.0
+  - name: getting_closer
+    distance_function: manhattan
+    object_type: Goal
+    reward_closer: 0.2
+    reward_further: -0.2
+  - name: living_reward
+    reward: -0.05
 
 observation_function:
   name: full_observation

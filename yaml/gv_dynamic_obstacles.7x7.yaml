@@ -1,0 +1,52 @@
+state_space:
+  shape: [ 7, 7 ]
+  objects: [ Wall, Floor, Goal, MovingObstacle ]
+  colors: [ NONE ]
+
+action_space:
+  - MOVE_FORWARD
+  - MOVE_BACKWARD
+  - MOVE_LEFT
+  - MOVE_RIGHT
+  - TURN_LEFT
+  - TURN_RIGHT
+
+observation_space:
+  shape: [ 7, 7 ]
+  objects: [ Wall, Floor, Goal, MovingObstacle ]
+  colors: [ NONE ]
+
+reset_function:
+  name: minigrid_dynamic_obstacles
+  num_obstacles: 2
+  random_agent: False
+
+transition_functions:
+  - name: update_agent
+  - name: step_moving_obstacles
+
+reward_functions:
+  - name: reach_goal
+    reward_on: 5.0
+    reward_off: 0.0
+  - name: bump_moving_obstacle
+    reward: -1.0
+  - name: bump_into_wall
+    reward: -1.0
+  - name: getting_closer
+    distance_function: manhattan
+    object_type: Goal
+    reward_closer: 0.2
+    reward_further: -0.2
+  - name: living_reward
+    reward: -0.05
+
+observation_function:
+  name: full_observation
+
+terminating_function:
+  name: chain_any
+  terminating_functions:
+    - name: reach_goal
+    - name: bump_moving_obstacle
+    - name: bump_into_wall

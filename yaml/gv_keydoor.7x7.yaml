@@ -1,0 +1,42 @@
+state_space:
+  shape: [ 7, 7 ]
+  objects: [ Wall, Floor, Goal, Door, Key ]
+  colors: [ NONE, YELLOW ]
+
+observation_space:
+  shape: [ 7, 7 ]
+  objects: [ Wall, Floor, Goal, Door, Key ]
+  colors: [ NONE, YELLOW ]
+
+reset_function:
+  name: minigrid_keydoor
+
+transition_functions:
+  - name: update_agent
+  - name: actuate_door
+  - name: pickup_mechanics
+
+reward_functions:
+  - name: reach_goal
+    reward_on: 5.0
+    reward_off: 0.0
+  - name: pickndrop
+    object_type: Key
+    reward_pick: 1.0
+    reward_drop: -1.0
+  - name: actuate_door
+    reward_open: 1.0
+    reward_close: -1.0
+  - name: getting_closer
+    distance_function: manhattan
+    object_type: Goal
+    reward_closer: 0.2
+    reward_further: -0.2
+  - name: living_reward
+    reward: -0.05
+
+observation_function:
+  name: full_observation
+
+terminating_function:
+  name: reach_goal

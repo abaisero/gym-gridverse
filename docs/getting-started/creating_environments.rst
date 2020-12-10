@@ -12,17 +12,18 @@ The interactive GUI gives an idea of the features provided in this package. The
 script expects a single input, the `YAML` file describing the environment, for
 example::
 
-  >> scripts/gv_viewer.py envs_yaml/env_minigrid_four_rooms.yaml
+  >> scripts/gv_viewer.py envs_yaml/gv_four_rooms.13x13.yaml
 
 Other environments provided out of the box are located in the directory
 `envs_yaml`, and include:
 
-- :download:`yaml/env_minigrid_crossing.yaml <../../yaml/env_minigrid_crossing.yaml>`
-- :download:`yaml/env_minigrid_keydoor.yaml <../../yaml/env_minigrid_keydoor.yaml>`
-- :download:`yaml/env_minigrid_dynamic_obstacles_16x16_random.v0.yaml <../../yaml/env_minigrid_dynamic_obstacles_16x16_random.v0.yaml>`
-- :download:`yaml/env_minigrid_empty.yaml <../../yaml/env_minigrid_empty.yaml>`
-- :download:`yaml/env_minigrid_four_rooms.yaml <../../yaml/env_minigrid_four_rooms.yaml>`
-- :download:`yaml/env_minigrid_nine_rooms.yaml <../../yaml/env_minigrid_nine_rooms.yaml>`
+- :download:`yaml/gv_empty.8x8.yaml <../../yaml/gv_empty.8x8.yaml>`
+- :download:`yaml/gv_four_rooms.9x9.yaml <../../yaml/gv_four_rooms.9x9.yaml>`
+- :download:`yaml/gv_nine_rooms.13x13.yaml <../../yaml/gv_nine_rooms.13x13.yaml>`
+- :download:`yaml/gv_crossing.7x7.yaml <../../yaml/gv_crossing.7x7.yaml>`
+- :download:`yaml/gv_keydoor.9x9.yaml <../../yaml/gv_keydoor.9x9.yaml>`
+- :download:`yaml/gv_dynamic_obstacles.7x7.yaml <../../yaml/gv_dynamic_obstacles.7x7.yaml>`
+- :download:`yaml/gv_teleport.7x7.yaml <../../yaml/gv_teleport.7x7.yaml>`
 
 Create environments
 ===================

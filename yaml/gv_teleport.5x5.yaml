@@ -1,0 +1,43 @@
+state_space:
+  shape: [ 5, 5 ]
+  objects: [ Wall, Floor, Goal, Telepod ]
+  colors: [ NONE, RED ]
+
+action_space:
+  - MOVE_FORWARD
+  - MOVE_BACKWARD
+  - MOVE_LEFT
+  - MOVE_RIGHT
+  - TURN_LEFT
+  - TURN_RIGHT
+
+observation_space:
+  shape: [ 7, 7 ]
+  objects: [ Wall, Floor, Goal, Telepod ]
+  colors: [ NONE, RED ]
+
+reset_function:
+  name: minigrid_teleport
+  random_agent: True
+
+transition_functions:
+  - name: update_agent
+  - name: step_telepod
+
+reward_functions:
+  - name: reach_goal
+    reward_on: 5.0
+    reward_off: 0.0
+  - name: getting_closer
+    distance_function: manhattan
+    object_type: Goal
+    reward_closer: 0.2
+    reward_further: -0.2
+  - name: living_reward
+    reward: -0.05
+
+observation_function:
+  name: full_observation
+
+terminating_function:
+  name: reach_goal
