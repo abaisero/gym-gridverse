@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from gym_gridverse.info import Agent, Grid
 
 
-@dataclass
+@dataclass(frozen=True)
 class State:
     """A state is represented by two pieces: a grid and an agent
 

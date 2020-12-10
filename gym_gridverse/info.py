@@ -177,6 +177,9 @@ class Grid:
         objects = deepcopy(objects)
         return Grid.from_objects(objects)
 
+    def __hash__(self):
+        return hash(tuple(map(tuple, self._grid.tolist())))
+
 
 class Agent:
     """The agent part of the state in an environment
@@ -203,12 +206,9 @@ class Agent:
             obj (Optional[GridObject]):
         """
 
-        if obj is None:
-            obj = NoneGridObject()
-
         self.position = position  # type: ignore
         self.orientation = orientation
-        self.obj: GridObject = obj
+        self.obj: GridObject = NoneGridObject() if obj is None else obj
 
     @property
     def position(self) -> Position:
@@ -245,3 +245,6 @@ class Agent:
         absolute state coordinates.
         """
         return relative_area.rotate(self.orientation).translate(self.position)
+
+    def __hash__(self):
+        return hash((self.position, self.orientation, self.obj))
