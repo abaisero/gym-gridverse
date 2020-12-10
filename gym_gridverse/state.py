@@ -1,3 +1,4 @@
+"""Defines the State class"""
 from dataclasses import dataclass
 
 from gym_gridverse.info import Agent, Grid

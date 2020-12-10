@@ -22,14 +22,6 @@ gym\_gridverse.actions module
    :undoc-members:
    :show-inheritance:
 
-gym\_gridverse.data\_gen module
--------------------------------
-
-.. automodule:: gym_gridverse.data_gen
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 gym\_gridverse.design module
 ----------------------------
 
@@ -106,14 +98,6 @@ gym\_gridverse.rng module
 -------------------------
 
 .. automodule:: gym_gridverse.rng
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-gym\_gridverse.simulator module
--------------------------------
-
-.. automodule:: gym_gridverse.simulator
    :members:
    :undoc-members:
    :show-inheritance:

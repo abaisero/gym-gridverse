@@ -43,6 +43,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinx_rtd_theme',
+    'sphinx.ext.todo',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -178,13 +179,15 @@ texinfo_documents = [
     ),
 ]
 
+# -- Configurations ----------------------------------------------------
+
 napoleon_include_init_with_doc = True
 
-# auto generated API will include both `class` and `__init__` doc-string
-autoclass_content = 'both'
+# dev options
+todo_emit_warnings = True
+todo_include_todos = True
 
 nitpicky = True
-
 nitpick_ignore = [
     ('py:meth', '__call__'),
     ('py:data', 'rng'),
@@ -206,4 +209,6 @@ nitpick_ignore = [
     ('py:class', 'gym_minigrid.wrappers.FullyObsWrapper'),
     ('py:class', 'gym_gridverse.geometry._2D_Point'),
     ('py:class', 'PositionOrTuple'),
+    ('py:class', 'gym.envs.classic_control.rendering.Geom'),
+    ('py:class', 'Ray'),
 ]

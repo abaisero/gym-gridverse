@@ -37,10 +37,13 @@ predefined transition functions, among which:
 - :py:func:`~gym_gridverse.envs.transition_functions.update_agent` -- moves and
   turns the agent.
 
-- :py:func:`~gym_gridverse.envs.transition_functions.step_objects` -- executes
+- :py:func:`~gym_gridverse.envs.transition_functions.step_moving_obstacles` -- executes
   object dynamics.
 
-- :py:func:`~gym_gridverse.envs.transition_functions.actuate_mechanics` --
+- :py:func:`~gym_gridverse.envs.transition_functions.step_telepod` -- executes
+  object dynamics.
+
+- :py:func:`~gym_gridverse.envs.transition_functions.actuate_door` --
   executes object actuation.
 
 - :py:func:`~gym_gridverse.envs.transition_functions.pickup_mechanics` -- picks

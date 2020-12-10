@@ -4,14 +4,27 @@ Usage
 
 To use gym-gridverse in a project::
 
-    import gym_gridverse
+  import gym_gridverse
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Guides:
+  :maxdepth: 2
+  :caption: Getting Started:
 
-   guides/reset_functions
-   guides/transition_functions
-   guides/reward_functions
-   guides/observation_functions
-   guides/visibility_functions
+  getting-started/creating_environments
+  getting-started/using_environments
+
+.. toctree::
+  :maxdepth: 2
+  :caption: Closer look
+
+  design/environment
+
+.. toctree::
+  :maxdepth: 2
+  :caption: Guides:
+
+  guides/reset_functions
+  guides/transition_functions
+  guides/reward_functions
+  guides/observation_functions
+  guides/visibility_functions

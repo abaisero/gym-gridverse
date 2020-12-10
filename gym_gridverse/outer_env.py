@@ -1,10 +1,13 @@
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
+
+import numpy as np
 
 from gym_gridverse.envs.inner_env import Actions, InnerEnv
 from gym_gridverse.representations.representation import (
     ObservationRepresentation,
     StateRepresentation,
 )
+from gym_gridverse.spaces import ActionSpace
 
 
 class OuterEnv:
@@ -22,24 +25,48 @@ class OuterEnv:
         # XXX: rename state_rep -> state_repr
 
     @property
-    def action_space(self):
+    def action_space(self) -> ActionSpace:
+        """Returns the action space of the problem
+
+        Returns:
+            ActionSpace:
+        """
         return self.inner_env.action_space
 
-    def reset(self):
+    def reset(self) -> None:
+        """Resets the state of the environment"""
         self.inner_env.reset()
 
     def step(self, action: Actions) -> Tuple[float, bool]:
+        """Updates the state according to the action
+
+        Args:
+            action: agent's action
+
+        Returns:
+            Tuple[float, bool]: (reward, terminality)
+        """
         return self.inner_env.step(action)
 
     @property
-    def state(self):
+    def state(self) -> Dict[str, np.ndarray]:
+        """Returns the representation of the current state
+
+        Returns:
+            Dict[str, np.ndarray]:
+        """
         if self.state_rep is None:
             raise RuntimeError('State representation not available')
 
         return self.state_rep.convert(self.inner_env.state)
 
     @property
-    def observation(self):
+    def observation(self) -> Dict[str, np.ndarray]:
+        """Returns the representation of the current observation
+
+        Returns:
+            Dict[str, np.ndarray]:
+        """
         if self.observation_rep is None:
             raise RuntimeError('Observation representation not available')
 
