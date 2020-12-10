@@ -375,12 +375,17 @@ def reset_minigrid_teleport(
     state = reset_minigrid_empty(height, width)
     assert isinstance(state.grid[height - 2, width - 2], Goal)
 
+    # Place agent on top left
+    state.agent.position = (1, 1)  # type: ignore
+    state.agent.orientation = rng.choice([Orientation.E, Orientation.S])
+
     telepods = Telepod.make(2, Colors.RED)
     positions = rng.choice(
         [
             position
             for position in state.grid.positions()
             if isinstance(state.grid[position], Floor)
+            and position != state.agent.position
         ],
         size=2,
         replace=False,
