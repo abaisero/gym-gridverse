@@ -10,6 +10,6 @@ use_parentheses = true
 combine_as_imports = true
 line_length = 80
 
-[tool.pylint]  # black compatibility
+[tool.pylint.messages_control]  # black compatibility
 disable = "C0330,C0326"
 max_line_length = 80

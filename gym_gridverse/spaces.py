@@ -80,8 +80,8 @@ class StateSpace:
     @property
     def agent_state_size(self) -> Tuple[int, int, int, int, int]:
         return (
-            self.grid_shape[0],
-            self.grid_shape[1],
+            self.grid_shape.height,
+            self.grid_shape.height,
             self.max_agent_object_type,
             self.max_agent_object_status,
             self.max_object_color,
@@ -201,8 +201,8 @@ class ObservationSpace:
     @property
     def agent_state_size(self) -> Tuple[int, int, int, int, int]:
         return (
-            self.grid_shape[0],
-            self.grid_shape[1],
+            self.grid_shape.height,
+            self.grid_shape.width,
             self.max_agent_object_type,
             self.max_agent_object_status,
             self.max_object_color,

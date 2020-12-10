@@ -26,8 +26,8 @@ def updated_agent_position_if_unobstructed(
         Actions.MOVE_FORWARD: agent_orientation,
         Actions.MOVE_LEFT: agent_orientation.rotate_left(),
         Actions.MOVE_RIGHT: agent_orientation.rotate_right(),
-        Actions.MOVE_BACKWARD: agent_orientation.rotate_right().rotate_right(),
+        Actions.MOVE_BACKWARD: agent_orientation.rotate_back(),
     }
 
-    delta = direction_to_relative_orientation[action].as_delta_position()
-    return Position.add(agent_pos, delta)
+    delta = direction_to_relative_orientation[action].as_position()
+    return agent_pos + delta

@@ -1,18 +1,11 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Callable, Iterator, Optional, Sequence, Set, Type
+from typing import Callable, Iterable, Optional, Sequence, Set, Type
 
 import numpy as np
 
-from .geometry import (
-    Area,
-    DeltaPosition,
-    Orientation,
-    Position,
-    PositionOrTuple,
-    Shape,
-)
+from .geometry import Area, Orientation, Position, PositionOrTuple, Shape
 from .grid_object import Floor, GridObject, Hidden, NoneGridObject
 
 ObjectFactory = Callable[[], GridObject]
@@ -62,7 +55,7 @@ class Grid:
 
         grid = Grid(*array.shape)
         for pos in grid.positions():
-            grid[pos] = array[pos]
+            grid[pos] = array[pos.y, pos.x]
 
         return grid
 
@@ -95,15 +88,15 @@ class Grid:
         if position not in self:
             raise ValueError(f'Position {position} ')
 
-    def positions(self) -> Iterator[Position]:
+    def positions(self) -> Iterable[Position]:
         """iterator over positions"""
         return self.area.positions()
 
-    def positions_border(self) -> Iterator[Position]:
+    def positions_border(self) -> Iterable[Position]:
         """iterator over border positions"""
         return self.area.positions_border()
 
-    def positions_inside(self) -> Iterator[Position]:
+    def positions_inside(self) -> Iterable[Position]:
         """iterator over inside positions"""
         return self.area.positions_inside()
 
@@ -119,15 +112,15 @@ class Grid:
         return set(type(self[position]) for position in self.positions())
 
     def __getitem__(self, position: PositionOrTuple) -> GridObject:
-        position = Position.from_position_or_tuple(position)
-        return self._grid[position]
+        y, x = position
+        return self._grid[y, x]
 
     def __setitem__(self, position: PositionOrTuple, obj: GridObject):
         if not isinstance(obj, GridObject):
             TypeError('grid can only contain entities')
 
-        position = Position.from_position_or_tuple(position)
-        self._grid[position] = obj
+        y, x = position
+        self._grid[y, x] = obj
 
     def swap(self, p: Position, q: Position):
         """swap the objects at two positions"""
@@ -149,7 +142,7 @@ class Grid:
         subgrid = Grid(area.height, area.width)
 
         for pos_to in subgrid.positions():
-            pos_from = Position.add(pos_to, area.top_left)
+            pos_from = pos_to + area.top_left
             subgrid[pos_to] = (
                 deepcopy(self[pos_from]) if pos_from in self else Hidden()
             )
@@ -184,6 +177,9 @@ class Grid:
         objects = deepcopy(objects)
         return Grid.from_objects(objects)
 
+    def __hash__(self):
+        return hash(tuple(map(tuple, self._grid.tolist())))
+
 
 class Agent:
     """The agent part of the state in an environment
@@ -210,12 +206,9 @@ class Agent:
             obj (Optional[GridObject]):
         """
 
-        if obj is None:
-            obj = NoneGridObject()
-
         self.position = position  # type: ignore
         self.orientation = orientation
-        self.obj: GridObject = obj
+        self.obj: GridObject = NoneGridObject() if obj is None else obj
 
     @property
     def position(self) -> Position:
@@ -235,16 +228,13 @@ class Agent:
 
         return NotImplemented
 
-    def position_relative(self, dpos: DeltaPosition) -> Position:
+    def position_relative(self, dpos: Position) -> Position:
         """get the absolute position from a delta position relative to the agent"""
-        dpos_absolute = dpos.rotate(self.orientation)
-        return Position(
-            self.position.y + dpos_absolute.y, self.position.x + dpos_absolute.x
-        )
+        return self.position + dpos.rotate(self.orientation)
 
     def position_in_front(self) -> Position:
         """get the position in front of the agent"""
-        return self.position_relative(Orientation.N.as_delta_position())
+        return self.position_relative(Orientation.N.as_position())
 
     def get_pov_area(self, relative_area: Area) -> Area:
         """gets absolute area corresponding to given relative area
@@ -255,3 +245,6 @@ class Agent:
         absolute state coordinates.
         """
         return relative_area.rotate(self.orientation).translate(self.position)
+
+    def __hash__(self):
+        return hash((self.position, self.orientation, self.obj))

@@ -78,6 +78,9 @@ class GridObject(metaclass=abc.ABCMeta):
             and self.color == other.color
         )
 
+    def __hash__(self):
+        return hash((self.type_index, self.state_index, self.color))
+
 
 class NoneGridObject(GridObject):
     """ object representing the absence of an object """

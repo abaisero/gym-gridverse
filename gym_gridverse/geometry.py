@@ -3,53 +3,79 @@ from __future__ import annotations
 import enum
 import itertools as itt
 import math
-from typing import Callable, Iterator, List, NamedTuple, Tuple, Union
+from dataclasses import dataclass
+from typing import Callable, Iterable, Iterator, List, Tuple, Union
+
+from cached_property import cached_property
 
 
-class Shape(NamedTuple):
-    """
-    2D shape which follow matrix notation: first index indicates number of
-    rows, and second index indicates number of columns.
+@dataclass(frozen=True)
+class Shape:
+    """2D shape, with integer height and width.
+
+    Follows matrix notation:  first index is number of rows, and second index
+    is number of columns.
     """
 
     height: int
     width: int
 
 
-# semantic type
-Range = Tuple[int, int]
-
-
+@dataclass(frozen=True)
 class Area:
-    def __init__(self, ys: Range, xs: Range):
-        self.ymin, self.ymax = min(ys), max(ys)
-        self.xmin, self.xmax = min(xs), max(xs)
+    """2D area, which extends vertically and horizontally"""
 
-    @property
+    ys: Tuple[int, int]
+    xs: Tuple[int, int]
+
+    def __post_init__(self):
+        if self.ys[0] > self.ys[1]:
+            raise ValueError(f'ys ({self.ys}) should be non-decreasing')
+
+        if self.xs[0] > self.xs[1]:
+            raise ValueError(f'xs ({self.xs}) should be non-decreasing')
+
+    @cached_property
+    def ymin(self) -> int:
+        return min(self.ys)
+
+    @cached_property
+    def ymax(self) -> int:
+        return max(self.ys)
+
+    @cached_property
+    def xmin(self) -> int:
+        return min(self.xs)
+
+    @cached_property
+    def xmax(self) -> int:
+        return max(self.xs)
+
+    @cached_property
     def height(self) -> int:
         return self.ymax - self.ymin + 1
 
-    @property
+    @cached_property
     def width(self) -> int:
         return self.xmax - self.xmin + 1
 
-    @property
+    @cached_property
     def top_left(self) -> Position:
         return Position(self.ymin, self.xmin)
 
-    @property
+    @cached_property
     def top_right(self) -> Position:
         return Position(self.ymin, self.xmax)
 
-    @property
+    @cached_property
     def bottom_left(self) -> Position:
         return Position(self.ymax, self.xmin)
 
-    @property
+    @cached_property
     def bottom_right(self) -> Position:
         return Position(self.ymax, self.xmax)
 
-    def positions(self) -> Iterator[Position]:
+    def positions(self) -> Iterable[Position]:
         """iterator over positions"""
 
         return (
@@ -58,7 +84,7 @@ class Area:
             for x in range(self.xmin, self.xmax + 1)
         )
 
-    def positions_border(self) -> Iterator[Position]:
+    def positions_border(self) -> Iterable[Position]:
         """iterator over border positions"""
 
         return itt.chain(
@@ -74,7 +100,7 @@ class Area:
             ),
         )
 
-    def positions_inside(self) -> Iterator[Position]:
+    def positions_inside(self) -> Iterable[Position]:
         """iterator over inside positions"""
 
         return (
@@ -102,7 +128,7 @@ class Area:
             area = Area((self.ymin, self.ymax), (self.xmin, self.xmax))
 
         elif orientation is Orientation.S:
-            area = Area((-self.ymin, -self.ymax), (-self.xmin, -self.xmax))
+            area = Area((-self.ymax, -self.ymin), (-self.xmax, -self.xmin))
 
         elif orientation is Orientation.E:
             area = Area((self.xmin, self.xmax), (-self.ymax, -self.ymin))
@@ -115,86 +141,90 @@ class Area:
 
         return area
 
-    def __hash__(self):
-        return hash(((self.ymin, self.ymax), (self.xmin, self.xmax)))
 
-    def __eq__(self, other):
-        if not isinstance(other, Area):
-            return NotImplemented
-
-        return (
-            self.ymin == other.ymin
-            and self.ymax == other.ymax
-            and self.xmin == other.xmin
-            and self.xmax == other.xmax
-        )
-
-    def __repr__(self):
-        return f'Area(({self.ymin}, {self.ymax}), ({self.xmin}, {self.xmax}))'
-
-
-class _2D_Point(NamedTuple):
-    """
-    2D coordinates which follow matrix notation: first index indicates rows
-    from top to bottom, and second index indicates columns from left to right.
-    """
-
+@dataclass(frozen=True)
+class Position:
     y: int
     x: int
 
-    @staticmethod
-    def add(p1, p2) -> Position:
-        return Position(p1[0] + p2[0], p1[1] + p2[1])
-
-    @staticmethod
-    def subtract(p1, p2) -> Position:
-        return Position(p1[0] - p2[0], p1[1] - p2[1])
-
-    @staticmethod
-    def manhattan_distance(p1, p2) -> float:
-        diff = _2D_Point.subtract(p1, p2)
-        return abs(diff.y) + abs(diff.x)
-
-    @staticmethod
-    def euclidean_distance(p1, p2) -> float:
-        diff = _2D_Point.subtract(p1, p2)
-        return math.sqrt(diff.y ** 2 + diff.x ** 2)
-
-
-# using inheritance to allow checking semantic types with isinstance without
-# aliasing Position with DeltaPosition
-
-
-class Position(_2D_Point):
     @staticmethod
     def from_position_or_tuple(position: PositionOrTuple) -> Position:
         return (
             position if isinstance(position, Position) else Position(*position)
         )
 
+    def astuple(self) -> Tuple[int, int]:
+        return (self.y, self.x)
 
-PositionOrTuple = Union[Position, Tuple[int, int]]
-"""Type to describe a position either through its class or two integers"""
+    def __add__(self, other) -> Position:
+        try:
+            y, x = other
+        except TypeError:
+            return NotImplemented
+        else:
+            return Position(self.y + y, self.x + x)
 
+    def __sub__(self, other) -> Position:
+        try:
+            y, x = other
+        except TypeError:
+            return NotImplemented
+        else:
+            return Position(self.y - y, self.x - x)
 
-class DeltaPosition(_2D_Point):
-    def rotate(self, orientation: Orientation) -> DeltaPosition:
+    def __radd__(self, other) -> Position:
+        return self + other
+
+    def __rsub__(self, other) -> Position:
+        return self - other
+
+    def __iter__(self) -> Iterator[int]:
+        return iter((self.y, self.x))
+
+    def __eq__(self, other):
+        try:
+            y, x = other
+        except TypeError:
+            return NotImplemented
+        else:
+            return self.y == y and self.x == x
+
+    def rotate(self, orientation: Orientation) -> Position:
+
         if orientation is Orientation.N:
-            rotated_dpos = DeltaPosition(self.y, self.x)
+            rotated_dpos = Position(self.y, self.x)
 
         elif orientation is Orientation.S:
-            rotated_dpos = DeltaPosition(-self.y, -self.x)
+            rotated_dpos = Position(-self.y, -self.x)
 
         elif orientation is Orientation.E:
-            rotated_dpos = DeltaPosition(self.x, -self.y)
+            rotated_dpos = Position(self.x, -self.y)
 
         elif orientation is Orientation.W:
-            rotated_dpos = DeltaPosition(-self.x, self.y)
+            rotated_dpos = Position(-self.x, self.y)
 
         else:
             assert False
 
         return rotated_dpos
+
+    @staticmethod
+    def manhattan_distance(p: PositionOrTuple, q: PositionOrTuple) -> float:
+        p = Position.from_position_or_tuple(p)
+        q = Position.from_position_or_tuple(q)
+        diff = p - q
+        return abs(diff.y) + abs(diff.x)
+
+    @staticmethod
+    def euclidean_distance(p: PositionOrTuple, q: PositionOrTuple) -> float:
+        p = Position.from_position_or_tuple(p)
+        q = Position.from_position_or_tuple(q)
+        diff = p - q
+        return math.sqrt(diff.y ** 2 + diff.x ** 2)
+
+
+PositionOrTuple = Union[Position, Tuple[int, int]]
+"""Type to describe a position either through its class or two integers"""
 
 
 class Orientation(enum.Enum):
@@ -203,18 +233,18 @@ class Orientation(enum.Enum):
     E = enum.auto()
     W = enum.auto()
 
-    def as_delta_position(self, dist: int = 1) -> DeltaPosition:
+    def as_position(self, dist: int = 1) -> Position:
         if self is Orientation.N:
-            return DeltaPosition(-dist, 0)
+            return Position(-dist, 0)
 
         if self is Orientation.S:
-            return DeltaPosition(dist, 0)
+            return Position(dist, 0)
 
         if self is Orientation.E:
-            return DeltaPosition(0, dist)
+            return Position(0, dist)
 
         if self is Orientation.W:
-            return DeltaPosition(0, -dist)
+            return Position(0, -dist)
 
         raise RuntimeError
 
@@ -244,6 +274,16 @@ class Orientation(enum.Enum):
             Orientation.E: Orientation.S,
             Orientation.S: Orientation.W,
             Orientation.W: Orientation.N,
+        }
+
+        return rotations[self]
+
+    def rotate_back(self) -> Orientation:
+        rotations = {
+            Orientation.N: Orientation.S,
+            Orientation.E: Orientation.W,
+            Orientation.S: Orientation.N,
+            Orientation.W: Orientation.E,
         }
 
         return rotations[self]

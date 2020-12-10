@@ -183,7 +183,7 @@ def test_no_overlap_convert(
     ]
 
     expected_agent_position_channels[
-        state.agent.position[0], state.agent.position[1]
+        state.agent.position.astuple()
     ] = expected_agent_state
 
     expected_grid_state = np.array(

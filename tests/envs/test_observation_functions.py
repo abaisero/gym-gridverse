@@ -35,7 +35,7 @@ def test_minigrid_observation(agent: Agent):
     assert observation.agent.position == (5, 2)
     assert observation.agent.orientation == Orientation.N
     assert observation.agent.obj == state.agent.obj
-    assert observation.grid.shape == (6, 5)
+    assert observation.grid.shape == Shape(6, 5)
     assert isinstance(observation.grid[3, 0], Wall)
 
 

@@ -5,7 +5,6 @@ import pytest
 
 from gym_gridverse.geometry import (
     Area,
-    DeltaPosition,
     Orientation,
     Position,
     PositionOrTuple,
@@ -106,7 +105,7 @@ def test_area_translate(area: Area, position: PositionOrTuple, expected: Area):
         (Area((0, 1), (0, 2)), Orientation.W, Area((-2, 0), (0, 1))),
         #
         (Area((-1, 1), (-2, 2)), Orientation.N, Area((-1, 1), (-2, 2))),
-        (Area((-1, 1), (-2, 2)), Orientation.S, Area((1, -1), (2, -2))),
+        (Area((-1, 1), (-2, 2)), Orientation.S, Area((-1, 1), (-2, 2))),
         (Area((-1, 1), (-2, 2)), Orientation.E, Area((-2, 2), (-1, 1))),
         (Area((-1, 1), (-2, 2)), Orientation.W, Area((-2, 2), (-1, 1))),
     ],
@@ -132,23 +131,23 @@ def test_area_eq(area1: Area, area2: Area, expected: bool):
 @pytest.mark.parametrize(
     'orientation,dist,delta_position',
     [
-        (Orientation.N, 1, DeltaPosition(-1, 0)),
-        (Orientation.N, 2, DeltaPosition(-2, 0)),
+        (Orientation.N, 1, Position(-1, 0)),
+        (Orientation.N, 2, Position(-2, 0)),
         #
-        (Orientation.S, 1, DeltaPosition(1, 0)),
-        (Orientation.S, 2, DeltaPosition(2, 0)),
+        (Orientation.S, 1, Position(1, 0)),
+        (Orientation.S, 2, Position(2, 0)),
         #
-        (Orientation.E, 1, DeltaPosition(0, 1)),
-        (Orientation.E, 2, DeltaPosition(0, 2)),
+        (Orientation.E, 1, Position(0, 1)),
+        (Orientation.E, 2, Position(0, 2)),
         #
-        (Orientation.W, 1, DeltaPosition(0, -1)),
-        (Orientation.W, 2, DeltaPosition(0, -2)),
+        (Orientation.W, 1, Position(0, -1)),
+        (Orientation.W, 2, Position(0, -2)),
     ],
 )
-def test_orientation_as_delta_position(
-    orientation: Orientation, dist: int, delta_position: DeltaPosition
+def test_orientation_as_position(
+    orientation: Orientation, dist: int, delta_position: Position
 ):
-    assert orientation.as_delta_position(dist) == delta_position
+    assert orientation.as_position(dist) == delta_position
 
 
 @pytest.mark.parametrize(
@@ -197,7 +196,7 @@ def test_position_from_position_or_tuple(y: int, x: int):
     ],
 )
 def test_position_add(pos1: Position, pos2: Position, expected: Position):
-    assert Position.add(pos1, pos2) == expected
+    assert pos1 + pos2 == expected
 
 
 @pytest.mark.parametrize(
@@ -211,7 +210,7 @@ def test_position_add(pos1: Position, pos2: Position, expected: Position):
     ],
 )
 def test_position_subtract(pos1: Position, pos2: Position, expected: Position):
-    assert Position.subtract(pos1, pos2) == expected
+    assert pos1 - pos2 == expected
 
 
 @pytest.mark.parametrize(
@@ -260,25 +259,25 @@ def test_position_euclidean_distance(
     'delta_position,orientation,expected',
     [
         # y basis
-        (DeltaPosition(1, 0), Orientation.N, DeltaPosition(1, 0)),
-        (DeltaPosition(1, 0), Orientation.S, DeltaPosition(-1, 0)),
-        (DeltaPosition(1, 0), Orientation.E, DeltaPosition(0, -1)),
-        (DeltaPosition(1, 0), Orientation.W, DeltaPosition(0, 1)),
+        (Position(1, 0), Orientation.N, Position(1, 0)),
+        (Position(1, 0), Orientation.S, Position(-1, 0)),
+        (Position(1, 0), Orientation.E, Position(0, -1)),
+        (Position(1, 0), Orientation.W, Position(0, 1)),
         # x basis
-        (DeltaPosition(0, 1), Orientation.N, DeltaPosition(0, 1)),
-        (DeltaPosition(0, 1), Orientation.S, DeltaPosition(0, -1)),
-        (DeltaPosition(0, 1), Orientation.E, DeltaPosition(1, 0)),
-        (DeltaPosition(0, 1), Orientation.W, DeltaPosition(-1, 0)),
+        (Position(0, 1), Orientation.N, Position(0, 1)),
+        (Position(0, 1), Orientation.S, Position(0, -1)),
+        (Position(0, 1), Orientation.E, Position(1, 0)),
+        (Position(0, 1), Orientation.W, Position(-1, 0)),
         # others
-        (DeltaPosition(1, 2), Orientation.N, DeltaPosition(1, 2)),
-        (DeltaPosition(1, 2), Orientation.S, DeltaPosition(-1, -2)),
-        (DeltaPosition(1, 2), Orientation.E, DeltaPosition(2, -1)),
-        (DeltaPosition(1, 2), Orientation.W, DeltaPosition(-2, 1)),
+        (Position(1, 2), Orientation.N, Position(1, 2)),
+        (Position(1, 2), Orientation.S, Position(-1, -2)),
+        (Position(1, 2), Orientation.E, Position(2, -1)),
+        (Position(1, 2), Orientation.W, Position(-2, 1)),
     ],
 )
 def test_delta_position_rotate_basis(
-    delta_position: DeltaPosition,
+    delta_position: Position,
     orientation: Orientation,
-    expected: DeltaPosition,
+    expected: Position,
 ):
     assert delta_position.rotate(orientation) == expected

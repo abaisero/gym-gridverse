@@ -1,12 +1,20 @@
-from .info import Agent, Grid
+from dataclasses import dataclass
+
+from gym_gridverse.info import Agent, Grid
 
 
+@dataclass(frozen=True)
 class Observation:
-    def __init__(self, grid: Grid, agent: Agent):
-        self.grid = grid
-        self.agent = agent
+    """An observation is represented by two pieces: a grid and an agent
 
-    def __eq__(self, other):
-        if isinstance(other, Observation):
-            return self.grid == other.grid and self.agent == other.agent
-        return NotImplemented
+    The grid :py:class:`~gym_gridverse.info.Grid` is a two-dimensional array of
+    :py:class:`~gym_gridverse.grid_object.GridObject`. The
+    :py:class:`~gym_gridverse.info.Agent` describes the agent's location,
+    orientation and holding item.
+
+    This class offers little functionality, and basically is just a holder for
+    those two components.
+    """
+
+    grid: Grid
+    agent: Agent
