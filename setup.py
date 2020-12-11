@@ -47,6 +47,7 @@ setup(
     keywords='gym_gridverse',
     name='gym_gridverse',
     packages=find_packages(include=['gym_gridverse', 'gym_gridverse.*']),
+    package_data={'gym_gridverse': ['py.typed']},
     scripts=[
         'scripts/gv_gym_interface.py',
         'scripts/gv_yaml_schema.py',
