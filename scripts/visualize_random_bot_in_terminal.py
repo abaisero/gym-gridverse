@@ -54,8 +54,7 @@ if __name__ == "__main__":
     parser.add_argument('env_path', help='env YAML file')
     args = parser.parse_args()
 
-    with open(args.env_path) as f:
-        inner_env = factory_env_from_yaml(args.env_path)
+    inner_env = factory_env_from_yaml(args.env_path)
 
     rep = DefaultObservationRepresentation(inner_env.observation_space)
     outer_env = OuterEnv(inner_env, observation_rep=rep)
