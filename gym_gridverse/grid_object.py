@@ -118,6 +118,9 @@ class NoneGridObject(GridObject):
     def render_as_char(self) -> str:
         return " "
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}()'
+
 
 class Hidden(GridObject):
     """ object representing an unobservable cell """
@@ -154,6 +157,9 @@ class Hidden(GridObject):
 
     def render_as_char(self) -> str:
         return "."
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}()'
 
 
 class Floor(GridObject):
@@ -192,6 +198,9 @@ class Floor(GridObject):
     def render_as_char(self) -> str:
         return " "
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}()'
+
 
 class Wall(GridObject):
     """ The (second) most basic object in the grid: blocking cell """
@@ -229,6 +238,9 @@ class Wall(GridObject):
     def render_as_char(self) -> str:
         return "#"
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}()'
+
 
 class Goal(GridObject):
     """ The (second) most basic object in the grid: blocking cell """
@@ -265,6 +277,9 @@ class Goal(GridObject):
 
     def render_as_char(self) -> str:
         return "G"
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}()'
 
 
 class Door(GridObject):
@@ -352,6 +367,9 @@ class Door(GridObject):
             self.Status.LOCKED: "D",
         }[self._state]
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.state!s}, {self.color!s})'
+
 
 class Key(GridObject):
     """ A key opens a door with the same color """
@@ -393,6 +411,9 @@ class Key(GridObject):
     def render_as_char(self) -> str:
         return "K"
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.color!s})'
+
 
 class MovingObstacle(GridObject):
     """An obstacle to be avoided that moves in the grid"""
@@ -432,6 +453,9 @@ class MovingObstacle(GridObject):
 
     def render_as_char(self) -> str:
         return "*"
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}()'
 
 
 class Box(GridObject):
@@ -478,6 +502,9 @@ class Box(GridObject):
 
     def render_as_char(self) -> str:
         return "b"
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.content!r})'
 
 
 class Telepod(GridObject):
@@ -529,6 +556,9 @@ class Telepod(GridObject):
 
     def render_as_char(self) -> str:
         return "T"
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.color!s})'
 
 
 def factory(

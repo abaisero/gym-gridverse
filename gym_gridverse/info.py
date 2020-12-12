@@ -248,3 +248,10 @@ class Agent:
 
     def __hash__(self):
         return hash((self.position, self.orientation, self.obj))
+
+    def __repr__(self):
+        return (
+            f'{self.__class__.__name__}({self.position!r}, {self.orientation!s})'
+            if isinstance(self.obj, NoneGridObject)
+            else f'{self.__class__.__name__}({self.position!r}, {self.orientation!s}, {self.obj!r})'
+        )
