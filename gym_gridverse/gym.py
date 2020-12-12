@@ -8,7 +8,6 @@ from gym.utils import seeding
 
 from gym_gridverse.envs import InnerEnv, factory
 from gym_gridverse.outer_env import OuterEnv
-from gym_gridverse.rendering import GridVerseViewer
 from gym_gridverse.representations.observation_representations import (
     create_observation_representation,
 )
@@ -52,8 +51,10 @@ class GymEnvironment(gym.Env):
             else None
         )
 
-        self._state_viewer: Optional[GridVerseViewer] = None
-        self._observation_viewer: Optional[GridVerseViewer] = None
+        # self._state_viewer: Optional[GridVerseViewer] = None
+        # self._observation_viewer: Optional[GridVerseViewer] = None
+        self._state_viewer = None
+        self._observation_viewer = None
 
     def seed(self, seed: Optional[int] = None) -> List[int]:
         actual_seed = seeding.create_seed(seed)
@@ -100,6 +101,12 @@ class GymEnvironment(gym.Env):
         return self.observation, reward, done, {}
 
     def render(self, mode='human'):
+        # only import rendering if actually rendering (avoid importing when
+        # using library remotely using ssh on a display-less environment)
+        from gym_gridverse.rendering import (  # pylint: disable=import-outside-toplevel
+            GridVerseViewer,
+        )
+
         if mode not in ['human', 'human_state', 'human_observation']:
             super().render(mode)
 

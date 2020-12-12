@@ -406,7 +406,7 @@ def convert_pos(
 
 # TODO clean this code;  this is barely working
 class _CustomViewer(rendering.Viewer):
-    def __init__(self, width, height):
+    def __init__(self, width, height):  # pylint: disable=super-init-not-called
         self.width = width
         self.height = height
         self.window = pyglet.window.Window(width=width, height=height)
