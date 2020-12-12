@@ -87,6 +87,15 @@ time-step one of the Floor tiles turns into a Wall tile.
 Practical Example 2
 -------------------
 
+In this example, we are going to write a transition function in which the agent
+moves until it hits an obstacle.
+
+.. literalinclude:: example__transition_function__rooklike_movement.py
+  :language: python
+
+Practical Example 3
+-------------------
+
 In this example, we are going to write a transition function which randomizes
 the execution of another transition function.
 
