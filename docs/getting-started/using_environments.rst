@@ -2,13 +2,24 @@
 Using Environments
 ==================
 
-Our package provides tools for generating kinds of environments and
-representations, which we will discuss in detail. Here we preview how one could
-go about designing interactions with an environment once constructed. The below
-(:download:`scripts/visualize_random_bot_in_terminal.py
-<../../scripts/visualize_random_bot_in_terminal.py>`) is an example that prints
-the interactions of an agent in an environment created from `YAML` to the
-terminal.
+In the following sections, we show simple random-agent control loops which
+respectively use :py:class:`~gym_gridverse.outer_env.OuterEnv` and
+:py:class:`~gym_gridverse.gym.GymEnvironment`.
 
-.. literalinclude:: ../../scripts/visualize_random_bot_in_terminal.py
+Using the GridVerse "Outer" interface
+=====================================
+
+This script is also available as :download:`scripts/gv_control_loop_outer.py
+<../../scripts/gv_control_loop_outer.py>`.
+
+.. literalinclude:: ../../scripts/gv_control_loop_outer.py
+  :language: python
+
+Using the OpenAI Gym interface
+==============================
+
+This script is also available as :download:`scripts/gv_control_loop_gym.py
+<../../scripts/gv_control_loop_gym.py>`.
+
+.. literalinclude:: ../../scripts/gv_control_loop_gym.py
   :language: python

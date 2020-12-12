@@ -2,20 +2,33 @@
 Creating Environments
 =====================
 
-`Gridverse` is a library for constructing and developing environments. In this
-section we cover how to use YAML_ to define and create them.
+Gridverse is a library for constructing and instantiating custom gridworld
+environments. In this section, we cover how to load predefined environments
+using `OpenAI Gym`_, and how to create custom environments using `YAML`_.
 
-Play with GUI
-=============
+Using OpenAI Gym
+================
 
-The interactive GUI gives an idea of the features provided in this package. The
-script expects a single input, the `YAML` file describing the environment, for
-example::
+Some predefined environments, e.g. ``MiniGrid-FourRooms-v0``, can be
+instantiated directly using :py:func:`gym.make`::
 
-  >> scripts/gv_viewer.py envs_yaml/gv_four_rooms.13x13.yaml
+  import gym
+  import gym_gridverse
 
-Other environments provided out of the box are located in the directory
-`envs_yaml`, and include:
+  env = gym.make('MiniGrid-FourRooms-v0')
+
+However, the strength of Gridverse is the ability to create custom environments
+by combining transition functions, observation functions, reward functions,
+etc.  Because custom environments cannot be pre-registered, it is not possible
+to instantiate them via :py:func:`gym.make`.  Instead, we provide a separate
+way to define and instantiate environments based on YAML configuration files.
+
+Using YAML
+==========
+
+The YAML configuration format allows you to specify all aspects of an
+environment.  The ``yaml/`` folder contains some predefined environments in the
+YAML format, e.g.,
 
 - :download:`yaml/gv_empty.8x8.yaml <../../yaml/gv_empty.8x8.yaml>`
 - :download:`yaml/gv_four_rooms.9x9.yaml <../../yaml/gv_four_rooms.9x9.yaml>`
@@ -25,25 +38,55 @@ Other environments provided out of the box are located in the directory
 - :download:`yaml/gv_dynamic_obstacles.7x7.yaml <../../yaml/gv_dynamic_obstacles.7x7.yaml>`
 - :download:`yaml/gv_teleport.7x7.yaml <../../yaml/gv_teleport.7x7.yaml>`
 
-Create environments
-===================
+GUI with Manual Control
+-----------------------
 
-To use environments in your own code, you can call the factory function with a
-path to the `YAML` configurations::
+Script :download:`scripts/gv_viewer.py <../../scripts/gv_viewer.py>` loads an
+environment expressed in the YAML format and provides manual controls, and is
+also currently the favorite way to check whether a YAML file is properly
+formatted::
 
-  from gym_gridverse.envs.factory_yaml import make_environment
-  env = make_environment(path_to_yaml_file)
+  >> gv_viewer.py yaml/gv_nine_rooms.13x13.yaml
 
-.. todo::
+Instantiating from YAML
+-----------------------
 
-  A seamless integration with the GYM_ interface is provided....
+To create an environment from YAML, you can use the factory function
+:py:meth:`~gym_gridverse.envs.yaml.factory.factory_env_from_yaml`::
 
-YAML scheme
-===========
+  from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 
-.. todo::
+  env = factory_env_from_yaml(path_to_yaml_file)  # type: InnerEnv
 
-  Describe fields somehow
+.. note::
 
-.. _YAML: https://yaml.org/
-.. _GYM: https://gym.openai.com/
+  :py:meth:`~gym_gridverse.envs.yaml.factory.factory_env_from_yaml` returns an
+  instance of :py:class:`~gym_gridverse.envs.inner_env.InnerEnv`, which does
+  not provide the same interface as :py:class:`gym.core.Env`.  If you want to
+  load a custom environment specified from YAML and interact with it using the
+  gym interface, you can use :py:class:`~gym_gridverse.gym.GymEnvironment`::
+
+    from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
+    from gym_gridverse.gym import GymEnvironment
+
+    # returns gym_gridverse.envs.inner_env.InnerEnv
+    inner_env = factory_env_from_yaml(path_to_yaml_file)  
+
+    # returns gym_gridverse.gym.GymEnvironment (which inherits gym.Env)
+    gym_env = GymEnvironment.from_environment(inner_env)
+
+YAML schema
+-----------
+
+The schema for the YAML format is provided in the json-schema_ format (since
+YAML is approximately a superset of JSON): :download:`schema.yaml
+<../../schema.yaml>`.
+
+Broadly speaking, the fields of the YAML format describe the environment spaces
+(state, action, and observation), as well as its functions (reset, reward,
+transition, observation, and terminating).  For a full overview, we refer to
+the provided schema and the example YAML files.
+
+.. _OpenAI Gym: https://gym.openai.com/
+.. _YAML: https://yaml.org
+.. _json-schema: https://json-schema.org/
