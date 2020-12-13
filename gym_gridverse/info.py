@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Callable, Iterable, Optional, Sequence, Set, Type
+from typing import Callable, Iterable, List, Optional, Sequence, Set, Type
 
 import numpy as np
 
@@ -58,6 +58,9 @@ class Grid:
             grid[pos] = array[pos.y, pos.x]
 
         return grid
+
+    def to_objects(self) -> List[List[GridObject]]:
+        return self._grid.tolist()
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Grid):
@@ -179,6 +182,9 @@ class Grid:
 
     def __hash__(self):
         return hash(tuple(map(tuple, self._grid.tolist())))
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__} {self.height}x{self.width} objects={self.to_objects()!r}>'
 
 
 class Agent:
