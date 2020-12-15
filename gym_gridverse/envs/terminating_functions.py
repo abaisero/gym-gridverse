@@ -130,7 +130,9 @@ def bump_into_wall(
         state.agent.position, state.agent.orientation, action
     )
 
-    return isinstance(state.grid[attempted_next_position], Wall)
+    return attempted_next_position in state.grid and (
+        isinstance(state.grid[attempted_next_position], Wall)
+    )
 
 
 def factory(

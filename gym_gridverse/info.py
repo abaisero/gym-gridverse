@@ -85,11 +85,15 @@ class Grid:
         position = Position.from_position_or_tuple(position)
         return 0 <= position.y < self.height and 0 <= position.x < self.width
 
-    def _check_contains(self, position: PositionOrTuple):
+    def _check_contains(
+        self,
+        position: PositionOrTuple,
+        exception_type: Type[Exception] = ValueError,
+    ):
         """raises value error if position is not in the grid"""
         position = Position.from_position_or_tuple(position)
         if position not in self:
-            raise ValueError(f'Position {position} ')
+            raise exception_type(f'Position {position} ')
 
     def positions(self) -> Iterable[Position]:
         """iterator over positions"""
@@ -115,10 +119,19 @@ class Grid:
         return set(type(self[position]) for position in self.positions())
 
     def __getitem__(self, position: PositionOrTuple) -> GridObject:
-        y, x = position
-        return self._grid[y, x]
+        position = Position.from_position_or_tuple(position)
+
+        if position not in self:
+            raise IndexError(f'position {position} not in grid')
+
+        return self._grid[position.y, position.x]
 
     def __setitem__(self, position: PositionOrTuple, obj: GridObject):
+        position = Position.from_position_or_tuple(position)
+
+        if position not in self:
+            raise IndexError(f'position {position} not in grid')
+
         if not isinstance(obj, GridObject):
             TypeError('grid can only contain entities')
 
@@ -127,8 +140,12 @@ class Grid:
 
     def swap(self, p: Position, q: Position):
         """swap the objects at two positions"""
-        self._check_contains(p)
-        self._check_contains(q)
+        if p not in self:
+            raise ValueError(f'position {p} not in grid')
+
+        if q not in self:
+            raise ValueError(f'position {q} not in grid')
+
         self[p], self[q] = self[q], self[p]
 
     def subgrid(self, area: Area) -> Grid:
@@ -143,12 +160,21 @@ class Grid:
             Grid: New instance, sliced appropriately
         """
         subgrid = Grid(area.height, area.width)
-
+        grid_copy = deepcopy(self)
         for pos_to in subgrid.positions():
             pos_from = pos_to + area.top_left
-            subgrid[pos_to] = (
-                deepcopy(self[pos_from]) if pos_from in self else Hidden()
-            )
+
+            try:
+                obj = grid_copy[pos_from]
+            except IndexError:
+                obj = Hidden()
+
+            subgrid[pos_to] = obj
+            # subgrid[pos_to] = (
+            #     np_grid[pos_from.y, pos_from.x]
+            #     if pos_from in self
+            #     else Hidden()
+            # )
 
         return subgrid
 

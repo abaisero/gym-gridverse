@@ -9,7 +9,15 @@ from gym_gridverse.geometry import (
     PositionOrTuple,
     Shape,
 )
-from gym_gridverse.grid_object import Floor, Goal, GridObject, Hidden, Wall
+from gym_gridverse.grid_object import (
+    Colors,
+    Floor,
+    Goal,
+    GridObject,
+    Hidden,
+    Telepod,
+    Wall,
+)
 from gym_gridverse.info import Agent, Grid
 
 
@@ -216,6 +224,17 @@ def test_grid_subgrid(
 
     expected = Grid.from_objects(expected_objects)
     assert grid.subgrid(area) == expected
+
+
+def test_grid_subgrid_references():
+    telepods = list(Telepod.make(2, Colors.RED))
+    grid = Grid.from_objects([telepods])
+
+    subgrid = grid.subgrid(Area((0, 0), (0, 1)))
+    telepod1 = subgrid[0, 0]
+    telepod2 = subgrid[0, 1]
+    assert telepod1.telepods[0] is telepod2
+    assert telepod2.telepods[0] is telepod1
 
 
 @pytest.mark.parametrize(

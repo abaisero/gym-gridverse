@@ -247,10 +247,12 @@ def bump_into_wall(
         state.agent.position, state.agent.orientation, action
     )
 
-    if isinstance(state.grid[attempted_next_position], Wall):
-        return reward
-
-    return 0.0
+    return (
+        reward
+        if attempted_next_position in state.grid
+        and isinstance(state.grid[attempted_next_position], Wall)
+        else 0.0
+    )
 
 
 def actuate_door(
