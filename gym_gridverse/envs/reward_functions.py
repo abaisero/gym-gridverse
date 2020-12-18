@@ -3,7 +3,7 @@ from typing import Callable, Optional, Sequence, Type
 
 import more_itertools as mitt
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import DistanceFunction, Position
 from gym_gridverse.grid_object import (
@@ -15,13 +15,13 @@ from gym_gridverse.grid_object import (
 )
 from gym_gridverse.state import State
 
-RewardFunction = Callable[[State, Actions, State], float]
+RewardFunction = Callable[[State, Action, State], float]
 """Signature that all reward functions must follow"""
 
 
 def chain(
     state: State,
-    action: Actions,
+    action: Action,
     next_state: State,
     *,
     reward_functions: Sequence[RewardFunction],
@@ -30,7 +30,7 @@ def chain(
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         next_state (`State`):
         reward_functions (`Sequence[RewardFunction]`):
 
@@ -45,7 +45,7 @@ def chain(
 
 def overlap(
     state: State,  # pylint: disable=unused-argument
-    action: Actions,  # pylint: disable=unused-argument
+    action: Action,  # pylint: disable=unused-argument
     next_state: State,
     *,
     object_type: Type[GridObject],
@@ -56,7 +56,7 @@ def overlap(
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         next_state (`State`):
         object_type (`Type[GridObject]`):
         reward_on (`float`): reward for when agent is on the object
@@ -74,7 +74,7 @@ def overlap(
 
 def living_reward(
     state: State,  # pylint: disable=unused-argument
-    action: Actions,  # pylint: disable=unused-argument
+    action: Action,  # pylint: disable=unused-argument
     next_state: State,  # pylint: disable=unused-argument
     *,
     reward: float = -1.0,
@@ -83,7 +83,7 @@ def living_reward(
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         next_state (`State`):
         reward (`float`): reward for when agent is on goal
 
@@ -95,7 +95,7 @@ def living_reward(
 
 def reach_goal(
     state: State,
-    action: Actions,
+    action: Action,
     next_state: State,
     *,
     reward_on: float = 1.0,
@@ -105,7 +105,7 @@ def reach_goal(
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         next_state (`State`):
         reward_on (`float`): reward for when agent is on goal
         reward_off (`float`): reward for when agent is not on goal
@@ -124,13 +124,13 @@ def reach_goal(
 
 
 def bump_moving_obstacle(
-    state: State, action: Actions, next_state: State, *, reward: float = -1.0
+    state: State, action: Action, next_state: State, *, reward: float = -1.0
 ) -> float:
     """reward for the Agent bumping into on a MovingObstacle
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         next_state (`State`):
         reward (`float`): reward for when Agent bumps a MovingObstacle
 
@@ -149,7 +149,7 @@ def bump_moving_obstacle(
 
 def proportional_to_distance(
     state: State,  # pylint: disable=unused-argument
-    action: Actions,  # pylint: disable=unused-argument
+    action: Action,  # pylint: disable=unused-argument
     next_state: State,
     *,
     distance_function: DistanceFunction = Position.manhattan_distance,
@@ -160,7 +160,7 @@ def proportional_to_distance(
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         next_state (`State`):
         distance_function (`DistanceFunction`):
         object_type: (`Type[GridObject]`): type of unique object in grid
@@ -181,7 +181,7 @@ def proportional_to_distance(
 
 def getting_closer(
     state: State,
-    action: Actions,  # pylint: disable=unused-argument
+    action: Action,  # pylint: disable=unused-argument
     next_state: State,
     *,
     distance_function: DistanceFunction = Position.manhattan_distance,
@@ -193,7 +193,7 @@ def getting_closer(
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         next_state (`State`):
         distance_function (`DistanceFunction`):
         object_type: (`Type[GridObject]`): type of unique object in grid
@@ -226,7 +226,7 @@ def getting_closer(
 
 def bump_into_wall(
     state: State,
-    action: Actions,
+    action: Action,
     next_state: State,  # pylint: disable=unused-argument
     *,
     reward: float = -1.0,
@@ -238,7 +238,7 @@ def bump_into_wall(
 
     Args:
         state (State):
-        action (Actions):
+        action (Action):
         next_state (State):
         reward (float): (optional) The reward to provide if bumping into wall
     """
@@ -257,7 +257,7 @@ def bump_into_wall(
 
 def actuate_door(
     state: State,
-    action: Actions,
+    action: Action,
     next_state: State,
     *,
     reward_open: float = 1.0,
@@ -270,13 +270,13 @@ def actuate_door(
 
     Args:
         state (State):
-        action (Actions):
+        action (Action):
         next_state (State):
         reward_open (float): (optional) The reward to provide if opening a door
         reward_close (float): (optional) The reward to provide if closing a door
     """
 
-    if action is not Actions.ACTUATE:
+    if action is not Action.ACTUATE:
         return 0.0
 
     position = state.agent.position_in_front()
@@ -301,7 +301,7 @@ def actuate_door(
 
 def pickndrop(
     state: State,
-    action: Actions,  # pylint: disable=unused-argument
+    action: Action,  # pylint: disable=unused-argument
     next_state: State,
     *,
     object_type: Type[GridObject],
@@ -314,7 +314,7 @@ def pickndrop(
 
     Args:
         state (State):
-        action (Actions):
+        action (Action):
         next_state (State):
         reward_pick (float): (optional) The reward to provide if picking a key
         reward_drop (float): (optional) The reward to provide if dropping a key

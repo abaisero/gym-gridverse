@@ -1,11 +1,11 @@
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.state import State
 
 
 def actual_rotation_reward(
     state: State,
-    action: Actions,  # pylint: disable=unused-argument
+    action: Action,  # pylint: disable=unused-argument
     next_state: State,
     *,
     reward_clockwise: float,

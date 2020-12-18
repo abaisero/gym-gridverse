@@ -13,7 +13,7 @@ A reward function is a deterministic mapping from a state-action-state
 transition to a numeric reward.  Using the :py:mod:`typing` standard library,
 the reward function type is defined as a :py:class:`typing.Callable` which
 receives a :py:class:`~gym_gridverse.state.State`, an
-:py:class:`~gym_gridverse.actions.Actions`, and another
+:py:class:`~gym_gridverse.action.Action`, and another
 :py:class:`~gym_gridverse.state.State`, and returns a :py:class:`float`.
 
 .. autodata:: gym_gridverse.envs.reward_functions.RewardFunction
@@ -125,8 +125,8 @@ First Implementation
 ^^^^^^^^^^^^^^^^^^^^
 In the first implementation, we will simply check whether the ``action``
 argument matches one of the rotation actions
-(:py:attr:`~gym_gridverse.actions.Actions.TURN_LEFT` and
-:py:attr:`~gym_gridverse.actions.Actions.TURN_RIGHT`), and select the
+(:py:attr:`~gym_gridverse.action.Action.TURN_LEFT` and
+:py:attr:`~gym_gridverse.action.Action.TURN_RIGHT`), and select the
 appropriate reward:
 
 .. literalinclude:: example__reward_function__intended_rotation_reward.py

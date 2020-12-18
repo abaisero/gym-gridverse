@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 import numpy.random as rnd
 import pytest
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.envs.reset_functions import reset_minigrid_dynamic_obstacles
 from gym_gridverse.envs.transition_functions import (
     _step_moving_obstacle,
@@ -55,7 +55,7 @@ def make_moving_obstacle_state():
                 Orientation.N,
                 NoneGridObject(),
             ),
-            [Actions.TURN_LEFT],
+            [Action.TURN_LEFT],
             Orientation.W,
         ),
         # Not rotating
@@ -65,7 +65,7 @@ def make_moving_obstacle_state():
                 Orientation.W,
                 NoneGridObject(),
             ),
-            [Actions.MOVE_LEFT, Actions.ACTUATE, Actions.PICK_N_DROP],
+            [Action.MOVE_LEFT, Action.ACTUATE, Action.PICK_N_DROP],
             Orientation.W,
         ),
         # Two rotation to EAST
@@ -75,7 +75,7 @@ def make_moving_obstacle_state():
                 Orientation.W,
                 NoneGridObject(),
             ),
-            [Actions.TURN_LEFT, Actions.TURN_LEFT],
+            [Action.TURN_LEFT, Action.TURN_LEFT],
             Orientation.E,
         ),
         # One back to SOUTH
@@ -85,7 +85,7 @@ def make_moving_obstacle_state():
                 Orientation.E,
                 NoneGridObject(),
             ),
-            [Actions.TURN_RIGHT],
+            [Action.TURN_RIGHT],
             Orientation.S,
         ),
         # Full circle for fun to SOUTH
@@ -96,10 +96,10 @@ def make_moving_obstacle_state():
                 NoneGridObject(),
             ),
             [
-                Actions.TURN_RIGHT,
-                Actions.TURN_RIGHT,
-                Actions.TURN_RIGHT,
-                Actions.TURN_RIGHT,
+                Action.TURN_RIGHT,
+                Action.TURN_RIGHT,
+                Action.TURN_RIGHT,
+                Action.TURN_RIGHT,
             ],
             Orientation.S,
         ),
@@ -107,7 +107,7 @@ def make_moving_obstacle_state():
 )
 def test_rotate_agent(
     agent: Agent,  # pylint: disable=redefined-outer-name
-    actions: Sequence[Actions],
+    actions: Sequence[Action],
     expected: Orientation,
 ):
     for action in actions:
@@ -120,35 +120,35 @@ def test_rotate_agent(
     'position,orientation,actions,expected',
     [
         #  unblocked movement
-        ((2, 1), Orientation.N, [Actions.MOVE_LEFT], (2, 0)),
-        ((2, 0), Orientation.N, [Actions.MOVE_RIGHT], (2, 1)),
+        ((2, 1), Orientation.N, [Action.MOVE_LEFT], (2, 0)),
+        ((2, 0), Orientation.N, [Action.MOVE_RIGHT], (2, 1)),
         (
             (2, 1),
             Orientation.N,
-            [Actions.MOVE_FORWARD, Actions.MOVE_FORWARD],
+            [Action.MOVE_FORWARD, Action.MOVE_FORWARD],
             (0, 1),
         ),
-        ((0, 1), Orientation.N, [Actions.MOVE_BACKWARD], (1, 1)),
+        ((0, 1), Orientation.N, [Action.MOVE_BACKWARD], (1, 1)),
         # blocked by grid object
         # blocked by edges
-        ((2, 1), Orientation.N, [Actions.MOVE_RIGHT], (2, 1)),
+        ((2, 1), Orientation.N, [Action.MOVE_RIGHT], (2, 1)),
         # non-movements
-        ((2, 1), Orientation.N, [Actions.TURN_RIGHT], (2, 1)),
-        ((2, 1), Orientation.N, [Actions.TURN_LEFT], (2, 1)),
-        ((2, 1), Orientation.N, [Actions.ACTUATE], (2, 1)),
-        ((2, 1), Orientation.N, [Actions.PICK_N_DROP], (2, 1)),
+        ((2, 1), Orientation.N, [Action.TURN_RIGHT], (2, 1)),
+        ((2, 1), Orientation.N, [Action.TURN_LEFT], (2, 1)),
+        ((2, 1), Orientation.N, [Action.ACTUATE], (2, 1)),
+        ((2, 1), Orientation.N, [Action.PICK_N_DROP], (2, 1)),
         # facing east
-        ((2, 1), Orientation.E, [Actions.MOVE_LEFT, Actions.MOVE_LEFT], (0, 1)),
-        ((0, 1), Orientation.E, [Actions.MOVE_BACKWARD], (0, 0)),
-        ((0, 0), Orientation.E, [Actions.MOVE_FORWARD], (0, 1)),
-        ((0, 1), Orientation.E, [Actions.MOVE_FORWARD], (0, 1)),
-        ((0, 1), Orientation.E, [Actions.MOVE_RIGHT], (1, 1)),
+        ((2, 1), Orientation.E, [Action.MOVE_LEFT, Action.MOVE_LEFT], (0, 1)),
+        ((0, 1), Orientation.E, [Action.MOVE_BACKWARD], (0, 0)),
+        ((0, 0), Orientation.E, [Action.MOVE_FORWARD], (0, 1)),
+        ((0, 1), Orientation.E, [Action.MOVE_FORWARD], (0, 1)),
+        ((0, 1), Orientation.E, [Action.MOVE_RIGHT], (1, 1)),
     ],
 )
 def test_move_action(
     position: PositionOrTuple,
     orientation: Orientation,
-    actions: Sequence[Actions],
+    actions: Sequence[Action],
     expected: PositionOrTuple,
 ):
     grid = Grid(height=3, width=2)
@@ -167,7 +167,7 @@ def test_move_action_blocked_by_grid_object():
     agent = Agent(position=(2, 1), orientation=Orientation.N)
 
     grid[2, 0] = Door(Door.Status.CLOSED, Colors.YELLOW)
-    move_agent(agent, grid, action=Actions.MOVE_LEFT)
+    move_agent(agent, grid, action=Action.MOVE_LEFT)
 
     assert agent.position == (2, 1)
 
@@ -178,15 +178,15 @@ def test_move_action_can_go_on_non_block_objects():
     agent = Agent(position=(2, 1), orientation=Orientation.N)
 
     grid[2, 0] = Door(Door.Status.OPEN, Colors.YELLOW)
-    move_agent(agent, grid, action=Actions.MOVE_LEFT)
+    move_agent(agent, grid, action=Action.MOVE_LEFT)
     assert agent.position == (2, 0)
 
     grid[2, 1] = Key(Colors.BLUE)
-    move_agent(agent, grid, action=Actions.MOVE_RIGHT)
+    move_agent(agent, grid, action=Action.MOVE_RIGHT)
     assert agent.position == (2, 1)
 
 
-def step_with_copy(state: State, action: Actions) -> State:
+def step_with_copy(state: State, action: Action) -> State:
     next_state = copy.deepcopy(state)
     pickup_mechanics(next_state, action)
     return next_state
@@ -200,12 +200,12 @@ def test_pickup_mechanics_nothing_to_pickup():
     state = State(grid, agent)
 
     # Cannot pickup floor
-    next_state = step_with_copy(state, Actions.PICK_N_DROP)
+    next_state = step_with_copy(state, Action.PICK_N_DROP)
     assert state == next_state
 
     # Cannot pickup door
     grid[item_pos] = Door(Door.Status.CLOSED, Colors.GREEN)
-    next_state = step_with_copy(state, Actions.PICK_N_DROP)
+    next_state = step_with_copy(state, Action.PICK_N_DROP)
     assert state == next_state
 
     assert isinstance(next_state.grid[item_pos], Door)
@@ -220,12 +220,12 @@ def test_pickup_mechanics_pickup():
     state = State(grid, agent)
 
     # Pick up works
-    next_state = step_with_copy(state, Actions.PICK_N_DROP)
+    next_state = step_with_copy(state, Action.PICK_N_DROP)
     assert grid[item_pos] == next_state.agent.obj
     assert isinstance(next_state.grid[item_pos], Floor)
 
     # Pick up only works with correct action
-    next_state = step_with_copy(state, Actions.MOVE_LEFT)
+    next_state = step_with_copy(state, Action.MOVE_LEFT)
     assert grid[item_pos] != next_state.agent.obj
     assert next_state.grid[item_pos] == grid[item_pos]
 
@@ -239,14 +239,14 @@ def test_pickup_mechanics_drop():
     state = State(grid, agent)
 
     # Can drop:
-    next_state = step_with_copy(state, Actions.PICK_N_DROP)
+    next_state = step_with_copy(state, Action.PICK_N_DROP)
     assert isinstance(next_state.agent.obj, NoneGridObject)
     assert agent.obj == next_state.grid[item_pos]
 
     # Cannot drop:
     state.grid[item_pos] = Wall()
 
-    next_state = step_with_copy(state, Actions.PICK_N_DROP)
+    next_state = step_with_copy(state, Action.PICK_N_DROP)
     assert isinstance(next_state.grid[item_pos], Wall)
     assert agent.obj == next_state.agent.obj
 
@@ -260,7 +260,7 @@ def test_pickup_mechanics_swap():
     grid[item_pos] = Key(Colors.GREEN)
     state = State(grid, agent)
 
-    next_state = step_with_copy(state, Actions.PICK_N_DROP)
+    next_state = step_with_copy(state, Action.PICK_N_DROP)
     assert state.grid[item_pos] == next_state.agent.obj
     assert state.agent.obj == next_state.grid[item_pos]
 
@@ -293,7 +293,7 @@ def test_step_moving_obstacles_once_per_obstacle():
         'gym_gridverse.envs.transition_functions._step_moving_obstacle',
         new=patched_step_moving_obstacle,
     ):
-        step_moving_obstacles(state, Actions.PICK_N_DROP)
+        step_moving_obstacles(state, Action.PICK_N_DROP)
 
     assert len(counts) == 4
     assert all(count == 1 for count in counts.values())
@@ -336,14 +336,14 @@ def test_step_moving_obstacles(
             Door.Status.LOCKED,
             Colors.RED,
             Colors.RED,
-            Actions.ACTUATE,
+            Action.ACTUATE,
             Door.Status.OPEN,
         ),
         (
             Door.Status.LOCKED,
             Colors.RED,
             Colors.BLUE,
-            Actions.ACTUATE,
+            Action.ACTUATE,
             Door.Status.LOCKED,
         ),
         # CLOSED
@@ -351,7 +351,7 @@ def test_step_moving_obstacles(
             Door.Status.CLOSED,
             Colors.RED,
             Colors.BLUE,
-            Actions.ACTUATE,
+            Action.ACTUATE,
             Door.Status.OPEN,
         ),
         # OPEN
@@ -359,7 +359,7 @@ def test_step_moving_obstacles(
             Door.Status.OPEN,
             Colors.RED,
             Colors.RED,
-            Actions.ACTUATE,
+            Action.ACTUATE,
             Door.Status.OPEN,
         ),
         # not ACTUATE
@@ -367,28 +367,28 @@ def test_step_moving_obstacles(
             Door.Status.LOCKED,
             Colors.RED,
             Colors.RED,
-            Actions.PICK_N_DROP,
+            Action.PICK_N_DROP,
             Door.Status.LOCKED,
         ),
         (
             Door.Status.LOCKED,
             Colors.RED,
             Colors.BLUE,
-            Actions.PICK_N_DROP,
+            Action.PICK_N_DROP,
             Door.Status.LOCKED,
         ),
         (
             Door.Status.CLOSED,
             Colors.RED,
             Colors.BLUE,
-            Actions.PICK_N_DROP,
+            Action.PICK_N_DROP,
             Door.Status.CLOSED,
         ),
         (
             Door.Status.OPEN,
             Colors.RED,
             Colors.RED,
-            Actions.PICK_N_DROP,
+            Action.PICK_N_DROP,
             Door.Status.OPEN,
         ),
     ],
@@ -397,7 +397,7 @@ def test_actuate_door(
     door_state: Door.Status,
     door_color: Colors,
     key_color: Colors,
-    action: Actions,
+    action: Action,
     expected_state: Door.Status,
 ):
     # agent facing door
@@ -423,21 +423,21 @@ def test_actuate_door(
     'content,orientation,action,expected',
     [
         # empty box
-        (Floor(), Orientation.N, Actions.ACTUATE, True),
-        (Floor(), Orientation.S, Actions.ACTUATE, False),
-        (Floor(), Orientation.N, Actions.PICK_N_DROP, False),
-        (Floor(), Orientation.S, Actions.PICK_N_DROP, False),
+        (Floor(), Orientation.N, Action.ACTUATE, True),
+        (Floor(), Orientation.S, Action.ACTUATE, False),
+        (Floor(), Orientation.N, Action.PICK_N_DROP, False),
+        (Floor(), Orientation.S, Action.PICK_N_DROP, False),
         # content is key
-        (Key(Colors.RED), Orientation.N, Actions.ACTUATE, True),
-        (Key(Colors.RED), Orientation.S, Actions.ACTUATE, False),
-        (Key(Colors.RED), Orientation.N, Actions.PICK_N_DROP, False),
-        (Key(Colors.RED), Orientation.S, Actions.PICK_N_DROP, False),
+        (Key(Colors.RED), Orientation.N, Action.ACTUATE, True),
+        (Key(Colors.RED), Orientation.S, Action.ACTUATE, False),
+        (Key(Colors.RED), Orientation.N, Action.PICK_N_DROP, False),
+        (Key(Colors.RED), Orientation.S, Action.PICK_N_DROP, False),
     ],
 )
 def test_actuate_box(
     content: GridObject,
     orientation: Orientation,
-    action: Actions,
+    action: Action,
     expected: bool,
 ):
     grid = Grid(2, 1)
@@ -477,7 +477,7 @@ def test_teleport(
     agent = Agent(position_agent, Orientation.N)
     state = State(grid, agent)
 
-    step_telepod(state, Actions.ACTUATE)
+    step_telepod(state, Action.ACTUATE)
     assert state.agent.position == expected
 
 

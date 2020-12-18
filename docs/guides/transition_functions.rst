@@ -14,7 +14,7 @@ mapping from a state-action pair to a next states.  Using the :py:mod:`typing`
 standard library, the transition function type is defined as a
 :py:class:`typing.Protocol` with a :py:meth:`__call__` member which receives a
 :py:class:`~gym_gridverse.state.State`, an
-:py:class:`gym_gridverse.actions.Actions`, and an optional
+:py:class:`gym_gridverse.action.Action`, and an optional
 :py:class:`numpy.random.Generator`, and edits the input
 :py:class:`~gym_gridverse.state.State`.
 

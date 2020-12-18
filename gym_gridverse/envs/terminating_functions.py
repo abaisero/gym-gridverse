@@ -1,18 +1,18 @@
 from functools import partial
 from typing import Callable, Optional, Sequence, Type
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle, Wall
 from gym_gridverse.state import State
 
-TerminatingFunction = Callable[[State, Actions, State], bool]
+TerminatingFunction = Callable[[State, Action, State], bool]
 """Signature for functions to determine whether a transition is terminal"""
 
 
 def chain_any(
     state: State,
-    action: Actions,
+    action: Action,
     next_state: State,
     *,
     terminating_functions: Sequence[TerminatingFunction],
@@ -21,7 +21,7 @@ def chain_any(
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         next_state (`State`):
         terminating_functions (`Sequence[TerminatingFunction]`):
 
@@ -36,7 +36,7 @@ def chain_any(
 
 def chain_all(
     state: State,
-    action: Actions,
+    action: Action,
     next_state: State,
     *,
     terminating_functions: Sequence[TerminatingFunction],
@@ -45,7 +45,7 @@ def chain_all(
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         next_state (`State`):
         terminating_functions (`Sequence[TerminatingFunction]`):
 
@@ -60,7 +60,7 @@ def chain_all(
 
 def overlap(
     state: State,  # pylint: disable=unused-argument
-    action: Actions,  # pylint: disable=unused-argument
+    action: Action,  # pylint: disable=unused-argument
     next_state: State,
     *,
     object_type: Type[GridObject],
@@ -69,7 +69,7 @@ def overlap(
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         next_state (`State`):
         object_type (`Type[GridObject]`):
 
@@ -79,12 +79,12 @@ def overlap(
     return isinstance(next_state.grid[next_state.agent.position], object_type)
 
 
-def reach_goal(state: State, action: Actions, next_state: State) -> bool:
+def reach_goal(state: State, action: Action, next_state: State) -> bool:
     """terminating condition for Agent reaching the Goal
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         next_state (`State`):
 
     Returns:
@@ -94,13 +94,13 @@ def reach_goal(state: State, action: Actions, next_state: State) -> bool:
 
 
 def bump_moving_obstacle(
-    state: State, action: Actions, next_state: State
+    state: State, action: Action, next_state: State
 ) -> bool:
     """terminating condition for Agent bumping a moving obstacle
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         next_state (`State`):
 
     Returns:
@@ -111,7 +111,7 @@ def bump_moving_obstacle(
 
 def bump_into_wall(
     state: State,
-    action: Actions,
+    action: Action,
     next_state: State,  # pylint: disable=unused-argument
 ) -> bool:
     """Terminating condition for Agent bumping into a wall
@@ -120,7 +120,7 @@ def bump_into_wall(
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         next_state (`State`):
 
     Returns:

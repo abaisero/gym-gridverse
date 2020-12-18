@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Iterable, Sequence, Tuple, Type
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.geometry import Area, Orientation, Position, Shape
 from gym_gridverse.grid_object import Colors, GridObject, Hidden, NoneGridObject
 from gym_gridverse.observation import Observation
@@ -120,17 +120,17 @@ class StateSpace:
 
 
 class ActionSpace:
-    def __init__(self, actions: Sequence[Actions]):
+    def __init__(self, actions: Sequence[Action]):
         self.actions = actions
 
-    def contains(self, action: Actions) -> bool:
+    def contains(self, action: Action) -> bool:
         """True if the action satisfies the action-space"""
         return action in self.actions
 
-    def int_to_action(self, action: int) -> Actions:
+    def int_to_action(self, action: int) -> Action:
         return self.actions[action]
 
-    def action_to_int(self, action: Actions) -> int:
+    def action_to_int(self, action: Action) -> int:
         return self.actions.index(action)
 
     @property

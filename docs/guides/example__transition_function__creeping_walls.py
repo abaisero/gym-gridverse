@@ -2,7 +2,7 @@ from typing import Optional
 
 import numpy.random as rnd
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.grid_object import Floor, Wall
 from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
@@ -10,7 +10,7 @@ from gym_gridverse.state import State
 
 def creeping_walls(
     state: State,
-    action: Actions,  # pylint: disable=unused-argument
+    action: Action,  # pylint: disable=unused-argument
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> None:

@@ -21,7 +21,7 @@ It's interface is simple on purpose, and provides a
 
 The idea is that the representation of `states` and `observations`, how the
 agent *perceives* the environment, should be independent of its dynamics. The
-intention is that the agent selects :py:class:`~gym_gridverse.actions.Actions`,
+intention is that the agent selects :py:class:`~gym_gridverse.action.Action`,
 the inner environment updates the :py:class:`~gym_gridverse.state.State` and
 :py:class:`~gym_gridverse.observation.Observation`, and (optionally) the
 representation takes care of converting those objects into arrays:
@@ -38,7 +38,7 @@ These elements are the data containers upon which all the other components act.
 Actions
 -------
 
-.. autoclass:: gym_gridverse.actions.Actions
+.. autoclass:: gym_gridverse.action.Action
   :noindex:
 
 State

@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 
 import numpy.random as rnd
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.envs import InnerEnv
 from gym_gridverse.envs.observation_functions import ObservationFunction
 from gym_gridverse.envs.reset_functions import ResetFunction
@@ -55,7 +55,7 @@ class GridWorld(InnerEnv):
         return state
 
     def functional_step(
-        self, state: State, action: Actions
+        self, state: State, action: Action
     ) -> Tuple[State, float, bool]:
 
         if not self.state_space.contains(state):

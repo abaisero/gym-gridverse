@@ -2,22 +2,22 @@ from typing import Optional
 
 import numpy.random as rnd
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.state import State
 
 # mapping movement actions to lambda functions which map the agent's
 # orientation to a direction of movement
 action_to_orientation = {
-    Actions.MOVE_FORWARD: lambda ori: ori,
-    Actions.MOVE_LEFT: lambda ori: ori.rotate_left(),
-    Actions.MOVE_RIGHT: lambda ori: ori.rotate_right(),
-    Actions.MOVE_BACKWARD: lambda ori: ori.rotate_back(),
+    Action.MOVE_FORWARD: lambda ori: ori,
+    Action.MOVE_LEFT: lambda ori: ori.rotate_left(),
+    Action.MOVE_RIGHT: lambda ori: ori.rotate_right(),
+    Action.MOVE_BACKWARD: lambda ori: ori.rotate_back(),
 }
 
 
 def rooklike_movement(
     state: State,
-    action: Actions,
+    action: Action,
     *,
     rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
 ) -> None:

@@ -9,7 +9,7 @@ from typing import Dict, Generator, Union
 
 import pyglet
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.envs import observation_functions as observation_fs
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
@@ -26,22 +26,22 @@ class Controls(enum.Enum):
     CYCLE_OBSERVATION = enum.auto()
 
 
-Command = Union[Actions, Controls]
+Command = Union[Action, Controls]
 
 
 class KeyboardHandler:
     keymap: Dict[int, Command] = {
         # actions
-        pyglet.window.key.UP: Actions.MOVE_FORWARD,
-        pyglet.window.key.DOWN: Actions.MOVE_BACKWARD,
-        pyglet.window.key.LEFT: Actions.TURN_LEFT,
-        pyglet.window.key.RIGHT: Actions.TURN_RIGHT,
-        pyglet.window.key.W: Actions.MOVE_FORWARD,
-        pyglet.window.key.A: Actions.MOVE_LEFT,
-        pyglet.window.key.S: Actions.MOVE_BACKWARD,
-        pyglet.window.key.D: Actions.MOVE_RIGHT,
-        pyglet.window.key.SPACE: Actions.ACTUATE,
-        pyglet.window.key.P: Actions.PICK_N_DROP,
+        pyglet.window.key.UP: Action.MOVE_FORWARD,
+        pyglet.window.key.DOWN: Action.MOVE_BACKWARD,
+        pyglet.window.key.LEFT: Action.TURN_LEFT,
+        pyglet.window.key.RIGHT: Action.TURN_RIGHT,
+        pyglet.window.key.W: Action.MOVE_FORWARD,
+        pyglet.window.key.A: Action.MOVE_LEFT,
+        pyglet.window.key.S: Action.MOVE_BACKWARD,
+        pyglet.window.key.D: Action.MOVE_RIGHT,
+        pyglet.window.key.SPACE: Action.ACTUATE,
+        pyglet.window.key.P: Action.PICK_N_DROP,
         # controls
         pyglet.window.key.Q: Controls.QUIT,
         pyglet.window.key.R: Controls.RESET,
@@ -74,20 +74,20 @@ def print_legend():
     print('LEGEND')
     print('------')
 
-    print(fstr('<UP>', Actions.MOVE_FORWARD))
-    print(fstr('<DOWN>', Actions.MOVE_BACKWARD))
-    print(fstr('<LEFT>', Actions.TURN_LEFT))
-    print(fstr('<RIGHT>', Actions.TURN_RIGHT))
+    print(fstr('<UP>', Action.MOVE_FORWARD))
+    print(fstr('<DOWN>', Action.MOVE_BACKWARD))
+    print(fstr('<LEFT>', Action.TURN_LEFT))
+    print(fstr('<RIGHT>', Action.TURN_RIGHT))
     print()
 
-    print(fstr('w', Actions.MOVE_FORWARD))
-    print(fstr('a', Actions.MOVE_LEFT))
-    print(fstr('s', Actions.MOVE_BACKWARD))
-    print(fstr('d', Actions.MOVE_RIGHT))
+    print(fstr('w', Action.MOVE_FORWARD))
+    print(fstr('a', Action.MOVE_LEFT))
+    print(fstr('s', Action.MOVE_BACKWARD))
+    print(fstr('d', Action.MOVE_RIGHT))
     print()
 
-    print(fstr('<SPACE>', Actions.ACTUATE))
-    print(fstr('p', Actions.PICK_N_DROP))
+    print(fstr('<SPACE>', Action.ACTUATE))
+    print(fstr('p', Action.PICK_N_DROP))
     print()
 
     print(fstr('q', Controls.QUIT))
@@ -173,7 +173,7 @@ def main():  # pylint: disable=too-many-locals
 
         command = keyboard_handler.get_command()
 
-        if isinstance(command, Actions):
+        if isinstance(command, Action):
             action = command
 
             if not done and env.action_space.contains(action):

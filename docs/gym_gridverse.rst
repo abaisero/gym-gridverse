@@ -14,10 +14,10 @@ Subpackages
 Submodules
 ----------
 
-gym\_gridverse.actions module
------------------------------
+gym\_gridverse.action module
+----------------------------
 
-.. automodule:: gym_gridverse.actions
+.. automodule:: gym_gridverse.action
    :members:
    :undoc-members:
    :show-inheritance:

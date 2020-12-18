@@ -3,7 +3,7 @@ from typing import Optional, Sequence, Type
 
 import pytest
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.envs.yaml import factory as yaml_factory
 from gym_gridverse.geometry import (
     Area,
@@ -85,47 +85,47 @@ def test_max_object_type(
     'action_space,expected_contains,expected_not_contains',
     [
         (
-            ActionSpace(list(Actions)),
+            ActionSpace(list(Action)),
             [
-                Actions.MOVE_FORWARD,
-                Actions.MOVE_BACKWARD,
-                Actions.MOVE_LEFT,
-                Actions.MOVE_RIGHT,
-                Actions.TURN_LEFT,
-                Actions.TURN_RIGHT,
-                Actions.ACTUATE,
-                Actions.PICK_N_DROP,
+                Action.MOVE_FORWARD,
+                Action.MOVE_BACKWARD,
+                Action.MOVE_LEFT,
+                Action.MOVE_RIGHT,
+                Action.TURN_LEFT,
+                Action.TURN_RIGHT,
+                Action.ACTUATE,
+                Action.PICK_N_DROP,
             ],
             [],
         ),
         (
             ActionSpace(
                 [
-                    Actions.MOVE_FORWARD,
-                    Actions.MOVE_BACKWARD,
-                    Actions.MOVE_LEFT,
-                    Actions.MOVE_RIGHT,
+                    Action.MOVE_FORWARD,
+                    Action.MOVE_BACKWARD,
+                    Action.MOVE_LEFT,
+                    Action.MOVE_RIGHT,
                 ]
             ),
             [
-                Actions.MOVE_FORWARD,
-                Actions.MOVE_BACKWARD,
-                Actions.MOVE_LEFT,
-                Actions.MOVE_RIGHT,
+                Action.MOVE_FORWARD,
+                Action.MOVE_BACKWARD,
+                Action.MOVE_LEFT,
+                Action.MOVE_RIGHT,
             ],
             [
-                Actions.TURN_LEFT,
-                Actions.TURN_RIGHT,
-                Actions.ACTUATE,
-                Actions.PICK_N_DROP,
+                Action.TURN_LEFT,
+                Action.TURN_RIGHT,
+                Action.ACTUATE,
+                Action.PICK_N_DROP,
             ],
         ),
     ],
 )
 def test_action_space_contains(
     action_space: ActionSpace,
-    expected_contains: Sequence[Actions],
-    expected_not_contains: Sequence[Actions],
+    expected_contains: Sequence[Action],
+    expected_not_contains: Sequence[Action],
 ):
     assert action_space.num_actions == len(expected_contains)
 

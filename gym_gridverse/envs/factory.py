@@ -3,7 +3,7 @@
 from functools import partial
 from typing import Callable, Dict, List, Type
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.envs import (
     observation_functions,
     reset_functions,
@@ -71,11 +71,11 @@ def create_env(
     )
 
     # Rewards are additive
-    def reward(state: State, action: Actions, next_state: State) -> float:
+    def reward(state: State, action: Action, next_state: State) -> float:
         return sum(r(state, action, next_state) for r in rewards)
 
     # Termination is a big or
-    def termination(state: State, action: Actions, next_state: State) -> bool:
+    def termination(state: State, action: Action, next_state: State) -> bool:
         return any(t(state, action, next_state) for t in terminations)
 
     return GridWorld(
@@ -117,7 +117,7 @@ def plain_navigation_task(
     observation_space = ObservationSpace(observation_shape, objects, colors)
 
     # NOTE: here we could limit our actions to original gym interface
-    action_space = ActionSpace(list(Actions))
+    action_space = ActionSpace(list(Action))
 
     domain_space = DomainSpace(state_space, action_space, observation_space)
 
@@ -163,7 +163,7 @@ def dynamic_obstacle_minigrid(
     observation_space = ObservationSpace(Shape(7, 7), objects, colors)
 
     # NOTE: here we could limit our actions to original gym interface
-    action_space = ActionSpace(list(Actions))
+    action_space = ActionSpace(list(Action))
 
     domain_space = DomainSpace(state_space, action_space, observation_space)
     return create_env(
@@ -233,7 +233,7 @@ def gym_keydoor_env(size: int) -> InnerEnv:
 
     state_space = StateSpace(grid_shape, objects, colors)
     observation_space = ObservationSpace(observation_shape, objects, colors)
-    action_space = ActionSpace(list(Actions))
+    action_space = ActionSpace(list(Action))
 
     domain_space = DomainSpace(state_space, action_space, observation_space)
 

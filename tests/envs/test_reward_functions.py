@@ -1,6 +1,6 @@
 import pytest
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.envs.reward_functions import (
     actuate_door,
     bump_into_wall,
@@ -218,20 +218,20 @@ def test_getting_closer(
     'state,action,kwargs,expected',
     [
         # not bumping
-        (make_wall_state(), Actions.MOVE_LEFT, {}, 0.0),
-        (make_wall_state(), Actions.PICK_N_DROP, {}, 0.0),
+        (make_wall_state(), Action.MOVE_LEFT, {}, 0.0),
+        (make_wall_state(), Action.PICK_N_DROP, {}, 0.0),
         # bumping
-        (make_wall_state(Orientation.N), Actions.MOVE_FORWARD, {}, -1.0),
-        (make_wall_state(Orientation.E), Actions.MOVE_LEFT, {}, -1.0),
-        (make_wall_state(Orientation.S), Actions.MOVE_BACKWARD, {}, -1.0),
-        (make_wall_state(Orientation.W), Actions.MOVE_RIGHT, {}, -1.0),
+        (make_wall_state(Orientation.N), Action.MOVE_FORWARD, {}, -1.0),
+        (make_wall_state(Orientation.E), Action.MOVE_LEFT, {}, -1.0),
+        (make_wall_state(Orientation.S), Action.MOVE_BACKWARD, {}, -1.0),
+        (make_wall_state(Orientation.W), Action.MOVE_RIGHT, {}, -1.0),
         # reward value
-        (make_wall_state(), Actions.MOVE_FORWARD, {'reward': -4.78}, -4.78),
+        (make_wall_state(), Action.MOVE_FORWARD, {'reward': -4.78}, -4.78),
     ],
 )
 def test_bump_into_wall(
     state: State,
-    action: Actions,
+    action: Action,
     kwargs,
     expected: float,
     forbidden_state_maker,
@@ -244,79 +244,79 @@ def test_bump_into_wall(
     'door_status,next_door_status,action,kwargs,expected',
     [
         # not opening
-        (Door.Status.CLOSED, Door.Status.OPEN, Actions.MOVE_LEFT, {}, 0.0),
-        (Door.Status.CLOSED, Door.Status.OPEN, Actions.PICK_N_DROP, {}, 0.0),
+        (Door.Status.CLOSED, Door.Status.OPEN, Action.MOVE_LEFT, {}, 0.0),
+        (Door.Status.CLOSED, Door.Status.OPEN, Action.PICK_N_DROP, {}, 0.0),
         # default values
-        (Door.Status.OPEN, Door.Status.OPEN, Actions.ACTUATE, {}, 0.0),
-        (Door.Status.OPEN, Door.Status.CLOSED, Actions.ACTUATE, {}, -1.0),
-        (Door.Status.OPEN, Door.Status.LOCKED, Actions.ACTUATE, {}, -1.0),
-        (Door.Status.CLOSED, Door.Status.OPEN, Actions.ACTUATE, {}, 1.0),
-        (Door.Status.CLOSED, Door.Status.CLOSED, Actions.ACTUATE, {}, 0.0),
-        (Door.Status.CLOSED, Door.Status.LOCKED, Actions.ACTUATE, {}, 0.0),
-        (Door.Status.LOCKED, Door.Status.OPEN, Actions.ACTUATE, {}, 1.0),
-        (Door.Status.LOCKED, Door.Status.CLOSED, Actions.ACTUATE, {}, 0.0),
-        (Door.Status.LOCKED, Door.Status.LOCKED, Actions.ACTUATE, {}, 0.0),
+        (Door.Status.OPEN, Door.Status.OPEN, Action.ACTUATE, {}, 0.0),
+        (Door.Status.OPEN, Door.Status.CLOSED, Action.ACTUATE, {}, -1.0),
+        (Door.Status.OPEN, Door.Status.LOCKED, Action.ACTUATE, {}, -1.0),
+        (Door.Status.CLOSED, Door.Status.OPEN, Action.ACTUATE, {}, 1.0),
+        (Door.Status.CLOSED, Door.Status.CLOSED, Action.ACTUATE, {}, 0.0),
+        (Door.Status.CLOSED, Door.Status.LOCKED, Action.ACTUATE, {}, 0.0),
+        (Door.Status.LOCKED, Door.Status.OPEN, Action.ACTUATE, {}, 1.0),
+        (Door.Status.LOCKED, Door.Status.CLOSED, Action.ACTUATE, {}, 0.0),
+        (Door.Status.LOCKED, Door.Status.LOCKED, Action.ACTUATE, {}, 0.0),
         # custom values
         (
             Door.Status.OPEN,
             Door.Status.OPEN,
-            Actions.ACTUATE,
+            Action.ACTUATE,
             {'reward_open': -1.5, 'reward_close': 1.5},
             0.0,
         ),
         (
             Door.Status.OPEN,
             Door.Status.CLOSED,
-            Actions.ACTUATE,
+            Action.ACTUATE,
             {'reward_open': -1.5, 'reward_close': 1.5},
             1.5,
         ),
         (
             Door.Status.OPEN,
             Door.Status.LOCKED,
-            Actions.ACTUATE,
+            Action.ACTUATE,
             {'reward_open': -1.5, 'reward_close': 1.5},
             1.5,
         ),
         (
             Door.Status.CLOSED,
             Door.Status.OPEN,
-            Actions.ACTUATE,
+            Action.ACTUATE,
             {'reward_open': -1.5, 'reward_close': 1.5},
             -1.5,
         ),
         (
             Door.Status.CLOSED,
             Door.Status.CLOSED,
-            Actions.ACTUATE,
+            Action.ACTUATE,
             {'reward_open': -1.5, 'reward_close': 1.5},
             0.0,
         ),
         (
             Door.Status.CLOSED,
             Door.Status.LOCKED,
-            Actions.ACTUATE,
+            Action.ACTUATE,
             {'reward_open': -1.5, 'reward_close': 1.5},
             0.0,
         ),
         (
             Door.Status.LOCKED,
             Door.Status.OPEN,
-            Actions.ACTUATE,
+            Action.ACTUATE,
             {'reward_open': -1.5, 'reward_close': 1.5},
             -1.5,
         ),
         (
             Door.Status.LOCKED,
             Door.Status.CLOSED,
-            Actions.ACTUATE,
+            Action.ACTUATE,
             {'reward_open': -1.5, 'reward_close': 1.5},
             0.0,
         ),
         (
             Door.Status.LOCKED,
             Door.Status.LOCKED,
-            Actions.ACTUATE,
+            Action.ACTUATE,
             {'reward_open': -1.5, 'reward_close': 1.5},
             0.0,
         ),
@@ -325,7 +325,7 @@ def test_bump_into_wall(
 def test_actuate_door(
     door_status: Door.Status,
     next_door_status: Door.Status,
-    action: Actions,
+    action: Action,
     kwargs,
     expected: float,
 ):

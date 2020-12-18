@@ -4,7 +4,7 @@ import pytest
 from schema import SchemaError
 
 import gym_gridverse.envs.yaml.factory as yaml_factory
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.envs import InnerEnv
 from gym_gridverse.geometry import Shape
 from gym_gridverse.grid_object import Colors, GridObject
@@ -115,7 +115,7 @@ def test_factory_action_space(data):
     assert len(set(action_space.actions)) == len(action_space.actions)
 
     for action in action_space.actions:
-        isinstance(action, Actions)
+        isinstance(action, Action)
 
 
 @pytest.mark.parametrize(

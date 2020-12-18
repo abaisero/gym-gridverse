@@ -2,7 +2,7 @@ from functools import lru_cache
 
 from schema import And, Optional, Or, Schema
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.grid_object import Colors
 
 # general purpose schemas
@@ -147,7 +147,7 @@ def state_space_schema():
 def action_space_schema():
     return Schema(
         And(
-            [action.name for action in Actions],
+            [action.name for action in Action],
             at_least_2_schema(),
             unique_schema(),
         ),

@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, PropertyMock
 
 import pytest
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.state import State
 
 # avoid discovering tests in setup.py
@@ -34,7 +34,7 @@ def forbidden_state_maker():
 
 @pytest.fixture
 def forbidden_action_maker():
-    def _forbidden_action_maker() -> Actions:
+    def _forbidden_action_maker() -> Action:
         action = MagicMock()
         return action
 

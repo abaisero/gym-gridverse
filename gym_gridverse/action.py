@@ -3,7 +3,7 @@
 import enum
 
 
-class Actions(enum.Enum):
+class Action(enum.Enum):
     """An action is a glorified integer.
 
     In particular, there are 8 actions, each is assigned an integer:
@@ -30,12 +30,12 @@ class Actions(enum.Enum):
 
 
 TRANSLATION_ACTIONS = [
-    Actions.MOVE_FORWARD,
-    Actions.MOVE_BACKWARD,
-    Actions.MOVE_LEFT,
-    Actions.MOVE_RIGHT,
+    Action.MOVE_FORWARD,
+    Action.MOVE_BACKWARD,
+    Action.MOVE_LEFT,
+    Action.MOVE_RIGHT,
 ]
 """A list of all the actions that moves the agent"""
 
-ROTATION_ACTIONS = [Actions.TURN_LEFT, Actions.TURN_RIGHT]
+ROTATION_ACTIONS = [Action.TURN_LEFT, Action.TURN_RIGHT]
 """A list of all the actions that rotates the agent"""

@@ -12,7 +12,7 @@ import gym_gridverse.envs.reset_functions as reset_fs
 import gym_gridverse.envs.reward_functions as reward_fs
 import gym_gridverse.envs.terminating_functions as terminating_fs
 import gym_gridverse.envs.transition_functions as step_fs
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.envs import InnerEnv
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import Orientation, Position, Shape
@@ -35,16 +35,16 @@ class Controls(enum.Enum):
 
 key_value_mapping = {
     # actions
-    curses.KEY_UP: Actions.MOVE_FORWARD,
-    curses.KEY_DOWN: Actions.MOVE_BACKWARD,
-    curses.KEY_LEFT: Actions.TURN_LEFT,
-    curses.KEY_RIGHT: Actions.TURN_RIGHT,
-    ord('w'): Actions.MOVE_FORWARD,
-    ord('a'): Actions.MOVE_LEFT,
-    ord('s'): Actions.MOVE_BACKWARD,
-    ord('d'): Actions.MOVE_RIGHT,
-    ord(' '): Actions.ACTUATE,
-    ord('p'): Actions.PICK_N_DROP,
+    curses.KEY_UP: Action.MOVE_FORWARD,
+    curses.KEY_DOWN: Action.MOVE_BACKWARD,
+    curses.KEY_LEFT: Action.TURN_LEFT,
+    curses.KEY_RIGHT: Action.TURN_RIGHT,
+    ord('w'): Action.MOVE_FORWARD,
+    ord('a'): Action.MOVE_LEFT,
+    ord('s'): Action.MOVE_BACKWARD,
+    ord('d'): Action.MOVE_RIGHT,
+    ord(' '): Action.ACTUATE,
+    ord('p'): Action.PICK_N_DROP,
     # controls
     ord('q'): Controls.QUIT,
     ord('r'): Controls.RESET,
@@ -207,18 +207,18 @@ def main(
         def fstr(label: str, e: enum.Enum):
             return f'{label:>8s} : {e.name}'
 
-        legend_window_inner.addstr(0, 0, fstr('<UP>', Actions.MOVE_FORWARD))
-        legend_window_inner.addstr(1, 0, fstr('<DOWN>', Actions.MOVE_BACKWARD))
-        legend_window_inner.addstr(2, 0, fstr('<LEFT>', Actions.TURN_LEFT))
-        legend_window_inner.addstr(3, 0, fstr('<RIGHT>', Actions.TURN_RIGHT))
+        legend_window_inner.addstr(0, 0, fstr('<UP>', Action.MOVE_FORWARD))
+        legend_window_inner.addstr(1, 0, fstr('<DOWN>', Action.MOVE_BACKWARD))
+        legend_window_inner.addstr(2, 0, fstr('<LEFT>', Action.TURN_LEFT))
+        legend_window_inner.addstr(3, 0, fstr('<RIGHT>', Action.TURN_RIGHT))
 
-        legend_window_inner.addstr(5, 0, fstr('w', Actions.MOVE_FORWARD))
-        legend_window_inner.addstr(6, 0, fstr('a', Actions.MOVE_LEFT))
-        legend_window_inner.addstr(7, 0, fstr('s', Actions.MOVE_BACKWARD))
-        legend_window_inner.addstr(8, 0, fstr('d', Actions.MOVE_RIGHT))
+        legend_window_inner.addstr(5, 0, fstr('w', Action.MOVE_FORWARD))
+        legend_window_inner.addstr(6, 0, fstr('a', Action.MOVE_LEFT))
+        legend_window_inner.addstr(7, 0, fstr('s', Action.MOVE_BACKWARD))
+        legend_window_inner.addstr(8, 0, fstr('d', Action.MOVE_RIGHT))
 
-        legend_window_inner.addstr(10, 0, fstr('<SPACE>', Actions.ACTUATE))
-        legend_window_inner.addstr(11, 0, fstr('p', Actions.PICK_N_DROP))
+        legend_window_inner.addstr(10, 0, fstr('<SPACE>', Action.ACTUATE))
+        legend_window_inner.addstr(11, 0, fstr('p', Action.PICK_N_DROP))
 
         legend_window_inner.addstr(13, 0, fstr('q', Controls.QUIT))
         legend_window_inner.addstr(14, 0, fstr('r', Controls.RESET))
@@ -232,7 +232,7 @@ def main(
     @dataclass
     class VizState:
         t: int
-        action: Optional[Actions]
+        action: Optional[Action]
         reward: Optional[float]
         state: State
         observation: Observation
@@ -261,7 +261,7 @@ def main(
         except KeyError:
             continue
 
-        if isinstance(value, Actions):
+        if isinstance(value, Action):
             viz_state.action = value
 
             viz_state.t += 1
@@ -291,7 +291,7 @@ def main(
 if __name__ == "__main__":
     domain_space = DomainSpace(
         StateSpace(Shape(10, 10), [Floor, Wall, Goal], [Colors.NONE]),
-        ActionSpace(list(Actions)),
+        ActionSpace(list(Action)),
         ObservationSpace(Shape(7, 7), [Floor, Wall, Goal], [Colors.NONE]),
     )
 

@@ -2,7 +2,7 @@ from typing import Dict, Optional, Tuple
 
 import numpy as np
 
-from gym_gridverse.envs.inner_env import Actions, InnerEnv
+from gym_gridverse.envs.inner_env import Action, InnerEnv
 from gym_gridverse.representations.representation import (
     ObservationRepresentation,
     StateRepresentation,
@@ -37,7 +37,7 @@ class OuterEnv:
         """Resets the state of the environment"""
         self.inner_env.reset()
 
-    def step(self, action: Actions) -> Tuple[float, bool]:
+    def step(self, action: Action) -> Tuple[float, bool]:
         """Updates the state according to the action
 
         Args:

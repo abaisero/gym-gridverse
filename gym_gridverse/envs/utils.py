@@ -1,9 +1,9 @@
-from gym_gridverse.actions import TRANSLATION_ACTIONS, Actions
+from gym_gridverse.action import TRANSLATION_ACTIONS, Action
 from gym_gridverse.geometry import Orientation, Position, PositionOrTuple
 
 
 def updated_agent_position_if_unobstructed(
-    agent_pos: PositionOrTuple, agent_orientation: Orientation, action: Actions
+    agent_pos: PositionOrTuple, agent_orientation: Orientation, action: Action
 ) -> Position:
     """Returns the desired/intended position according to `action`
 
@@ -11,7 +11,7 @@ def updated_agent_position_if_unobstructed(
 
     Args:
         agent_pos (`Position`): current agent position
-        action (`Actions`): action taken by agent
+        action (`Action`): action taken by agent
 
     Returns:
         Position: next position
@@ -23,10 +23,10 @@ def updated_agent_position_if_unobstructed(
 
     # Map directions to relative orientation
     direction_to_relative_orientation = {
-        Actions.MOVE_FORWARD: agent_orientation,
-        Actions.MOVE_LEFT: agent_orientation.rotate_left(),
-        Actions.MOVE_RIGHT: agent_orientation.rotate_right(),
-        Actions.MOVE_BACKWARD: agent_orientation.rotate_back(),
+        Action.MOVE_FORWARD: agent_orientation,
+        Action.MOVE_LEFT: agent_orientation.rotate_left(),
+        Action.MOVE_RIGHT: agent_orientation.rotate_right(),
+        Action.MOVE_BACKWARD: agent_orientation.rotate_back(),
     }
 
     delta = direction_to_relative_orientation[action].as_position()

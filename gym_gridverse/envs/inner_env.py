@@ -1,7 +1,7 @@
 import abc
 from typing import Optional, Tuple
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.observation import Observation
 from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
 from gym_gridverse.state import State
@@ -33,7 +33,7 @@ class InnerEnv(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def functional_step(
-        self, state: State, action: Actions
+        self, state: State, action: Action
     ) -> Tuple[State, float, bool]:
         assert False, "Must be implemented by derived class"
 
@@ -45,7 +45,7 @@ class InnerEnv(metaclass=abc.ABCMeta):
         self._state = self.functional_reset()
         self._observation = None
 
-    def step(self, action: Actions) -> Tuple[float, bool]:
+    def step(self, action: Action) -> Tuple[float, bool]:
         """Updates the state by applying `action`
 
         Calls :py:meth:`functional_step` under the hood on :py:meth:`state` and
@@ -53,7 +53,7 @@ class InnerEnv(metaclass=abc.ABCMeta):
         generated upon request.
 
         Args:
-            action (Actions): the chosen action to apply
+            action (Action): the chosen action to apply
 
         Returns:
             Tuple[float, bool]: reward and terminal
@@ -68,7 +68,7 @@ class InnerEnv(metaclass=abc.ABCMeta):
         """Returns the current state
 
         The state is the result of a sequence of
-        :py:class:`~gym_gridverse.actions.Actions` through the :py:meth:`step`
+        :py:class:`~gym_gridverse.action.Action` through the :py:meth:`step`
         function.
 
         To reset the state, see :py:meth:`reset`

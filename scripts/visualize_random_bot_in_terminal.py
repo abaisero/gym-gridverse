@@ -6,7 +6,7 @@ from typing import Dict
 
 import numpy as np
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 from gym_gridverse.outer_env import OuterEnv
 from gym_gridverse.render_as_string import str_render_obs, str_render_state
@@ -18,7 +18,7 @@ from gym_gridverse.spaces import ActionSpace
 
 def random_action_selection(
     _observation: Dict[str, np.ndarray], action_space: ActionSpace
-) -> Actions:
+) -> Action:
     """Simply returns a random action"""
     return random.choice(action_space.actions)
 

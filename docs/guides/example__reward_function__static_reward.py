@@ -1,10 +1,10 @@
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.state import State
 
 
 def static_reward(
     state: State,
-    action: Actions,  # pylint: disable=unused-argument
+    action: Action,  # pylint: disable=unused-argument
     next_state: State,
 ) -> float:
     """negative reward if state is unchanged"""

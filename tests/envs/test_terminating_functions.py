@@ -1,6 +1,6 @@
 import pytest
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.envs.terminating_functions import (
     bump_into_wall,
     factory,
@@ -48,14 +48,14 @@ def test_reach_goal(next_state: State, expected: bool):
     'state,action,expected',
     [
         # no bumps
-        (make_wall_state(), Actions.MOVE_LEFT, False),
-        (make_wall_state(), Actions.TURN_RIGHT, False),
-        (make_wall_state(), Actions.ACTUATE, False),
+        (make_wall_state(), Action.MOVE_LEFT, False),
+        (make_wall_state(), Action.TURN_RIGHT, False),
+        (make_wall_state(), Action.ACTUATE, False),
         # bumps
-        (make_wall_state(), Actions.MOVE_FORWARD, True),
+        (make_wall_state(), Action.MOVE_FORWARD, True),
     ],
 )
-def test_bump_into_wall(state: State, action: Actions, expected: bool):
+def test_bump_into_wall(state: State, action: Action, expected: bool):
     assert bump_into_wall(state, action, None) == expected  # type: ignore
 
 
@@ -63,7 +63,7 @@ def test_bump_into_wall(state: State, action: Actions, expected: bool):
 def test_bump_into_wall_special_case():
     state = make_wall_state()
     state.agent.orientation = Orientation.W
-    assert bump_into_wall(state, Actions.MOVE_RIGHT, None)
+    assert bump_into_wall(state, Action.MOVE_RIGHT, None)
 
 
 @pytest.mark.parametrize(

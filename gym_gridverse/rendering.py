@@ -9,7 +9,7 @@ import pyglet
 from gym.envs.classic_control import rendering
 from pyglet.gl import glClearColor
 
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid_object import (
     Colors,
@@ -514,7 +514,7 @@ class GridVerseViewer:
     def _update_hud(
         self,
         *,
-        action: Optional[Actions] = None,
+        action: Optional[Action] = None,
         reward: Optional[float] = None,
         ret: Optional[float] = None,
         done: Optional[bool] = None,
@@ -546,7 +546,7 @@ class GridVerseViewer:
         self,
         state_or_observation: Union[State, Observation],
         *,
-        action: Optional[Actions] = None,
+        action: Optional[Action] = None,
         reward: Optional[float] = None,
         ret: Optional[float] = None,
         done: Optional[bool] = None,

@@ -2,7 +2,7 @@ from functools import partial
 from typing import List, Optional, Tuple, Type
 
 import yaml
-from gym_gridverse.actions import Actions
+from gym_gridverse.action import Action
 from gym_gridverse.envs import (
     InnerEnv,
     observation_functions as observation_fs,
@@ -61,7 +61,7 @@ def factory_state_space(data) -> StateSpace:
 def factory_action_space(data) -> ActionSpace:
     data = schemas.action_space_schema().validate(data)
 
-    return ActionSpace([Actions[name] for name in data])
+    return ActionSpace([Action[name] for name in data])
 
 
 def factory_observation_space(data) -> ObservationSpace:
@@ -231,7 +231,7 @@ def factory_env_from_data(data) -> InnerEnv:
     try:
         data_action_space = data['action_space']
     except KeyError:
-        action_space = ActionSpace(list(Actions))
+        action_space = ActionSpace(list(Action))
     else:
         action_space = factory_action_space(data_action_space)
 

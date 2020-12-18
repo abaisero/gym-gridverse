@@ -5,7 +5,7 @@ from typing import Iterator, List, Optional, Sequence, Tuple, Type
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
-from gym_gridverse.actions import ROTATION_ACTIONS, TRANSLATION_ACTIONS, Actions
+from gym_gridverse.action import ROTATION_ACTIONS, TRANSLATION_ACTIONS, Action
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import Position, get_manhattan_boundary
 from gym_gridverse.grid_object import (
@@ -27,7 +27,7 @@ class TransitionFunction(Protocol):
     def __call__(
         self,
         state: State,
-        action: Actions,
+        action: Action,
         *,
         rng: Optional[rnd.Generator] = None,
     ) -> None:
@@ -36,7 +36,7 @@ class TransitionFunction(Protocol):
 
 def chain(
     state: State,
-    action: Actions,
+    action: Action,
     *,
     transition_functions: Sequence[TransitionFunction],
     rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
@@ -45,7 +45,7 @@ def chain(
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         transition_functions (`Sequence[TransitionFunction]`): transition functions
         rng (`Generator, optional`)
 
@@ -59,7 +59,7 @@ def chain(
 # TODO move these non-transition functions elsewhere; they are confusing
 
 
-def move_agent(agent: Agent, grid: Grid, action: Actions) -> None:
+def move_agent(agent: Agent, grid: Grid, action: Action) -> None:
     """Applies translation to agent (e.g. up/down/left/right)
 
     Leaves the state unaffected if any other action was taken instead
@@ -67,7 +67,7 @@ def move_agent(agent: Agent, grid: Grid, action: Actions) -> None:
     Args:
         agent (`Agent`):
         grid (`Grid`):
-        action (`Actions`):
+        action (`Action`):
 
     Returns:
         None:
@@ -87,14 +87,14 @@ def move_agent(agent: Agent, grid: Grid, action: Actions) -> None:
     agent.position = next_pos
 
 
-def rotate_agent(agent: Agent, action: Actions) -> None:
+def rotate_agent(agent: Agent, action: Action) -> None:
     """Rotates agent according to action (e.g. turn left/right)
 
     Leaves the state unaffected if any other action was taken instead
 
     Args:
         agent (`Agent`):
-        action (`Actions`):
+        action (`Action`):
 
     Returns:
         None:
@@ -103,16 +103,16 @@ def rotate_agent(agent: Agent, action: Actions) -> None:
     if action not in ROTATION_ACTIONS:
         return
 
-    if action == Actions.TURN_LEFT:
+    if action == Action.TURN_LEFT:
         agent.orientation = agent.orientation.rotate_left()
 
-    if action == Actions.TURN_RIGHT:
+    if action == Action.TURN_RIGHT:
         agent.orientation = agent.orientation.rotate_right()
 
 
 def update_agent(
     state: State,
-    action: Actions,
+    action: Action,
     *,
     rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
 ) -> None:
@@ -123,7 +123,7 @@ def update_agent(
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         rng (`Generator, optional`)
 
     Returns:
@@ -141,7 +141,7 @@ def update_agent(
 
 def pickup_mechanics(
     state: State,
-    action: Actions,
+    action: Action,
     *,
     rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
 ) -> None:
@@ -161,14 +161,14 @@ def pickup_mechanics(
 
     Args:
         state (`State`):
-        action (`Actions`):
+        action (`Action`):
         rng (`Generator, optional`)
 
     Returns:
         None:
     """
 
-    if action != Actions.PICK_N_DROP:
+    if action != Action.PICK_N_DROP:
         return
 
     obj_in_front_of_agent = state.grid[state.agent.position_in_front()]
@@ -232,7 +232,7 @@ def _step_moving_obstacle(
 
 def step_moving_obstacles(
     state: State,
-    action: Actions,
+    action: Action,
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> None:
@@ -245,7 +245,7 @@ def step_moving_obstacles(
 
     Args:
         state (`State`): current state
-        action (`Actions`): action taken by agent (ignored)
+        action (`Action`): action taken by agent (ignored)
     """
     rng = get_gv_rng_if_none(rng)
 
@@ -257,7 +257,7 @@ def step_moving_obstacles(
 
 def actuate_door(
     state: State,
-    action: Actions,
+    action: Action,
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> None:
@@ -272,7 +272,7 @@ def actuate_door(
 
     """
 
-    if action is not Actions.ACTUATE:
+    if action is not Action.ACTUATE:
         return
 
     position = state.agent.position_in_front()
@@ -301,7 +301,7 @@ def actuate_door(
 
 def actuate_box(
     state: State,
-    action: Actions,
+    action: Action,
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> None:
@@ -316,7 +316,7 @@ def actuate_box(
 
     """
 
-    if action is not Actions.ACTUATE:
+    if action is not Action.ACTUATE:
         return
 
     position = state.agent.position_in_front()
@@ -334,7 +334,7 @@ def actuate_box(
 
 def step_telepod(
     state: State,
-    action: Actions,  # pylint: disable=unused-argument
+    action: Action,  # pylint: disable=unused-argument
     *,
     rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
 ) -> None:
