@@ -4,7 +4,7 @@ import pytest
 from gym_gridverse.envs.reset_functions import reset_minigrid_empty
 from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid_object import (
-    Colors,
+    Color,
     Door,
     Floor,
     Goal,
@@ -28,7 +28,7 @@ def default_representation_fixture():
 
     max_obj_type = Key.type_index  # pylint: disable=no-member
     max_obj_state = Door.num_states()
-    max_color_value = Colors.BLUE.value
+    max_color_value = Color.BLUE.value
 
     return height, width, max_obj_type, max_obj_state, max_color_value
 
@@ -67,9 +67,9 @@ def test_default_representation_convert(
 ):  # pylint: disable = redefined-outer-name
     height, width, _, _, _ = default_representation_fixture
 
-    agent = Agent(Position(0, 2), Orientation.N, Key(Colors.RED))
+    agent = Agent(Position(0, 2), Orientation.N, Key(Color.RED))
     grid = Grid(height, width)
-    grid[1, 1] = Door(Door.Status.CLOSED, Colors.BLUE)
+    grid[1, 1] = Door(Door.Status.CLOSED, Color.BLUE)
 
     floor_index = Floor.type_index  # pylint: disable=no-member
 
@@ -88,7 +88,7 @@ def test_default_representation_convert(
     # pylint: disable=no-member
     expected_agent_position_channels[:, :, 0] = NoneGridObject.type_index
     expected_agent_position_channels[:, :, 1] = 0  # status
-    expected_agent_position_channels[:, :, 2] = Colors.NONE.value
+    expected_agent_position_channels[:, :, 2] = Color.NONE.value
 
     expected_agent_position_channels[0, 2] = expected_agent_representation[3:]
 
@@ -100,7 +100,7 @@ def test_default_representation_convert(
                 [
                     Door.type_index,  # pylint: disable=no-member
                     Door.Status.CLOSED.value,
-                    Colors.BLUE.value,
+                    Color.BLUE.value,
                 ],
                 [floor_index, 0, 0],
             ],
@@ -127,7 +127,7 @@ def no_overlap_fixture():
     # hard coded from above
     max_object_type = Goal.type_index  # pylint: disable=no-member
     max_object_status = 0
-    max_color_value = Colors.GREEN.value
+    max_color_value = Color.GREEN.value
 
     return height, width, max_object_type, max_object_status, max_color_value
 
@@ -179,7 +179,7 @@ def test_no_overlap_convert(
     expected_agent_position_channels[:, :] = [
         NoneGridObject.type_index,  # pylint: disable=no-member
         max_object_type,  # status
-        max_object_status + max_object_type + Colors.NONE.value,
+        max_object_status + max_object_type + Color.NONE.value,
     ]
 
     expected_agent_position_channels[

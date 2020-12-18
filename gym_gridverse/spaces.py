@@ -3,7 +3,7 @@ from typing import Iterable, Sequence, Tuple, Type
 
 from gym_gridverse.action import Action
 from gym_gridverse.geometry import Area, Orientation, Position, Shape
-from gym_gridverse.grid_object import Colors, GridObject, Hidden, NoneGridObject
+from gym_gridverse.grid_object import Color, GridObject, Hidden, NoneGridObject
 from gym_gridverse.observation import Observation
 from gym_gridverse.state import State
 
@@ -32,11 +32,11 @@ def _max_object_status(object_types: Iterable[Type[GridObject]]) -> int:
     return max(obj_type.num_states() for obj_type in object_types)
 
 
-def _max_color_index(colors: Iterable[Colors]) -> int:
+def _max_color_index(colors: Iterable[Color]) -> int:
     """Returns the highest color index of the provided colors
 
     Args:
-        colors (`Iterable[Colors]`):
+        colors (`Iterable[Color]`):
 
     Returns:
         int:
@@ -49,11 +49,11 @@ class StateSpace:
         self,
         grid_shape: Shape,
         object_types: Sequence[Type[GridObject]],
-        colors: Sequence[Colors],
+        colors: Sequence[Color],
     ):
         self.grid_shape = grid_shape
         self.object_types = list(object_types)
-        self.colors = set(colors) | {Colors.NONE}
+        self.colors = set(colors) | {Color.NONE}
 
         self._agent_object_types = set(object_types) | {NoneGridObject}
 
@@ -143,14 +143,14 @@ class ObservationSpace:
         self,
         grid_shape: Shape,
         object_types: Sequence[Type[GridObject]],
-        colors: Sequence[Colors],
+        colors: Sequence[Color],
     ):
         if grid_shape.width % 2 == 0:
             raise ValueError('shape should have an odd width')
 
         self.grid_shape = grid_shape
         self.object_types = list(object_types)
-        self.colors = set(colors) | {Colors.NONE}
+        self.colors = set(colors) | {Color.NONE}
 
         self._grid_object_types = set(object_types) | {Hidden}
         self._agent_object_types = set(object_types) | {NoneGridObject}

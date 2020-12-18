@@ -15,7 +15,7 @@ from gym_gridverse.envs import (
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.envs.yaml import schemas
 from gym_gridverse.geometry import Position, Shape
-from gym_gridverse.grid_object import Colors, GridObject, factory_type
+from gym_gridverse.grid_object import Color, GridObject, factory_type
 from gym_gridverse.spaces import (
     ActionSpace,
     DomainSpace,
@@ -39,9 +39,9 @@ def factory_object_types(data) -> List[Type[GridObject]]:
     return [factory_type(d) for d in data]
 
 
-def factory_colors(data) -> List[Colors]:
+def factory_colors(data) -> List[Color]:
     data = schemas.colors_schema().validate(data)
-    return [Colors[name] for name in data]
+    return [Color[name] for name in data]
 
 
 def factory_state_space(data) -> StateSpace:
@@ -69,7 +69,7 @@ def factory_observation_space(data) -> ObservationSpace:
 
     shape = factory_shape(data['shape'])
     objects = [factory_type(name) for name in data['objects']]
-    colors = [Colors[name] for name in data['colors']]
+    colors = [Color[name] for name in data['colors']]
 
     return ObservationSpace(
         grid_shape=shape,

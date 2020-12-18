@@ -12,7 +12,7 @@ from pyglet.gl import glClearColor
 from gym_gridverse.action import Action
 from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid_object import (
-    Colors,
+    Color,
     Door,
     Floor,
     Goal,
@@ -101,11 +101,11 @@ YELLOW = (0.796, 0.796, 0.329)
 
 
 colormap = {
-    Colors.NONE: NONE,
-    Colors.RED: RED,
-    Colors.GREEN: GREEN,
-    Colors.BLUE: BLUE,
-    Colors.YELLOW: YELLOW,
+    Color.NONE: NONE,
+    Color.RED: RED,
+    Color.GREEN: GREEN,
+    Color.BLUE: BLUE,
+    Color.YELLOW: YELLOW,
 }
 
 

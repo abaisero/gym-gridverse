@@ -16,7 +16,7 @@ from gym_gridverse.action import Action
 from gym_gridverse.envs import InnerEnv
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import Orientation, Position, Shape
-from gym_gridverse.grid_object import Colors, Floor, Goal, GridObject, Wall
+from gym_gridverse.grid_object import Color, Floor, Goal, GridObject, Wall
 from gym_gridverse.observation import Observation
 from gym_gridverse.spaces import (
     ActionSpace,
@@ -118,11 +118,11 @@ def main(
 ):  # pylint: disable=too-many-locals,too-many-statements
     curses.curs_set(False)
 
-    curses.init_pair(Colors.RED.value, curses.COLOR_RED, curses.COLOR_BLACK)
-    curses.init_pair(Colors.GREEN.value, curses.COLOR_GREEN, curses.COLOR_BLACK)
-    curses.init_pair(Colors.BLUE.value, curses.COLOR_BLUE, curses.COLOR_BLACK)
+    curses.init_pair(Color.RED.value, curses.COLOR_RED, curses.COLOR_BLACK)
+    curses.init_pair(Color.GREEN.value, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    curses.init_pair(Color.BLUE.value, curses.COLOR_BLUE, curses.COLOR_BLACK)
     curses.init_pair(
-        Colors.YELLOW.value, curses.COLOR_YELLOW, curses.COLOR_BLACK
+        Color.YELLOW.value, curses.COLOR_YELLOW, curses.COLOR_BLACK
     )
 
     screen_height, screen_width = screen.getmaxyx()
@@ -290,9 +290,9 @@ def main(
 
 if __name__ == "__main__":
     domain_space = DomainSpace(
-        StateSpace(Shape(10, 10), [Floor, Wall, Goal], [Colors.NONE]),
+        StateSpace(Shape(10, 10), [Floor, Wall, Goal], [Color.NONE]),
         ActionSpace(list(Action)),
-        ObservationSpace(Shape(7, 7), [Floor, Wall, Goal], [Colors.NONE]),
+        ObservationSpace(Shape(7, 7), [Floor, Wall, Goal], [Color.NONE]),
     )
 
     # reset_function = partial(reset_fs.reset_minigrid_rooms, 10, 10, (2, 2))

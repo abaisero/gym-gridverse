@@ -8,15 +8,15 @@ from typing import List
 from termcolor import colored
 
 from gym_gridverse.geometry import Orientation
-from gym_gridverse.grid_object import Colors, GridObject, Wall
+from gym_gridverse.grid_object import Color, GridObject, Wall
 from gym_gridverse.observation import Observation
 from gym_gridverse.state import Grid, State
 
 COLORS_TO_TERMCOLOR = {
-    Colors.RED: 'red',
-    Colors.GREEN: 'green',
-    Colors.BLUE: 'blue',
-    Colors.YELLOW: 'yellow',
+    Color.RED: 'red',
+    Color.GREEN: 'green',
+    Color.BLUE: 'blue',
+    Color.YELLOW: 'yellow',
 }
 
 ORIENTATION_TO_STR = {
@@ -32,7 +32,7 @@ def str_render_agent(orientation: Orientation) -> str:
 
 
 def str_render_object(obj: GridObject) -> str:
-    if obj.color == Colors.NONE:
+    if obj.color == Color.NONE:
         return obj.render_as_char()
     return colored(obj.render_as_char(), COLORS_TO_TERMCOLOR[obj.color])
 

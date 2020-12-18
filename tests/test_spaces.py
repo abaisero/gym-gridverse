@@ -13,7 +13,7 @@ from gym_gridverse.geometry import (
     Shape,
 )
 from gym_gridverse.grid_object import (
-    Colors,
+    Color,
     Door,
     Floor,
     Goal,
@@ -36,20 +36,20 @@ from gym_gridverse.spaces import (
 @pytest.mark.parametrize(
     'colors,expected',
     [
-        ([Colors.NONE], Colors.NONE.value),
-        ([Colors.NONE, Colors.RED], Colors.RED.value),
-        ([Colors.NONE, Colors.RED, Colors.GREEN], Colors.GREEN.value),
+        ([Color.NONE], Color.NONE.value),
+        ([Color.NONE, Color.RED], Color.RED.value),
+        ([Color.NONE, Color.RED, Color.GREEN], Color.GREEN.value),
         (
-            [Colors.NONE, Colors.RED, Colors.GREEN, Colors.BLUE],
-            Colors.BLUE.value,
+            [Color.NONE, Color.RED, Color.GREEN, Color.BLUE],
+            Color.BLUE.value,
         ),
         (
-            [Colors.NONE, Colors.RED, Colors.GREEN, Colors.BLUE, Colors.YELLOW],
-            Colors.YELLOW.value,
+            [Color.NONE, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW],
+            Color.YELLOW.value,
         ),
     ],
 )
-def test_max_color_index(colors: Sequence[Colors], expected: int):
+def test_max_color_index(colors: Sequence[Color], expected: int):
     assert _max_color_index(colors) == expected
 
 
@@ -169,7 +169,7 @@ def test_observation_space_agent_position(
 def space_contains_observation(
     space_shape: Shape = Shape(2, 5),
     space_objs: Sequence[Type[GridObject]] = [Floor],
-    space_colors: Sequence[Colors] = [],
+    space_colors: Sequence[Color] = [],
     grid: Grid = Grid(2, 5),
     agent_obj: GridObject = None,
     agent_pos: Position = Position(0, 0),
@@ -200,7 +200,7 @@ def test_observation_space_contains__shape(
     agent_position: PositionOrTuple,
     expected: bool,
 ):
-    observation_space = ObservationSpace(space_shape, [Floor], [Colors.NONE])
+    observation_space = ObservationSpace(space_shape, [Floor], [Color.NONE])
     observation = Observation(
         Grid(observation_shape.height, observation_shape.width),
         Agent(agent_position, Orientation.N),
@@ -229,7 +229,7 @@ def test_observation_space_contains__object_types(
 ):
     # NOTE:  observation_objects should have shape (1, 3)
     observation_space = ObservationSpace(
-        Shape(1, 3), space_object_types, [Colors.NONE]
+        Shape(1, 3), space_object_types, [Color.NONE]
     )
     observation = Observation(
         Grid.from_objects(observation_objects),
@@ -242,31 +242,31 @@ def test_observation_space_contains__object_types(
 @pytest.mark.parametrize(
     'space_colors,observation_objects,agent_object,expected',
     [
-        ([Colors.RED], [[Key(Colors.RED)], [Key(Colors.RED)]], None, True),
+        ([Color.RED], [[Key(Color.RED)], [Key(Color.RED)]], None, True),
         (
-            [Colors.RED, Colors.BLUE],
-            [[Key(Colors.RED)], [Key(Colors.BLUE)]],
+            [Color.RED, Color.BLUE],
+            [[Key(Color.RED)], [Key(Color.BLUE)]],
             None,
             True,
         ),
         (
-            [Colors.RED, Colors.BLUE],
-            [[Key(Colors.RED)], [Key(Colors.RED)]],
-            Key(Colors.BLUE),
+            [Color.RED, Color.BLUE],
+            [[Key(Color.RED)], [Key(Color.RED)]],
+            Key(Color.BLUE),
             True,
         ),
         # invalid
-        ([Colors.RED], [[Key(Colors.RED)], [Key(Colors.BLUE)]], None, False),
+        ([Color.RED], [[Key(Color.RED)], [Key(Color.BLUE)]], None, False),
         (
-            [Colors.RED],
-            [[Key(Colors.RED)], [Key(Colors.RED)]],
-            Key(Colors.BLUE),
+            [Color.RED],
+            [[Key(Color.RED)], [Key(Color.RED)]],
+            Key(Color.BLUE),
             False,
         ),
     ],
 )
 def test_observation_space_contains__colors(
-    space_colors: Sequence[Colors],
+    space_colors: Sequence[Color],
     observation_objects: Sequence[Sequence[GridObject]],
     agent_object: Optional[GridObject],
     expected: bool,
@@ -310,7 +310,7 @@ def test_observation_space_contains__agent_pose(
     orientation: Orientation,
     orientation_ok: bool,
 ):
-    observation_space = ObservationSpace(shape, [Floor], [Colors.NONE])
+    observation_space = ObservationSpace(shape, [Floor], [Color.NONE])
     observation = Observation(
         Grid(shape.height, shape.width), Agent(position, orientation)
     )
@@ -321,13 +321,13 @@ def test_observation_space_contains__agent_pose(
 
 @pytest.mark.parametrize('shape', [Shape(2, 3), Shape(4, 5)])
 @pytest.mark.parametrize('object_types', [[Floor], [Floor, Wall]])
-@pytest.mark.parametrize('colors', [[Colors.NONE], [Colors.NONE, Colors.RED]])
+@pytest.mark.parametrize('colors', [[Color.NONE], [Color.NONE, Color.RED]])
 @pytest.mark.parametrize('position', [(0, 0), (0, 1), (1, 0), (1, 1)])
 @pytest.mark.parametrize('orientation', [Orientation.N])
 def test_observation_space_contains(
     shape: Shape,
     object_types: Sequence[Type[GridObject]],
-    colors: Sequence[Colors],
+    colors: Sequence[Color],
     position: PositionOrTuple,
     orientation: Orientation,
 ):

@@ -7,7 +7,7 @@ import pytest
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid_object import (
     Box,
-    Colors,
+    Color,
     Door,
     Floor,
     Goal,
@@ -109,7 +109,7 @@ def test_none_grid_object_properties():
 
     none = NoneGridObject()
 
-    assert none.color == Colors.NONE
+    assert none.color == Color.NONE
     assert none.state_index == 0
 
     assert none.can_be_represented_in_state()
@@ -123,7 +123,7 @@ def test_hidden_properties():
     hidden = Hidden()
 
     assert not hidden.transparent
-    assert hidden.color == Colors.NONE
+    assert hidden.color == Color.NONE
     assert hidden.state_index == 0
 
     assert not hidden.can_be_represented_in_state()
@@ -138,7 +138,7 @@ def test_floor_properties():
 
     assert floor.transparent
     assert not floor.blocks
-    assert floor.color == Colors.NONE
+    assert floor.color == Color.NONE
     assert not floor.can_be_picked_up
     assert floor.state_index == 0
 
@@ -154,7 +154,7 @@ def test_wall_properties():
 
     assert not wall.transparent
     assert wall.blocks
-    assert wall.color == Colors.NONE
+    assert wall.color == Color.NONE
     assert not wall.can_be_picked_up
     assert wall.state_index == 0
 
@@ -170,7 +170,7 @@ def test_goal_properties():
 
     assert goal.transparent
     assert not goal.blocks
-    assert goal.color == Colors.NONE
+    assert goal.color == Color.NONE
     assert not goal.can_be_picked_up
     assert goal.state_index == 0
 
@@ -182,7 +182,7 @@ def test_goal_properties():
 def test_door_open_door_properties():
     """ Basic property tests """
 
-    color = Colors.GREEN
+    color = Color.GREEN
     open_door = Door(Door.Status.OPEN, color)
 
     assert open_door.transparent
@@ -201,7 +201,7 @@ def test_door_open_door_properties():
 def test_door_closed_door_properties():
     """ Basic property tests """
 
-    color = Colors.NONE
+    color = Color.NONE
     closed_door = Door(Door.Status.CLOSED, color)
 
     assert not closed_door.transparent
@@ -219,7 +219,7 @@ def test_door_closed_door_properties():
 def test_door_locked_door_properties():
     """ Basic property tests """
 
-    color = Colors.NONE
+    color = Color.NONE
     locked_door = Door(Door.Status.LOCKED, color)
 
     assert not locked_door.transparent
@@ -237,7 +237,7 @@ def test_door_locked_door_properties():
 def test_key_properties():
     """ Basic property tests """
 
-    color = Colors.YELLOW
+    color = Color.YELLOW
     key = Key(color)
 
     assert key.transparent
@@ -257,7 +257,7 @@ def test_moving_obstacle_basic_properties():
 
     assert obstacle.transparent
     assert not obstacle.blocks
-    assert obstacle.color == Colors.NONE
+    assert obstacle.color == Color.NONE
     assert not obstacle.can_be_picked_up
     assert obstacle.state_index == 0
 
@@ -273,7 +273,7 @@ def test_box_basic_properties():
 
     assert box.transparent
     assert box.blocks
-    assert box.color == Colors.NONE
+    assert box.color == Color.NONE
     assert not box.can_be_picked_up
     assert box.state_index == 0
 
@@ -285,7 +285,7 @@ def test_box_basic_properties():
 def test_telepod_properties():
     """Basic property tests of telepod"""
 
-    color = Colors.YELLOW
+    color = Color.YELLOW
     telepod = Telepod(color)
 
     assert telepod.transparent

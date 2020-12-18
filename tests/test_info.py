@@ -10,7 +10,7 @@ from gym_gridverse.geometry import (
     Shape,
 )
 from gym_gridverse.grid_object import (
-    Colors,
+    Color,
     Floor,
     Goal,
     GridObject,
@@ -227,7 +227,7 @@ def test_grid_subgrid(
 
 
 def test_grid_subgrid_references():
-    telepods = list(Telepod.make(2, Colors.RED))
+    telepods = list(Telepod.make(2, Color.RED))
     grid = Grid.from_objects([telepods])
 
     subgrid = grid.subgrid(Area((0, 0), (0, 1)))

@@ -15,7 +15,7 @@ from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.envs.inner_env import InnerEnv
 from gym_gridverse.geometry import Shape
 from gym_gridverse.grid_object import (
-    Colors,
+    Color,
     Door,
     Floor,
     Goal,
@@ -110,7 +110,7 @@ def plain_navigation_task(
 
     grid_shape = reset_func().grid.shape  # XXX: we hate this
     objects = [Wall, Floor, Goal]
-    colors = [Colors.NONE]
+    colors = [Color.NONE]
 
     state_space = StateSpace(grid_shape, objects, colors)
     observation_shape = Shape(7, 7)
@@ -156,7 +156,7 @@ def dynamic_obstacle_minigrid(
 
     grid_shape = reset_func().grid.shape  # XXX: we hate this
     objects = [Wall, Floor, Goal, MovingObstacle]
-    colors = [Colors.NONE]
+    colors = [Color.NONE]
 
     state_space = StateSpace(grid_shape, objects, colors)
     # TODO: hard-coded observation shape
@@ -228,7 +228,7 @@ def gym_keydoor_env(size: int) -> InnerEnv:
 
     grid_shape = reset().grid.shape  # XXX: we hate this
     objects: List[Type[GridObject]] = [Wall, Floor, Goal, Door, Key]
-    colors = [Colors.NONE, Colors.YELLOW]
+    colors = [Color.NONE, Color.YELLOW]
     observation_shape = Shape(7, 7)
 
     state_space = StateSpace(grid_shape, objects, colors)

@@ -14,7 +14,7 @@ from gym_gridverse.envs.reward_functions import (
 )
 from gym_gridverse.geometry import Orientation, Position, PositionOrTuple
 from gym_gridverse.grid_object import (
-    Colors,
+    Color,
     Door,
     Goal,
     Key,
@@ -53,7 +53,7 @@ def make_wall_state(orientation: Orientation = Orientation.N) -> State:
 def make_door_state(door_status: Door.Status) -> State:
     """makes a simple state with a door"""
     grid = Grid(2, 1)
-    grid[0, 0] = Door(door_status, Colors.RED)
+    grid[0, 0] = Door(door_status, Color.RED)
     agent = Agent((1, 0), Orientation.N)
     return State(grid, agent)
 
@@ -61,7 +61,7 @@ def make_door_state(door_status: Door.Status) -> State:
 def make_key_state(has_key: bool) -> State:
     """makes a simple state with a door"""
     grid = Grid(1, 1)
-    obj = Key(Colors.RED) if has_key else None
+    obj = Key(Color.RED) if has_key else None
     agent = Agent((0, 0), Orientation.N, obj)
     return State(grid, agent)
 

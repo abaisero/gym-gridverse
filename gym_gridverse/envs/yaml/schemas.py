@@ -3,7 +3,7 @@ from functools import lru_cache
 from schema import And, Optional, Or, Schema
 
 from gym_gridverse.action import Action
-from gym_gridverse.grid_object import Colors
+from gym_gridverse.grid_object import Color
 
 # general purpose schemas
 
@@ -120,7 +120,7 @@ def object_types_schema():
 def colors_schema():
     return Schema(
         And(
-            [color.name for color in Colors],
+            [color.name for color in Color],
             non_empty_schema(),
             unique_schema(),
         ),

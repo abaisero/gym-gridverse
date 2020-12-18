@@ -6,7 +6,7 @@ import enum
 from typing import Callable, List, Optional, Type
 
 
-class Colors(enum.Enum):
+class Color(enum.Enum):
     """ Color of grid objects """
 
     NONE = 0
@@ -46,7 +46,7 @@ class GridObject(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def color(self) -> Colors:
+    def color(self) -> Color:
         """ returns the color of the object """
 
     @property
@@ -96,8 +96,8 @@ class NoneGridObject(GridObject):
         return 0
 
     @property
-    def color(self) -> Colors:
-        return Colors.NONE
+    def color(self) -> Color:
+        return Color.NONE
 
     @classmethod
     def num_states(cls) -> int:
@@ -136,8 +136,8 @@ class Hidden(GridObject):
         return 0
 
     @property
-    def color(self) -> Colors:
-        return Colors.NONE
+    def color(self) -> Color:
+        return Color.NONE
 
     @classmethod
     def num_states(cls) -> int:
@@ -176,8 +176,8 @@ class Floor(GridObject):
         return 0
 
     @property
-    def color(self) -> Colors:
-        return Colors.NONE
+    def color(self) -> Color:
+        return Color.NONE
 
     @classmethod
     def num_states(cls) -> int:
@@ -216,8 +216,8 @@ class Wall(GridObject):
         return 0
 
     @property
-    def color(self) -> Colors:
-        return Colors.NONE
+    def color(self) -> Color:
+        return Color.NONE
 
     @classmethod
     def num_states(cls) -> int:
@@ -256,8 +256,8 @@ class Goal(GridObject):
         return 0
 
     @property
-    def color(self) -> Colors:
-        return Colors.NONE
+    def color(self) -> Color:
+        return Color.NONE
 
     @classmethod
     def num_states(cls) -> int:
@@ -307,7 +307,7 @@ class Door(GridObject):
         CLOSED = enum.auto()
         LOCKED = enum.auto()
 
-    def __init__(self, state: Door.Status, color: Colors):
+    def __init__(self, state: Door.Status, color: Color):
         self._color = color
         self._state = state
 
@@ -335,7 +335,7 @@ class Door(GridObject):
         return len(Door.Status)
 
     @property
-    def color(self) -> Colors:
+    def color(self) -> Color:
         return self._color
 
     @property
@@ -376,7 +376,7 @@ class Key(GridObject):
 
     type_index: int
 
-    def __init__(self, c: Colors):
+    def __init__(self, c: Color):
         """ Creates a key of color `c` """
         self._color = c
 
@@ -389,7 +389,7 @@ class Key(GridObject):
         return 0
 
     @property
-    def color(self) -> Colors:
+    def color(self) -> Color:
         return self._color
 
     @classmethod
@@ -432,8 +432,8 @@ class MovingObstacle(GridObject):
         return 0
 
     @property
-    def color(self) -> Colors:
-        return Colors.NONE
+    def color(self) -> Color:
+        return Color.NONE
 
     @classmethod
     def num_states(cls) -> int:
@@ -481,8 +481,8 @@ class Box(GridObject):
         return 0
 
     @property
-    def color(self) -> Colors:
-        return Colors.NONE
+    def color(self) -> Color:
+        return Color.NONE
 
     @classmethod
     def num_states(cls) -> int:
@@ -513,7 +513,7 @@ class Telepod(GridObject):
     type_index: int
 
     @classmethod
-    def make(cls, num_telepods: int, color: Colors) -> List[Telepod]:
+    def make(cls, num_telepods: int, color: Color) -> List[Telepod]:
         """make linked telepods"""
         telepods = [Telepod(color) for _ in range(num_telepods)]
         for i, telepod in enumerate(telepods):
@@ -522,7 +522,7 @@ class Telepod(GridObject):
 
         return telepods
 
-    def __init__(self, color: Colors):
+    def __init__(self, color: Color):
         self.telepods: List[Telepod] = []
         self._color = color
 
@@ -535,7 +535,7 @@ class Telepod(GridObject):
         return 0
 
     @property
-    def color(self) -> Colors:
+    def color(self) -> Color:
         return self._color
 
     @classmethod
@@ -589,14 +589,14 @@ def factory(
             raise ValueError(f'invalid parameters for name `{name}`')
 
         status_ = Door.Status[status]
-        color_ = Colors[color]
+        color_ = Color[color]
         return Door(status_, color_)
 
     if name in ['key', 'Key']:
         if not isinstance(color, str):
             raise ValueError(f'invalid parameters for name `{name}`')
 
-        color_ = Colors[color]
+        color_ = Color[color]
         return Key(color_)
 
     if name in ['moving_obstacle', 'MovingObstacle']:
@@ -612,7 +612,7 @@ def factory(
         if not isinstance(color, str):
             raise ValueError(f'invalid parameters for name `{name}`')
 
-        color_ = Colors[color]
+        color_ = Color[color]
         return Telepod(color_)
 
     raise ValueError(f'invalid grid-object name {name}')

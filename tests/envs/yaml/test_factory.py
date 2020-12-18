@@ -7,7 +7,7 @@ import gym_gridverse.envs.yaml.factory as yaml_factory
 from gym_gridverse.action import Action
 from gym_gridverse.envs import InnerEnv
 from gym_gridverse.geometry import Shape
-from gym_gridverse.grid_object import Colors, GridObject
+from gym_gridverse.grid_object import Color, GridObject
 from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
 
 
@@ -86,7 +86,7 @@ def test_factory_state_space(data):
         assert issubclass(object_type, GridObject)
 
     for color in state_space.colors:
-        assert isinstance(color, Colors)
+        assert isinstance(color, Color)
 
 
 @pytest.mark.parametrize(
@@ -145,7 +145,7 @@ def test_factory_observation_space(data):
         assert issubclass(object_type, GridObject)
 
     for color in observation_space.colors:
-        assert isinstance(color, Colors)
+        assert isinstance(color, Color)
 
 
 @pytest.mark.parametrize(

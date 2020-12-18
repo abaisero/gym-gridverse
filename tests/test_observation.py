@@ -4,7 +4,7 @@ from copy import deepcopy
 import pytest
 
 from gym_gridverse.geometry import Orientation
-from gym_gridverse.grid_object import Colors, Floor, Key, NoneGridObject, Wall
+from gym_gridverse.grid_object import Color, Floor, Key, NoneGridObject, Wall
 from gym_gridverse.info import Agent, Grid
 from gym_gridverse.observation import Observation
 
@@ -33,7 +33,7 @@ def _change_agent_orientation(observation: Observation):
 def _change_agent_object(observation: Observation):
     """changes agent object"""
     observation.agent.obj = (
-        Key(Colors.RED)
+        Key(Color.RED)
         if isinstance(observation.agent.obj, NoneGridObject)
         else NoneGridObject()
     )
@@ -43,7 +43,7 @@ def _change_agent_object(observation: Observation):
     'observation',
     [
         Observation(Grid(2, 3), Agent((0, 0), Orientation.N)),
-        Observation(Grid(3, 2), Agent((1, 1), Orientation.S, Key(Colors.RED))),
+        Observation(Grid(3, 2), Agent((1, 1), Orientation.S, Key(Color.RED))),
     ],
 )
 def test_observation_eq(observation: Observation):

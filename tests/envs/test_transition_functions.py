@@ -24,7 +24,7 @@ from gym_gridverse.envs.transition_functions import (
 from gym_gridverse.geometry import Position
 from gym_gridverse.grid_object import (
     Box,
-    Colors,
+    Color,
     Door,
     Floor,
     GridObject,
@@ -166,7 +166,7 @@ def test_move_action_blocked_by_grid_object():
     grid = Grid(height=3, width=2)
     agent = Agent(position=(2, 1), orientation=Orientation.N)
 
-    grid[2, 0] = Door(Door.Status.CLOSED, Colors.YELLOW)
+    grid[2, 0] = Door(Door.Status.CLOSED, Color.YELLOW)
     move_agent(agent, grid, action=Action.MOVE_LEFT)
 
     assert agent.position == (2, 1)
@@ -177,11 +177,11 @@ def test_move_action_can_go_on_non_block_objects():
     grid = Grid(height=3, width=2)
     agent = Agent(position=(2, 1), orientation=Orientation.N)
 
-    grid[2, 0] = Door(Door.Status.OPEN, Colors.YELLOW)
+    grid[2, 0] = Door(Door.Status.OPEN, Color.YELLOW)
     move_agent(agent, grid, action=Action.MOVE_LEFT)
     assert agent.position == (2, 0)
 
-    grid[2, 1] = Key(Colors.BLUE)
+    grid[2, 1] = Key(Color.BLUE)
     move_agent(agent, grid, action=Action.MOVE_RIGHT)
     assert agent.position == (2, 1)
 
@@ -204,7 +204,7 @@ def test_pickup_mechanics_nothing_to_pickup():
     assert state == next_state
 
     # Cannot pickup door
-    grid[item_pos] = Door(Door.Status.CLOSED, Colors.GREEN)
+    grid[item_pos] = Door(Door.Status.CLOSED, Color.GREEN)
     next_state = step_with_copy(state, Action.PICK_N_DROP)
     assert state == next_state
 
@@ -216,7 +216,7 @@ def test_pickup_mechanics_pickup():
     agent = Agent(position=(1, 2), orientation=Orientation.S)
     item_pos = (2, 2)
 
-    grid[item_pos] = Key(Colors.GREEN)
+    grid[item_pos] = Key(Color.GREEN)
     state = State(grid, agent)
 
     # Pick up works
@@ -235,7 +235,7 @@ def test_pickup_mechanics_drop():
     agent = Agent(position=(1, 2), orientation=Orientation.S)
     item_pos = (2, 2)
 
-    agent.obj = Key(Colors.BLUE)
+    agent.obj = Key(Color.BLUE)
     state = State(grid, agent)
 
     # Can drop:
@@ -256,8 +256,8 @@ def test_pickup_mechanics_swap():
     agent = Agent(position=(1, 2), orientation=Orientation.S)
     item_pos = (2, 2)
 
-    agent.obj = Key(Colors.BLUE)
-    grid[item_pos] = Key(Colors.GREEN)
+    agent.obj = Key(Color.BLUE)
+    grid[item_pos] = Key(Color.GREEN)
     state = State(grid, agent)
 
     next_state = step_with_copy(state, Action.PICK_N_DROP)
@@ -334,60 +334,60 @@ def test_step_moving_obstacles(
         # LOCKED
         (
             Door.Status.LOCKED,
-            Colors.RED,
-            Colors.RED,
+            Color.RED,
+            Color.RED,
             Action.ACTUATE,
             Door.Status.OPEN,
         ),
         (
             Door.Status.LOCKED,
-            Colors.RED,
-            Colors.BLUE,
+            Color.RED,
+            Color.BLUE,
             Action.ACTUATE,
             Door.Status.LOCKED,
         ),
         # CLOSED
         (
             Door.Status.CLOSED,
-            Colors.RED,
-            Colors.BLUE,
+            Color.RED,
+            Color.BLUE,
             Action.ACTUATE,
             Door.Status.OPEN,
         ),
         # OPEN
         (
             Door.Status.OPEN,
-            Colors.RED,
-            Colors.RED,
+            Color.RED,
+            Color.RED,
             Action.ACTUATE,
             Door.Status.OPEN,
         ),
         # not ACTUATE
         (
             Door.Status.LOCKED,
-            Colors.RED,
-            Colors.RED,
+            Color.RED,
+            Color.RED,
             Action.PICK_N_DROP,
             Door.Status.LOCKED,
         ),
         (
             Door.Status.LOCKED,
-            Colors.RED,
-            Colors.BLUE,
+            Color.RED,
+            Color.BLUE,
             Action.PICK_N_DROP,
             Door.Status.LOCKED,
         ),
         (
             Door.Status.CLOSED,
-            Colors.RED,
-            Colors.BLUE,
+            Color.RED,
+            Color.BLUE,
             Action.PICK_N_DROP,
             Door.Status.CLOSED,
         ),
         (
             Door.Status.OPEN,
-            Colors.RED,
-            Colors.RED,
+            Color.RED,
+            Color.RED,
             Action.PICK_N_DROP,
             Door.Status.OPEN,
         ),
@@ -395,8 +395,8 @@ def test_step_moving_obstacles(
 )
 def test_actuate_door(
     door_state: Door.Status,
-    door_color: Colors,
-    key_color: Colors,
+    door_color: Color,
+    key_color: Color,
     action: Action,
     expected_state: Door.Status,
 ):
@@ -428,10 +428,10 @@ def test_actuate_door(
         (Floor(), Orientation.N, Action.PICK_N_DROP, False),
         (Floor(), Orientation.S, Action.PICK_N_DROP, False),
         # content is key
-        (Key(Colors.RED), Orientation.N, Action.ACTUATE, True),
-        (Key(Colors.RED), Orientation.S, Action.ACTUATE, False),
-        (Key(Colors.RED), Orientation.N, Action.PICK_N_DROP, False),
-        (Key(Colors.RED), Orientation.S, Action.PICK_N_DROP, False),
+        (Key(Color.RED), Orientation.N, Action.ACTUATE, True),
+        (Key(Color.RED), Orientation.S, Action.ACTUATE, False),
+        (Key(Color.RED), Orientation.N, Action.PICK_N_DROP, False),
+        (Key(Color.RED), Orientation.S, Action.PICK_N_DROP, False),
     ],
 )
 def test_actuate_box(
@@ -469,7 +469,7 @@ def test_teleport(
     position_agent: Position,
     expected: Position,
 ):
-    telepods = Telepod.make(2, Colors.RED)
+    telepods = Telepod.make(2, Color.RED)
     grid = Grid(2, 2)
     grid[position_telepod1] = telepods[0]
     grid[position_telepod2] = telepods[1]

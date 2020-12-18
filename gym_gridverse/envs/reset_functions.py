@@ -15,7 +15,7 @@ from gym_gridverse.design import (
 )
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid_object import (
-    Colors,
+    Color,
     Door,
     Floor,
     Goal,
@@ -238,13 +238,13 @@ def reset_minigrid_keydoor(
 
     # Place yellow, locked door
     pos_wall = rng.choice(line_wall)
-    state.grid[pos_wall] = Door(Door.Status.LOCKED, Colors.YELLOW)
+    state.grid[pos_wall] = Door(Door.Status.LOCKED, Color.YELLOW)
 
     # Place yellow key left of wall
     # XXX: potential general function
     y_key = rng.integers(1, height - 2, endpoint=True)
     x_key = rng.integers(1, x_wall - 1, endpoint=True)
-    state.grid[y_key, x_key] = Key(Colors.YELLOW)
+    state.grid[y_key, x_key] = Key(Color.YELLOW)
 
     # Place agent left of wall
     # XXX: potential general function
@@ -379,7 +379,7 @@ def reset_minigrid_teleport(
     state.agent.position = (1, 1)  # type: ignore
     state.agent.orientation = rng.choice([Orientation.E, Orientation.S])
 
-    telepods = Telepod.make(2, Colors.RED)
+    telepods = Telepod.make(2, Color.RED)
     positions = rng.choice(
         [
             position
