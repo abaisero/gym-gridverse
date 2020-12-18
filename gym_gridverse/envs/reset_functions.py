@@ -379,7 +379,8 @@ def reset_minigrid_teleport(
     state.agent.position = (1, 1)  # type: ignore
     state.agent.orientation = rng.choice([Orientation.E, Orientation.S])
 
-    telepods = Telepod.make(2, Color.RED)
+    num_telepods = 2
+    telepods = [Telepod(Color.RED) for _ in range(num_telepods)]
     positions = rng.choice(
         [
             position
@@ -387,7 +388,7 @@ def reset_minigrid_teleport(
             if isinstance(state.grid[position], Floor)
             and position != state.agent.position
         ],
-        size=2,
+        size=num_telepods,
         replace=False,
     )
     for position, telepod in zip(positions, telepods):

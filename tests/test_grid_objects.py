@@ -294,7 +294,7 @@ def test_telepod_properties():
     assert not telepod.can_be_picked_up
     assert telepod.state_index == 0
 
-    assert not telepod.can_be_represented_in_state()
+    assert telepod.can_be_represented_in_state()
     assert telepod.num_states() == 1
 
 

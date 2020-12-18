@@ -346,8 +346,11 @@ def step_telepod(
 
     if isinstance(telepod, Telepod):
         positions = [
-            state.grid.get_position(other_telepod)
-            for other_telepod in telepod.telepods
+            position
+            for position in state.grid.positions()
+            if position != state.agent.position
+            and isinstance(state.grid[position], Telepod)
+            and state.grid[position].color == telepod.color
         ]
         state.agent.position = rng.choice(positions)
 

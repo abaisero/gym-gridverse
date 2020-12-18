@@ -469,10 +469,9 @@ def test_teleport(
     position_agent: Position,
     expected: Position,
 ):
-    telepods = Telepod.make(2, Color.RED)
     grid = Grid(2, 2)
-    grid[position_telepod1] = telepods[0]
-    grid[position_telepod2] = telepods[1]
+    grid[position_telepod1] = Telepod(Color.RED)
+    grid[position_telepod2] = Telepod(Color.RED)
 
     agent = Agent(position_agent, Orientation.N)
     state = State(grid, agent)

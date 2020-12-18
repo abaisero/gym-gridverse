@@ -10,12 +10,13 @@ from gym_gridverse.geometry import (
     Shape,
 )
 from gym_gridverse.grid_object import (
+    Box,
     Color,
     Floor,
     Goal,
     GridObject,
     Hidden,
-    Telepod,
+    Key,
     Wall,
 )
 from gym_gridverse.info import Agent, Grid
@@ -227,14 +228,17 @@ def test_grid_subgrid(
 
 
 def test_grid_subgrid_references():
-    telepods = list(Telepod.make(2, Color.RED))
-    grid = Grid.from_objects([telepods])
+    key = Key(Color.RED)
+    box = Box(key)
+
+    # weird scenario where the key is both in the box and outside the box,
+    # only created to test references
+    grid = Grid.from_objects([[key, box]])
 
     subgrid = grid.subgrid(Area((0, 0), (0, 1)))
-    telepod1 = subgrid[0, 0]
-    telepod2 = subgrid[0, 1]
-    assert telepod1.telepods[0] is telepod2
-    assert telepod2.telepods[0] is telepod1
+    key = subgrid[0, 0]
+    box = subgrid[0, 1]
+    assert box.content is key
 
 
 @pytest.mark.parametrize(

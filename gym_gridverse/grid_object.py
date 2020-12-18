@@ -512,23 +512,12 @@ class Telepod(GridObject):
 
     type_index: int
 
-    @classmethod
-    def make(cls, num_telepods: int, color: Color) -> List[Telepod]:
-        """make linked telepods"""
-        telepods = [Telepod(color) for _ in range(num_telepods)]
-        for i, telepod in enumerate(telepods):
-            telepod.telepods.extend(telepods[:i])
-            telepod.telepods.extend(telepods[i + 1 :])
-
-        return telepods
-
     def __init__(self, color: Color):
-        self.telepods: List[Telepod] = []
         self._color = color
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
-        return False
+        return True
 
     @property
     def state_index(self) -> int:
