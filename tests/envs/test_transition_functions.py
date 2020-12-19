@@ -9,7 +9,7 @@ import numpy.random as rnd
 import pytest
 
 from gym_gridverse.action import Action
-from gym_gridverse.envs.reset_functions import reset_minigrid_dynamic_obstacles
+from gym_gridverse.envs.reset_functions import reset_dynamic_obstacles
 from gym_gridverse.envs.transition_functions import (
     _step_moving_obstacle,
     actuate_box,
@@ -274,7 +274,7 @@ def test_step_moving_obstacles_once_per_obstacle():
     position, hence being called twice. This test is here to make sure that
     does not happen again.
     """
-    state = reset_minigrid_dynamic_obstacles(height=6, width=6, num_obstacles=4)
+    state = reset_dynamic_obstacles(height=6, width=6, num_obstacles=4)
 
     counts = {}
 

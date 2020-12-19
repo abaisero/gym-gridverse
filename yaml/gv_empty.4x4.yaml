@@ -17,7 +17,7 @@ observation_space:
   colors: [ NONE ]
 
 reset_function:
-  name: minigrid_empty
+  name: empty
   random_agent: True
 
 transition_functions:

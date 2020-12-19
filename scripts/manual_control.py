@@ -4,8 +4,7 @@ import argparse
 
 from gym_gridverse.action import Action
 from gym_gridverse.envs import InnerEnv
-from gym_gridverse.envs.factory import (STRING_TO_GYM_CONSTRUCTOR,
-                                        gym_minigrid_from_descr)
+from gym_gridverse.envs.factory import STRING_TO_GYM_CONSTRUCTOR, env_from_descr
 from gym_gridverse.render_as_string import str_render_obs, str_render_state
 
 
@@ -54,4 +53,4 @@ if __name__ == "__main__":
         'descr',
         help=f"Gym description, available: {list(STRING_TO_GYM_CONSTRUCTOR.keys())}",
     )
-    manually_control(gym_minigrid_from_descr(parser.parse_args().descr))
+    manually_control(env_from_descr(parser.parse_args().descr))

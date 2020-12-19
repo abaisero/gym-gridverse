@@ -2,10 +2,10 @@ import pytest
 
 from gym_gridverse.envs.reset_functions import (
     factory,
-    reset_minigrid_crossing,
-    reset_minigrid_dynamic_obstacles,
-    reset_minigrid_keydoor,
-    reset_minigrid_teleport,
+    reset_crossing,
+    reset_dynamic_obstacles,
+    reset_keydoor,
+    reset_teleport,
 )
 from gym_gridverse.geometry import Shape
 from gym_gridverse.grid_object import (
@@ -30,16 +30,16 @@ def wall_column(size: int, state: State) -> int:
 @pytest.mark.parametrize(
     'size', [-5, 4]  # negative size and positive-but-too-small
 )
-def test_reset_minigrid_keydoor_throw_if_too_small(size: int):
+def test_reset_keydoor_throw_if_too_small(size: int):
     """Asserts method throws if provided size is too small"""
     with pytest.raises(ValueError):
-        reset_minigrid_keydoor(size, size)
+        reset_keydoor(size, size)
 
 
 @pytest.mark.parametrize('size', range(5, 12))
-def test_reset_minigrid_keydoor_wall(size: int):
+def test_reset_keydoor_wall(size: int):
     """Tests whether the reset state contains a wall column"""
-    state = reset_minigrid_keydoor(size, size)
+    state = reset_keydoor(size, size)
 
     # Surrounded by walls
     for i in range(0, size):
@@ -64,16 +64,16 @@ def test_reset_minigrid_keydoor_wall(size: int):
 
 
 @pytest.mark.parametrize('size', range(5, 12))
-def test_reset_minigrid_keydoor_agent_is_left_of_wall(size: int):
-    state = reset_minigrid_keydoor(size, size)
+def test_reset_keydoor_agent_is_left_of_wall(size: int):
+    state = reset_keydoor(size, size)
     assert state.agent.position.x < wall_column(
         size, state
     ), "Agent should be left of wall"
 
 
 @pytest.mark.parametrize('size', range(5, 12))
-def test_reset_minigrid_keydoor_key(size: int):
-    state = reset_minigrid_keydoor(size, size)
+def test_reset_keydoor_key(size: int):
+    state = reset_keydoor(size, size)
 
     key_pos = [
         pos
@@ -86,8 +86,8 @@ def test_reset_minigrid_keydoor_key(size: int):
 
 
 @pytest.mark.parametrize('size', range(5, 12))
-def test_reset_minigrid_keydoor_goal(size: int):
-    state = reset_minigrid_keydoor(size, size)
+def test_reset_keydoor_goal(size: int):
+    state = reset_keydoor(size, size)
     assert isinstance(
         state.grid[size - 2, size - 2], Goal
     ), "There should be a goal bottom right"
@@ -96,10 +96,8 @@ def test_reset_minigrid_keydoor_goal(size: int):
 @pytest.mark.parametrize('height', [10, 20])
 @pytest.mark.parametrize('width', [10, 20])
 @pytest.mark.parametrize('num_obstacles', [5, 10])
-def test_reset_minigrid_dynamic_obstacles(
-    height: int, width: int, num_obstacles: int
-):
-    state = reset_minigrid_dynamic_obstacles(height, width, num_obstacles)
+def test_reset_dynamic_obstacles(height: int, width: int, num_obstacles: int):
+    state = reset_dynamic_obstacles(height, width, num_obstacles)
     assert state.grid.shape == Shape(height, width)
 
     state_num_obstacles = sum(
@@ -112,15 +110,15 @@ def test_reset_minigrid_dynamic_obstacles(
 @pytest.mark.parametrize('height', [9, 13])
 @pytest.mark.parametrize('width', [9, 13])
 @pytest.mark.parametrize('num_rivers', [3, 5])
-def test_reset_minigrid_crossing(height: int, width: int, num_rivers: int):
-    state = reset_minigrid_crossing(height, width, num_rivers, object_type=Wall)
+def test_reset_crossing(height: int, width: int, num_rivers: int):
+    state = reset_crossing(height, width, num_rivers, object_type=Wall)
     assert state.grid.shape == Shape(height, width)
 
 
 @pytest.mark.parametrize('height', [9, 13])
 @pytest.mark.parametrize('width', [9, 13])
-def test_reset_minigrid_teleport(height: int, width: int):
-    state = reset_minigrid_teleport(height, width)
+def test_reset_teleport(height: int, width: int):
+    state = reset_teleport(height, width)
     assert state.grid.shape == Shape(height, width)
 
     num_telepods = sum(
@@ -133,7 +131,7 @@ def test_reset_minigrid_teleport(height: int, width: int):
     'name,kwargs',
     [
         (
-            'minigrid_empty',
+            'empty',
             {
                 'height': 10,
                 'width': 10,
@@ -141,7 +139,7 @@ def test_reset_minigrid_teleport(height: int, width: int):
             },
         ),
         (
-            'minigrid_rooms',
+            'rooms',
             {
                 'height': 10,
                 'width': 10,
@@ -149,7 +147,7 @@ def test_reset_minigrid_teleport(height: int, width: int):
             },
         ),
         (
-            'minigrid_dynamic_obstacles',
+            'dynamic_obstacles',
             {
                 'height': 10,
                 'width': 10,
@@ -158,14 +156,14 @@ def test_reset_minigrid_teleport(height: int, width: int):
             },
         ),
         (
-            'minigrid_keydoor',
+            'keydoor',
             {
                 'height': 10,
                 'width': 10,
             },
         ),
         (
-            'minigrid_crossing',
+            'crossing',
             {
                 'height': 9,
                 'width': 9,
@@ -183,11 +181,11 @@ def test_factory_valid(name: str, kwargs):
     'name,kwargs,exception',
     [
         ('invalid', {}, ValueError),
-        ('minigrid_empty', {}, ValueError),
-        ('minigrid_rooms', {}, ValueError),
-        ('minigrid_dynamic_obstacles', {}, ValueError),
-        ('minigrid_keydoor', {}, ValueError),
-        ('minigrid_crossing', {}, ValueError),
+        ('empty', {}, ValueError),
+        ('rooms', {}, ValueError),
+        ('dynamic_obstacles', {}, ValueError),
+        ('keydoor', {}, ValueError),
+        ('crossing', {}, ValueError),
     ],
 )
 def test_factory_invalid(name: str, kwargs, exception: Exception):

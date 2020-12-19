@@ -17,7 +17,7 @@ observation_space:
   colors: [ NONE, RED ]
 
 reset_function:
-  name: minigrid_teleport
+  name: teleport
   random_agent: True
 
 transition_functions:

@@ -17,7 +17,7 @@ observation_space:
   colors: [ NONE ]
 
 reset_function:
-  name: minigrid_crossing
+  name: crossing
   num_rivers: 2
   object_type: Wall
 

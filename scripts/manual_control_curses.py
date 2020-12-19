@@ -295,8 +295,8 @@ if __name__ == "__main__":
         ObservationSpace(Shape(7, 7), [Floor, Wall, Goal], [Color.NONE]),
     )
 
-    # reset_function = partial(reset_fs.reset_minigrid_rooms, 10, 10, (2, 2))
-    reset_function = partial(reset_fs.reset_minigrid_empty, 10, 10, True)
+    # reset_function = partial(reset_fs.reset_rooms, 10, 10, (2, 2))
+    reset_function = partial(reset_fs.reset_empty, 10, 10, True)
 
     step_function = step_fs.update_agent
 

@@ -9,13 +9,13 @@ using `OpenAI Gym`_, and how to create custom environments using `YAML`_.
 Using OpenAI Gym
 ================
 
-Some predefined environments, e.g. ``MiniGrid-FourRooms-v0``, can be
+Some predefined environments, e.g. ``GridVerse-FourRooms-v0``, can be
 instantiated directly using :py:func:`gym.make`::
 
   import gym
   import gym_gridverse
 
-  env = gym.make('MiniGrid-FourRooms-v0')
+  env = gym.make('GridVerse-FourRooms-v0')
 
 However, the strength of Gridverse is the ability to create custom environments
 by combining transition functions, observation functions, reward functions,

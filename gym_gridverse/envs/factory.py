@@ -126,13 +126,13 @@ def plain_navigation_task(
     )
 
 
-def dynamic_obstacle_minigrid(
+def env_dynamic_obstacle(
     size: int, random_pos: bool, num_obstacles: int
 ) -> InnerEnv:
 
     # +2 size to accommodate the walls
     reset_func = partial(
-        reset_functions.reset_minigrid_dynamic_obstacles,
+        reset_functions.reset_dynamic_obstacles,
         size + 2,
         size + 2,
         num_obstacles,
@@ -171,8 +171,8 @@ def dynamic_obstacle_minigrid(
     )
 
 
-def gym_minigrid_empty(size: int, random_pos: bool) -> InnerEnv:
-    """Creates the gym-minigrid empty environment of `size` and `random_pos`
+def env_empty(size: int, random_pos: bool) -> InnerEnv:
+    """Creates an empty environment of `size` and `random_pos`
 
     Args:
         size (`int`): The size of x by x floor
@@ -183,21 +183,19 @@ def gym_minigrid_empty(size: int, random_pos: bool) -> InnerEnv:
     """
 
     # +2 size to accommodate the walls
-    reset = partial(
-        reset_functions.reset_minigrid_empty, size + 2, size + 2, random_pos
-    )
+    reset = partial(reset_functions.reset_empty, size + 2, size + 2, random_pos)
 
     return plain_navigation_task(reset)
 
 
-def gym_minigrid_four_room() -> InnerEnv:
+def env_four_room() -> InnerEnv:
     """Creates the gym-four-room environment
 
     Returns:
         InnerEnv:
     """
 
-    reset = partial(reset_functions.reset_minigrid_rooms, 19, 19, layout=(2, 2))
+    reset = partial(reset_functions.reset_rooms, 19, 19, layout=(2, 2))
 
     return plain_navigation_task(reset)
 
@@ -212,7 +210,7 @@ def gym_keydoor_env(size: int) -> InnerEnv:
         InnerEnv:
     """
 
-    reset = partial(reset_functions.reset_minigrid_keydoor, size + 2, size + 2)
+    reset = partial(reset_functions.reset_keydoor, size + 2, size + 2)
 
     transitions: List[transition_fs.TransitionFunction] = [
         transition_fs.update_agent,
@@ -242,53 +240,41 @@ def gym_keydoor_env(size: int) -> InnerEnv:
 
 STRING_TO_GYM_CONSTRUCTOR: Dict[str, Callable[[], InnerEnv]] = {
     # Empty rooms
-    "MiniGrid-Empty-5x5-v0": partial(
-        gym_minigrid_empty, size=5, random_pos=False
-    ),
-    "MiniGrid-Empty-Random-5x5-v0": partial(
-        gym_minigrid_empty, size=5, random_pos=True
-    ),
-    "MiniGrid-Empty-6x6-v0": partial(
-        gym_minigrid_empty, size=6, random_pos=False
-    ),
-    "MiniGrid-Empty-Random-6x6-v0": partial(
-        gym_minigrid_empty, size=6, random_pos=True
-    ),
-    "MiniGrid-Empty-8x8-v0": partial(
-        gym_minigrid_empty, size=8, random_pos=False
-    ),
-    "MiniGrid-Empty-16x16-v0": partial(
-        gym_minigrid_empty, size=16, random_pos=False
-    ),
+    "Empty-5x5-v0": partial(env_empty, size=5, random_pos=False),
+    "Empty-Random-5x5-v0": partial(env_empty, size=5, random_pos=True),
+    "Empty-6x6-v0": partial(env_empty, size=6, random_pos=False),
+    "Empty-Random-6x6-v0": partial(env_empty, size=6, random_pos=True),
+    "Empty-8x8-v0": partial(env_empty, size=8, random_pos=False),
+    "Empty-16x16-v0": partial(env_empty, size=16, random_pos=False),
     # 4 rooms
-    "MiniGrid-FourRooms-v0": partial(gym_minigrid_four_room),
+    "FourRooms-v0": partial(env_four_room),
     # Dynamic obstacle environments
-    "MiniGrid-Dynamic-Obstacles-5x5-v0": partial(
-        dynamic_obstacle_minigrid, size=5, random_pos=False, num_obstacles=2
+    "Dynamic-Obstacles-5x5-v0": partial(
+        env_dynamic_obstacle, size=5, random_pos=False, num_obstacles=2
     ),
-    "MiniGrid-Dynamic-Obstacles-Random-5x5-v0": partial(
-        dynamic_obstacle_minigrid, size=5, random_pos=True, num_obstacles=2
+    "Dynamic-Obstacles-Random-5x5-v0": partial(
+        env_dynamic_obstacle, size=5, random_pos=True, num_obstacles=2
     ),
-    "MiniGrid-Dynamic-Obstacles-6x6-v0": partial(
-        dynamic_obstacle_minigrid, size=6, random_pos=False, num_obstacles=3
+    "Dynamic-Obstacles-6x6-v0": partial(
+        env_dynamic_obstacle, size=6, random_pos=False, num_obstacles=3
     ),
-    "MiniGrid-Dynamic-Obstacles-Random-6x6-v0": partial(
-        dynamic_obstacle_minigrid, size=6, random_pos=True, num_obstacles=3
+    "Dynamic-Obstacles-Random-6x6-v0": partial(
+        env_dynamic_obstacle, size=6, random_pos=True, num_obstacles=3
     ),
-    "MiniGrid-Dynamic-Obstacles-8x8-v0": partial(
-        dynamic_obstacle_minigrid, size=8, random_pos=False, num_obstacles=4
+    "Dynamic-Obstacles-8x8-v0": partial(
+        env_dynamic_obstacle, size=8, random_pos=False, num_obstacles=4
     ),
-    "MiniGrid-Dynamic-Obstacles-16x16-v0": partial(
-        dynamic_obstacle_minigrid, size=16, random_pos=False, num_obstacles=8
+    "Dynamic-Obstacles-16x16-v0": partial(
+        env_dynamic_obstacle, size=16, random_pos=False, num_obstacles=8
     ),
-    "MiniGrid-KeyDoor-5x5-v0": partial(gym_keydoor_env, size=5),
-    "MiniGrid-KeyDoor-6x6-v0": partial(gym_keydoor_env, size=6),
-    "MiniGrid-KeyDoor-8x8-v0": partial(gym_keydoor_env, size=8),
-    "MiniGrid-KeyDoor-16x16-v0": partial(gym_keydoor_env, size=16),
+    "KeyDoor-5x5-v0": partial(gym_keydoor_env, size=5),
+    "KeyDoor-6x6-v0": partial(gym_keydoor_env, size=6),
+    "KeyDoor-8x8-v0": partial(gym_keydoor_env, size=8),
+    "KeyDoor-16x16-v0": partial(gym_keydoor_env, size=16),
 }
 
 
-def gym_minigrid_from_descr(descr: str) -> InnerEnv:
+def env_from_descr(descr: str) -> InnerEnv:
     try:
         return STRING_TO_GYM_CONSTRUCTOR[descr]()
     except KeyError:

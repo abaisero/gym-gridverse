@@ -35,7 +35,7 @@ class ResetFunction(Protocol):
         ...
 
 
-def reset_minigrid_empty(
+def reset_empty(
     height: int,
     width: int,
     random_agent: bool = False,
@@ -43,7 +43,7 @@ def reset_minigrid_empty(
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> State:
-    """imitates Minigrid's Empty environment"""
+    """An empty environment"""
 
     if height < 4 or width < 4:
         raise ValueError('height and width need to be at least 4')
@@ -81,7 +81,7 @@ def reset_minigrid_empty(
     return State(grid, agent)
 
 
-def reset_minigrid_rooms(  # pylint: disable=too-many-locals
+def reset_rooms(  # pylint: disable=too-many-locals
     height: int,
     width: int,
     layout: Tuple[int, int],
@@ -149,7 +149,7 @@ def reset_minigrid_rooms(  # pylint: disable=too-many-locals
     return State(grid, agent)
 
 
-def reset_minigrid_dynamic_obstacles(
+def reset_dynamic_obstacles(
     height: int,
     width: int,
     num_obstacles: int,
@@ -157,7 +157,7 @@ def reset_minigrid_dynamic_obstacles(
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> State:
-    """Returns an initial state as seen in 'Minigrid-dynamic-obstacle' environment
+    """An environment with dynamically moving obstacles
 
     Args:
         height (`int`): height of grid
@@ -172,7 +172,7 @@ def reset_minigrid_dynamic_obstacles(
 
     rng = get_gv_rng_if_none(rng)
 
-    state = reset_minigrid_empty(height, width, random_agent_pos, rng=rng)
+    state = reset_empty(height, width, random_agent_pos, rng=rng)
     vacant_positions = [
         position
         for position in state.grid.positions()
@@ -197,10 +197,10 @@ def reset_minigrid_dynamic_obstacles(
     return state
 
 
-def reset_minigrid_keydoor(
+def reset_keydoor(
     height: int, width: int, *, rng: Optional[rnd.Generator] = None
 ) -> State:
-    """Returns a state similar to the gym minigrid 'door & key' environment
+    """An environment with a key and a door
 
     Creates a height x width (including outer walls) grid with a random column
     of walls. The agent and a yellow key are randomly dropped left of the
@@ -227,7 +227,7 @@ def reset_minigrid_keydoor(
 
     rng = get_gv_rng_if_none(rng)
 
-    state = reset_minigrid_empty(height, width)
+    state = reset_empty(height, width)
     assert isinstance(state.grid[height - 2, width - 2], Goal)
 
     # Generate vertical splitting wall
@@ -256,7 +256,7 @@ def reset_minigrid_keydoor(
     return state
 
 
-def reset_minigrid_crossing(  # pylint: disable=too-many-locals
+def reset_crossing(  # pylint: disable=too-many-locals
     height: int,
     width: int,
     num_rivers: int,
@@ -264,7 +264,7 @@ def reset_minigrid_crossing(  # pylint: disable=too-many-locals
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> State:
-    """Returns a state similar to the gym minigrid 'simple/lava crossing' environment
+    """An environment with "rivers" to be crosses
 
     Creates a height x width (including wall) grid with random rows/columns of
     objects called "rivers". The agent needs to navigate river openings to
@@ -292,22 +292,22 @@ def reset_minigrid_crossing(  # pylint: disable=too-many-locals
     """
     if height < 5 or height % 2 == 0:
         raise ValueError(
-            f"Minigrid crossing environment height must be odd and >= 5, given {height}"
+            f"Crossing environment height must be odd and >= 5, given {height}"
         )
 
     if width < 5 or width % 2 == 0:
         raise ValueError(
-            f"Minigrid crossing environment width must be odd and >= 5, given {width}"
+            f"Crossing environment width must be odd and >= 5, given {width}"
         )
 
     if num_rivers < 0:
         raise ValueError(
-            f"Minigrid crossing environment number of walls must be >= 0, given {height}"
+            f"Crossing environment number of walls must be >= 0, given {height}"
         )
 
     rng = get_gv_rng_if_none(rng)
 
-    state = reset_minigrid_empty(height, width)
+    state = reset_empty(height, width)
     assert isinstance(state.grid[height - 2, width - 2], Goal)
 
     # token `horizontal` and `vertical` objects
@@ -366,13 +366,13 @@ def reset_minigrid_crossing(  # pylint: disable=too-many-locals
     return state
 
 
-def reset_minigrid_teleport(
+def reset_teleport(
     height: int, width: int, *, rng: Optional[rnd.Generator] = None
 ) -> State:
 
     rng = get_gv_rng_if_none(rng)
 
-    state = reset_minigrid_empty(height, width)
+    state = reset_empty(height, width)
     assert isinstance(state.grid[height - 2, width - 2], Goal)
 
     # Place agent on top left
@@ -413,59 +413,57 @@ def factory(
     object_type: Optional[Type[GridObject]] = None,
 ) -> ResetFunction:
 
-    if name == 'minigrid_empty':
+    if name == 'empty':
         if None in [height, width, random_agent_pos]:
             raise ValueError(f'invalid parameters for name `{name}`')
 
         return partial(
-            reset_minigrid_empty,
+            reset_empty,
             height=height,
             width=width,
             random_agent=random_agent_pos,
         )
 
-    if name == 'minigrid_rooms':
+    if name == 'rooms':
         if None in [height, width, layout]:
             raise ValueError(f'invalid parameters for name `{name}`')
 
-        return partial(
-            reset_minigrid_rooms, height=height, width=width, layout=layout
-        )
+        return partial(reset_rooms, height=height, width=width, layout=layout)
 
-    if name == 'minigrid_dynamic_obstacles':
+    if name == 'dynamic_obstacles':
         if None in [height, width, num_obstacles, random_agent_pos]:
             raise ValueError(f'invalid parameters for name `{name}`')
 
         return partial(
-            reset_minigrid_dynamic_obstacles,
+            reset_dynamic_obstacles,
             height=height,
             width=width,
             num_obstacles=num_obstacles,
             random_agent_pos=random_agent_pos,
         )
 
-    if name == 'minigrid_keydoor':
+    if name == 'keydoor':
         if None in [height, width]:
             raise ValueError(f'invalid parameters for name `{name}`')
 
-        return partial(reset_minigrid_keydoor, height, width)
+        return partial(reset_keydoor, height, width)
 
-    if name == 'minigrid_crossing':
+    if name == 'crossing':
         if None in [height, width, num_rivers, object_type]:
             raise ValueError(f'invalid parameters for name `{name}`')
 
         return partial(
-            reset_minigrid_crossing,
+            reset_crossing,
             height=height,
             width=width,
             num_rivers=num_rivers,
             object_type=object_type,
         )
 
-    if name == 'minigrid_teleport':
+    if name == 'teleport':
         if None in [height, width]:
             raise ValueError(f'invalid parameters for name `{name}`')
 
-        return partial(reset_minigrid_teleport, height=height, width=width)
+        return partial(reset_teleport, height=height, width=width)
 
     raise ValueError(f'invalid reset function name `{name}`')

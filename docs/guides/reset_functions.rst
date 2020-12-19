@@ -32,18 +32,18 @@ Provided Reset Functions
 The :py:mod:`~gym_gridverse.envs.reset_functions` module contains some
 predefined reset functions, among which:
 
-- :py:func:`~gym_gridverse.envs.reset_functions.reset_minigrid_empty` -- a
+- :py:func:`~gym_gridverse.envs.reset_functions.reset_empty` -- a
   room with a :py:class:`~gym_gridverse.grid_object.Goal`.
 
-- :py:func:`~gym_gridverse.envs.reset_functions.reset_minigrid_rooms` --
+- :py:func:`~gym_gridverse.envs.reset_functions.reset_rooms` --
   connected rooms with a :py:class:`~gym_gridverse.grid_object.Goal`.
 
-- :py:func:`~gym_gridverse.envs.reset_functions.reset_minigrid_keydoor` -- two
+- :py:func:`~gym_gridverse.envs.reset_functions.reset_keydoor` -- two
   rooms connected by a locked :py:class:`~gym_gridverse.grid_object.Door`; on
   one side is a :py:class:`~gym_gridverse.grid_object.Key`, and on the other
   side a :py:class:`~gym_gridverse.grid_object.Goal`.
     
-- :py:func:`~gym_gridverse.envs.reset_functions.reset_minigrid_dynamic_obstacles`
+- :py:func:`~gym_gridverse.envs.reset_functions.reset_dynamic_obstacles`
   -- a room with a :py:class:`~gym_gridverse.grid_object.Goal` and many
   :py:class:`~gym_gridverse.grid_object.MovingObstacle`.
 

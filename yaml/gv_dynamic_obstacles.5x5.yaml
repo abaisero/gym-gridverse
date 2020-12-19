@@ -17,7 +17,7 @@ observation_space:
   colors: [ NONE ]
 
 reset_function:
-  name: minigrid_dynamic_obstacles
+  name: dynamic_obstacles
   num_obstacles: 1
   random_agent: False
 

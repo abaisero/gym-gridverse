@@ -9,7 +9,7 @@ observation_space:
   colors: [ NONE, YELLOW ]
 
 reset_function:
-  name: minigrid_keydoor
+  name: keydoor
 
 transition_functions:
   - name: update_agent

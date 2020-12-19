@@ -17,7 +17,7 @@ observation_space:
   colors: [ NONE ]
 
 reset_function:
-  name: minigrid_rooms
+  name: rooms
   layout: [ 2, 2 ]
 
 transition_functions:

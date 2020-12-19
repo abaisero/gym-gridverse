@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from gym_gridverse.envs.reset_functions import reset_minigrid_empty
+from gym_gridverse.envs.reset_functions import reset_empty
 from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid_object import (
     Color,
@@ -164,7 +164,7 @@ def test_no_overlap_convert(
 ):  # pylint: disable = redefined-outer-name
     height, width, max_object_type, max_object_status, _ = no_overlap_fixture
 
-    state = reset_minigrid_empty(height, width, random_agent=True)
+    state = reset_empty(height, width, random_agent=True)
 
     # pylint: disable=no-member
     expected_agent_state = np.array(

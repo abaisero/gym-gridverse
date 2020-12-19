@@ -57,7 +57,7 @@ MiniWorld_ is a 3D variant similar to MiniGrid_ by the same authors.
 
 While GridVerse_ provides functionality which we found useful and/or necessary
 for our needs, each project provides something which is unique compared to the
-others,  e.g., Minigrid_ includes tasks which involve natural language
+others,  e.g., MiniGrid_ includes tasks which involve natural language
 comprehension, and MiniWorld_ incorporates a whole third dimension.  Make sure
 to browse all projects to get a clearer picture on which best suits your needs.
 
