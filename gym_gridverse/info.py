@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Callable, Iterable, List, Optional, Sequence, Set, Type
+from typing import Iterable, List, Optional, Sequence, Set, Type
 
 import numpy as np
 
 from .geometry import Area, Orientation, Position, PositionOrTuple, Shape
 from .grid_object import Floor, GridObject, Hidden, NoneGridObject
-
-ObjectFactory = Callable[[], GridObject]
-"""Signature for a function that generates grid objects on call"""
 
 
 class Grid:

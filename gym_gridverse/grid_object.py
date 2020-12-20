@@ -643,3 +643,4 @@ def factory_type(name: str) -> Type[GridObject]:
 
 
 GridObjectFactory = Callable[[], GridObject]
+"""Signature for a function that instantiates grid objects on call"""
