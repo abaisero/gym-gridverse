@@ -4,7 +4,7 @@ import numpy as np
 import numpy.random as rnd
 
 from gym_gridverse.geometry import Position
-from gym_gridverse.info import Grid
+from gym_gridverse.grid import Grid
 from gym_gridverse.rng import get_gv_rng_if_none
 
 

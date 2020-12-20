@@ -1,16 +1,17 @@
 """Defines the Observation class"""
 from dataclasses import dataclass
 
-from gym_gridverse.info import Agent, Grid
+from gym_gridverse.agent import Agent
+from gym_gridverse.grid import Grid
 
 
 @dataclass(frozen=True)
 class Observation:
     """An observation is represented by two pieces: a grid and an agent
 
-    The grid :py:class:`~gym_gridverse.info.Grid` is a two-dimensional array of
+    The grid :py:class:`~gym_gridverse.grid.Grid` is a two-dimensional array of
     :py:class:`~gym_gridverse.grid_object.GridObject`. The
-    :py:class:`~gym_gridverse.info.Agent` describes the agent's location,
+    :py:class:`~gym_gridverse.agent.Agent` describes the agent's location,
     orientation and holding item.
 
     This class offers little functionality, and basically is just a holder for

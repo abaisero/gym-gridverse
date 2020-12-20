@@ -12,8 +12,8 @@ from gym_gridverse.design import (
     draw_wall_boundary,
 )
 from gym_gridverse.geometry import Area
+from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Floor, Wall
-from gym_gridverse.info import Grid
 
 
 @pytest.mark.parametrize(

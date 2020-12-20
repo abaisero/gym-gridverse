@@ -22,6 +22,14 @@ gym\_gridverse.action module
    :undoc-members:
    :show-inheritance:
 
+gym\_gridverse.agent module
+---------------------------
+
+.. automodule:: gym_gridverse.agent
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 gym\_gridverse.design module
 ----------------------------
 
@@ -38,6 +46,14 @@ gym\_gridverse.geometry module
    :undoc-members:
    :show-inheritance:
 
+gym\_gridverse.grid module
+--------------------------
+
+.. automodule:: gym_gridverse.grid
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 gym\_gridverse.grid\_object module
 ----------------------------------
 
@@ -50,14 +66,6 @@ gym\_gridverse.gym module
 -------------------------
 
 .. automodule:: gym_gridverse.gym
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-gym\_gridverse.info module
---------------------------
-
-.. automodule:: gym_gridverse.info
    :members:
    :undoc-members:
    :show-inheritance:

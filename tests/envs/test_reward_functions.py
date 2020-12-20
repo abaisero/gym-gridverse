@@ -1,6 +1,7 @@
 import pytest
 
 from gym_gridverse.action import Action
+from gym_gridverse.agent import Agent
 from gym_gridverse.envs.reward_functions import (
     actuate_door,
     bump_into_wall,
@@ -13,6 +14,7 @@ from gym_gridverse.envs.reward_functions import (
     reach_goal,
 )
 from gym_gridverse.geometry import Orientation, Position, PositionOrTuple
+from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Color,
     Door,
@@ -21,7 +23,6 @@ from gym_gridverse.grid_object import (
     MovingObstacle,
     Wall,
 )
-from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
 

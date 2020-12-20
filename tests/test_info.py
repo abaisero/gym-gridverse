@@ -2,6 +2,7 @@ from typing import Sequence
 
 import pytest
 
+from gym_gridverse.agent import Agent
 from gym_gridverse.geometry import (
     Area,
     Orientation,
@@ -9,6 +10,7 @@ from gym_gridverse.geometry import (
     PositionOrTuple,
     Shape,
 )
+from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Box,
     Color,
@@ -19,7 +21,6 @@ from gym_gridverse.grid_object import (
     Key,
     Wall,
 )
-from gym_gridverse.info import Agent, Grid
 
 
 @pytest.mark.parametrize(

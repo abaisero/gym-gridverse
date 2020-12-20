@@ -9,6 +9,7 @@ import numpy.random as rnd
 import pytest
 
 from gym_gridverse.action import Action
+from gym_gridverse.agent import Agent
 from gym_gridverse.envs.reset_functions import reset_dynamic_obstacles
 from gym_gridverse.envs.transition_functions import (
     _step_moving_obstacle,
@@ -21,7 +22,8 @@ from gym_gridverse.envs.transition_functions import (
     step_moving_obstacles,
     step_telepod,
 )
-from gym_gridverse.geometry import Position
+from gym_gridverse.geometry import Orientation, Position, PositionOrTuple
+from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Box,
     Color,
@@ -34,7 +36,6 @@ from gym_gridverse.grid_object import (
     Telepod,
     Wall,
 )
-from gym_gridverse.info import Agent, Grid, Orientation, PositionOrTuple
 from gym_gridverse.state import State
 
 

@@ -3,9 +3,10 @@ from typing import Dict
 
 import numpy as np
 
+from gym_gridverse.agent import Agent
 from gym_gridverse.geometry import Orientation
+from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import GridObject, NoneGridObject
-from gym_gridverse.info import Agent, Grid
 from gym_gridverse.observation import Observation
 from gym_gridverse.spaces import StateSpace
 from gym_gridverse.state import State

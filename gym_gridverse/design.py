@@ -1,8 +1,8 @@
 from typing import Iterable, List
 
 from gym_gridverse.geometry import Area, Position
+from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import GridObjectFactory, Wall
-from gym_gridverse.info import Grid
 
 
 def draw_wall_boundary(grid: Grid) -> List[Position]:

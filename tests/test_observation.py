@@ -3,9 +3,10 @@ from copy import deepcopy
 
 import pytest
 
+from gym_gridverse.agent import Agent
 from gym_gridverse.geometry import Orientation
+from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Color, Floor, Key, NoneGridObject, Wall
-from gym_gridverse.info import Agent, Grid
 from gym_gridverse.observation import Observation
 
 

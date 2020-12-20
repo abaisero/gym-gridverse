@@ -6,8 +6,10 @@ import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.action import ROTATION_ACTIONS, TRANSLATION_ACTIONS, Action
+from gym_gridverse.agent import Agent
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import Position, get_manhattan_boundary
+from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Box,
     Door,
@@ -18,7 +20,6 @@ from gym_gridverse.grid_object import (
     NoneGridObject,
     Telepod,
 )
-from gym_gridverse.info import Agent, Grid
 from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
 

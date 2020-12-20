@@ -1,14 +1,15 @@
 import pytest
 
 from gym_gridverse.action import Action
+from gym_gridverse.agent import Agent
 from gym_gridverse.envs.terminating_functions import (
     bump_into_wall,
     factory,
     reach_goal,
 )
 from gym_gridverse.geometry import Orientation
+from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Goal, Wall
-from gym_gridverse.info import Agent, Grid
 from gym_gridverse.state import State
 
 

@@ -4,6 +4,7 @@ from typing import Optional, Sequence, Type
 import pytest
 
 from gym_gridverse.action import Action
+from gym_gridverse.agent import Agent
 from gym_gridverse.envs.yaml import factory as yaml_factory
 from gym_gridverse.geometry import (
     Area,
@@ -12,6 +13,7 @@ from gym_gridverse.geometry import (
     PositionOrTuple,
     Shape,
 )
+from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Color,
     Door,
@@ -21,7 +23,6 @@ from gym_gridverse.grid_object import (
     Key,
     Wall,
 )
-from gym_gridverse.info import Agent, Grid
 from gym_gridverse.observation import Observation
 from gym_gridverse.spaces import (
     ActionSpace,

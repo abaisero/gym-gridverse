@@ -13,7 +13,7 @@ A visibility function is a generative function which represents a (stochastic)
 distribution over binary visibility grids.  Using the :py:mod:`typing` standard
 library, the visibility function type is defined as a
 :py:class:`typing.Protocol` with a :py:meth:`__call__` member which receives a
-:py:class:`~gym_gridverse.info.Grid` representing the agent's restricted view,
+:py:class:`~gym_gridverse.grid.Grid` representing the agent's restricted view,
 a :py:class:`~gym_gridverse.geometry.Position` representing the agent's
 position in the grid, and an optional :py:class:`numpy.random.Generator`, and
 returns a boolean :py:class:`numpy.ndarray` indicating whether each tile is

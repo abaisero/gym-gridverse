@@ -1,8 +1,10 @@
 import numpy as np
 import pytest
 
+from gym_gridverse.agent import Agent
 from gym_gridverse.envs.reset_functions import reset_empty
 from gym_gridverse.geometry import Orientation, Position
+from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Color,
     Door,
@@ -12,7 +14,6 @@ from gym_gridverse.grid_object import (
     NoneGridObject,
     Wall,
 )
-from gym_gridverse.info import Agent, Grid
 from gym_gridverse.representations.representation import (
     default_convert,
     default_representation_space,

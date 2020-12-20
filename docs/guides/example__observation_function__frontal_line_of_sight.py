@@ -2,9 +2,9 @@ from typing import Optional
 
 import numpy.random as rnd
 
+from gym_gridverse.agent import Agent
 from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid_object import Hidden
-from gym_gridverse.info import Agent
 from gym_gridverse.observation import Observation
 from gym_gridverse.spaces import ObservationSpace
 from gym_gridverse.state import State

@@ -2,9 +2,10 @@ from typing import Optional
 
 import numpy.random as rnd
 
+from gym_gridverse.agent import Agent
 from gym_gridverse.geometry import Orientation
+from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Color, Door, Floor, Goal, Key, Wall
-from gym_gridverse.info import Agent, Grid
 from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
 

@@ -3,13 +3,14 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from gym_gridverse.agent import Agent
 from gym_gridverse.envs.observation_functions import (
     factory,
     minigrid_observation,
 )
 from gym_gridverse.geometry import Orientation, Shape
+from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Floor, GridObject, Hidden, Wall
-from gym_gridverse.info import Agent, Grid
 from gym_gridverse.spaces import ObservationSpace
 from gym_gridverse.state import State
 

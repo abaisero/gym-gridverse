@@ -5,7 +5,7 @@ import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.geometry import Area, Position
-from gym_gridverse.info import Grid
+from gym_gridverse.grid import Grid
 from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.utils.raytracing import cached_compute_rays_fancy
 
