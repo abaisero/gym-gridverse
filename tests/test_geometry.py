@@ -6,6 +6,7 @@ import pytest
 from gym_gridverse.geometry import (
     Area,
     Orientation,
+    Pose,
     Position,
     PositionOrTuple,
     get_manhattan_boundary,
@@ -281,3 +282,120 @@ def test_delta_position_rotate_basis(
     expected: Position,
 ):
     assert delta_position.rotate(orientation) == expected
+
+
+@pytest.mark.parametrize(
+    'pose,relative_position,expected',
+    [
+        # zero pose position and zero relative position
+        (Pose(Position(0, 0), Orientation.N), Position(0, 0), Position(0, 0)),
+        (Pose(Position(0, 0), Orientation.S), Position(0, 0), Position(0, 0)),
+        (Pose(Position(0, 0), Orientation.E), Position(0, 0), Position(0, 0)),
+        (Pose(Position(0, 0), Orientation.W), Position(0, 0), Position(0, 0)),
+        # zero pose position and non-zero relative position
+        (Pose(Position(0, 0), Orientation.N), Position(1, 1), Position(1, 1)),
+        (Pose(Position(0, 0), Orientation.S), Position(1, 1), Position(-1, -1)),
+        (Pose(Position(0, 0), Orientation.E), Position(1, 1), Position(1, -1)),
+        (Pose(Position(0, 0), Orientation.W), Position(1, 1), Position(-1, 1)),
+        # non-zero pose position and non-zero relative position
+        (Pose(Position(1, 2), Orientation.N), Position(1, 1), Position(2, 3)),
+        (Pose(Position(1, 2), Orientation.S), Position(1, 1), Position(0, 1)),
+        (Pose(Position(1, 2), Orientation.E), Position(1, 1), Position(2, 1)),
+        (Pose(Position(1, 2), Orientation.W), Position(1, 1), Position(0, 3)),
+    ],
+)
+def test_pose_absolute_position(
+    pose: Pose, relative_position: Position, expected: Position
+):
+    assert pose.absolute_position(relative_position) == expected
+
+
+@pytest.mark.parametrize(
+    'pose,expected',
+    [
+        # zero pose position
+        (Pose(Position(0, 0), Orientation.N), Position(-1, 0)),
+        (Pose(Position(0, 0), Orientation.S), Position(1, 0)),
+        (Pose(Position(0, 0), Orientation.E), Position(0, 1)),
+        (Pose(Position(0, 0), Orientation.W), Position(0, -1)),
+        # non-zero pose position
+        (Pose(Position(1, 2), Orientation.N), Position(0, 2)),
+        (Pose(Position(1, 2), Orientation.S), Position(2, 2)),
+        (Pose(Position(1, 2), Orientation.E), Position(1, 3)),
+        (Pose(Position(1, 2), Orientation.W), Position(1, 1)),
+    ],
+)
+def test_pose_front_position(pose: Pose, expected: Position):
+    assert pose.front_position() == expected
+
+
+@pytest.mark.parametrize(
+    'pose,relative_area,expected',
+    [
+        # zero pose position and zero area
+        (
+            Pose(Position(0, 0), Orientation.N),
+            Area((0, 0), (0, 0)),
+            Area((0, 0), (0, 0)),
+        ),
+        (
+            Pose(Position(0, 0), Orientation.S),
+            Area((0, 0), (0, 0)),
+            Area((0, 0), (0, 0)),
+        ),
+        (
+            Pose(Position(0, 0), Orientation.E),
+            Area((0, 0), (0, 0)),
+            Area((0, 0), (0, 0)),
+        ),
+        (
+            Pose(Position(0, 0), Orientation.W),
+            Area((0, 0), (0, 0)),
+            Area((0, 0), (0, 0)),
+        ),
+        # zero pose position and non-zero area
+        (
+            Pose(Position(0, 0), Orientation.N),
+            Area((1, 2), (3, 4)),
+            Area((1, 2), (3, 4)),
+        ),
+        (
+            Pose(Position(0, 0), Orientation.S),
+            Area((1, 2), (3, 4)),
+            Area((-2, -1), (-4, -3)),
+        ),
+        (
+            Pose(Position(0, 0), Orientation.E),
+            Area((1, 2), (3, 4)),
+            Area((3, 4), (-2, -1)),
+        ),
+        (
+            Pose(Position(0, 0), Orientation.W),
+            Area((1, 2), (3, 4)),
+            Area((-4, -3), (1, 2)),
+        ),
+        # non-zero pose position and non-zero area
+        (
+            Pose(Position(1, 2), Orientation.N),
+            Area((1, 2), (3, 4)),
+            Area((2, 3), (5, 6)),
+        ),
+        (
+            Pose(Position(1, 2), Orientation.S),
+            Area((1, 2), (3, 4)),
+            Area((-1, 0), (-2, -1)),
+        ),
+        (
+            Pose(Position(1, 2), Orientation.E),
+            Area((1, 2), (3, 4)),
+            Area((4, 5), (0, 1)),
+        ),
+        (
+            Pose(Position(1, 2), Orientation.W),
+            Area((1, 2), (3, 4)),
+            Area((-3, -2), (3, 4)),
+        ),
+    ],
+)
+def test_pose_absolute_area(pose: Pose, relative_area: Area, expected: Area):
+    assert pose.absolute_area(relative_area) == expected

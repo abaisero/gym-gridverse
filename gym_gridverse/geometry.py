@@ -289,6 +289,30 @@ class Orientation(enum.Enum):
         return rotations[self]
 
 
+@dataclass(unsafe_hash=True)
+class Pose:
+    position: Position
+    orientation: Orientation
+
+    def absolute_position(self, relative_position: Position) -> Position:
+        """get the absolute position from a delta position relative to the pose"""
+        return self.position + relative_position.rotate(self.orientation)
+
+    def front_position(self) -> Position:
+        """get the position in front of the pose"""
+        return self.absolute_position(Orientation.N.as_position())
+
+    def absolute_area(self, relative_area: Area) -> Area:
+        """gets absolute area corresponding to given relative area
+
+        The relative ares is relative to the agent's POV, with position (0, 0)
+        representing the agent's position.  The absolute area is the relative
+        ares translated and rotated such as to indicate the agent's POV in
+        absolute state coordinates.
+        """
+        return relative_area.rotate(self.orientation).translate(self.position)
+
+
 def get_manhattan_boundary(
     position: PositionOrTuple, distance: int
 ) -> List[Position]:
