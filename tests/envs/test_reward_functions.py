@@ -424,7 +424,7 @@ def test_pickndrop(
 @pytest.mark.parametrize(
     'name,kwargs',
     [
-        ('chain', {'reward_functions': []}),
+        ('reduce_sum', {'reward_functions': []}),
         (
             'overlap',
             {'object_type': Goal, 'reward_on': 1.0, 'reward_off': -1.0},
@@ -475,7 +475,7 @@ def test_factory_valid(name: str, kwargs):
     'name,kwargs,exception',
     [
         ('invalid', {}, ValueError),
-        ('chain', {}, ValueError),
+        ('reduce_sum', {}, ValueError),
         ('overlap', {}, ValueError),
         ('living_reward', {}, ValueError),
         ('reach_goal', {}, ValueError),

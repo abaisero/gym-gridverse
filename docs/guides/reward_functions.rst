@@ -55,8 +55,8 @@ predefined reward functions, among which:
   :py:func:`~gym_gridverse.envs.reward_functions.reach_goal` internally refers
   to :py:func:`~gym_gridverse.envs.reward_functions.overlap`.  A standard way
   to combine multiple reward functions is using
-  :py:func:`~gym_gridverse.envs.reward_functions.chain`, which returns the sum
-  of rewards determined by other reward functions.
+  :py:func:`~gym_gridverse.envs.reward_functions.reduce_sum`, which returns the
+  sum of rewards determined by other reward functions.
 
 Custom Reward Functions
 =======================

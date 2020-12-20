@@ -244,7 +244,7 @@ def factory_env_from_data(data) -> InnerEnv:
         data['transition_functions']
     )
     reward_function = factory_reward_function(
-        {'name': 'chain', 'reward_functions': data['reward_functions']}
+        {'name': 'reduce_sum', 'reward_functions': data['reward_functions']}
     )
     observation_function = factory_observation_function(
         data['observation_function'], observation_space

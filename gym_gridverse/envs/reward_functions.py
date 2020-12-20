@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Callable, Optional, Sequence, Type
+from typing import Callable, Iterator, Optional, Sequence, Type
 
 import more_itertools as mitt
 
@@ -18,8 +18,37 @@ from gym_gridverse.state import State
 RewardFunction = Callable[[State, Action, State], float]
 """Signature that all reward functions must follow"""
 
+RewardReductionFunction = Callable[[Iterator[float]], float]
+"""Signature for a float reduction function"""
 
-def chain(
+
+def reduce(
+    state: State,
+    action: Action,
+    next_state: State,
+    *,
+    reward_functions: Sequence[RewardFunction],
+    reduction: RewardReductionFunction,
+) -> float:
+    """reduction of multiple reward functions into a single boolean value
+
+    Args:
+        state (`State`):
+        action (`Action`):
+        next_state (`State`):
+        reward_functions (`Sequence[RewardFunction]`):
+        reduction (`RewardReductionFunction`):
+
+    Returns:
+        bool: reduction operator over the input reward functions
+    """
+    return reduction(
+        reward_function(state, action, next_state)
+        for reward_function in reward_functions
+    )
+
+
+def reduce_sum(
     state: State,
     action: Action,
     next_state: State,
@@ -37,9 +66,12 @@ def chain(
     Returns:
         float: sum of the evaluated input reward functions
     """
-    return sum(
-        reward_function(state, action, next_state)
-        for reward_function in reward_functions
+    return reduce(
+        state,
+        action,
+        next_state,
+        reward_functions=reward_functions,
+        reduction=sum,
     )
 
 
@@ -336,6 +368,7 @@ def factory(  # pylint: disable=too-many-branches
     name: str,
     *,
     reward_functions: Optional[Sequence[RewardFunction]] = None,
+    reduction: Optional[RewardReductionFunction] = None,
     reward: Optional[float] = None,
     reward_on: Optional[float] = None,
     reward_off: Optional[float] = None,
@@ -350,11 +383,19 @@ def factory(  # pylint: disable=too-many-branches
     reward_drop: Optional[float] = None,
 ) -> RewardFunction:
 
-    if name == 'chain':
+    if name == 'reduce':
+        if None in [reward_functions, reduction]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            reduce, reward_functions=reward_functions, reduction=reduction
+        )
+
+    if name == 'reduce_sum':
         if None in [reward_functions]:
             raise ValueError('invalid parameters for name `{name}`')
 
-        return partial(chain, reward_functions=reward_functions)
+        return partial(reduce_sum, reward_functions=reward_functions)
 
     if name == 'overlap':
         if None in [object_type, reward_on, reward_off]:

@@ -310,7 +310,7 @@ if __name__ == "__main__":
     )
 
     reward_function = partial(
-        reward_fs.chain,
+        reward_fs.reduce_sum,
         reward_functions=[
             partial(reward_fs.living_reward, reward=-0.01),
             partial(reward_fs.reach_goal, reward_on=10.0),
