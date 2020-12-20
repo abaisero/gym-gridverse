@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Callable, Optional, Sequence, Type
+from typing import Callable, Iterator, Optional, Sequence, Type
 
 from gym_gridverse.action import Action
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
@@ -10,7 +10,37 @@ TerminatingFunction = Callable[[State, Action, State], bool]
 """Signature for functions to determine whether a transition is terminal"""
 
 
-def chain_any(
+TerminatingReductionFunction = Callable[[Iterator[bool]], bool]
+"""Signature for a boolean reduction function"""
+
+
+def reduce(
+    state: State,
+    action: Action,
+    next_state: State,
+    *,
+    terminating_functions: Sequence[TerminatingFunction],
+    reduction: TerminatingReductionFunction,
+) -> bool:
+    """reduction of multiple terminating functions into a single boolean value
+
+    Args:
+        state (`State`):
+        action (`Action`):
+        next_state (`State`):
+        terminating_functions (`Sequence[TerminatingFunction]`):
+        reduction (`TerminatingReductionFunction`):
+
+    Returns:
+        bool: reduction operator over the input terminating functions
+    """
+    return reduction(
+        terminating_function(state, action, next_state)
+        for terminating_function in terminating_functions
+    )
+
+
+def reduce_any(
     state: State,
     action: Action,
     next_state: State,
@@ -28,13 +58,16 @@ def chain_any(
     Returns:
         bool: OR operator over the input terminating functions
     """
-    return any(
-        terminating_function(state, action, next_state)
-        for terminating_function in terminating_functions
+    return reduce(
+        state,
+        action,
+        next_state,
+        terminating_functions=terminating_functions,
+        reduction=any,
     )
 
 
-def chain_all(
+def reduce_all(
     state: State,
     action: Action,
     next_state: State,
@@ -52,9 +85,12 @@ def chain_all(
     Returns:
         bool: AND operator over the input terminating functions
     """
-    return all(
-        terminating_function(state, action, next_state)
-        for terminating_function in terminating_functions
+    return reduce(
+        state,
+        action,
+        next_state,
+        terminating_functions=terminating_functions,
+        reduction=all,
     )
 
 
@@ -139,20 +175,31 @@ def factory(
     name: str,
     *,
     terminating_functions: Optional[Sequence[TerminatingFunction]] = None,
+    reduction: Optional[TerminatingReductionFunction] = None,
     object_type: Optional[Type[GridObject]] = None,
 ) -> TerminatingFunction:
 
-    if name == 'chain_any':
+    if name == 'reduce':
+        if None in [terminating_functions, reduction]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(
+            reduce_any,
+            terminating_functions=terminating_functions,
+            reduction=reduction,
+        )
+
+    if name == 'reduce_any':
         if None in [terminating_functions]:
             raise ValueError('invalid parameters for name `{name}`')
 
-        return partial(chain_any, terminating_functions=terminating_functions)
+        return partial(reduce_any, terminating_functions=terminating_functions)
 
-    if name == 'chain_all':
+    if name == 'reduce_all':
         if None in [terminating_functions]:
             raise ValueError('invalid parameters for name `{name}`')
 
-        return partial(chain_all, terminating_functions=terminating_functions)
+        return partial(reduce_all, terminating_functions=terminating_functions)
 
     if name == 'overlap':
         if None in [object_type]:

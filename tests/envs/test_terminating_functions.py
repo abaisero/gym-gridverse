@@ -70,8 +70,15 @@ def test_bump_into_wall_special_case():
 @pytest.mark.parametrize(
     'name,kwargs',
     [
-        ('chain_any', {'terminating_functions': []}),
-        ('chain_all', {'terminating_functions': []}),
+        (
+            'reduce',
+            {
+                'terminating_functions': [],
+                'reduction': lambda *args, **kwargs: True,
+            },
+        ),
+        ('reduce_any', {'terminating_functions': []}),
+        ('reduce_all', {'terminating_functions': []}),
         ('overlap', {'object_type': Goal}),
         ('reach_goal', {}),
         ('bump_moving_obstacle', {}),
@@ -86,8 +93,9 @@ def test_factory_valid(name: str, kwargs):
     'name,kwargs,exception',
     [
         ('invalid', {}, ValueError),
-        ('chain_any', {}, ValueError),
-        ('chain_all', {}, ValueError),
+        ('reduce', {}, ValueError),
+        ('reduce_any', {}, ValueError),
+        ('reduce_all', {}, ValueError),
         ('overlap', {}, ValueError),
     ],
 )
