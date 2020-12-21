@@ -13,6 +13,7 @@ with open('HISTORY.rst') as history_file:
 requirements = [
     'cached_property',
     'gym',
+    'imageio',
     'more_itertools',
     'numpy',
     'pyyaml',
@@ -51,6 +52,7 @@ setup(
     scripts=[
         'scripts/gv_control_loop_gym.py',
         'scripts/gv_control_loop_outer.py',
+        'scripts/gv_record.py',
         'scripts/gv_viewer.py',
         'scripts/gv_yaml.py',
         'scripts/gv_yaml_schema.py',

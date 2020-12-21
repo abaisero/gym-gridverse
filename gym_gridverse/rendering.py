@@ -550,6 +550,7 @@ class GridVerseViewer:
         reward: Optional[float] = None,
         ret: Optional[float] = None,
         done: Optional[bool] = None,
+        return_rgb_array: bool = False,
     ):
         self._update_hud(action=action, reward=reward, ret=ret, done=done)
 
@@ -595,7 +596,9 @@ class GridVerseViewer:
 
         self._viewer.add_onetime(self._grid)
         other_drawables = [self._hud_layout] if self._draw_hud else []
-        return self._viewer.render(other_drawables=other_drawables)
+        return self._viewer.render(
+            return_rgb_array=return_rgb_array, other_drawables=other_drawables
+        )
 
     def _draw_geom_onetime(
         self,
