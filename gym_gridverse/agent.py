@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from .geometry import Area, Orientation, Position, PositionOrTuple
+from .geometry import Area, Orientation, Pose, Position, PositionOrTuple
 from .grid_object import GridObject, NoneGridObject
 
 
@@ -31,35 +31,39 @@ class Agent:
             obj (Optional[GridObject]):
         """
 
-        self.position = position  # type: ignore
-        self.orientation = orientation
+        position = Position.from_position_or_tuple(position)
+        self.pose = Pose(position, orientation)
         self.obj: GridObject = NoneGridObject() if obj is None else obj
 
     @property
     def position(self) -> Position:
-        return self._position
+        return self.pose.position
 
     @position.setter
     def position(self, position: PositionOrTuple):
-        self._position = Position.from_position_or_tuple(position)
+        self.pose.position = Position.from_position_or_tuple(position)
+
+    @property
+    def orientation(self) -> Orientation:
+        return self.pose.orientation
+
+    @orientation.setter
+    def orientation(self, orientation: Orientation):
+        self.pose.orientation = orientation
 
     def __eq__(self, other):
         if isinstance(other, Agent):
-            return (
-                self.position == other.position
-                and self.orientation == other.orientation
-                and self.obj == other.obj
-            )
+            return self.pose == other.pose and self.obj == other.obj
 
         return NotImplemented
 
     def position_relative(self, dpos: Position) -> Position:
         """get the absolute position from a delta position relative to the agent"""
-        return self.position + dpos.rotate(self.orientation)
+        return self.pose.absolute_position(dpos)
 
     def position_in_front(self) -> Position:
         """get the position in front of the agent"""
-        return self.position_relative(Orientation.N.as_position())
+        return self.pose.front_position()
 
     def get_pov_area(self, relative_area: Area) -> Area:
         """gets absolute area corresponding to given relative area
@@ -69,10 +73,10 @@ class Agent:
         ares translated and rotated such as to indicate the agent's POV in
         absolute state coordinates.
         """
-        return relative_area.rotate(self.orientation).translate(self.position)
+        return self.pose.absolute_area(relative_area)
 
     def __hash__(self):
-        return hash((self.position, self.orientation, self.obj))
+        return hash((self.pose, self.obj))
 
     def __repr__(self):
         return (
