@@ -1,6 +1,14 @@
 import os
-from dataclasses import dataclass
-from typing import Iterable, Iterator, Optional, Sequence, Union
+from dataclasses import dataclass, field
+from typing import (
+    Generic,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    TypeVar,
+)
 
 import imageio
 import more_itertools as mitt
@@ -13,12 +21,14 @@ from gym_gridverse.rendering import GridVerseViewer
 from gym_gridverse.state import State
 from gym_gridverse.utils.rl import make_return_computer
 
+Element = TypeVar('Element', State, Observation)
+
 
 @dataclass(frozen=True)
-class Data:
+class Data(Generic[Element]):
     """Data for recordings of states or observations"""
 
-    elements: Union[Sequence[State], Sequence[Observation]]
+    elements: Sequence[Element]
     actions: Sequence[Action]
     rewards: Sequence[float]
     discount: float
@@ -34,6 +44,33 @@ class Data:
     @property
     def is_observation_data(self):
         return isinstance(self.elements[0], Observation)
+
+
+@dataclass(frozen=True)
+class DataBuilder(Generic[Element]):
+    """Builds Data object interactively"""
+
+    elements: List[Element] = field(init=False, default_factory=list)
+    actions: List[Action] = field(init=False, default_factory=list)
+    rewards: List[float] = field(init=False, default_factory=list)
+    discount: float
+
+    def append0(self, element: Element):
+        if len(self.elements) != 0:
+            raise RuntimeError('cannot call DataBuilder.append0 at this point')
+
+        self.elements.append(element)
+
+    def append(self, element: Element, action: Action, reward: float):
+        if len(self.elements) == 0:
+            raise RuntimeError('cannot call DataBuilder.append at this point')
+
+        self.elements.append(element)
+        self.actions.append(action)
+        self.rewards.append(reward)
+
+    def build(self) -> Data[Element]:
+        return Data(self.elements, self.actions, self.rewards, self.discount)
 
 
 class HUD_Info(TypedDict):

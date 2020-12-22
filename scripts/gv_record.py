@@ -4,16 +4,15 @@ from __future__ import annotations
 import argparse
 import itertools as itt
 import sys
-from typing import List, Tuple
+from typing import Tuple
 
 import imageio
 import numpy.random as rnd
 
-from gym_gridverse.action import Action
 from gym_gridverse.envs.inner_env import InnerEnv
 from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 from gym_gridverse.observation import Observation
-from gym_gridverse.recording import Data, generate_images, record
+from gym_gridverse.recording import Data, DataBuilder, generate_images, record
 from gym_gridverse.state import State
 
 
@@ -57,31 +56,27 @@ def main():
         )
 
 
-def make_data(env: InnerEnv, discount: float) -> Tuple[Data, Data]:
-    states: List[State] = []
-    observations: List[Observation] = []
-    actions: List[Action] = []
-    rewards: List[float] = []
+def make_data(
+    env: InnerEnv, discount: float
+) -> Tuple[Data[State], Data[Observation]]:
+
+    state_data_builder: DataBuilder[State] = DataBuilder(discount)
+    observation_data_builder: DataBuilder[Observation] = DataBuilder(discount)
 
     env.reset()
 
-    states.append(env.state)
-    observations.append(env.observation)
+    state_data_builder.append0(env.state)
+    observation_data_builder.append0(env.observation)
 
     done = False
     while not done:
         action = rnd.choice(env.action_space.actions)
         reward, done = env.step(action)
 
-        states.append(env.state)
-        observations.append(env.observation)
-        actions.append(action)
-        rewards.append(reward)
+        state_data_builder.append(env.state, action, reward)
+        observation_data_builder.append(env.observation, action, reward)
 
-    return (
-        Data(states, actions, rewards, discount),
-        Data(observations, actions, rewards, discount),
-    )
+    return state_data_builder.build(), observation_data_builder.build()
 
 
 def get_args():
