@@ -21,7 +21,7 @@ from gym_gridverse.rendering import GridVerseViewer
 from gym_gridverse.state import State
 from gym_gridverse.utils.rl import make_return_computer
 
-Element = TypeVar('Element', State, Observation)
+Element = TypeVar('Element', State, Observation, np.ndarray)
 
 
 @dataclass(frozen=True)
@@ -44,6 +44,10 @@ class Data(Generic[Element]):
     @property
     def is_observation_data(self):
         return isinstance(self.elements[0], Observation)
+
+    @property
+    def is_image_data(self):
+        return isinstance(self.elements[0], np.ndarray)
 
 
 @dataclass(frozen=True)
@@ -80,8 +84,12 @@ class HUD_Info(TypedDict):
     done: Optional[bool]
 
 
-def generate_images(data: Data) -> Iterator[np.ndarray]:
+def generate_images(data: Data[Element]) -> Iterator[np.ndarray]:
     """Generate images associated with the input data"""
+
+    if data.is_image_data:
+        yield from data.elements
+        return
 
     shape = data.elements[0].grid.shape
     viewer = GridVerseViewer(shape)
@@ -146,8 +154,11 @@ def record_images(
 
     for filename, image in zip(filenames, images):
         print(f'creating {filename}')
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        imageio.imwrite(filename, image)
+        try:
+            imageio.imwrite(filename, image)
+        except FileNotFoundError:
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            imageio.imwrite(filename, image)
 
 
 def record_gif(
@@ -155,7 +166,7 @@ def record_gif(
     images: Sequence[np.ndarray],
     *,
     loop: int = 0,
-    fps: float,
+    fps: float = 2.0,
     duration: Optional[float] = None,
     **kwargs,  # pylint: disable=unused-argument
 ):
@@ -172,5 +183,8 @@ def record_gif(
         kwargs['duration'] = duration / len(images)
 
     print(f'creating {filename} ({len(images)} frames)')
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
-    imageio.mimwrite(filename, images, **kwargs)
+    try:
+        imageio.mimwrite(filename, images, **kwargs)
+    except FileNotFoundError:
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        imageio.mimwrite(filename, images, **kwargs)

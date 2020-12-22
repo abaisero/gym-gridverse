@@ -5,14 +5,22 @@ import argparse
 import enum
 import itertools as itt
 import time
-from typing import Dict, Generator, Union
+from typing import Dict, Generator, List, Union
 
+import numpy as np
 import pyglet
 
 from gym_gridverse.action import Action
 from gym_gridverse.envs import observation_functions as observation_fs
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
+from gym_gridverse.recording import (
+    Data,
+    DataBuilder,
+    HUD_Info,
+    generate_images,
+    record_gif,
+)
 from gym_gridverse.rendering import GridVerseViewer
 from gym_gridverse.utils.rl import make_return_computer
 
@@ -24,6 +32,7 @@ class Controls(enum.Enum):
     HIDE_STATE = enum.auto()
     FLIP_HUD = enum.auto()
     CYCLE_OBSERVATION = enum.auto()
+    RECORD_GIF = enum.auto()
 
 
 Command = Union[Action, Controls]
@@ -48,6 +57,7 @@ class KeyboardHandler:
         pyglet.window.key.H: Controls.HIDE_STATE,
         pyglet.window.key.U: Controls.FLIP_HUD,
         pyglet.window.key.O: Controls.CYCLE_OBSERVATION,
+        pyglet.window.key.G: Controls.RECORD_GIF,
     }
 
     def __init__(self):
@@ -95,6 +105,7 @@ def print_legend():
     print(fstr('h', Controls.HIDE_STATE))
     print(fstr('u', Controls.FLIP_HUD))
     print(fstr('o', Controls.CYCLE_OBSERVATION))
+    print(fstr('g', Controls.RECORD_GIF))
 
 
 def set_observation_function(env: GridWorld, name: str):
@@ -130,6 +141,25 @@ def main():  # pylint: disable=too-many-locals
     parser.add_argument(
         '--fps', type=float, default=30.0, help='frames per second'
     )
+
+    parser.add_argument(
+        '--gif-filename-state',
+        default='recordings/state.{}.gif',
+        help='state gif filename format',
+    )
+    parser.add_argument(
+        '--gif-filename-observation',
+        default='recordings/observation.{}.gif',
+        help='observation gif filename format',
+    )
+    parser.add_argument(
+        '--gif-loop', type=int, default=0, help='gif loop count'
+    )
+    parser.add_argument('--gif-fps', type=float, default=2.0, help='gif fps')
+    parser.add_argument(
+        '--gif-duration', type=float, default=None, help='gif duration'
+    )
+
     args = parser.parse_args()
     args.spf = 1 / args.fps
 
@@ -154,61 +184,114 @@ def main():  # pylint: disable=too-many-locals
         ]
     )
 
-    reset = True
-    while True:
-        if reset:
-            env.reset()
-            return_computer = make_return_computer(args.discount)
+    state_data_builder: DataBuilder[np.ndarray]
+    observation_data_builder: DataBuilder[np.ndarray]
 
-            hud_info = {
-                'action': None,
-                'reward': None,
-                'ret': None,
-                'done': None,
-            }
+    quit_ = False
+    for episode in itt.count():
+        state_data_builder = DataBuilder(args.discount)
+        observation_data_builder = DataBuilder(args.discount)
 
-            state_viewer.render(env.state, **hud_info)
-            observation_viewer.render(env.observation, **hud_info)
-            done, reset = False, False
+        return_computer = make_return_computer(args.discount)
 
-        command = keyboard_handler.get_command()
+        hud_info: HUD_Info = {
+            'action': None,
+            'reward': None,
+            'ret': None,
+            'done': None,
+        }
 
-        if isinstance(command, Action):
-            action = command
+        env.reset()
 
-            if not done and env.action_space.contains(action):
-                reward, done = env.step(action)
-                ret = return_computer(reward)
+        state_image = state_viewer.render(
+            env.state, return_rgb_array=True, **hud_info
+        )
+        observation_image = observation_viewer.render(
+            env.observation, return_rgb_array=True, **hud_info
+        )
 
-                hud_info = {
-                    'action': action,
-                    'reward': reward,
-                    'ret': ret,
-                    'done': done,
-                }
+        state_data_builder.append0(state_image)
+        observation_data_builder.append0(observation_image)
 
-        if command is Controls.HIDE_STATE:
-            state_viewer.flip_visibility()
+        done, reset, record = False, False, True
+        for _ in itt.count():
+            command = keyboard_handler.get_command()
 
-        if command is Controls.FLIP_HUD:
-            state_viewer.flip_hud()
-            observation_viewer.flip_hud()
+            if isinstance(command, Action):
+                action = command
 
-        elif command is Controls.RESET:
-            reset = True
-            continue
+                if not done and env.action_space.contains(action):
+                    reward, done = env.step(action)
+                    ret = return_computer(reward)
 
-        elif command is Controls.QUIT:
+                    hud_info = {
+                        'action': action,
+                        'reward': reward,
+                        'ret': ret,
+                        'done': done,
+                    }
+
+            if command is Controls.HIDE_STATE:
+                state_viewer.flip_visibility()
+
+            if command is Controls.FLIP_HUD:
+                state_viewer.flip_hud()
+                observation_viewer.flip_hud()
+
+            elif command is Controls.RESET:
+                reset = True
+
+            elif command is Controls.QUIT:
+                quit_ = True
+
+            elif command is Controls.CYCLE_OBSERVATION:
+                name = next(observation_function_names)
+                print(f'setting observation function: {name}')
+                set_observation_function(env, name)
+
+            state_image = state_viewer.render(
+                env.state, return_rgb_array=True, **hud_info
+            )
+            observation_image = observation_viewer.render(
+                env.observation, return_rgb_array=True, **hud_info
+            )
+
+            if isinstance(command, Action):
+                state_data_builder.append(state_image, action, reward)
+                observation_data_builder.append(
+                    observation_image, action, reward
+                )
+
+            if done and record:
+                state_data = state_data_builder.build()
+                state_images = list(generate_images(state_data))
+                record_gif(
+                    args.gif_filename_state.format(episode),
+                    state_images,
+                    loop=args.gif_loop,
+                    duration=args.gif_duration,
+                    fps=args.gif_fps,
+                )
+
+                observation_data = observation_data_builder.build()
+                observation_images = list(generate_images(observation_data))
+                record_gif(
+                    args.gif_filename_observation.format(episode),
+                    observation_images,
+                    loop=args.gif_loop,
+                    duration=args.gif_duration,
+                    fps=args.gif_fps,
+                )
+
+                record = False
+
+            time.sleep(args.spf)
+
+            if reset or quit_:
+                break
+
+        if quit_:
             break
-
-        elif command is Controls.CYCLE_OBSERVATION:
-            name = next(observation_function_names)
-            print(f'setting observation function: {name}')
-            set_observation_function(env, name)
-
-        state_viewer.render(env.state, **hud_info)
-        observation_viewer.render(env.observation, **hud_info)
-        time.sleep(args.spf)
 
 
 if __name__ == '__main__':
