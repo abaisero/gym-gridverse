@@ -1,10 +1,11 @@
 import os
 from dataclasses import dataclass
-from typing import Iterable, Iterator, Optional, Sequence, TypedDict, Union
+from typing import Iterable, Iterator, Optional, Sequence, Union
 
 import imageio
 import more_itertools as mitt
 import numpy as np
+from typing_extensions import TypedDict
 
 from gym_gridverse.action import Action
 from gym_gridverse.observation import Observation
@@ -102,7 +103,7 @@ def record(
 def record_images(
     filenames: Iterable[str],
     images: Sequence[np.ndarray],
-    **kwargs,  ## pylint: disable=unused-argument
+    **kwargs,  # pylint: disable=unused-argument
 ):
     """Create image files from input images"""
 
