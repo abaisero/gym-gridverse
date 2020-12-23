@@ -81,7 +81,7 @@ def make_data(
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('mode', choices=['images', 'gif'])
+    parser.add_argument('mode', choices=['images', 'gif', 'mp4'])
     parser.add_argument('yaml', help='env YAML file')
 
     parser.add_argument('--seed', type=int, default=None, help='env seed')

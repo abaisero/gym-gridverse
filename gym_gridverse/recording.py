@@ -144,6 +144,13 @@ def record(
         assert filename is not None  # forces typing
         record_gif(filename, images, **kwargs)
 
+    if mode == 'mp4':
+        if None in [filename]:
+            raise ValueError(f'invalid arguments for mode {mode}')
+
+        assert filename is not None  # forces typing
+        record_mp4(filename, images, **kwargs)
+
 
 def record_images(
     filenames: Iterable[str],
@@ -181,6 +188,32 @@ def record_gif(
 
     if duration is not None:
         kwargs['duration'] = duration / len(images)
+
+    print(f'creating {filename} ({len(images)} frames)')
+    try:
+        imageio.mimwrite(filename, images, **kwargs)
+    except FileNotFoundError:
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        imageio.mimwrite(filename, images, **kwargs)
+
+
+def record_mp4(
+    filename: str,
+    images: Sequence[np.ndarray],
+    *,
+    fps: float = 2.0,
+    duration: Optional[float] = None,
+    **kwargs,  # pylint: disable=unused-argument
+):
+    """Create an mp4 file from input images"""
+
+    kwargs = {
+        'format': 'mp4',
+        'fps': fps,
+    }
+
+    if duration is not None:
+        kwargs['fps'] = len(images) / duration
 
     print(f'creating {filename} ({len(images)} frames)')
     try:

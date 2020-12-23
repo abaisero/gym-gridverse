@@ -14,6 +14,7 @@ requirements = [
     'cached_property',
     'gym',
     'imageio',
+    'imageio-ffmpeg',
     'more_itertools',
     'numpy',
     'pyyaml',
