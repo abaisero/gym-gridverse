@@ -9,6 +9,8 @@ from gym_gridverse.geometry import (
     Pose,
     Position,
     PositionOrTuple,
+    StrideDirection,
+    diagonal_strides,
     get_manhattan_boundary,
 )
 
@@ -399,3 +401,72 @@ def test_pose_front_position(pose: Pose, expected: Position):
 )
 def test_pose_absolute_area(pose: Pose, relative_area: Area, expected: Area):
     assert pose.absolute_area(relative_area) == expected
+
+
+@pytest.mark.parametrize(
+    'area,stride_direction,expected',
+    [
+        (
+            Area((-1, 1), (-1, 1)),
+            StrideDirection.NW,
+            [
+                # stride 0
+                Position(1, 1),
+                # stride 1
+                Position(0, 1),
+                Position(1, 0),
+                # stride 2
+                Position(-1, 1),
+                Position(0, 0),
+                Position(1, -1),
+                # stride 3
+                Position(-1, 0),
+                Position(0, -1),
+                # stride 4
+                Position(-1, -1),
+            ],
+        ),
+        # (
+        #     Area((-1, 1), (-2, 2)),
+        #     'NW',
+        #     [
+        #     ],
+        # ),
+        (
+            Area((-1, 1), (-1, 1)),
+            StrideDirection.NE,
+            [
+                # stride 0
+                Position(1, -1),
+                # stride 1
+                Position(0, -1),
+                Position(1, 0),
+                # stride 2
+                Position(-1, -1),
+                Position(0, 0),
+                Position(1, 1),
+                # stride 3
+                Position(-1, 0),
+                Position(0, 1),
+                # stride 4
+                Position(-1, 1),
+            ],
+        ),
+        # (
+        #     Area((-1, 1), (-2, 2)),
+        #     'NE',
+        #     [
+        #         Position(0, 0),
+        #         Position(-1, 0),
+        #         Position(0, 1),
+        #         Position(-1, 1),
+        #         Position(0, 2),
+        #         Position(-1, 2),
+        #     ],
+        # ),
+    ],
+)
+def test_diagonal_strides(
+    area: Area, stride_direction: StrideDirection, expected: Sequence[Position]
+):
+    assert list(diagonal_strides(area, stride_direction)) == expected

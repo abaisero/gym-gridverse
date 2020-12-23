@@ -9,6 +9,7 @@ from gym_gridverse.envs.visibility_functions import (
     VisibilityFunction,
     full_visibility,
     minigrid_visibility,
+    partial_visibility,
     raytracing_visibility,
     stochastic_raytracing_visibility,
 )
@@ -60,6 +61,11 @@ def from_visibility(
 full_observation = partial(from_visibility, visibility_function=full_visibility)
 """`ObservationFunction` where every tile is visible"""
 
+partial_observation = partial(
+    from_visibility, visibility_function=partial_visibility
+)
+"""`ObservationFunction` which is blocked by non-transparent obstacles"""
+
 minigrid_observation = partial(
     from_visibility, visibility_function=minigrid_visibility
 )
@@ -99,6 +105,12 @@ def factory(
             raise ValueError('invalid parameters for name `{name}`')
 
         return partial(full_observation, observation_space=observation_space)
+
+    if name == 'partial_observation':
+        if None in [observation_space]:
+            raise ValueError('invalid parameters for name `{name}`')
+
+        return partial(partial_observation, observation_space=observation_space)
 
     if name == 'minigrid_observation':
         if None in [observation_space]:

@@ -362,3 +362,32 @@ def get_manhattan_boundary(
 
 
 DistanceFunction = Callable[[Position, Position], float]
+
+
+class StrideDirection(enum.Enum):
+    NW = enum.auto()
+    NE = enum.auto()
+
+
+def diagonal_strides(
+    area: Area, stride_direction: StrideDirection
+) -> Iterator[Position]:
+
+    if stride_direction == StrideDirection.NW:
+        positions = (
+            Position(area.ymax - stride + k, area.xmax - k)
+            for stride in range(area.height + area.width + 1)
+            for k in range(stride + 1)  # stride length
+        )
+
+    elif stride_direction == StrideDirection.NE:
+        positions = (
+            Position(area.ymax - stride + k, area.xmin + k)
+            for stride in range(area.height + area.width + 1)
+            for k in range(stride + 1)  # stride length
+        )
+
+    else:
+        raise NotImplementedError
+
+    yield from filter(area.contains, positions)

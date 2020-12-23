@@ -113,6 +113,7 @@ def test_minigrid_observation_partially_observable(
     [
         ('from_visibility', {'visibility_function': MagicMock()}),
         ('full_observation', {}),
+        ('partial_observation', {}),
         ('minigrid_observation', {}),
         ('raytracing_observation', {}),
         ('stochastic_raytracing_observation', {}),
@@ -129,6 +130,7 @@ def test_factory_valid(name: str, kwargs):
         ('invalid', {}, ValueError),
         ('from_visibility', {}, ValueError),
         ('full_observation', {}, ValueError),
+        ('partial_observation', {}, ValueError),
         ('minigrid_observation', {}, ValueError),
         ('raytracing_observation', {}, ValueError),
         ('stochastic_raytracing_observation', {}, ValueError),

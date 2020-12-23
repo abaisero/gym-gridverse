@@ -4,7 +4,12 @@ import numpy as np
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
-from gym_gridverse.geometry import Area, Position
+from gym_gridverse.geometry import (
+    Area,
+    Position,
+    StrideDirection,
+    diagonal_strides,
+)
 from gym_gridverse.grid import Grid
 from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.utils.raytracing import cached_compute_rays_fancy
@@ -29,6 +34,75 @@ def full_visibility(
 ) -> np.ndarray:
 
     return np.ones((grid.height, grid.width), dtype=bool)
+
+
+def partial_visibility(
+    grid: Grid,
+    position: Position,
+    *,
+    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+) -> np.ndarray:
+
+    if position.y != grid.height - 1:
+        #  gym-minigrid does not handle this case, and we are not currently
+        #  generalizing it
+        raise NotImplementedError
+
+    visibility = np.zeros((grid.height, grid.width), dtype=bool)
+    visibility[position.y, position.x] = True  # agent
+
+    # front
+    x = position.x
+    for y in range(position.y - 1, -1, -1):
+        visibility[y, x] = visibility[y + 1, x] and grid[y + 1, x].transparent
+
+    # right
+    y = position.y
+    for x in range(position.x + 1, grid.width):
+        visibility[y, x] = visibility[y, x - 1] and grid[y, x - 1].transparent
+
+    # left
+    y = position.y
+    for x in range(position.x - 1, -1, -1):
+        visibility[y, x] = visibility[y, x + 1] and grid[y, x + 1].transparent
+
+    # top left
+    positions = diagonal_strides(
+        Area(
+            (0, position.y - 1),
+            (0, position.x - 1),
+        ),
+        StrideDirection.NW,
+    )
+    for p in positions:
+        visibility[p.y, p.x] = (
+            (grid[p.y + 1, p.x].transparent and visibility[p.y + 1, p.x])
+            or (grid[p.y, p.x + 1].transparent and visibility[p.y, p.x + 1])
+            or (
+                grid[p.y + 1, p.x + 1].transparent
+                and visibility[p.y + 1, p.x + 1]
+            )
+        )
+
+    # top right
+    positions = diagonal_strides(
+        Area(
+            (0, position.y - 1),
+            (position.x + 1, grid.width - 1),
+        ),
+        StrideDirection.NE,
+    )
+    for p in positions:
+        visibility[p.y, p.x] = (
+            (grid[p.y + 1, p.x].transparent and visibility[p.y + 1, p.x])
+            or (grid[p.y, p.x - 1].transparent and visibility[p.y, p.x - 1])
+            or (
+                grid[p.y + 1, p.x - 1].transparent
+                and visibility[p.y + 1, p.x - 1]
+            )
+        )
+
+    return visibility
 
 
 def minigrid_visibility(
@@ -129,6 +203,9 @@ def factory(name: str) -> VisibilityFunction:
 
     if name == 'full_visibility':
         return full_visibility
+
+    if name == 'partial_visibility':
+        return partial_visibility
 
     if name == 'minigrid_visibility':
         return minigrid_visibility
