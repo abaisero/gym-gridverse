@@ -86,6 +86,14 @@ gym\_gridverse.outer\_env module
    :undoc-members:
    :show-inheritance:
 
+gym\_gridverse.recording module
+-------------------------------
+
+.. automodule:: gym_gridverse.recording
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 gym\_gridverse.render\_as\_string module
 ----------------------------------------
 
