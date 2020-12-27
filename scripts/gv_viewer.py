@@ -180,6 +180,7 @@ def main():  # pylint: disable=too-many-locals
         [
             'full_observation',
             'minigrid_observation',
+            'partial_observation',
             'raytracing_observation',
         ]
     )
