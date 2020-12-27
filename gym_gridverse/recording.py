@@ -21,14 +21,15 @@ from gym_gridverse.rendering import GridVerseViewer
 from gym_gridverse.state import State
 from gym_gridverse.utils.rl import make_return_computer
 
-Element = TypeVar('Element', State, Observation, np.ndarray)
+RecordingElement = TypeVar('RecordingElement', State, Observation, np.ndarray)
+"""A State, Observation, or image (np.ndarray)"""
 
 
 @dataclass(frozen=True)
-class Data(Generic[Element]):
+class Data(Generic[RecordingElement]):
     """Data for recordings of states or observations"""
 
-    elements: Sequence[Element]
+    elements: Sequence[RecordingElement]
     actions: Sequence[Action]
     rewards: Sequence[float]
     discount: float
@@ -51,21 +52,21 @@ class Data(Generic[Element]):
 
 
 @dataclass(frozen=True)
-class DataBuilder(Generic[Element]):
+class DataBuilder(Generic[RecordingElement]):
     """Builds Data object interactively"""
 
-    elements: List[Element] = field(init=False, default_factory=list)
+    elements: List[RecordingElement] = field(init=False, default_factory=list)
     actions: List[Action] = field(init=False, default_factory=list)
     rewards: List[float] = field(init=False, default_factory=list)
     discount: float
 
-    def append0(self, element: Element):
+    def append0(self, element: RecordingElement):
         if len(self.elements) != 0:
             raise RuntimeError('cannot call DataBuilder.append0 at this point')
 
         self.elements.append(element)
 
-    def append(self, element: Element, action: Action, reward: float):
+    def append(self, element: RecordingElement, action: Action, reward: float):
         if len(self.elements) == 0:
             raise RuntimeError('cannot call DataBuilder.append at this point')
 
@@ -73,7 +74,7 @@ class DataBuilder(Generic[Element]):
         self.actions.append(action)
         self.rewards.append(reward)
 
-    def build(self) -> Data[Element]:
+    def build(self) -> Data[RecordingElement]:
         return Data(self.elements, self.actions, self.rewards, self.discount)
 
 
@@ -84,7 +85,7 @@ class HUD_Info(TypedDict):
     done: Optional[bool]
 
 
-def generate_images(data: Data[Element]) -> Iterator[np.ndarray]:
+def generate_images(data: Data[RecordingElement]) -> Iterator[np.ndarray]:
     """Generate images associated with the input data"""
 
     if data.is_image_data:

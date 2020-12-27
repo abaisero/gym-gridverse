@@ -212,3 +212,8 @@ nitpick_ignore = [
     ('py:mod', 'gym_minigrid'),
     ('py:mod', 'typing'),
 ]
+
+# recognizes custom types
+autodoc_type_aliases = {
+    'RecordingElement': 'gym_gridverse.recording.RecordingElement',
+}
