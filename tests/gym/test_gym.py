@@ -4,6 +4,8 @@ import gym
 import numpy as np
 import pytest
 
+from gym_gridverse.gym import GymStateWrapper
+
 
 @pytest.mark.parametrize(
     'env_id',
@@ -63,3 +65,33 @@ def test_gym_control_loop():
 
         if done:
             env.reset()
+
+
+@pytest.mark.parametrize(
+    'env_id,representation',
+    [
+        ('GridVerse-Empty-5x5-v0', 'default'),
+        ('GridVerse-Empty-5x5-v0', 'no_overlap'),
+        ('GridVerse-KeyDoor-16x16-v0', 'default'),
+        ('GridVerse-KeyDoor-16x16-v0', 'no_overlap'),
+    ]
+)
+def test_gym_state_wrapper(env_id: str, representation: str):
+    env = gym.make(env_id)
+    with pytest.raises(AssertionError):
+        wrapped_env = GymStateWrapper(env)
+    env.set_state_representation(representation)
+    o_space = env.observation_space
+    wrapped_env = GymStateWrapper(env)
+    so_space = wrapped_env.observation_space
+    so = wrapped_env.reset()
+    np.testing.assert_equal(so, wrapped_env.state)
+    np.testing.assert_equal(so_space, env.state_space)
+    np.testing.assert_equal(o_space, env.unwrapped.observation_space)
+    for _ in range(10):
+        action = wrapped_env.action_space.sample()
+        o, _, done, _ = wrapped_env.step(action)
+        np.testing.assert_equal(o, wrapped_env.state)
+        if done:
+            env.reset()
+
