@@ -2,10 +2,10 @@ import time
 from functools import partial
 from typing import Callable, Dict, List, Optional
 
-import gym
 import numpy as np
-from gym.utils import seeding
 
+import gym
+from gym.utils import seeding
 from gym_gridverse.envs import InnerEnv, factory
 from gym_gridverse.outer_env import OuterEnv
 from gym_gridverse.representations.observation_representations import (
@@ -150,6 +150,35 @@ class GymEnvironment(gym.Env):
         if self._observation_viewer is not None:
             self._observation_viewer.close()
             self._observation_viewer = None
+
+
+class GymStateWrapper(gym.Wrapper):
+    """
+    Gym Wrapper to replace the standard observation representation with state instead.
+
+    Doesn't change underlying environment, won't change render
+    """
+
+    def __init__(self, env: GymEnvironment):
+        # Make sure we have a valid state representation
+        if env.state_space is None:
+            raise ValueError('GymEnvironment does not have a state space')
+
+        super().__init__(env)
+        self.observation_space = env.state_space
+
+    @property
+    def observation(self) -> Dict[str, np.ndarray]:
+        return self.env.state
+
+    def reset(self) -> Dict[str, np.ndarray]:
+        self.env.reset()
+        return self.observation
+
+    def step(self, action: int):
+        observation, reward, done, info = self.env.step(action)
+        info['observation'] = observation
+        return self.observation, reward, done, info
 
 
 env_ids = []

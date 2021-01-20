@@ -11,6 +11,9 @@ from gym_gridverse.outer_env import OuterEnv
 from gym_gridverse.representations.observation_representations import (
     DefaultObservationRepresentation,
 )
+from gym_gridverse.representations.state_representations import (
+    DefaultStateRepresentation,
+)
 
 
 def make_env(id_or_path: str) -> GymEnvironment:
@@ -18,12 +21,13 @@ def make_env(id_or_path: str) -> GymEnvironment:
         print('Loading using gym.make')
         env = gym.make(id_or_path)
 
-    except gym.error.UnregisteredEnv:
+    except gym.error.Error:
         print(f'Environment with id {id_or_path} not found.')
         print('Loading using YAML')
         inner_env = factory_env_from_yaml(id_or_path)
-        rep = DefaultObservationRepresentation(inner_env.observation_space)
-        outer_env = OuterEnv(inner_env, observation_rep=rep)
+        obs_rep = DefaultObservationRepresentation(inner_env.observation_space)
+        state_rep = DefaultStateRepresentation(inner_env.state_space)
+        outer_env = OuterEnv(inner_env, observation_rep=obs_rep, state_rep=state_rep)
         env = GymEnvironment.from_environment(outer_env)
 
     else:
