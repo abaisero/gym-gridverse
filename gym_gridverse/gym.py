@@ -26,6 +26,14 @@ def outer_space_to_gym_space(space: Dict[str, np.ndarray]) -> gym.spaces.Space:
 
 
 class GymEnvironment(gym.Env):
+    """ OpenAI Gym environment interface for GridVerse environment
+
+    Args:
+        constructor: gym_gridverse.OuterEnv constructor used to construct environment
+        state_rep_override: Optional override of OuterEnv state representation (Defaults to None, no change).
+        obs_rep_override: Optional override of OuterEnv observation representation (Defaults to None, no change).
+
+    """
     metadata = {
         'render.modes': ['human', 'human_state', 'human_observation'],
         'video.frames_per_second': 50,
@@ -33,24 +41,30 @@ class GymEnvironment(gym.Env):
 
     # NOTE accepting an environment instance as input is a bad idea because it
     # would need to be instantiated during gym registration
-    def __init__(self, constructor: Callable[[], OuterEnv]):
+    def __init__(self, constructor: Callable[[], OuterEnv],
+                 state_rep_override: [str, None] = None,
+                 obs_rep_override: [str, None] = None):
         super().__init__()
         self.outer_env = constructor()
-
-        self.state_space = (
-            outer_space_to_gym_space(self.outer_env.state_rep.space)
-            if self.outer_env.state_rep is not None
-            else None
-        )
+        if state_rep_override is not None:
+            self.set_state_representation(state_rep_override)
+        else:
+            self.state_space = (
+                outer_space_to_gym_space(self.outer_env.state_rep.space)
+                if self.outer_env.state_rep is not None
+                else None
+            )
+        if obs_rep_override is not None:
+            self.set_observation_representation(obs_rep_override)
+        else:
+            self.observation_space = (
+                outer_space_to_gym_space(self.outer_env.observation_rep.space)
+                if self.outer_env.observation_rep is not None
+                else None
+            )
         self.action_space = gym.spaces.Discrete(
             self.outer_env.action_space.num_actions
         )
-        self.observation_space = (
-            outer_space_to_gym_space(self.outer_env.observation_rep.space)
-            if self.outer_env.observation_rep is not None
-            else None
-        )
-
         # self._state_viewer: Optional[GridVerseViewer] = None
         # self._observation_viewer: Optional[GridVerseViewer] = None
         self._state_viewer = None

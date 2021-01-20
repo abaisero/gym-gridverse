@@ -27,8 +27,28 @@ import pytest
         'GridVerse-KeyDoor-16x16-v0',
     ],
 )
-def test_gym_registration(env_id: str):
-    gym.make(env_id)
+@pytest.mark.parametrize(
+    'obs_rep_override',
+    [
+        None,
+        'default',
+        'no_overlap'
+    ]
+)
+@pytest.mark.parametrize(
+    'state_rep_override',
+    [
+        None,
+        'default',
+        'no_overlap'
+    ]
+)
+def test_gym_registration(env_id: str, obs_rep_override: [str, None], state_rep_override: [str, None]):
+    e0 = gym.make(env_id)
+    e = gym.make(env_id, obs_rep_override=obs_rep_override, state_rep_override=state_rep_override)
+    assert state_rep_override is None or e.state_space is not None
+    if obs_rep_override not in (None, 'default'): e0.set_observation_representation(obs_rep_override)
+    np.testing.assert_equal(e.observation_space, e0.observation_space)
 
 
 @pytest.mark.parametrize(
