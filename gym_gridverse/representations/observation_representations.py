@@ -44,7 +44,7 @@ class DefaultObservationRepresentation(ObservationRepresentation):
 
         # observaiton does not include the position and orientation returned by
         # the default implementation
-        space['agent'] = space['agent'][3:]
+        space['agent'] = space['legacy-agent'][3:]
 
         return space
 
@@ -54,9 +54,9 @@ class DefaultObservationRepresentation(ObservationRepresentation):
 
         conversion = default_convert(o.grid, o.agent)
 
-        # observaiton does not include the position and orientation returned by
+        # observation does not include the position and orientation returned by
         # the default implementation
-        conversion['agent'] = conversion['agent'][3:]
+        conversion['agent'] = conversion['legacy-agent'][3:]
 
         return conversion
 

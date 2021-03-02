@@ -45,22 +45,39 @@ def test_default_representation_space(
         max_color_value,
     ) = default_representation_fixture
 
-    max_channel_values = [max_obj_type, max_obj_state, max_color_value]
-    expected_agent_space = [
-        height,
-        width,
-        len(Orientation),
-        *max_channel_values,
-    ]
-
-    expected_grid_space = np.array([[max_channel_values * 2] * width] * height)
+    expected_item_space = [max_obj_type, max_obj_state, max_color_value]
+    expected_grid_space = np.array(
+        [[[*expected_item_space, 2]] * width] * height
+    )
 
     space = default_representation_space(
         max_obj_type, max_obj_state, max_color_value, width, height
     )
 
     np.testing.assert_array_equal(space['grid'], expected_grid_space)
-    np.testing.assert_array_equal(space['agent'], expected_agent_space)
+    np.testing.assert_array_equal(space['item'], expected_item_space)
+    np.testing.assert_array_equal(
+        space['agent'], [height - 1, width - 1, 1, 1, 1, 1]
+    )
+
+    # legacy
+    expected_legacy_grid_space = np.array(
+        [[expected_item_space * 2] * width] * height
+    )
+    np.testing.assert_array_equal(
+        space['legacy-grid'], expected_legacy_grid_space
+    )
+    np.testing.assert_array_equal(
+        space['legacy-agent'],
+        [
+            height - 1,
+            width - 1,
+            len(Orientation) - 1,
+            max_obj_type,
+            max_obj_state,
+            max_color_value,
+        ],
+    )
 
 
 def test_default_representation_convert(
@@ -74,7 +91,14 @@ def test_default_representation_convert(
 
     floor_index = Floor.type_index  # pylint: disable=no-member
 
-    expected_agent_representation = np.array(
+    # y, x, one-hot encoding with North (== 0)
+    expected_agent_representation = [0, 2, 1, 0, 0, 0]
+    expected_item_representation = [
+        agent.obj.type_index,
+        agent.obj.state_index,
+        agent.obj.color.value,
+    ]
+    expected_legacy_agent_representation = np.array(
         [
             0,
             2,
@@ -86,38 +110,60 @@ def test_default_representation_convert(
     )
 
     expected_agent_position_channels = np.zeros((3, 3, 3))
-    # pylint: disable=no-member
     expected_agent_position_channels[:, :, 0] = NoneGridObject.type_index
     expected_agent_position_channels[:, :, 1] = 0  # status
     expected_agent_position_channels[:, :, 2] = Color.NONE.value
 
-    expected_agent_position_channels[0, 2] = expected_agent_representation[3:]
+    expected_agent_position_channels[
+        0, 2
+    ] = expected_legacy_agent_representation[3:]
 
     expected_grid_representation = np.array(
         [
-            [[floor_index, 0, 0], [floor_index, 0, 0], [floor_index, 0, 0]],
             [
-                [floor_index, 0, 0],
+                [floor_index, 0, 0, 0],
+                [floor_index, 0, 0, 0],
                 [
-                    Door.type_index,  # pylint: disable=no-member
+                    floor_index,
+                    0,
+                    0,
+                    1,  # agent is on this position: so last value set to 1
+                ],
+            ],
+            [
+                [floor_index, 0, 0, 0],
+                [
+                    Door.type_index,
                     Door.Status.CLOSED.value,
                     Color.BLUE.value,
+                    0,
                 ],
-                [floor_index, 0, 0],
+                [floor_index, 0, 0, 0],
             ],
-            [[floor_index, 0, 0], [floor_index, 0, 0], [floor_index, 0, 0]],
+            [
+                [floor_index, 0, 0, 0],
+                [floor_index, 0, 0, 0],
+                [floor_index, 0, 0, 0],
+            ],
         ]
     )
 
     rep = default_convert(grid, agent)
 
-    np.testing.assert_array_equal(
-        rep['grid'][:, :, :3], expected_agent_position_channels
-    )
-    np.testing.assert_array_equal(
-        rep['grid'][:, :, 3:], expected_grid_representation
-    )
+    np.testing.assert_array_equal(rep['grid'], expected_grid_representation)
     np.testing.assert_array_equal(rep['agent'], expected_agent_representation)
+    np.testing.assert_array_equal(rep['item'], expected_item_representation)
+
+    # legacy
+    np.testing.assert_array_equal(
+        rep['legacy-grid'][:, :, :3], expected_agent_position_channels
+    )
+    np.testing.assert_array_equal(
+        rep['legacy-grid'][:, :, 3:], expected_grid_representation[:, :, :3]
+    )
+    np.testing.assert_array_equal(
+        rep['legacy-agent'], expected_legacy_agent_representation
+    )
 
 
 @pytest.fixture
@@ -146,24 +192,41 @@ def test_no_overlap_space(
 
     max_channel_values = [
         max_object_type,
-        max_object_type + max_object_status,
-        max_object_type + max_object_status + max_color_value,
+        max_object_type + max_object_status + 1,
+        max_object_type + max_object_status + max_color_value + 2,
     ]
 
-    expected_grid_space = np.array([[max_channel_values * 2] * width] * height)
+    expected_grid_object_space = np.array(
+        [[max_channel_values] * width] * height
+    )
 
     space = no_overlap_representation_space(
         max_object_type, max_object_status, max_color_value, width, height
     )
 
-    np.testing.assert_array_equal(space['grid'], expected_grid_space)
-    np.testing.assert_array_equal(space['agent'], max_channel_values)
+    np.testing.assert_array_equal(
+        space['grid'][:, :, :3], expected_grid_object_space
+    )
+    np.testing.assert_array_equal(space['item'], max_channel_values)
+    assert 'agent' not in space
+
+    # legacy
+    expected_legacy_grid_space = np.array(
+        [[max_channel_values * 2] * width] * height
+    )
+
+    np.testing.assert_array_equal(
+        space['legacy-grid'], expected_legacy_grid_space
+    )
+    np.testing.assert_array_equal(space['legacy-agent'], max_channel_values)
 
 
 def test_no_overlap_convert(
     no_overlap_fixture,
 ):  # pylint: disable = redefined-outer-name
     height, width, max_object_type, max_object_status, _ = no_overlap_fixture
+    first_item_status = max_object_type + 1
+    first_item_color = max_object_type + max_object_status + 2
 
     state = reset_empty(height, width, random_agent=True)
 
@@ -171,16 +234,16 @@ def test_no_overlap_convert(
     expected_agent_state = np.array(
         [
             NoneGridObject.type_index,
-            max_object_type,
-            max_object_type + max_object_status,
+            first_item_status,
+            first_item_color,
         ]
     )
 
     expected_agent_position_channels = np.zeros((height, width, 3))
     expected_agent_position_channels[:, :] = [
-        NoneGridObject.type_index,  # pylint: disable=no-member
-        max_object_type,  # status
-        max_object_status + max_object_type + Color.NONE.value,
+        NoneGridObject.type_index,
+        first_item_status,
+        first_item_color,
     ]
 
     expected_agent_position_channels[
@@ -192,8 +255,8 @@ def test_no_overlap_convert(
             [
                 [
                     Floor.type_index,
-                    max_object_type,
-                    max_object_type + max_object_status,
+                    first_item_status,
+                    first_item_color,
                 ]
             ]
             * width
@@ -204,40 +267,49 @@ def test_no_overlap_convert(
     # we expect walls to be around
     expected_grid_state[0, :] = [
         Wall.type_index,
-        max_object_type,
-        max_object_type + max_object_status,
+        first_item_status,
+        first_item_color,
     ]
     expected_grid_state[height - 1, :] = [
         Wall.type_index,
-        max_object_type,
-        max_object_type + max_object_status,
+        first_item_status,
+        first_item_color,
     ]
     expected_grid_state[:, 0] = [
         Wall.type_index,
-        max_object_type,
-        max_object_type + max_object_status,
+        first_item_status,
+        first_item_color,
     ]
     expected_grid_state[:, width - 1] = [
         Wall.type_index,
-        max_object_type,
-        max_object_type + max_object_status,
+        first_item_status,
+        first_item_color,
     ]
 
     # we expect goal to be in corner
     expected_grid_state[height - 2, width - 2, :] = [
         Goal.type_index,
-        max_object_type,
-        max_object_type + max_object_status,
+        first_item_status,
+        first_item_color,
     ]
 
-    state_as_array = no_overlap_convert(
+    representation = no_overlap_convert(
         state.grid, state.agent, max_object_type, max_object_status
     )
 
+    np.testing.assert_array_equal(representation['grid'], expected_grid_state)
+    np.testing.assert_array_equal(representation['item'], expected_agent_state)
+
+    assert 'agent' not in representation
+
+    # legacy
     np.testing.assert_array_equal(
-        state_as_array['grid'][:, :, :3], expected_agent_position_channels
+        representation['legacy-grid'][:, :, :3],
+        expected_agent_position_channels,
     )
     np.testing.assert_array_equal(
-        state_as_array['grid'][:, :, 3:], expected_grid_state
+        representation['legacy-grid'][:, :, 3:], expected_grid_state
     )
-    np.testing.assert_array_equal(state_as_array['agent'], expected_agent_state)
+    np.testing.assert_array_equal(
+        representation['legacy-agent'], expected_agent_state
+    )
