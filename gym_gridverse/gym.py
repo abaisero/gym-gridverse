@@ -19,7 +19,7 @@ from gym_gridverse.representations.state_representations import (
 def outer_space_to_gym_space(space: Dict[str, np.ndarray]) -> gym.spaces.Space:
     return gym.spaces.Dict(
         {
-            k: gym.spaces.Box(low=np.zeros_like(v), high=v, dtype=np.int)
+            k: gym.spaces.Box(low=np.zeros_like(v), high=v, dtype=int)
             for k, v in space.items()
         }
     )
