@@ -47,17 +47,17 @@ def test_default_representation_space(
 
     expected_item_space = [max_obj_type, max_obj_state, max_color_value]
     expected_grid_space = np.array(
-        [[[*expected_item_space, 2]] * width] * height
+        [[[*expected_item_space, 1]] * width] * height
     )
 
     space = default_representation_space(
         max_obj_type, max_obj_state, max_color_value, width, height
     )
 
-    np.testing.assert_array_equal(space['grid'], expected_grid_space)
-    np.testing.assert_array_equal(space['item'], expected_item_space)
+    np.testing.assert_array_equal(space['grid'].upper_bound, expected_grid_space)
+    np.testing.assert_array_equal(space['item'].upper_bound, expected_item_space)
     np.testing.assert_array_equal(
-        space['agent'], [height - 1, width - 1, 1, 1, 1, 1]
+        space['agent'].upper_bound, [height - 1, width - 1, 1, 1, 1, 1]
     )
 
     # legacy
@@ -65,10 +65,10 @@ def test_default_representation_space(
         [[expected_item_space * 2] * width] * height
     )
     np.testing.assert_array_equal(
-        space['legacy-grid'], expected_legacy_grid_space
+        space['legacy-grid'].upper_bound, expected_legacy_grid_space
     )
     np.testing.assert_array_equal(
-        space['legacy-agent'],
+        space['legacy-agent'].upper_bound,
         [
             height - 1,
             width - 1,
@@ -205,9 +205,9 @@ def test_no_overlap_space(
     )
 
     np.testing.assert_array_equal(
-        space['grid'][:, :, :3], expected_grid_object_space
+        space['grid'].upper_bound[:, :, :3], expected_grid_object_space
     )
-    np.testing.assert_array_equal(space['item'], max_channel_values)
+    np.testing.assert_array_equal(space['item'].upper_bound, max_channel_values)
     assert 'agent' not in space
 
     # legacy
@@ -216,9 +216,9 @@ def test_no_overlap_space(
     )
 
     np.testing.assert_array_equal(
-        space['legacy-grid'], expected_legacy_grid_space
+        space['legacy-grid'].upper_bound, expected_legacy_grid_space
     )
-    np.testing.assert_array_equal(space['legacy-agent'], max_channel_values)
+    np.testing.assert_array_equal(space['legacy-agent'].upper_bound, max_channel_values)
 
 
 def test_no_overlap_convert(

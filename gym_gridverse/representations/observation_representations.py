@@ -10,7 +10,9 @@ from gym_gridverse.representations.representation import (
     no_overlap_convert,
     no_overlap_representation_space,
 )
+from gym_gridverse.representations.spaces import CategoricalSpace
 from gym_gridverse.spaces import ObservationSpace
+from gym_gridverse.representations.spaces import Space
 
 
 class DefaultObservationRepresentation(ObservationRepresentation):
@@ -29,7 +31,7 @@ class DefaultObservationRepresentation(ObservationRepresentation):
         self.observation_space = observation_space
 
     @property
-    def space(self) -> Dict[str, np.ndarray]:
+    def space(self) -> Dict[str, Space]:
         max_type_index = self.observation_space.max_grid_object_type
         max_state_index = self.observation_space.max_grid_object_status
         max_color_value = self.observation_space.max_object_color
@@ -42,13 +44,17 @@ class DefaultObservationRepresentation(ObservationRepresentation):
             self.observation_space.grid_shape.height,
         )
 
-        # observaiton does not include the position and orientation returned by
+        # observation does not include the position and orientation returned by
         # the default implementation
-        space['agent'] = space['legacy-agent'][3:]
+        legacy_agent_upper_bound = space['legacy-agent'].upper_bound[3:]
+        space['legacy-agent'] = CategoricalSpace(legacy_agent_upper_bound)
+
+        # observation does not include state information about the agent
+        del space['agent']
 
         return space
 
-    def convert(self, o: Observation) -> Dict[str, np.ndarray]:
+    def convert(self, o: Observation) -> Dict:
         if not self.observation_space.contains(o):
             raise ValueError('Input observation not contained in space')
 
@@ -56,7 +62,7 @@ class DefaultObservationRepresentation(ObservationRepresentation):
 
         # observation does not include the position and orientation returned by
         # the default implementation
-        conversion['agent'] = conversion['legacy-agent'][3:]
+        conversion = conversion['legacy-agent'][3:]
 
         return conversion
 
@@ -75,18 +81,23 @@ class NoOverlapObservationRepresentation(ObservationRepresentation):
         self.observation_space = observation_space
 
     @property
-    def space(self) -> Dict[str, np.ndarray]:
+    def space(self) -> Dict[str, Space]:
         max_type_index = self.observation_space.max_grid_object_type
         max_state_index = self.observation_space.max_grid_object_status
         max_color_value = self.observation_space.max_object_color
 
-        return no_overlap_representation_space(
+        space = no_overlap_representation_space(
             max_type_index,
             max_state_index,
             max_color_value,
             self.observation_space.grid_shape.width,
             self.observation_space.grid_shape.height,
         )
+
+        # agent state variables are not observable
+        del space['agent']
+
+        return space
 
     def convert(self, o: Observation) -> Dict[str, np.ndarray]:
         if not self.observation_space.contains(o):
