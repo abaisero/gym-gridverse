@@ -2,24 +2,25 @@ import time
 from functools import partial
 from typing import Callable, Dict, List, Optional
 
-import numpy as np
-
 import gym
+import numpy as np
 from gym.utils import seeding
+
 from gym_gridverse.envs import InnerEnv, factory
 from gym_gridverse.outer_env import OuterEnv
 from gym_gridverse.representations.observation_representations import (
     create_observation_representation,
 )
+from gym_gridverse.representations.spaces import Space
 from gym_gridverse.representations.state_representations import (
     create_state_representation,
 )
 
 
-def outer_space_to_gym_space(space: Dict[str, np.ndarray]) -> gym.spaces.Space:
+def outer_space_to_gym_space(space: Dict[str, Space]) -> gym.spaces.Space:
     return gym.spaces.Dict(
         {
-            k: gym.spaces.Box(low=np.zeros_like(v), high=v, dtype=int)
+            k: gym.spaces.Box(low=v.lower_bound, high=v.upper_bound, dtype=int)
             for k, v in space.items()
         }
     )

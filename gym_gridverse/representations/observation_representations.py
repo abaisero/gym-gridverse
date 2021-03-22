@@ -10,18 +10,17 @@ from gym_gridverse.representations.representation import (
     no_overlap_convert,
     no_overlap_representation_space,
 )
-from gym_gridverse.representations.spaces import CategoricalSpace
+from gym_gridverse.representations.spaces import CategoricalSpace, Space
 from gym_gridverse.spaces import ObservationSpace
-from gym_gridverse.representations.spaces import Space
 
 
 class DefaultObservationRepresentation(ObservationRepresentation):
     """The default representation for observations
 
     Simply returns the observation as indices. See
-    `gym_gridverse.representations.representation.default_representation_space`
-    and `gym_gridverse.representations.representation.default_convert` for more
-    information
+    :class:`~gym_gridverse.representations.representation.default_representation_space`
+    and :class:`~gym_gridverse.representations.representation.default_convert`
+    for more information
 
     Note that the observation does not include the position or orientation of
     the agent in the agent aspect
@@ -62,7 +61,9 @@ class DefaultObservationRepresentation(ObservationRepresentation):
 
         # observation does not include the position and orientation returned by
         # the default implementation
-        conversion = conversion['legacy-agent'][3:]
+        conversion['legacy-agent'] = conversion['legacy-agent'][3:]
+
+        del conversion['agent']
 
         return conversion
 
@@ -72,9 +73,11 @@ class NoOverlapObservationRepresentation(ObservationRepresentation):
 
     Simply returns the observation as indices, except that channels do not
     overlap. See
-    `gym_gridverse.representations.representation.no_overlap_representation_space`
-    and `gym_gridverse.representations.representation.no_overlap_convert` for
-    more information
+    :func:`~gym_gridverse.representations.representation.no_overlap_representation_space`
+    and
+    :func:`~gym_gridverse.representations.representation.no_overlap_convert`
+    for more information
+
     """
 
     def __init__(self, observation_space: ObservationSpace):
@@ -106,9 +109,13 @@ class NoOverlapObservationRepresentation(ObservationRepresentation):
         max_type_index = self.observation_space.max_grid_object_type
         max_state_index = self.observation_space.max_grid_object_status
 
-        return no_overlap_convert(
+        conversion = no_overlap_convert(
             o.grid, o.agent, max_type_index, max_state_index
         )
+
+        del conversion['agent']
+
+        return conversion
 
 
 class CompactObservationRepresentation(ObservationRepresentation):

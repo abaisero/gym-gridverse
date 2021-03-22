@@ -18,9 +18,10 @@ class DefaultStateRepresentation(StateRepresentation):
     """The default representation for state
 
     Simply returns the state as indices. See
-    `gym_gridverse.representations.representation.default_representation_space`
-    and `gym_gridverse.representations.representation.default_convert` for more
-    information
+    :func:`gym_gridverse.representations.representation.default_representation_space`
+    and :func:`gym_gridverse.representations.representation.default_convert`
+    for more information
+
     """
 
     @property

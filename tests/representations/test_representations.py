@@ -54,8 +54,12 @@ def test_default_representation_space(
         max_obj_type, max_obj_state, max_color_value, width, height
     )
 
-    np.testing.assert_array_equal(space['grid'].upper_bound, expected_grid_space)
-    np.testing.assert_array_equal(space['item'].upper_bound, expected_item_space)
+    np.testing.assert_array_equal(
+        space['grid'].upper_bound, expected_grid_space
+    )
+    np.testing.assert_array_equal(
+        space['item'].upper_bound, expected_item_space
+    )
     np.testing.assert_array_equal(
         space['agent'].upper_bound, [height - 1, width - 1, 1, 1, 1, 1]
     )
@@ -208,7 +212,11 @@ def test_no_overlap_space(
         space['grid'].upper_bound[:, :, :3], expected_grid_object_space
     )
     np.testing.assert_array_equal(space['item'].upper_bound, max_channel_values)
-    assert 'agent' not in space
+
+    np.testing.assert_equal(
+        space['agent'].upper_bound, [height - 1, width - 1, 1, 1, 1, 1]
+    )
+    np.testing.assert_equal(space['agent'].lower_bound, np.zeros(6, dtype=int))
 
     # legacy
     expected_legacy_grid_space = np.array(
@@ -218,7 +226,9 @@ def test_no_overlap_space(
     np.testing.assert_array_equal(
         space['legacy-grid'].upper_bound, expected_legacy_grid_space
     )
-    np.testing.assert_array_equal(space['legacy-agent'].upper_bound, max_channel_values)
+    np.testing.assert_array_equal(
+        space['legacy-agent'].upper_bound, max_channel_values
+    )
 
 
 def test_no_overlap_convert(
@@ -300,7 +310,11 @@ def test_no_overlap_convert(
     np.testing.assert_array_equal(representation['grid'], expected_grid_state)
     np.testing.assert_array_equal(representation['item'], expected_agent_state)
 
-    assert 'agent' not in representation
+    expected_agent_representation = np.zeros(6, dtype=int)
+    expected_agent_representation[0] = state.agent.position.y
+    expected_agent_representation[1] = state.agent.position.x
+    expected_agent_representation[2 + state.agent.orientation.value] = 1
+    np.testing.assert_equal(representation['agent'], expected_agent_representation)
 
     # legacy
     np.testing.assert_array_equal(
