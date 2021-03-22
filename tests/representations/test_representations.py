@@ -47,7 +47,7 @@ def test_default_representation_space(
 
     expected_item_space = [max_obj_type, max_obj_state, max_color_value]
     expected_grid_space = np.array(
-        [[[*expected_item_space, 1]] * width] * height
+        [[expected_item_space] * width] * height
     )
 
     space = default_representation_space(
@@ -58,10 +58,19 @@ def test_default_representation_space(
         space['grid'].upper_bound, expected_grid_space
     )
     np.testing.assert_array_equal(
+        space['grid'].lower_bound, np.zeros((height, width, 3), dtype=int)
+    )
+    np.testing.assert_equal(space['agent_id_grid'].upper_bound, np.ones((height, width), dtype=int))
+    np.testing.assert_equal(space['agent_id_grid'].lower_bound, np.zeros((height, width), dtype=int))
+    np.testing.assert_array_equal(
         space['item'].upper_bound, expected_item_space
     )
+    np.testing.assert_array_equal(space['item'].lower_bound, [0, 0, 0])
     np.testing.assert_array_equal(
         space['agent'].upper_bound, [height - 1, width - 1, 1, 1, 1, 1]
+    )
+    np.testing.assert_array_equal(
+        space['agent'].lower_bound, np.zeros(6, dtype=int)
     )
 
     # legacy
@@ -70,6 +79,10 @@ def test_default_representation_space(
     )
     np.testing.assert_array_equal(
         space['legacy-grid'].upper_bound, expected_legacy_grid_space
+    )
+    np.testing.assert_array_equal(
+        space['legacy-grid'].lower_bound,
+        np.zeros((height, width, 6), dtype=int),
     )
     np.testing.assert_array_equal(
         space['legacy-agent'].upper_bound,
@@ -81,6 +94,10 @@ def test_default_representation_space(
             max_obj_state,
             max_color_value,
         ],
+    )
+    np.testing.assert_array_equal(
+        space['legacy-agent'].lower_bound,
+        np.zeros(6, dtype=int),
     )
 
 
@@ -125,36 +142,37 @@ def test_default_representation_convert(
     expected_grid_representation = np.array(
         [
             [
-                [floor_index, 0, 0, 0],
-                [floor_index, 0, 0, 0],
+                [floor_index, 0, 0],
+                [floor_index, 0, 0],
                 [
                     floor_index,
                     0,
                     0,
-                    1,  # agent is on this position: so last value set to 1
                 ],
             ],
             [
-                [floor_index, 0, 0, 0],
+                [floor_index, 0, 0],
                 [
                     Door.type_index,
                     Door.Status.CLOSED.value,
                     Color.BLUE.value,
-                    0,
                 ],
-                [floor_index, 0, 0, 0],
+                [floor_index, 0, 0],
             ],
             [
-                [floor_index, 0, 0, 0],
-                [floor_index, 0, 0, 0],
-                [floor_index, 0, 0, 0],
+                [floor_index, 0, 0],
+                [floor_index, 0, 0],
+                [floor_index, 0, 0],
             ],
         ]
     )
+    expected_agent_id_grid = np.zeros((height, width), dtype=int)
+    expected_agent_id_grid[0, 2] = 1
 
     rep = default_convert(grid, agent)
 
     np.testing.assert_array_equal(rep['grid'], expected_grid_representation)
+    np.testing.assert_array_equal(rep['agent_id_grid'], expected_agent_id_grid)
     np.testing.assert_array_equal(rep['agent'], expected_agent_representation)
     np.testing.assert_array_equal(rep['item'], expected_item_representation)
 
@@ -163,7 +181,7 @@ def test_default_representation_convert(
         rep['legacy-grid'][:, :, :3], expected_agent_position_channels
     )
     np.testing.assert_array_equal(
-        rep['legacy-grid'][:, :, 3:], expected_grid_representation[:, :, :3]
+        rep['legacy-grid'][:, :, 3:], expected_grid_representation
     )
     np.testing.assert_array_equal(
         rep['legacy-agent'], expected_legacy_agent_representation
@@ -209,9 +227,15 @@ def test_no_overlap_space(
     )
 
     np.testing.assert_array_equal(
-        space['grid'].upper_bound[:, :, :3], expected_grid_object_space
+        space['grid'].upper_bound, expected_grid_object_space
     )
+    np.testing.assert_array_equal(
+        space['grid'].lower_bound, np.zeros((height, width, 3), dtype=int)
+    )
+    np.testing.assert_equal(space['agent_id_grid'].upper_bound, np.ones((height, width), dtype=int))
+    np.testing.assert_equal(space['agent_id_grid'].lower_bound, np.zeros((height, width), dtype=int))
     np.testing.assert_array_equal(space['item'].upper_bound, max_channel_values)
+    np.testing.assert_array_equal(space['item'].lower_bound, [0, 0, 0])
 
     np.testing.assert_equal(
         space['agent'].upper_bound, [height - 1, width - 1, 1, 1, 1, 1]
@@ -227,7 +251,13 @@ def test_no_overlap_space(
         space['legacy-grid'].upper_bound, expected_legacy_grid_space
     )
     np.testing.assert_array_equal(
+        space['legacy-grid'].lower_bound, np.zeros((height, width, 6), dtype=int)
+    )
+    np.testing.assert_array_equal(
         space['legacy-agent'].upper_bound, max_channel_values
+    )
+    np.testing.assert_array_equal(
+        space['legacy-agent'].lower_bound, np.zeros(3, dtype=int)
     )
 
 
@@ -307,14 +337,20 @@ def test_no_overlap_convert(
         state.grid, state.agent, max_object_type, max_object_status
     )
 
+    expected_agent_id_grid = np.zeros((height, width), dtype=int)
+    expected_agent_id_grid[state.agent.position.astuple()] = 1
+
     np.testing.assert_array_equal(representation['grid'], expected_grid_state)
+    np.testing.assert_array_equal(representation['agent_id_grid'], expected_agent_id_grid)
     np.testing.assert_array_equal(representation['item'], expected_agent_state)
 
     expected_agent_representation = np.zeros(6, dtype=int)
     expected_agent_representation[0] = state.agent.position.y
     expected_agent_representation[1] = state.agent.position.x
     expected_agent_representation[2 + state.agent.orientation.value] = 1
-    np.testing.assert_equal(representation['agent'], expected_agent_representation)
+    np.testing.assert_equal(
+        representation['agent'], expected_agent_representation
+    )
 
     # legacy
     np.testing.assert_array_equal(
