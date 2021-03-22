@@ -6,7 +6,6 @@ import numpy as np
 from gym_gridverse.agent import Agent
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid import Grid
-from gym_gridverse.grid_object import NoneGridObject
 from gym_gridverse.observation import Observation
 from gym_gridverse.representations.spaces import (
     CategoricalSpace,
@@ -221,8 +220,9 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
     agent_array[2 + agent.orientation.value] = 1
 
     # legacy parts
-    none_grid_object = NoneGridObject()
-    grid_array_agent_channels = np.zeros((grid.shape.height, grid.shape.width, 3))
+    grid_array_agent_channels = np.zeros(
+        (grid.shape.height, grid.shape.width, 3)
+    )
     grid_array_agent_channels[agent.position.astuple()] = item_representation
 
     legacy_agent_array = np.concatenate(
