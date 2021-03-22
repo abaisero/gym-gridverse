@@ -81,8 +81,9 @@ def default_representation_space(
 
         - 'grid': (height x width x 3) categorical space of the grid of item
           type/status/color
-        - 'agent': (y, x, 1, 1, 1, 1) discrete space, where the last 4 ones
-          represent the one-hot encoding of the orientation
+        - 'agent': (y, x, 1, 1, 1, 1) continuous space, where the first 2
+          represent the normalized position and the last 4 ones represent the
+          one-hot encoding of the orientation
         - 'agent_id_grid': (height x width) one-hot encoding of the agent's location
         - 'item': the categorical item type, status and color (three values)
         - 'agent_id_grid':
