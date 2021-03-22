@@ -9,6 +9,7 @@ from gym_gridverse.grid import Grid
 from gym_gridverse.observation import Observation
 from gym_gridverse.representations.spaces import (
     CategoricalSpace,
+    ContinuousSpace,
     DiscreteSpace,
     Space,
 )
@@ -111,10 +112,9 @@ def default_representation_space(
     )
 
     # 4 (last) entries for a one-hot encoding of the orientation
-    agent_upper_bound = np.array([height - 1, width - 1, 1, 1, 1, 1])
-    agent_space = DiscreteSpace(
-        np.zeros_like(agent_upper_bound),
-        agent_upper_bound,
+    agent_space = ContinuousSpace(
+        np.array([-1.0, -1.0, 0.0, 0.0, 0.0, 0.0]),
+        np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
     )
 
     agent_id_space = DiscreteSpace(

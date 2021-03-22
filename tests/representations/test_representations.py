@@ -68,11 +68,9 @@ def test_default_representation_space(
         space['item'].upper_bound, expected_item_space
     )
     np.testing.assert_array_equal(space['item'].lower_bound, [0, 0, 0])
+    np.testing.assert_array_equal(space['agent'].upper_bound, np.ones(6))
     np.testing.assert_array_equal(
-        space['agent'].upper_bound, [height - 1, width - 1, 1, 1, 1, 1]
-    )
-    np.testing.assert_array_equal(
-        space['agent'].lower_bound, np.zeros(6, dtype=int)
+        space['agent'].lower_bound, np.array([-1.0, -1.0, 0.0, 0.0, 0.0, 0.0])
     )
 
     # legacy
@@ -243,10 +241,10 @@ def test_no_overlap_space(
     np.testing.assert_array_equal(space['item'].upper_bound, max_channel_values)
     np.testing.assert_array_equal(space['item'].lower_bound, [0, 0, 0])
 
+    np.testing.assert_equal(space['agent'].upper_bound, np.ones(6))
     np.testing.assert_equal(
-        space['agent'].upper_bound, [height - 1, width - 1, 1, 1, 1, 1]
+        space['agent'].lower_bound, np.array([-1.0, -1.0, 0.0, 0.0, 0.0, 0.0])
     )
-    np.testing.assert_equal(space['agent'].lower_bound, np.zeros(6, dtype=int))
 
     # legacy
     expected_legacy_grid_space = np.array(
