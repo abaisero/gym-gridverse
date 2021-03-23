@@ -27,7 +27,7 @@ class ObservationFunction(Protocol):
         ...
 
 
-# TODO write documentation
+# TODO: write documentation
 
 
 def from_visibility(

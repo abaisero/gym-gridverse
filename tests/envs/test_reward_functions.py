@@ -177,7 +177,7 @@ def test_proportional_to_distance_default(
     state = forbidden_state_maker()
     action = forbidden_action_maker()
     next_state = make_5x5_goal_state()
-    # TODO find better way to construct this state
+    # TODO: find better way to construct this state
     next_state.agent.position = Position.from_position_or_tuple(position)
 
     reward = proportional_to_distance(

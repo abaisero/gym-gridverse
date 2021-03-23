@@ -59,8 +59,7 @@ class StateSpace:
 
     def contains(self, state: State) -> bool:
         """True if the state satisfies the state-space"""
-        # TODO test
-        # TODO implement like the ObservationSpace one
+        # TODO: test
         return (
             state.grid.shape == self.grid_shape
             and state.grid.object_types().issubset(self.object_types)
@@ -71,7 +70,7 @@ class StateSpace:
 
     @property
     def can_be_represented(self):
-        # TODO test
+        # TODO: test
         return all(
             object_type.can_be_represented_in_state()
             for object_type in self.object_types
@@ -155,7 +154,7 @@ class ObservationSpace:
         self._grid_object_types = set(object_types) | {Hidden}
         self._agent_object_types = set(object_types) | {NoneGridObject}
 
-        # TODO eventually let this substitute the `grid_shape` input altogether
+        # TODO: eventually let this substitute the `grid_shape` input altogether
         # this area represents the observable area, with (0, 0) representing
         # the agent's position, when the agent is pointing N
         self.area = Area(

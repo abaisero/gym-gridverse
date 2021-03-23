@@ -133,13 +133,15 @@ def default_representation_space(
         )
     )
 
-    # TODO: original space did not do -1, bug, but should it be fixed?
+    # Note there is a bug here left intentionally for reproduction purposes:
+    # the real space upper bounds are _inclusive_ and thus the max value should
+    # not be `height`, but `height - 1`.
     legacy_agent_space = CategoricalSpace(
         np.array(
             [
-                height - 1,
-                width - 1,
-                len(Orientation) - 1,
+                height,
+                width,
+                len(Orientation),
                 max_type_index,
                 max_state_index,
                 max_color_value,
@@ -254,11 +256,14 @@ def no_overlap_representation_space(
 ) -> Dict[str, Space]:
     """A representation space where categorical data does not overlap
 
-    Returns the same shape and info as :func:`default_representation_space`
-    but ensures that :class:`CategoricalSpace` data have no overlap. That means
-    that each value maps uniquely to a construct, even accross different
-    returned items. As a result, the size of the spaces are generally larger.
-    The :class:`DiscreteSpace` values are left unmodified.
+    Returns the same shape and info as :func:`default_representation_space` but
+    ensures that
+    :class:`~gym_gridverse.representations.spaces.CategoricalSpace` data have
+    no overlap. That means that each value maps uniquely to a construct, even
+    accross different returned items. As a result, the size of the spaces are
+    generally larger.  The
+    :class:`~gym_gridverse.representations.spaces.DiscreteSpace` values are
+    left unmodified.
 
     Categorical data includes 'grid' and 'item' and the legacy values
 

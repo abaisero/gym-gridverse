@@ -57,7 +57,7 @@ def chain(
         transition_function(state, action, rng=rng)
 
 
-# TODO move these non-transition functions elsewhere; they are confusing
+# TODO: move these non-transition functions elsewhere; they are confusing
 
 
 def move_agent(agent: Agent, grid: Grid, action: Action) -> None:

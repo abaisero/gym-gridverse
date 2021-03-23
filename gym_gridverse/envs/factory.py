@@ -64,7 +64,7 @@ def create_env(
         transition_fs.chain, transition_functions=transition_functions
     )
 
-    # TODO make more general
+    # TODO: make more general
     observation = partial(
         observation_functions.minigrid_observation,
         observation_space=domain_space.observation_space,

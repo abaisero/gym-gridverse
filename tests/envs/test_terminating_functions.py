@@ -13,7 +13,7 @@ from gym_gridverse.grid_object import Goal, Wall
 from gym_gridverse.state import State
 
 
-# TODO turn into fixture
+# TODO: turn into fixture
 def make_goal_state(agent_on_goal: bool) -> State:
     """makes a simple state with goal object and agent on or off the goal"""
     grid = Grid(2, 1)
@@ -23,7 +23,7 @@ def make_goal_state(agent_on_goal: bool) -> State:
     return State(grid, agent)
 
 
-# TODO turn into fixture
+# TODO: turn into fixture
 def make_wall_state() -> State:
     """makes a simple state with Wall object and agent in front of it"""
     grid = Grid(2, 1)
@@ -60,7 +60,7 @@ def test_bump_into_wall(state: State, action: Action, expected: bool):
     assert bump_into_wall(state, action, None) == expected  # type: ignore
 
 
-# TODO incorporate this test with previous one
+# TODO: incorporate this test with previous one
 def test_bump_into_wall_special_case():
     state = make_wall_state()
     state.agent.orientation = Orientation.W

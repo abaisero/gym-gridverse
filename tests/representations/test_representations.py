@@ -87,9 +87,9 @@ def test_default_representation_space(
     np.testing.assert_array_equal(
         space['legacy-agent'].upper_bound,
         [
-            height - 1,
-            width - 1,
-            len(Orientation) - 1,
+            height,
+            width,
+            len(Orientation),
             max_obj_type,
             max_obj_state,
             max_color_value,

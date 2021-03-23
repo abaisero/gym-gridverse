@@ -76,7 +76,7 @@ class Grid:
     def area(self) -> Area:
         return Area((0, self.height - 1), (0, self.width - 1))
 
-    # TODO remove;  Grid is not a collection of positions
+    # TODO: remove;  Grid is not a collection of positions
     def __contains__(self, position: PositionOrTuple) -> bool:
         """checks if position is in the grid"""
         position = Position.from_position_or_tuple(position)

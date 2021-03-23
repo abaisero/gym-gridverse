@@ -51,7 +51,7 @@ def reset_empty(
 
     rng = get_gv_rng_if_none(rng)
 
-    # TODO test creation (e.g. count number of walls, goals, check held item)
+    # TODO: test creation (e.g. count number of walls, goals, check held item)
 
     grid = Grid(height, width)
     draw_wall_boundary(grid)
@@ -92,7 +92,7 @@ def reset_rooms(  # pylint: disable=too-many-locals
 
     rng = get_gv_rng_if_none(rng)
 
-    # TODO test creation (e.g. count number of walls, goals, check held item)
+    # TODO: test creation (e.g. count number of walls, goals, check held item)
 
     layout_height, layout_width = layout
 

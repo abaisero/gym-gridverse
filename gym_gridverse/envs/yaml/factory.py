@@ -143,7 +143,7 @@ def factory_reward_function(data) -> reward_fs.RewardFunction:
     except KeyError:
         distance_function = None
     else:
-        # TODO make a distance function factory somewhere
+        # TODO: make a distance function factory somewhere
         if data_distance_function == 'manhattan':
             distance_function = Position.manhattan_distance
         elif data_distance_function == 'euclidean':

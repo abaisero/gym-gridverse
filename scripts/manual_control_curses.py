@@ -68,7 +68,7 @@ def draw_object(
         attribute |= curses.A_REVERSE
 
     try:
-        # TODO change to addch if we can get newer version of ncurses
+        # TODO: change to addch if we can get newer version of ncurses
         # https://bugs.python.org/issue37738?fbclid=IwAR1Zllzw6jEG4r-1bxxoM_md8X4SabMV3NMt1nK3AqeHbyGI1iRZqDrwO6k
         window.addstr(position.y, position.x, obj.render_as_char(), attribute)
     except curses.error:
@@ -86,7 +86,7 @@ def draw_state(window, state: State, observation_space: ObservationSpace):
         )
 
     try:
-        # TODO change to addch if we can get newer version of ncurses
+        # TODO: change to addch if we can get newer version of ncurses
         # https://bugs.python.org/issue37738?fbclid=IwAR1Zllzw6jEG4r-1bxxoM_md8X4SabMV3NMt1nK3AqeHbyGI1iRZqDrwO6k
         window.addstr(
             state.agent.position.y,
@@ -102,7 +102,7 @@ def draw_observation(window, observation: Observation):
         draw_object(window, position, observation.grid[position])
 
     try:
-        # TODO change to addch if we can get newer version of ncurses
+        # TODO: change to addch if we can get newer version of ncurses
         # https://bugs.python.org/issue37738?fbclid=IwAR1Zllzw6jEG4r-1bxxoM_md8X4SabMV3NMt1nK3AqeHbyGI1iRZqDrwO6k
         window.addstr(
             observation.agent.position.y,

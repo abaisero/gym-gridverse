@@ -161,7 +161,7 @@ def raytracing_visibility(
 
             light = light and grid[pos].transparent
 
-    # TODO add as parameter to function
+    # TODO: add as parameter to function
     visibility = counts_num > 0  # at least one ray makes it
     # visibility = counts_num > 0.5 * counts_den # half of the rays make it
     # visibility = counts_num > 0.1 * counts_den  # 10% of the rays make it
@@ -170,7 +170,7 @@ def raytracing_visibility(
     return visibility
 
 
-def stochastic_raytracing_visibility(  # TODO add test
+def stochastic_raytracing_visibility(  # TODO: add test
     grid: Grid,
     position: Position,
     *,

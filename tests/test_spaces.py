@@ -33,7 +33,7 @@ from gym_gridverse.spaces import (
 )
 
 
-# TODO bad test;  implementation detail
+# TODO: bad test;  implementation detail
 @pytest.mark.parametrize(
     'colors,expected',
     [
@@ -54,7 +54,7 @@ def test_max_color_index(colors: Sequence[Color], expected: int):
     assert _max_color_index(colors) == expected
 
 
-# TODO bad test;  implementation detail
+# TODO: bad test;  implementation detail
 @pytest.mark.parametrize(
     'object_types,expected',
     [
@@ -68,7 +68,7 @@ def test_max_object_status(
     assert _max_object_status(object_types) == expected
 
 
-# TODO bad test;  implementation detail
+# TODO: bad test;  implementation detail
 @pytest.mark.parametrize(
     'object_types,expected',
     [

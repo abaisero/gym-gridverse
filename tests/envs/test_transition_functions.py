@@ -161,7 +161,7 @@ def test_move_action(
     assert agent.position == expected
 
 
-# TODO integrate with previous test
+# TODO: integrate with previous test
 def test_move_action_blocked_by_grid_object():
     """ Puts an object on (2,0) and try to move there"""
     grid = Grid(height=3, width=2)
@@ -173,7 +173,7 @@ def test_move_action_blocked_by_grid_object():
     assert agent.position == (2, 1)
 
 
-# TODO integrate with previous test
+# TODO: integrate with previous test
 def test_move_action_can_go_on_non_block_objects():
     grid = Grid(height=3, width=2)
     agent = Agent(position=(2, 1), orientation=Orientation.N)

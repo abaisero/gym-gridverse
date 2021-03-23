@@ -404,7 +404,7 @@ def convert_pos(
     return 2 * position.x, 2 * (num_rows - 1 - position.y)
 
 
-# TODO clean this code;  this is barely working
+# TODO: clean this code;  this is barely working
 class _CustomViewer(rendering.Viewer):
     def __init__(self, width, height):  # pylint: disable=super-init-not-called
         self.width = width
