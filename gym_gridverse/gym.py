@@ -11,7 +11,7 @@ from gym_gridverse.outer_env import OuterEnv
 from gym_gridverse.representations.observation_representations import (
     create_observation_representation,
 )
-from gym_gridverse.representations.spaces import Space
+from gym_gridverse.representations.spaces import Space, SpaceType
 from gym_gridverse.representations.state_representations import (
     create_state_representation,
 )
@@ -20,7 +20,11 @@ from gym_gridverse.representations.state_representations import (
 def outer_space_to_gym_space(space: Dict[str, Space]) -> gym.spaces.Space:
     return gym.spaces.Dict(
         {
-            k: gym.spaces.Box(low=v.lower_bound, high=v.upper_bound, dtype=int)
+            k: gym.spaces.Box(
+                low=v.lower_bound,
+                high=v.upper_bound,
+                dtype=float if v.space_type is SpaceType.CONTINUOUS else int,
+            )
             for k, v in space.items()
         }
     )
