@@ -20,6 +20,14 @@ gym\_gridverse.representations.representation module
    :undoc-members:
    :show-inheritance:
 
+gym\_gridverse.representations.spaces module
+--------------------------------------------
+
+.. automodule:: gym_gridverse.representations.spaces
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 gym\_gridverse.representations.state\_representations module
 ------------------------------------------------------------
 
