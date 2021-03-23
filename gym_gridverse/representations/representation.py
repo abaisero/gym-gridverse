@@ -301,12 +301,16 @@ def no_overlap_representation_space(
 
     # legacy work #
 
+    # There is a bug in legacy that remains for reproduction reasons
+    # the 'max' values represent the maximum possible value (not the number)
+    # so they should be incremented to ensure no overlap
+    # this has been properly done in 'grid' and 'item'
+
     # increment channels to ensure there is no overlap
-    # TODO: the "+ ..." was not in the legacy code, which is a bug, keep it?
     no_overlap_legacy_grid_upper_bound = rep['legacy-grid'].upper_bound
-    no_overlap_legacy_grid_upper_bound[:, :, [1, 4]] += max_type_index + 1
+    no_overlap_legacy_grid_upper_bound[:, :, [1, 4]] += max_type_index
     no_overlap_legacy_grid_upper_bound[:, :, [2, 5]] += (
-        max_type_index + max_state_index + 2
+        max_type_index + max_state_index
     )
     rep['legacy-grid'] = CategoricalSpace(no_overlap_legacy_grid_upper_bound)
 
@@ -314,10 +318,8 @@ def no_overlap_representation_space(
     no_overlap_legay_agent_upper_bound = rep['legacy-agent'].upper_bound
     no_overlap_legay_agent_upper_bound = no_overlap_legay_agent_upper_bound[3:]
 
-    no_overlap_legay_agent_upper_bound[1] += max_type_index + 1
-    no_overlap_legay_agent_upper_bound[2] += (
-        max_type_index + max_state_index + 2
-    )
+    no_overlap_legay_agent_upper_bound[1] += max_type_index
+    no_overlap_legay_agent_upper_bound[2] += max_type_index + max_state_index
     rep['legacy-agent'] = CategoricalSpace(no_overlap_legay_agent_upper_bound)
 
     return rep
@@ -367,11 +369,13 @@ def no_overlap_convert(
     # default also returns item in the legacy grid, which must be removed
     rep['legacy-agent'] = rep['legacy-agent'][3:]
 
-    # increment channels to ensure there is no overlap
-    # TODO: the "+ ..." was not in the legacy code, which is a bug, keep it?
-    rep['legacy-grid'][:, :, [1, 4]] += max_type_index + 1
-    rep['legacy-grid'][:, :, [2, 5]] += max_type_index + max_state_index + 2
-    rep['legacy-agent'][1] += max_type_index + 1
-    rep['legacy-agent'][2] += max_type_index + max_state_index + 2
+    # This is a bug in legacy that remains for reproduction reasons
+    # the 'max' values represent the maximum possible value (not the number)
+    # so they should be incremented to ensure no overlap
+    # This has been properly done in 'grid' and 'item'
+    rep['legacy-grid'][:, :, [1, 4]] += max_type_index
+    rep['legacy-grid'][:, :, [2, 5]] += max_type_index + max_state_index
+    rep['legacy-agent'][1] += max_type_index
+    rep['legacy-agent'][2] += max_type_index + max_state_index
 
     return rep

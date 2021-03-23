@@ -247,6 +247,10 @@ def test_no_overlap_space(
     )
 
     # legacy
+    # The old legacy bug did noot properly increment the dimensions
+    max_channel_values = [
+        v - offset for v, offset in zip(max_channel_values, range(3))
+    ]
     expected_legacy_grid_space = np.array(
         [[max_channel_values * 2] * width] * height
     )
@@ -258,6 +262,7 @@ def test_no_overlap_space(
         space['legacy-grid'].lower_bound,
         np.zeros((height, width, 6), dtype=int),
     )
+
     np.testing.assert_array_equal(
         space['legacy-agent'].upper_bound, max_channel_values
     )
@@ -285,15 +290,19 @@ def test_no_overlap_convert(
     )
 
     expected_agent_position_channels = np.zeros((height, width, 3))
+    # An old (legacy) bug is to not properly increment the dimensions
+    # We keep that here for reproducability
     expected_agent_position_channels[:, :] = [
         NoneGridObject.type_index,
         first_item_status,
         first_item_color,
     ]
 
-    expected_agent_position_channels[
-        state.agent.position.astuple()
-    ] = expected_agent_state
+    expected_agent_position_channels[state.agent.position.astuple()] = [
+        NoneGridObject.type_index,
+        first_item_status,
+        first_item_color,
+    ]
 
     expected_grid_state = np.array(
         [
@@ -362,11 +371,13 @@ def test_no_overlap_convert(
     # legacy
     np.testing.assert_array_equal(
         representation['legacy-grid'][:, :, :3],
-        expected_agent_position_channels,
+        expected_agent_position_channels - [0, 1, 2],  # reproduce legacy bug
     )
     np.testing.assert_array_equal(
-        representation['legacy-grid'][:, :, 3:], expected_grid_state
+        representation['legacy-grid'][:, :, 3:],
+        expected_grid_state - [0, 1, 2],  # reproduce legacy bug
     )
     np.testing.assert_array_equal(
-        representation['legacy-agent'], expected_agent_state
+        representation['legacy-agent'],
+        expected_agent_state - [0, 1, 2],  # reproduce legacy bug
     )
