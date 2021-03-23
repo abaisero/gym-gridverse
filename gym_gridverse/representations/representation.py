@@ -219,7 +219,13 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
     grid_agent_position = np.zeros((grid.shape.height, grid.shape.width))
     grid_agent_position[agent.position.astuple()] = 1
 
-    agent_array = np.array([agent.position.y, agent.position.x, 0, 0, 0, 0])
+    agent_array = np.zeros(6)
+    agent_array[0] = (2 * agent.position.y - grid.shape.height + 1) / (
+        grid.shape.height - 1
+    )
+    agent_array[1] = (2 * agent.position.x - grid.shape.width + 1) / (
+        grid.shape.width - 1
+    )
     agent_array[2 + agent.orientation.value] = 1
 
     # legacy parts

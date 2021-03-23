@@ -113,7 +113,14 @@ def test_default_representation_convert(
     floor_index = Floor.type_index  # pylint: disable=no-member
 
     # y, x, one-hot encoding with North (== 0)
-    expected_agent_representation = [0, 2, 1, 0, 0, 0]
+    expected_agent_representation = [
+        -1.0,
+        (4 - width + 1) / (width - 1),
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+    ]
     expected_item_representation = [
         agent.obj.type_index,
         agent.obj.state_index,
@@ -360,9 +367,13 @@ def test_no_overlap_convert(
     )
     np.testing.assert_array_equal(representation['item'], expected_agent_state)
 
-    expected_agent_representation = np.zeros(6, dtype=int)
-    expected_agent_representation[0] = state.agent.position.y
-    expected_agent_representation[1] = state.agent.position.x
+    expected_agent_representation = np.zeros(6)
+    expected_agent_representation[0] = (
+        2 * state.agent.position.y - state.grid.shape.height + 1
+    ) / (state.grid.shape.height - 1)
+    expected_agent_representation[1] = (
+        2 * state.agent.position.x - state.grid.shape.width + 1
+    ) / (state.grid.shape.width - 1)
     expected_agent_representation[2 + state.agent.orientation.value] = 1
     np.testing.assert_equal(
         representation['agent'], expected_agent_representation
