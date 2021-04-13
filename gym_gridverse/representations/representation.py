@@ -214,9 +214,10 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
                 for x in range(grid.shape.width)
             ]
             for y in range(grid.shape.height)
-        ]
+        ],
+        int,
     )
-    grid_agent_position = np.zeros((grid.shape.height, grid.shape.width))
+    grid_agent_position = np.zeros((grid.shape.height, grid.shape.width), int)
     grid_agent_position[agent.position.astuple()] = 1
 
     agent_array = np.zeros(6)
@@ -230,7 +231,7 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
 
     # legacy parts
     grid_array_agent_channels = np.zeros(
-        (grid.shape.height, grid.shape.width, 3)
+        (grid.shape.height, grid.shape.width, 3), int
     )
     grid_array_agent_channels[agent.position.astuple()] = item_representation
 
