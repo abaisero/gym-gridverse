@@ -327,12 +327,14 @@ def no_overlap_representation_space(
     rep['legacy-grid'] = CategoricalSpace(no_overlap_legacy_grid_upper_bound)
 
     # default also returns position and orientation, which must be removed
-    no_overlap_legay_agent_upper_bound = rep['legacy-agent'].upper_bound
-    no_overlap_legay_agent_upper_bound = no_overlap_legay_agent_upper_bound[3:]
+    no_overlap_legacy_agent_upper_bound = rep['legacy-agent'].upper_bound
+    no_overlap_legacy_agent_upper_bound = no_overlap_legacy_agent_upper_bound[
+        3:
+    ]
 
-    no_overlap_legay_agent_upper_bound[1] += max_type_index
-    no_overlap_legay_agent_upper_bound[2] += max_type_index + max_state_index
-    rep['legacy-agent'] = CategoricalSpace(no_overlap_legay_agent_upper_bound)
+    no_overlap_legacy_agent_upper_bound[1] += max_type_index
+    no_overlap_legacy_agent_upper_bound[2] += max_type_index + max_state_index
+    rep['legacy-agent'] = CategoricalSpace(no_overlap_legacy_agent_upper_bound)
 
     return rep
 
