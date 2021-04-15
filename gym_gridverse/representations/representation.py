@@ -380,7 +380,9 @@ def no_overlap_convert(
     rep['item'][2] += max_type_index + max_state_index + 2
 
     # legacy
-    # default also returns item in the legacy grid, which must be removed
+    # default also returns agent position and orientation because that was
+    # going to overlap, so here we throw out that data and keep the item being
+    # held data
     rep['legacy-agent'] = rep['legacy-agent'][3:]
 
     # This is a bug in legacy that remains for reproduction reasons
