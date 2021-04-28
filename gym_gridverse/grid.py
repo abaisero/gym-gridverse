@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from copy import deepcopy
 from typing import Iterable, List, Sequence, Set, Type
 
 import numpy as np
@@ -155,21 +154,15 @@ class Grid:
             Grid: New instance, sliced appropriately
         """
         subgrid = Grid(area.height, area.width)
-        grid_copy = deepcopy(self)
         for pos_to in subgrid.positions():
             pos_from = pos_to + area.top_left
 
             try:
-                obj = grid_copy[pos_from]
+                obj = self[pos_from]
             except IndexError:
                 obj = Hidden()
 
             subgrid[pos_to] = obj
-            # subgrid[pos_to] = (
-            #     np_grid[pos_from.y, pos_from.x]
-            #     if pos_from in self
-            #     else Hidden()
-            # )
 
         return subgrid
 
@@ -198,7 +191,6 @@ class Grid:
             Orientation.W: 3,
         }
         objects = np.rot90(self._grid, times[orientation]).tolist()
-        objects = deepcopy(objects)
         return Grid.from_objects(objects)
 
     def __hash__(self):
