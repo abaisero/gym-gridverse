@@ -82,8 +82,8 @@ class Grid:
     # TODO: remove;  Grid is not a collection of positions
     def __contains__(self, position: PositionOrTuple) -> bool:
         """checks if position is in the grid"""
-        position = Position.from_position_or_tuple(position)
-        return 0 <= position.y < self.height and 0 <= position.x < self.width
+        y, x = position
+        return 0 <= y < self.height and 0 <= x < self.width
 
     def positions(self) -> Iterable[Position]:
         """iterator over positions"""
@@ -109,25 +109,14 @@ class Grid:
         return set(type(self[position]) for position in self.positions())
 
     def __getitem__(self, position: PositionOrTuple) -> GridObject:
-        position = Position.from_position_or_tuple(position)
+        y, x = position
 
-        checkraise(
-            lambda: position in self,
-            IndexError,
-            'position {} not in grid',
-            position,
-        )
-
-        return self._grid[position.y, position.x]
+        try:
+            return self._grid[y, x]
+        except IndexError as e:
+            raise IndexError(f'position {position} not in grid') from e
 
     def __setitem__(self, position: PositionOrTuple, obj: GridObject):
-        position = Position.from_position_or_tuple(position)
-        checkraise(
-            lambda: position in self,
-            IndexError,
-            'position {} not in grid',
-            position,
-        )
         checkraise(
             lambda: isinstance(obj, GridObject),
             TypeError,
@@ -135,7 +124,10 @@ class Grid:
         )
 
         y, x = position
-        self._grid[y, x] = obj
+        try:
+            self._grid[y, x] = obj
+        except IndexError as e:
+            raise IndexError(f'position {position} not in grid') from e
 
     def swap(self, p: Position, q: Position):
         """swap the objects at two positions"""
@@ -156,10 +148,7 @@ class Grid:
         """
 
         def get_obj(y: int, x: int) -> GridObject:
-            try:
-                return self[y, x]
-            except IndexError:
-                return Hidden()
+            return self[y, x] if (y, x) in self else Hidden()
 
         return Grid.from_objects(
             [

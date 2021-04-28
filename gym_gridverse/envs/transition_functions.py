@@ -279,10 +279,10 @@ def actuate_door(
 
     position = state.agent.position_in_front()
 
-    try:
-        door = state.grid[position]
-    except IndexError:
+    if position not in state.grid:
         return
+
+    door = state.grid[position]
 
     if not isinstance(door, Door):
         return
@@ -323,10 +323,10 @@ def actuate_box(
 
     position = state.agent.position_in_front()
 
-    try:
-        box = state.grid[position]
-    except IndexError:
+    if not position in state.grid:
         return
+
+    box = state.grid[position]
 
     if not isinstance(box, Box):
         return
