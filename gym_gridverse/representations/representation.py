@@ -103,8 +103,17 @@ def default_representation_space(
     Returns:
         Dict[str, Space]: {'grid', 'agent', 'item', 'agent_id_grid', 'legacy-agent', 'legacy-grid'}
     """
-    assert min([max_type_index, width, height]) > 0, str(
-        [max_type_index, width, height]
+    checkraise(
+        lambda: max_type_index >= 0,
+        ValueError,
+        'max_type_index ({}) must be non-negative',
+        max_type_index,
+    )
+    checkraise(
+        lambda: height > 0 and width > 0,
+        ValueError,
+        'height and width ({}) must be positive',
+        (height, width),
     )
 
     grid_space = CategoricalSpace(

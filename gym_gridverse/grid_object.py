@@ -107,15 +107,15 @@ class NoneGridObject(GridObject):
 
     @property
     def transparent(self) -> bool:  # type: ignore
-        assert RuntimeError('should never be called')
+        assert False
 
     @property
     def can_be_picked_up(self) -> bool:  # type: ignore
-        assert RuntimeError('should never be called')
+        assert False
 
     @property
     def blocks(self) -> bool:  # type: ignore
-        assert RuntimeError('should never be called')
+        assert False
 
     def render_as_char(self) -> str:
         return " "
@@ -151,11 +151,11 @@ class Hidden(GridObject):
 
     @property
     def can_be_picked_up(self) -> bool:  # type: ignore
-        assert RuntimeError('should never be called')
+        assert False
 
     @property
     def blocks(self) -> bool:  # type: ignore
-        assert RuntimeError('should never be called')
+        assert False
 
     def render_as_char(self) -> str:
         return "."

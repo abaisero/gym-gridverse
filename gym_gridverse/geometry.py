@@ -142,21 +142,18 @@ class Area:
 
     def rotate(self, orientation: Orientation) -> Area:
         if orientation is Orientation.N:
-            area = Area((self.ymin, self.ymax), (self.xmin, self.xmax))
+            return Area((self.ymin, self.ymax), (self.xmin, self.xmax))
 
-        elif orientation is Orientation.S:
-            area = Area((-self.ymax, -self.ymin), (-self.xmax, -self.xmin))
+        if orientation is Orientation.S:
+            return Area((-self.ymax, -self.ymin), (-self.xmax, -self.xmin))
 
-        elif orientation is Orientation.E:
-            area = Area((self.xmin, self.xmax), (-self.ymax, -self.ymin))
+        if orientation is Orientation.E:
+            return Area((self.xmin, self.xmax), (-self.ymax, -self.ymin))
 
-        elif orientation is Orientation.W:
-            area = Area((-self.xmax, -self.xmin), (self.ymin, self.ymax))
+        if orientation is Orientation.W:
+            return Area((-self.xmax, -self.xmin), (self.ymin, self.ymax))
 
-        else:
-            assert False
-
-        return area
+        raise TypeError('orientation must be of type Orientation')
 
 
 @dataclass(frozen=True)
@@ -207,23 +204,19 @@ class Position:
             return self.y == y and self.x == x
 
     def rotate(self, orientation: Orientation) -> Position:
-
         if orientation is Orientation.N:
-            rotated_dpos = Position(self.y, self.x)
+            return Position(self.y, self.x)
 
-        elif orientation is Orientation.S:
-            rotated_dpos = Position(-self.y, -self.x)
+        if orientation is Orientation.S:
+            return Position(-self.y, -self.x)
 
-        elif orientation is Orientation.E:
-            rotated_dpos = Position(self.x, -self.y)
+        if orientation is Orientation.E:
+            return Position(self.x, -self.y)
 
-        elif orientation is Orientation.W:
-            rotated_dpos = Position(-self.x, self.y)
+        if orientation is Orientation.W:
+            return Position(-self.x, self.y)
 
-        else:
-            assert False
-
-        return rotated_dpos
+        raise TypeError('orientation must be of type Orientation')
 
     @staticmethod
     def manhattan_distance(p: PositionOrTuple, q: PositionOrTuple) -> float:
@@ -263,7 +256,7 @@ class Orientation(enum.Enum):
         if self is Orientation.W:
             return Position(0, -dist)
 
-        assert False
+        assert False, 'self must be of type Orientation'
 
     def as_radians(self) -> float:
         radians = {
@@ -353,7 +346,12 @@ def get_manhattan_boundary(
     Returns:
         List[Position]: List of positions (excluding pos) representing the boundary
     """
-    assert distance > 0
+    checkraise(
+        lambda: distance > 0,
+        ValueError,
+        'distance ({}) must be positive',
+        distance,
+    )
 
     position = Position.from_position_or_tuple(position)
 
