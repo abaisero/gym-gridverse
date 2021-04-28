@@ -1,5 +1,5 @@
 import abc
-from typing import Dict
+from typing import Dict, Tuple
 
 import numpy as np
 
@@ -205,16 +205,14 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
         [agent.obj.type_index, agent.obj.state_index, agent.obj.color.value]
     )
 
+    # need this to improve efficiency, because python3.7 does not have assignment operators
+    def get_obj_array(y: int, x: int) -> Tuple[int, int, int]:
+        obj = grid[y, x]
+        return obj.type_index, obj.state_index, obj.color.value
+
     grid_array_object_channels = np.array(
         [
-            [
-                [
-                    grid[y, x].type_index,
-                    grid[y, x].state_index,
-                    grid[y, x].color.value,
-                ]
-                for x in range(grid.shape.width)
-            ]
+            [get_obj_array(y, x) for x in range(grid.shape.width)]
             for y in range(grid.shape.height)
         ],
         int,
