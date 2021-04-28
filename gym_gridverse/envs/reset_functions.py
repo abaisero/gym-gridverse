@@ -8,6 +8,7 @@ import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.agent import Agent
+from gym_gridverse.debugging import checkraise
 from gym_gridverse.design import (
     draw_line_horizontal,
     draw_line_vertical,
@@ -46,8 +47,11 @@ def reset_empty(
 ) -> State:
     """An empty environment"""
 
-    if height < 4 or width < 4:
-        raise ValueError('height and width need to be at least 4')
+    checkraise(
+        lambda: height >= 4 and width >= 4,
+        ValueError,
+        'height and width need to be at least 4',
+    )
 
     rng = get_gv_rng_if_none(rng)
 
@@ -103,10 +107,13 @@ def reset_rooms(  # pylint: disable=too-many-locals
         dtype=int,
     )
 
-    if len(y_splits) != len(set(y_splits)):
-        raise ValueError(
-            f'insufficient height ({height}) for layout ({layout})'
-        )
+    checkraise(
+        lambda: len(y_splits) == len(set(y_splits)),
+        ValueError,
+        'insufficient height ({}) for layout ({})',
+        height,
+        layout,
+    )
 
     x_splits = np.linspace(
         0,
@@ -115,8 +122,13 @@ def reset_rooms(  # pylint: disable=too-many-locals
         dtype=int,
     )
 
-    if len(x_splits) != len(set(x_splits)):
-        raise ValueError(f'insufficient width ({height}) for layout ({layout})')
+    checkraise(
+        lambda: len(x_splits) == len(set(x_splits)),
+        ValueError,
+        'insufficient width ({}) for layout ({})',
+        height,
+        layout,
+    )
 
     grid = Grid(height, width)
     draw_room_grid(grid, y_splits, x_splits, Wall)
@@ -221,10 +233,12 @@ def reset_keydoor(
     Returns:
         State:
     """
-    if height < 3 or width < 5 or (height, width) == (3, 5):
-        raise ValueError(
-            f'Shape must larger than (3, 5), given {(height, width)}'
-        )
+    checkraise(
+        lambda: height >= 3 and width >= 5 and (height, width) != (3, 5),
+        ValueError,
+        'Shape must larger than (3, 5), given {}',
+        (height, width),
+    )
 
     rng = get_gv_rng_if_none(rng)
 
@@ -291,20 +305,24 @@ def reset_crossing(  # pylint: disable=too-many-locals
     Returns:
         State:
     """
-    if height < 5 or height % 2 == 0:
-        raise ValueError(
-            f"Crossing environment height must be odd and >= 5, given {height}"
-        )
-
-    if width < 5 or width % 2 == 0:
-        raise ValueError(
-            f"Crossing environment width must be odd and >= 5, given {width}"
-        )
-
-    if num_rivers < 0:
-        raise ValueError(
-            f"Crossing environment number of walls must be >= 0, given {height}"
-        )
+    checkraise(
+        lambda: height >= 5 and height % 2 == 1,
+        ValueError,
+        'Crossing environment height must be odd and >= 5, given {}',
+        height,
+    )
+    checkraise(
+        lambda: width >= 5 and width % 2 == 1,
+        ValueError,
+        'Crossing environment width must be odd and >= 5, given {}',
+        width,
+    )
+    checkraise(
+        lambda: num_rivers >= 0,
+        ValueError,
+        'Crossing environment number of walls must be >= 0, given {}',
+        num_rivers,
+    )
 
     rng = get_gv_rng_if_none(rng)
 
@@ -415,8 +433,14 @@ def factory(
 ) -> ResetFunction:
 
     if name == 'empty':
-        if None in [height, width, random_agent_pos]:
-            raise ValueError(f'invalid parameters for name `{name}`')
+        checkraise(
+            lambda: height is not None
+            and width is not None
+            and random_agent_pos is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             reset_empty,
@@ -426,14 +450,27 @@ def factory(
         )
 
     if name == 'rooms':
-        if None in [height, width, layout]:
-            raise ValueError(f'invalid parameters for name `{name}`')
+        checkraise(
+            lambda: height is not None
+            and width is not None
+            and layout is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(reset_rooms, height=height, width=width, layout=layout)
 
     if name == 'dynamic_obstacles':
-        if None in [height, width, num_obstacles, random_agent_pos]:
-            raise ValueError(f'invalid parameters for name `{name}`')
+        checkraise(
+            lambda: height is not None
+            and width is not None
+            and num_obstacles is not None
+            and random_agent_pos is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             reset_dynamic_obstacles,
@@ -444,14 +481,25 @@ def factory(
         )
 
     if name == 'keydoor':
-        if None in [height, width]:
-            raise ValueError(f'invalid parameters for name `{name}`')
+        checkraise(
+            lambda: height is not None and width is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(reset_keydoor, height, width)
 
     if name == 'crossing':
-        if None in [height, width, num_rivers, object_type]:
-            raise ValueError(f'invalid parameters for name `{name}`')
+        checkraise(
+            lambda: height is not None
+            and width is not None
+            and num_rivers is not None
+            and object_type is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             reset_crossing,
@@ -462,8 +510,12 @@ def factory(
         )
 
     if name == 'teleport':
-        if None in [height, width]:
-            raise ValueError(f'invalid parameters for name `{name}`')
+        checkraise(
+            lambda: height is not None and width is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(reset_teleport, height=height, width=width)
 

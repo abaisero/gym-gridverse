@@ -7,6 +7,7 @@ from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.action import ROTATION_ACTIONS, TRANSLATION_ACTIONS, Action
 from gym_gridverse.agent import Agent
+from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import Position, get_manhattan_boundary
 from gym_gridverse.grid import Grid
@@ -362,8 +363,12 @@ def factory(
 ) -> TransitionFunction:
 
     if name == 'chain':
-        if None in [transition_functions]:
-            raise ValueError(f'invalid parameters for name `{name}`')
+        checkraise(
+            lambda: transition_functions is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(chain, transition_functions=transition_functions)
 

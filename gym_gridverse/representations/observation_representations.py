@@ -2,6 +2,7 @@ from typing import Dict
 
 import numpy as np
 
+from gym_gridverse.debugging import checkraise
 from gym_gridverse.observation import Observation
 from gym_gridverse.representations.representation import (
     ObservationRepresentation,
@@ -54,8 +55,11 @@ class DefaultObservationRepresentation(ObservationRepresentation):
         return space
 
     def convert(self, o: Observation) -> Dict:
-        if not self.observation_space.contains(o):
-            raise ValueError('Input observation not contained in space')
+        checkraise(
+            lambda: self.observation_space.contains(o),
+            ValueError,
+            'Input observation not contained in space',
+        )
 
         conversion = default_convert(o.grid, o.agent)
 
@@ -103,8 +107,11 @@ class NoOverlapObservationRepresentation(ObservationRepresentation):
         return space
 
     def convert(self, o: Observation) -> Dict[str, np.ndarray]:
-        if not self.observation_space.contains(o):
-            raise ValueError('Input observation not contained in space')
+        checkraise(
+            lambda: self.observation_space.contains(o),
+            ValueError,
+            'Input observation not contained in space',
+        )
 
         max_type_index = self.observation_space.max_grid_object_type
         max_state_index = self.observation_space.max_grid_object_status

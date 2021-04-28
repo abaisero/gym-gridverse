@@ -5,6 +5,8 @@ import abc
 import enum
 from typing import Callable, List, Optional, Type
 
+from gym_gridverse.debugging import checkraise
+
 
 class Color(enum.Enum):
     """ Color of grid objects """
@@ -465,10 +467,11 @@ class Box(GridObject):
 
     def __init__(self, content: GridObject):
         """Boxes have no special status or color"""
-        if isinstance(content, (NoneGridObject, Hidden)):
-            raise ValueError(
-                'box cannot contain NoneGridObject or Hidden types'
-            )
+        checkraise(
+            lambda: not isinstance(content, (NoneGridObject, Hidden)),
+            ValueError,
+            'box cannot contain NoneGridObject or Hidden types',
+        )
 
         self.content = content
 
@@ -574,16 +577,24 @@ def factory(
         return Goal()
 
     if name in ['door', 'Door']:
-        if not (isinstance(status, str) and isinstance(color, str)):
-            raise ValueError(f'invalid parameters for name `{name}`')
+        checkraise(
+            lambda: isinstance(status, str) and isinstance(color, str),
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         status_ = Door.Status[status]
         color_ = Color[color]
         return Door(status_, color_)
 
     if name in ['key', 'Key']:
-        if not isinstance(color, str):
-            raise ValueError(f'invalid parameters for name `{name}`')
+        checkraise(
+            lambda: isinstance(color, str),
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         color_ = Color[color]
         return Key(color_)
@@ -592,14 +603,22 @@ def factory(
         return MovingObstacle()
 
     if name in ['box', 'Box']:
-        if not isinstance(obj, GridObject):
-            raise ValueError(f'invalid parameters for name `{name}`')
+        checkraise(
+            lambda: isinstance(obj, GridObject),
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return Box(obj)
 
     if name in ['telepod', 'Telepod']:
-        if not isinstance(color, str):
-            raise ValueError(f'invalid parameters for name `{name}`')
+        checkraise(
+            lambda: isinstance(color, str),
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         color_ = Color[color]
         return Telepod(color_)

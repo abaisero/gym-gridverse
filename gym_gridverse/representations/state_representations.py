@@ -2,6 +2,7 @@ from typing import Dict
 
 import numpy as np
 
+from gym_gridverse.debugging import checkraise
 from gym_gridverse.representations.representation import (
     StateRepresentation,
     default_convert,
@@ -9,9 +10,9 @@ from gym_gridverse.representations.representation import (
     no_overlap_convert,
     no_overlap_representation_space,
 )
+from gym_gridverse.representations.spaces import Space
 from gym_gridverse.spaces import StateSpace
 from gym_gridverse.state import State
-from gym_gridverse.representations.spaces import Space
 
 
 class DefaultStateRepresentation(StateRepresentation):
@@ -39,8 +40,11 @@ class DefaultStateRepresentation(StateRepresentation):
         )
 
     def convert(self, s: State) -> Dict[str, np.ndarray]:
-        if not self.state_space.contains(s):
-            raise ValueError('Input state not contained in space')
+        checkraise(
+            lambda: self.state_space.contains(s),
+            ValueError,
+            'Input state not contained in space',
+        )
 
         return default_convert(s.grid, s.agent)
 
@@ -70,8 +74,11 @@ class NoOverlapStateRepresentation(StateRepresentation):
         )
 
     def convert(self, s: State) -> Dict[str, np.ndarray]:
-        if not self.state_space.contains(s):
-            raise ValueError('Input state not contained in space')
+        checkraise(
+            lambda: self.state_space.contains(s),
+            ValueError,
+            'Input state not contained in space',
+        )
 
         max_type_index = self.state_space.max_grid_object_type
         max_state_index = self.state_space.max_grid_object_status

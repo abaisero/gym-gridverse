@@ -4,6 +4,7 @@ from typing import Optional, Tuple
 import numpy.random as rnd
 
 from gym_gridverse.action import Action
+from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs import InnerEnv
 from gym_gridverse.envs.observation_functions import ObservationFunction
 from gym_gridverse.envs.reset_functions import ResetFunction
@@ -49,8 +50,11 @@ class GridWorld(InnerEnv):
 
     def functional_reset(self) -> State:
         state = self._functional_reset(rng=self._rng)
-        if not self.state_space.contains(state):
-            raise ValueError('state does not satisfy state-space')
+        checkraise(
+            lambda: self.state_space.contains(state),
+            ValueError,
+            'state does not satisfy state-space',
+        )
 
         return state
 
@@ -58,17 +62,26 @@ class GridWorld(InnerEnv):
         self, state: State, action: Action
     ) -> Tuple[State, float, bool]:
 
-        if not self.state_space.contains(state):
-            raise ValueError('state does not satisfy state-space')
-
-        if not self.action_space.contains(action):
-            raise ValueError(f'action {action} does not satisfy action-space')
+        checkraise(
+            lambda: self.state_space.contains(state),
+            ValueError,
+            'state does not satisfy state-space',
+        )
+        checkraise(
+            lambda: self.action_space.contains(action),
+            ValueError,
+            'action {} does not satisfy action-space',
+            action,
+        )
 
         next_state = copy.deepcopy(state)
         self._functional_step(next_state, action, rng=self._rng)
 
-        if not self.state_space.contains(next_state):
-            raise ValueError('next_state does not satisfy state-space')
+        checkraise(
+            lambda: self.state_space.contains(next_state),
+            ValueError,
+            'next_state does not satisfy state-space',
+        )
 
         reward = self.reward_function(state, action, next_state)
         terminal = self.termination_function(state, action, next_state)
@@ -77,7 +90,10 @@ class GridWorld(InnerEnv):
 
     def functional_observation(self, state: State) -> Observation:
         observation = self._functional_observation(state, rng=self._rng)
-        if not self.observation_space.contains(observation):
-            raise ValueError('observation does not satisfy observation-space')
+        checkraise(
+            lambda: self.observation_space.contains(observation),
+            ValueError,
+            'observation does not satisfy observation-space',
+        )
 
         return observation

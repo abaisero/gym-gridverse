@@ -5,6 +5,7 @@ import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.agent import Agent
+from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.visibility_functions import (
     VisibilityFunction,
     full_visibility,
@@ -45,8 +46,11 @@ def from_visibility(
         observation_grid, observation_space.agent_position, rng=rng
     )
 
-    if Shape(*visibility.shape) != observation_space.grid_shape:
-        raise ValueError('incorrect shape of visibility mask')
+    checkraise(
+        lambda: Shape(*visibility.shape) == observation_space.grid_shape,
+        ValueError,
+        'incorrect shape of visibility mask',
+    )
 
     for pos in observation_grid.positions():
         if not visibility[pos.y, pos.x]:
@@ -91,8 +95,13 @@ def factory(
 ) -> ObservationFunction:
 
     if name == 'from_visibility':
-        if None in [observation_space, visibility_function]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: observation_space is not None
+            and visibility_function is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             from_visibility,
@@ -101,36 +110,56 @@ def factory(
         )
 
     if name == 'full_observation':
-        if None in [observation_space]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: observation_space is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(full_observation, observation_space=observation_space)
 
     if name == 'partial_observation':
-        if None in [observation_space]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: observation_space is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(partial_observation, observation_space=observation_space)
 
     if name == 'minigrid_observation':
-        if None in [observation_space]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: observation_space is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             minigrid_observation, observation_space=observation_space
         )
 
     if name == 'raytracing_observation':
-        if None in [observation_space]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: observation_space is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             raytracing_observation, observation_space=observation_space
         )
 
     if name == 'stochastic_raytracing_observation':
-        if None in [observation_space]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: observation_space is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             stochastic_raytracing_observation,

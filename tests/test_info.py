@@ -51,21 +51,6 @@ def test_grid_contains(grid: Grid, position: PositionOrTuple, expected: bool):
 
 
 @pytest.mark.parametrize(
-    'grid,position',
-    [
-        (Grid(3, 4), (-1, 0)),
-        (Grid(3, 4), (0, -1)),
-        (Grid(3, 4), (3, 3)),
-        (Grid(3, 4), (2, 4)),
-    ],
-)
-def test_grid_check_contains(grid: Grid, position: PositionOrTuple):
-    # pylint: disable=protected-access
-    with pytest.raises(ValueError):
-        grid._check_contains(position)
-
-
-@pytest.mark.parametrize(
     'grid,expected',
     [
         (Grid(3, 4), 12),

@@ -16,6 +16,7 @@ import numpy as np
 from typing_extensions import TypedDict
 
 from gym_gridverse.action import Action
+from gym_gridverse.debugging import checkraise
 from gym_gridverse.observation import Observation
 from gym_gridverse.rendering import GridVerseViewer
 from gym_gridverse.state import State
@@ -35,8 +36,13 @@ class Data(Generic[RecordingElement]):
     discount: float
 
     def __post_init__(self):
-        if not len(self.elements) - 1 == len(self.actions) == len(self.rewards):
-            raise ValueError('wrong lengths')
+        checkraise(
+            lambda: len(self.elements) - 1
+            == len(self.actions)
+            == len(self.rewards),
+            ValueError,
+            'wrong lengths',
+        )
 
     @property
     def is_state_data(self):
@@ -61,14 +67,20 @@ class DataBuilder(Generic[RecordingElement]):
     discount: float
 
     def append0(self, element: RecordingElement):
-        if len(self.elements) != 0:
-            raise RuntimeError('cannot call DataBuilder.append0 at this point')
+        checkraise(
+            lambda: len(self.elements) == 0,
+            RuntimeError,
+            'cannot call DataBuilder.append0 at this point',
+        )
 
         self.elements.append(element)
 
     def append(self, element: RecordingElement, action: Action, reward: float):
-        if len(self.elements) == 0:
-            raise RuntimeError('cannot call DataBuilder.append at this point')
+        checkraise(
+            lambda: len(self.elements) != 0,
+            RuntimeError,
+            'cannot call DataBuilder.append at this point',
+        )
 
         self.elements.append(element)
         self.actions.append(action)
@@ -132,24 +144,33 @@ def record(
     """Factory function for other recording functions"""
 
     if mode == 'images':
-        if None in [filenames]:
-            raise ValueError(f'invalid arguments for mode {mode}')
+        checkraise(
+            lambda: filenames is not None,
+            ValueError,
+            'invalid arguments for mode {}',
+            mode,
+        )
 
-        assert filenames is not None  # forces typing
         record_images(filenames, images, **kwargs)
 
     if mode == 'gif':
-        if None in [filename]:
-            raise ValueError(f'invalid arguments for mode {mode}')
+        checkraise(
+            lambda: filename is not None,
+            ValueError,
+            'invalid arguments for mode {}',
+            mode,
+        )
 
-        assert filename is not None  # forces typing
         record_gif(filename, images, **kwargs)
 
     if mode == 'mp4':
-        if None in [filename]:
-            raise ValueError(f'invalid arguments for mode {mode}')
+        checkraise(
+            lambda: filename is not None,
+            ValueError,
+            'invalid arguments for mode {}',
+            mode,
+        )
 
-        assert filename is not None  # forces typing
         record_mp4(filename, images, **kwargs)
 
 

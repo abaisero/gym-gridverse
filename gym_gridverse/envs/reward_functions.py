@@ -4,6 +4,7 @@ from typing import Callable, Iterator, Optional, Sequence, Type
 import more_itertools as mitt
 
 from gym_gridverse.action import Action
+from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import DistanceFunction, Position
 from gym_gridverse.grid_object import (
@@ -384,22 +385,36 @@ def factory(  # pylint: disable=too-many-branches
 ) -> RewardFunction:
 
     if name == 'reduce':
-        if None in [reward_functions, reduction]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: reward_functions is not None and reduction is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             reduce, reward_functions=reward_functions, reduction=reduction
         )
 
     if name == 'reduce_sum':
-        if None in [reward_functions]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: reward_functions is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(reduce_sum, reward_functions=reward_functions)
 
     if name == 'overlap':
-        if None in [object_type, reward_on, reward_off]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: object_type is not None
+            and reward_on is not None
+            and reward_off is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             overlap,
@@ -409,26 +424,44 @@ def factory(  # pylint: disable=too-many-branches
         )
 
     if name == 'living_reward':
-        if None in [reward]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: reward is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(living_reward, reward=reward)
 
     if name == 'reach_goal':
-        if None in [reward_on, reward_off]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: reward_on is not None and reward_off is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(reach_goal, reward_on=reward_on, reward_off=reward_off)
 
     if name == 'bump_moving_obstacle':
-        if None in [reward]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: reward is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(bump_moving_obstacle, reward=reward)
 
     if name == 'proportional_to_distance':
-        if None in [distance_function, object_type, reward_per_unit_distance]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: distance_function is not None
+            and object_type is not None
+            and reward_per_unit_distance is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             proportional_to_distance,
@@ -438,13 +471,15 @@ def factory(  # pylint: disable=too-many-branches
         )
 
     if name == 'getting_closer':
-        if None in [
-            distance_function,
-            object_type,
-            reward_closer,
-            reward_further,
-        ]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: distance_function is not None
+            and object_type is not None
+            and reward_closer is not None
+            and reward_further is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             getting_closer,
@@ -455,22 +490,36 @@ def factory(  # pylint: disable=too-many-branches
         )
 
     if name == 'bump_into_wall':
-        if None in [reward]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: reward is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(bump_into_wall, reward=reward)
 
     if name == 'actuate_door':
-        if None in [reward_open, reward_close]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: reward_open is not None and reward_close is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             actuate_door, reward_open=reward_open, reward_close=reward_close
         )
 
     if name == 'pickndrop':
-        if None in [object_type, reward_pick, reward_drop]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: object_type is not None
+            and reward_pick is not None
+            and reward_drop is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             pickndrop,

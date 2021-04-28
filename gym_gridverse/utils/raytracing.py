@@ -6,6 +6,7 @@ from typing import Iterable, List
 import more_itertools as mitt
 import numpy as np
 
+from gym_gridverse.debugging import checkraise
 from gym_gridverse.geometry import Area, Position, PositionOrTuple
 
 Ray = List[Position]
@@ -36,8 +37,13 @@ def compute_ray(
         Ray: ray from the given position until the area boundary
     """
 
-    if not area.contains(position):
-        raise ValueError(f'position {position} must be inside area {area}')
+    checkraise(
+        lambda: area.contains(position),
+        ValueError,
+        'position {} must be inside area {}',
+        position,
+        area,
+    )
 
     position = Position.from_position_or_tuple(position)
 

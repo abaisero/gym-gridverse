@@ -2,6 +2,7 @@ from functools import partial
 from typing import Callable, Iterator, Optional, Sequence, Type
 
 from gym_gridverse.action import Action
+from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle, Wall
 from gym_gridverse.state import State
@@ -180,8 +181,12 @@ def factory(
 ) -> TerminatingFunction:
 
     if name == 'reduce':
-        if None in [terminating_functions, reduction]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: terminating_functions is not None and reduction is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(
             reduce_any,
@@ -190,20 +195,32 @@ def factory(
         )
 
     if name == 'reduce_any':
-        if None in [terminating_functions]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: terminating_functions is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(reduce_any, terminating_functions=terminating_functions)
 
     if name == 'reduce_all':
-        if None in [terminating_functions]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: terminating_functions is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(reduce_all, terminating_functions=terminating_functions)
 
     if name == 'overlap':
-        if None in [object_type]:
-            raise ValueError('invalid parameters for name `{name}`')
+        checkraise(
+            lambda: object_type is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
 
         return partial(overlap, object_type=object_type)
 

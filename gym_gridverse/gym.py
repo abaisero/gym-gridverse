@@ -6,6 +6,7 @@ import gym
 import numpy as np
 from gym.utils import seeding
 
+from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs import InnerEnv, factory
 from gym_gridverse.outer_env import OuterEnv
 from gym_gridverse.representations.observation_representations import (
@@ -166,8 +167,11 @@ class GymStateWrapper(gym.Wrapper):
 
     def __init__(self, env: GymEnvironment):
         # Make sure we have a valid state representation
-        if env.state_space is None:
-            raise ValueError('GymEnvironment does not have a state space')
+        checkraise(
+            lambda: env.state_space is not None,
+            ValueError,
+            'GymEnvironment does not have a state space',
+        )
 
         super().__init__(env)
         self.observation_space = env.state_space

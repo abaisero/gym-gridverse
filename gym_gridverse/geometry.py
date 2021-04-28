@@ -8,6 +8,8 @@ from typing import Callable, Iterable, Iterator, List, Tuple, Union
 
 from cached_property import cached_property
 
+from gym_gridverse.debugging import checkraise
+
 
 @dataclass(frozen=True)
 class Shape:
@@ -29,11 +31,18 @@ class Area:
     xs: Tuple[int, int]
 
     def __post_init__(self):
-        if self.ys[0] > self.ys[1]:
-            raise ValueError(f'ys ({self.ys}) should be non-decreasing')
-
-        if self.xs[0] > self.xs[1]:
-            raise ValueError(f'xs ({self.xs}) should be non-decreasing')
+        checkraise(
+            lambda: self.ys[0] <= self.ys[1],
+            ValueError,
+            'ys ({}) should be non-decreasing',
+            self.ys,
+        )
+        checkraise(
+            lambda: self.xs[0] <= self.xs[1],
+            ValueError,
+            'xs ({}) should be non-decreasing',
+            self.xs,
+        )
 
     @cached_property
     def ymin(self) -> int:
@@ -246,7 +255,7 @@ class Orientation(enum.Enum):
         if self is Orientation.W:
             return Position(0, -dist)
 
-        raise RuntimeError
+        assert False
 
     def as_radians(self) -> float:
         radians = {

@@ -4,6 +4,7 @@ from typing import Dict
 import numpy as np
 
 from gym_gridverse.agent import Agent
+from gym_gridverse.debugging import checkraise
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid import Grid
 from gym_gridverse.observation import Observation
@@ -37,10 +38,11 @@ class StateRepresentation(Representation):
     """Base interface for state representations: enforces `convert`"""
 
     def __init__(self, state_space: StateSpace):
-        if not state_space.can_be_represented:
-            raise ValueError(
-                'state space contains objects which cannot be represented in state'
-            )
+        checkraise(
+            lambda: state_space.can_be_represented,
+            ValueError,
+            'state space contains objects which cannot be represented in state',
+        )
 
         self.state_space = state_space
 

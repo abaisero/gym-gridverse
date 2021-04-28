@@ -5,6 +5,8 @@ from typing import Iterable, List, Sequence, Set, Type
 
 import numpy as np
 
+from gym_gridverse.debugging import checkraise
+
 from .geometry import Area, Orientation, Position, PositionOrTuple, Shape
 from .grid_object import Floor, GridObject, Hidden
 
@@ -82,16 +84,6 @@ class Grid:
         position = Position.from_position_or_tuple(position)
         return 0 <= position.y < self.height and 0 <= position.x < self.width
 
-    def _check_contains(
-        self,
-        position: PositionOrTuple,
-        exception_type: Type[Exception] = ValueError,
-    ):
-        """raises value error if position is not in the grid"""
-        position = Position.from_position_or_tuple(position)
-        if position not in self:
-            raise exception_type(f'Position {position} ')
-
     def positions(self) -> Iterable[Position]:
         """iterator over positions"""
         return self.area.positions()
@@ -118,30 +110,36 @@ class Grid:
     def __getitem__(self, position: PositionOrTuple) -> GridObject:
         position = Position.from_position_or_tuple(position)
 
-        if position not in self:
-            raise IndexError(f'position {position} not in grid')
+        checkraise(
+            lambda: position in self,
+            IndexError,
+            'position {} not in grid',
+            position,
+        )
 
         return self._grid[position.y, position.x]
 
     def __setitem__(self, position: PositionOrTuple, obj: GridObject):
         position = Position.from_position_or_tuple(position)
-
-        if position not in self:
-            raise IndexError(f'position {position} not in grid')
-
-        if not isinstance(obj, GridObject):
-            TypeError('grid can only contain entities')
+        checkraise(
+            lambda: position in self,
+            IndexError,
+            'position {} not in grid',
+            position,
+        )
+        checkraise(
+            lambda: isinstance(obj, GridObject),
+            TypeError,
+            'grid can only contain entities',
+        )
 
         y, x = position
         self._grid[y, x] = obj
 
     def swap(self, p: Position, q: Position):
         """swap the objects at two positions"""
-        if p not in self:
-            raise ValueError(f'position {p} not in grid')
-
-        if q not in self:
-            raise ValueError(f'position {q} not in grid')
+        checkraise(lambda: p in self, ValueError, 'position {} not in grid', p)
+        checkraise(lambda: q in self, ValueError, 'position {} not in grid', q)
 
         self[p], self[q] = self[q], self[p]
 
