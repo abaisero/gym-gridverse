@@ -84,13 +84,21 @@ class Area:
     def bottom_right(self) -> Position:
         return Position(self.ymax, self.xmax)
 
+    def positions_ys(self) -> Iterable[int]:
+        """iterator over y positions"""
+        return range(self.ymin, self.ymax + 1)
+
+    def positions_xs(self) -> Iterable[int]:
+        """iterator over x positions"""
+        return range(self.xmin, self.xmax + 1)
+
     def positions(self) -> Iterable[Position]:
         """iterator over positions"""
 
         return (
             Position(y, x)
-            for y in range(self.ymin, self.ymax + 1)
-            for x in range(self.xmin, self.xmax + 1)
+            for y in self.positions_ys()
+            for x in self.positions_xs()
         )
 
     def positions_border(self) -> Iterable[Position]:

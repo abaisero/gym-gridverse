@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, List, Sequence, Set, Type
+from typing import Iterable, List, Optional, Sequence, Set, Type
 
 import numpy as np
 
@@ -18,7 +18,9 @@ class Grid:
     simplify interacting with the objects, such as getting areas
     """
 
-    def __init__(self, height: int, width: int):
+    def __init__(
+        self, height: int, width: int, *, objects: Optional[np.ndarray] = None
+    ):
         """Constructs a `height` x `width` grid of :py:class:`~gym_gridverse.grid_object.Floor`
 
         Args:
@@ -26,10 +28,15 @@ class Grid:
             width (int):
 
         """
+        # TODO: improve __init__ interface;  we basically never want to
+        # implicitly default to creating a grid of Floor tiles
+        if objects is None:
+            objects = np.array(
+                [[Floor() for _ in range(width)] for _ in range(height)]
+            )
+
         self.shape = Shape(height, width)
-        self._grid = np.array(
-            [[Floor() for _ in range(width)] for _ in range(height)]
-        )
+        self._grid = objects
 
     @property
     def height(self):
@@ -49,13 +56,8 @@ class Grid:
             Grid: Grid containing those objects
         """
         # verifies input is shaped as a matrix
-        array = np.array(objects)
-
-        grid = Grid(*array.shape)
-        for pos in grid.positions():
-            grid[pos] = array[pos.y, pos.x]
-
-        return grid
+        objects_array = np.asarray(objects)
+        return Grid(*objects_array.shape, objects=objects_array)
 
     def to_objects(self) -> List[List[GridObject]]:
         return self._grid.tolist()
@@ -139,7 +141,6 @@ class Grid:
         """swap the objects at two positions"""
         checkraise(lambda: p in self, ValueError, 'position {} not in grid', p)
         checkraise(lambda: q in self, ValueError, 'position {} not in grid', q)
-
         self[p], self[q] = self[q], self[p]
 
     def subgrid(self, area: Area) -> Grid:
@@ -153,18 +154,19 @@ class Grid:
         Returns:
             Grid: New instance, sliced appropriately
         """
-        subgrid = Grid(area.height, area.width)
-        for pos_to in subgrid.positions():
-            pos_from = pos_to + area.top_left
 
+        def get_obj(y: int, x: int) -> GridObject:
             try:
-                obj = self[pos_from]
+                return self[y, x]
             except IndexError:
-                obj = Hidden()
+                return Hidden()
 
-            subgrid[pos_to] = obj
-
-        return subgrid
+        return Grid.from_objects(
+            [
+                [get_obj(y, x) for x in area.positions_xs()]
+                for y in area.positions_ys()
+            ]
+        )
 
     def change_orientation(self, orientation: Orientation) -> Grid:
         """returns grid as seen from someone facing the given direction
@@ -190,7 +192,7 @@ class Grid:
             Orientation.E: 1,
             Orientation.W: 3,
         }
-        objects = np.rot90(self._grid, times[orientation]).tolist()
+        objects = np.rot90(self._grid, times[orientation])
         return Grid.from_objects(objects)
 
     def __hash__(self):
