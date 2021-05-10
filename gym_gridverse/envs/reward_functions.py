@@ -1,7 +1,10 @@
-from functools import partial
-from typing import Callable, Iterator, Optional, Sequence, Type
+import itertools as itt
+from collections import deque
+from functools import lru_cache, partial
+from typing import Callable, Iterator, Optional, Sequence, Tuple, Type
 
 import more_itertools as mitt
+import numpy as np
 
 from gym_gridverse.action import Action
 from gym_gridverse.debugging import checkraise
@@ -257,6 +260,87 @@ def getting_closer(
     )
 
 
+@lru_cache(maxsize=10)
+def dijkstra(
+    layout: Tuple[Tuple[bool]], source_position: Tuple[int, int]
+) -> np.array:
+    layout_array = np.array(layout)
+
+    visited = np.zeros(layout_array.shape, dtype=bool)
+    visited[source_position] = True
+    distances = np.full(layout_array.shape, float('inf'))
+    distances[source_position] = 0.0
+
+    frontier = deque([source_position])
+    while frontier:
+        y_old, x_old = frontier.popleft()
+
+        for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            y_new = y_old + dy
+            x_new = x_old + dx
+
+            if (
+                0 <= y_new < layout_array.shape[0]
+                and 0 <= x_new < layout_array.shape[1]
+                and layout_array[y_new, x_new]
+                and not visited[y_new, x_new]
+            ):
+                distances[y_new, x_new] = distances[y_old, x_old] + 1
+                visited[y_new, x_new] = True
+                frontier.append((y_new, x_new))
+
+    return distances
+
+
+def getting_closer_shortest_path(
+    state: State,
+    action: Action,  # pylint: disable=unused-argument
+    next_state: State,
+    *,
+    object_type: Type[GridObject],
+    reward_closer: float = 1.0,
+    reward_further: float = -1.0,
+) -> float:
+    """reward for getting closer or further to object, *assuming normal navigation dynamics*
+
+    Args:
+        state (`State`):
+        action (`Action`):
+        next_state (`State`):
+        object_type: (`Type[GridObject]`): type of unique object in grid
+        reward_closer (`float`): reward for when agent gets closer to object
+        reward_further (`float`): reward for when agent gets further to object
+
+    Returns:
+        float: one of the input rewards, or 0.0 if distance has not changed
+    """
+
+    def _distance_agent_object(state):
+        object_position = mitt.one(
+            position
+            for position in state.grid.positions()
+            if isinstance(state.grid[position], object_type)
+        )
+
+        layout = tuple(
+            tuple(not state.grid[y, x].blocks for x in range(state.grid.width))
+            for y in range(state.grid.height)
+        )
+        distance_array = dijkstra(layout, object_position.astuple())
+        return distance_array[state.agent.position.astuple()]
+
+    distance_prev = _distance_agent_object(state)
+    distance_next = _distance_agent_object(next_state)
+
+    return (
+        reward_closer
+        if distance_next < distance_prev
+        else reward_further
+        if distance_next > distance_prev
+        else 0.0
+    )
+
+
 def bump_into_wall(
     state: State,
     action: Action,
@@ -484,6 +568,23 @@ def factory(  # pylint: disable=too-many-branches
         return partial(
             getting_closer,
             distance_function=distance_function,
+            object_type=object_type,
+            reward_closer=reward_closer,
+            reward_further=reward_further,
+        )
+
+    if name == 'getting_closer_shortest_path':
+        checkraise(
+            lambda: object_type is not None
+            and reward_closer is not None
+            and reward_further is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
+
+        return partial(
+            getting_closer_shortest_path,
             object_type=object_type,
             reward_closer=reward_closer,
             reward_further=reward_further,

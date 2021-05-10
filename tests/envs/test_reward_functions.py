@@ -8,6 +8,7 @@ from gym_gridverse.envs.reward_functions import (
     bump_moving_obstacle,
     factory,
     getting_closer,
+    getting_closer_shortest_path,
     living_reward,
     pickndrop,
     proportional_to_distance,
@@ -211,6 +212,37 @@ def test_getting_closer(
     next_state = make_goal_state(next_agent_on_goal)
     assert (
         getting_closer(state, action, next_state, object_type=Goal, **kwargs)
+        == expected
+    )
+
+
+@pytest.mark.parametrize(
+    'agent_on_goal,next_agent_on_goal,kwargs,expected',
+    [
+        (False, False, {}, 0.0),
+        (False, True, {}, 1.0),
+        (True, False, {}, -1.0),
+        (True, True, {}, 0.0),
+        (False, False, {'reward_closer': 2.0, 'reward_further': -5.0}, 0.0),
+        (False, True, {'reward_closer': 2.0, 'reward_further': -5.0}, 2.0),
+        (True, False, {'reward_closer': 2.0, 'reward_further': -5.0}, -5.0),
+        (True, True, {'reward_closer': 2.0, 'reward_further': -5.0}, 0.0),
+    ],
+)
+def test_getting_closer_shortest_path(
+    agent_on_goal: bool,
+    next_agent_on_goal: bool,
+    kwargs,
+    expected: float,
+    forbidden_action_maker,
+):
+    state = make_goal_state(agent_on_goal)
+    action = forbidden_action_maker()
+    next_state = make_goal_state(next_agent_on_goal)
+    assert (
+        getting_closer_shortest_path(
+            state, action, next_state, object_type=Goal, **kwargs
+        )
         == expected
     )
 
@@ -449,21 +481,19 @@ def test_pickndrop(
                 'reward_further': -0.1,
             },
         ),
-        ('bump_into_wall', {'reward': -1.0}),
         (
-            'actuate_door',
+            'getting_closer_shortest_path',
             {
-                'reward_open': 1.0,
-                'reward_close': -1.0,
+                'object_type': Goal,
+                'reward_closer': -0.1,
+                'reward_further': -0.1,
             },
         ),
+        ('bump_into_wall', {'reward': -1.0}),
+        ('actuate_door', {'reward_open': 1.0, 'reward_close': -1.0,},),
         (
             'pickndrop',
-            {
-                'object_type': Key,
-                'reward_pick': 1.0,
-                'reward_drop': -1.0,
-            },
+            {'object_type': Key, 'reward_pick': 1.0, 'reward_drop': -1.0,},
         ),
     ],
 )
@@ -482,6 +512,7 @@ def test_factory_valid(name: str, kwargs):
         ('bump_moving_obstacle', {}, ValueError),
         ('proportional_to_distance', {}, ValueError),
         ('getting_closer', {}, ValueError),
+        ('getting_closer_shortest_path', {}, ValueError),
         ('bump_into_wall', {}, ValueError),
         ('actuate_door', {}, ValueError),
         ('pickndrop', {}, ValueError),
