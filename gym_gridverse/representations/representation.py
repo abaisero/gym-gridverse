@@ -89,9 +89,6 @@ def default_representation_space(
         - 'agent_id_grid': (height x width) one-hot encoding of the agent's location
         - 'item': the categorical item type, status and color (three values)
         - 'agent_id_grid':
-        - 'legacy-agent': a 6-value feature representing the agent
-          pos/orientation and held object
-        - 'legacy-grid': a height x width x 5 shapes array of max values
 
     Args:
         max_type_index (int): highest value the type of the objects can take
@@ -101,7 +98,7 @@ def default_representation_space(
         height (int): height of the grid
 
     Returns:
-        Dict[str, Space]: {'grid', 'agent', 'item', 'agent_id_grid', 'legacy-agent', 'legacy-grid'}
+        Dict[str, Space]: keys {'grid', 'agent', 'item', 'agent_id_grid'}
     """
     checkraise(
         lambda: max_type_index >= 0,
@@ -144,36 +141,11 @@ def default_representation_space(
         )
     )
 
-    # Note there is a bug here left intentionally for reproduction purposes:
-    # the real space upper bounds are _inclusive_ and thus the max value should
-    # not be `height`, but `height - 1`.
-    legacy_agent_space = CategoricalSpace(
-        np.array(
-            [
-                height,
-                width,
-                len(Orientation),
-                max_type_index,
-                max_state_index,
-                max_color_value,
-            ]
-        )
-    )
-
-    legacy_grid_space = CategoricalSpace(
-        np.array(
-            [[[max_type_index, max_state_index, max_color_value] * 2] * width]
-            * height
-        ),
-    )
-
     return {
         'grid': grid_space,
         'agent': agent_space,
         'item': item_space,
         'agent_id_grid': agent_id_space,
-        'legacy-grid': legacy_grid_space,
-        'legacy-agent': legacy_agent_space,
     }
 
 
@@ -194,8 +166,6 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
 
     Returns 'agent_id_grid', a one-hot encoding of the agent ID (shape of the grid: h x w)
 
-    Returns legacy grid and agent representation
-
     NOTE: used by
     :class:`~gym_gridverse.representations.state_representations.DefaultStateRepresentation`
     and
@@ -207,7 +177,7 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
         agent (Agent):
 
     Returns:
-        Dict[str, np.ndarray]: {'grid', 'agent', 'item', 'agent_id_grid', 'legacy-agent', 'legacy-grid'}
+        Dict[str, np.ndarray]: keys {'grid', 'agent', 'item', 'agent_id_grid'}
     """
 
     item_representation = np.array(
@@ -238,28 +208,11 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
     )
     agent_array[2 + agent.orientation.value] = 1
 
-    # legacy parts
-    grid_array_agent_channels = np.zeros(
-        (grid.shape.height, grid.shape.width, 3), int
-    )
-    grid_array_agent_channels[agent.position.astuple()] = item_representation
-
-    legacy_agent_array = np.concatenate(
-        [
-            [agent.position.y, agent.position.x, agent.orientation.value],
-            item_representation,
-        ]
-    )
-
     return {
         'grid': grid_array_object_channels,
         'agent_id_grid': grid_agent_position,
         'agent': agent_array,
         'item': item_representation,
-        'legacy-grid': np.concatenate(
-            (grid_array_agent_channels, grid_array_object_channels), axis=-1
-        ),
-        'legacy-agent': legacy_agent_array,
     }
 
 
@@ -281,7 +234,7 @@ def no_overlap_representation_space(
     :class:`~gym_gridverse.representations.spaces.DiscreteSpace` values are
     left unmodified.
 
-    Categorical data includes 'grid' and 'item' and the legacy values
+    Categorical data includes 'grid' and 'item'
 
     Will return a dictionary that contains 'grid' and 'item':
 
@@ -299,7 +252,7 @@ def no_overlap_representation_space(
         height (int): height of the grid
 
     Returns:
-        Dict[str, Space]: {'grid', 'item', 'agent_id_grid', 'agent', 'legacy-agent', 'legacy-grid'}
+        Dict[str, Space]: keys {'grid', 'item', 'agent_id_grid', 'agent'}
     """
 
     rep = default_representation_space(
@@ -320,31 +273,6 @@ def no_overlap_representation_space(
     item_upper_bound[2] += max_type_index + max_state_index + 2
     rep['item'] = CategoricalSpace(item_upper_bound)
 
-    # legacy work #
-
-    # There is a bug in legacy that remains for reproduction reasons
-    # the 'max' values represent the maximum possible value (not the number)
-    # so they should be incremented to ensure no overlap
-    # this has been properly done in 'grid' and 'item'
-
-    # increment channels to ensure there is no overlap
-    no_overlap_legacy_grid_upper_bound = rep['legacy-grid'].upper_bound
-    no_overlap_legacy_grid_upper_bound[:, :, [1, 4]] += max_type_index
-    no_overlap_legacy_grid_upper_bound[:, :, [2, 5]] += (
-        max_type_index + max_state_index
-    )
-    rep['legacy-grid'] = CategoricalSpace(no_overlap_legacy_grid_upper_bound)
-
-    # default also returns position and orientation, which must be removed
-    no_overlap_legacy_agent_upper_bound = rep['legacy-agent'].upper_bound
-    no_overlap_legacy_agent_upper_bound = no_overlap_legacy_agent_upper_bound[
-        3:
-    ]
-
-    no_overlap_legacy_agent_upper_bound[1] += max_type_index
-    no_overlap_legacy_agent_upper_bound[2] += max_type_index + max_state_index
-    rep['legacy-agent'] = CategoricalSpace(no_overlap_legacy_agent_upper_bound)
-
     return rep
 
 
@@ -359,7 +287,7 @@ def no_overlap_convert(
     size of the spaces are generally larger.  The discrete data are left
     unmodified.
 
-    Categorical data includes 'grid' and 'item' and the legacy values
+    Categorical data includes 'grid' and 'item' values
 
     NOTE: used by
     :class:`~gym_gridverse.representations.state_representations.NoOverlapStateRepresentation`
@@ -376,7 +304,7 @@ def no_overlap_convert(
         height (int): height of the grid
 
     Returns:
-        Dict[str, np.ndarray]: {'grid', 'item', 'agent', 'agent_id_grid', 'legacy-agent', 'legacy-grid'}
+        Dict[str, np.ndarray]: keys {'grid', 'item', 'agent', 'agent_id_grid'}
     """
 
     rep = default_convert(grid, agent)
@@ -387,20 +315,5 @@ def no_overlap_convert(
 
     rep['item'][1] += max_type_index + 1
     rep['item'][2] += max_type_index + max_state_index + 2
-
-    # legacy
-    # default also returns agent position and orientation because that was
-    # going to overlap, so here we throw out that data and keep the item being
-    # held data
-    rep['legacy-agent'] = rep['legacy-agent'][3:]
-
-    # This is a bug in legacy that remains for reproduction reasons
-    # the 'max' values represent the maximum possible value (not the number)
-    # so they should be incremented to ensure no overlap
-    # This has been properly done in 'grid' and 'item'
-    rep['legacy-grid'][:, :, [1, 4]] += max_type_index
-    rep['legacy-grid'][:, :, [2, 5]] += max_type_index + max_state_index
-    rep['legacy-agent'][1] += max_type_index
-    rep['legacy-agent'][2] += max_type_index + max_state_index
 
     return rep

@@ -44,11 +44,6 @@ class DefaultObservationRepresentation(ObservationRepresentation):
             self.observation_space.grid_shape.height,
         )
 
-        # observation does not include the position and orientation returned by
-        # the default implementation
-        legacy_agent_upper_bound = space['legacy-agent'].upper_bound[3:]
-        space['legacy-agent'] = CategoricalSpace(legacy_agent_upper_bound)
-
         # observation does not include state information about the agent
         del space['agent']
 
@@ -63,10 +58,7 @@ class DefaultObservationRepresentation(ObservationRepresentation):
 
         conversion = default_convert(o.grid, o.agent)
 
-        # observation does not include the position and orientation returned by
-        # the default implementation
-        conversion['legacy-agent'] = conversion['legacy-agent'][3:]
-
+        # observation does not include state information about the agent
         del conversion['agent']
 
         return conversion
