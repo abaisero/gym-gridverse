@@ -142,6 +142,7 @@ def main():  # pylint: disable=too-many-locals
         '--fps', type=float, default=30.0, help='frames per second'
     )
 
+    parser.add_argument('--gif-record', action='store_true')
     parser.add_argument(
         '--gif-filename-state',
         default='recordings/state.{}.gif',
@@ -214,7 +215,8 @@ def main():  # pylint: disable=too-many-locals
         state_data_builder.append0(state_image)
         observation_data_builder.append0(observation_image)
 
-        done, reset, record = False, False, True
+        done, reset = False, False
+        record = True  # avoids recording the same episode multiple times
         for _ in itt.count():
             command = keyboard_handler.get_command()
 
@@ -263,7 +265,7 @@ def main():  # pylint: disable=too-many-locals
                     observation_image, action, reward
                 )
 
-            if done and record:
+            if args.gif_record and done and record:
                 state_data = state_data_builder.build()
                 state_images = list(generate_images(state_data))
                 record_gif(
