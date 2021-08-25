@@ -553,6 +553,49 @@ class Telepod(GridObject):
         return f'{self.__class__.__name__}({self.color!s})'
 
 
+class Beacon(GridObject):
+    """A beacon to attract attention"""
+
+    type_index: int
+
+    def __init__(self, color: Color):
+        self._color = color
+
+    @classmethod
+    def can_be_represented_in_state(cls) -> bool:
+        return True
+
+    @property
+    def state_index(self) -> int:
+        return 0
+
+    @property
+    def color(self) -> Color:
+        return self._color
+
+    @classmethod
+    def num_states(cls) -> int:
+        return 1
+
+    @property
+    def transparent(self) -> bool:
+        return False
+
+    @property
+    def can_be_picked_up(self) -> bool:
+        return False
+
+    @property
+    def blocks(self) -> bool:
+        return True
+
+    def render_as_char(self) -> str:
+        return "B"
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.color!s})'
+
+
 def factory(
     name: str,
     *,
@@ -623,6 +666,17 @@ def factory(
         color_ = Color[color]
         return Telepod(color_)
 
+    if name in ['beacon', 'Beacon']:
+        checkraise(
+            lambda: isinstance(color, str),
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
+
+        color_ = Color[color]
+        return Beacon(color_)
+
     raise ValueError(f'invalid grid-object name {name}')
 
 
@@ -657,6 +711,9 @@ def factory_type(name: str) -> Type[GridObject]:
 
     if name in ['telepod', 'Telepod']:
         return Telepod
+
+    if name in ['beacon', 'Beacon']:
+        return Beacon
 
     raise ValueError(f'invalid grid-object type name {name}')
 

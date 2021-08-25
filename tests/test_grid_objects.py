@@ -8,6 +8,7 @@ from gym_gridverse.agent import Agent
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
+    Beacon,
     Box,
     Color,
     Door,
@@ -45,6 +46,7 @@ class DummyNonRegisteredObject(  # pylint: disable=abstract-method
         (MovingObstacle, True),
         (Box, True),
         (Telepod, True),
+        (Beacon, True),
     ],
 )
 def test_registration(object_type: Type[GridObject], expected: bool):
@@ -65,7 +67,7 @@ def test_grid_object_registration():
     """ Test registration of type indices """
 
     # pylint: disable=no-member
-    assert len(GridObject.object_types) == 10
+    assert len(GridObject.object_types) == 11
     unittest.TestCase().assertCountEqual(
         [
             NoneGridObject.type_index,
@@ -78,6 +80,7 @@ def test_grid_object_registration():
             MovingObstacle.type_index,
             Box.type_index,
             Telepod.type_index,
+            Beacon.type_index,
         ],
         range(len(GridObject.object_types)),
     )
@@ -93,6 +96,7 @@ def test_grid_object_registration():
         MovingObstacle,
         Box,
         Telepod,
+        Beacon,
     ]:
         assert GridObject.object_types[obj_cls.type_index] is obj_cls
 
@@ -299,6 +303,22 @@ def test_telepod_properties():
     assert telepod.num_states() == 1
 
 
+def test_beacon_properties():
+    """Basic property tests of beacon"""
+
+    color = Color.YELLOW
+    beacon = Beacon(color)
+
+    assert not beacon.transparent
+    assert beacon.blocks
+    assert beacon.color == color
+    assert not beacon.can_be_picked_up
+    assert beacon.state_index == 0
+
+    assert beacon.can_be_represented_in_state()
+    assert beacon.num_states() == 1
+
+
 @pytest.mark.parametrize(
     'name,kwargs',
     [
@@ -322,6 +342,8 @@ def test_telepod_properties():
         ('box', {'obj': Floor()}),
         ('Telepod', {'color': 'RED'}),
         ('telepod', {'color': 'RED'}),
+        ('Beacon', {'color': 'RED'}),
+        ('beacon', {'color': 'RED'}),
     ],
 )
 def test_factory_valid(name: str, kwargs):

@@ -91,6 +91,7 @@ def object_type_schema():
             'moving_obstacle',
             'box',
             'telepod',
+            'beacon',
             # XXX remove these
             'Floor',
             'Wall',
@@ -100,6 +101,7 @@ def object_type_schema():
             'MovingObstacle',
             'Box',
             'Telepod',
+            'Beacon',
         )
     )
 

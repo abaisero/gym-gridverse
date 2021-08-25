@@ -55,6 +55,7 @@ def test_layout_schema(data, expected: bool):
         ('moving_obstacle', True),
         ('box', True),
         ('telepod', True),
+        ('beacon', True),
         # TODO: remove these
         ('Floor', True),
         ('Wall', True),
@@ -64,6 +65,7 @@ def test_layout_schema(data, expected: bool):
         ('MovingObstacle', True),
         ('Box', True),
         ('Telepod', True),
+        ('Beacon', True),
         ('invalid', False),
     ],
 )
