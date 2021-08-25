@@ -10,7 +10,7 @@ from gym_gridverse.envs.reset_functions import (
 from gym_gridverse.geometry import Shape
 from gym_gridverse.grid_object import (
     Door,
-    Goal,
+    Exit,
     Key,
     MovingObstacle,
     Telepod,
@@ -86,11 +86,11 @@ def test_reset_keydoor_key(size: int):
 
 
 @pytest.mark.parametrize('size', range(5, 12))
-def test_reset_keydoor_goal(size: int):
+def test_reset_keydoor_exit(size: int):
     state = reset_keydoor(size, size)
     assert isinstance(
-        state.grid[size - 2, size - 2], Goal
-    ), "There should be a goal bottom right"
+        state.grid[size - 2, size - 2], Exit
+    ), "There should be a exit bottom right"
 
 
 @pytest.mark.parametrize('height', [10, 20])

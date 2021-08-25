@@ -20,8 +20,8 @@ from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Color,
     Door,
+    Exit,
     Floor,
-    Goal,
     GridObject,
     Key,
     MovingObstacle,
@@ -41,7 +41,7 @@ def reset_empty(
     height: int,
     width: int,
     random_agent: bool = False,
-    random_goal: bool = False,
+    random_exit: bool = False,
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> State:
@@ -55,19 +55,19 @@ def reset_empty(
 
     rng = get_gv_rng_if_none(rng)
 
-    # TODO: test creation (e.g. count number of walls, goals, check held item)
+    # TODO: test creation (e.g. count number of walls, exits, check held item)
 
     grid = Grid(height, width)
     draw_wall_boundary(grid)
 
-    if random_goal:
-        goal_y = rng.integers(1, height - 2, endpoint=True)
-        goal_x = rng.integers(1, width - 2, endpoint=True)
+    if random_exit:
+        exit_y = rng.integers(1, height - 2, endpoint=True)
+        exit_x = rng.integers(1, width - 2, endpoint=True)
     else:
-        goal_y = height - 2
-        goal_x = width - 2
+        exit_y = height - 2
+        exit_x = width - 2
 
-    grid[goal_y, goal_x] = Goal()
+    grid[exit_y, exit_x] = Exit()
 
     if random_agent:
         agent_position = rng.choice(
@@ -96,7 +96,7 @@ def reset_rooms(  # pylint: disable=too-many-locals
 
     rng = get_gv_rng_if_none(rng)
 
-    # TODO: test creation (e.g. count number of walls, goals, check held item)
+    # TODO: test creation (e.g. count number of walls, exits, check held item)
 
     layout_height, layout_width = layout
 
@@ -145,8 +145,8 @@ def reset_rooms(  # pylint: disable=too-many-locals
             y = rng.integers(y_from + 1, y_to)
             grid[y, x] = Floor()
 
-    # sample agent and goal positions
-    agent_position, goal_position = rng.choice(
+    # sample agent and exit positions
+    agent_position, exit_position = rng.choice(
         [
             position
             for position in grid.positions()
@@ -157,7 +157,7 @@ def reset_rooms(  # pylint: disable=too-many-locals
     )
     agent_orientation = rng.choice(list(Orientation))
 
-    grid[goal_position] = Goal()
+    grid[exit_position] = Exit()
     agent = Agent(agent_position, agent_orientation)
     return State(grid, agent)
 
@@ -217,7 +217,7 @@ def reset_keydoor(
 
     Creates a height x width (including outer walls) grid with a random column
     of walls. The agent and a yellow key are randomly dropped left of the
-    column, while the goal is placed in the bottom right. For example::
+    column, while the exit is placed in the bottom right. For example::
 
         #########
         # @#    #
@@ -243,7 +243,7 @@ def reset_keydoor(
     rng = get_gv_rng_if_none(rng)
 
     state = reset_empty(height, width)
-    assert isinstance(state.grid[height - 2, width - 2], Goal)
+    assert isinstance(state.grid[height - 2, width - 2], Exit)
 
     # Generate vertical splitting wall
     x_wall = rng.integers(2, width - 3, endpoint=True)
@@ -283,7 +283,7 @@ def reset_crossing(  # pylint: disable=too-many-locals
 
     Creates a height x width (including wall) grid with random rows/columns of
     objects called "rivers". The agent needs to navigate river openings to
-    reach the goal.  For example::
+    reach the exit.  For example::
 
         #########
         #@    # #
@@ -292,7 +292,7 @@ def reset_crossing(  # pylint: disable=too-many-locals
         ## ######
         #       #
         #     # #
-        #     #G#
+        #     #E#
         #########
 
     Args:
@@ -327,7 +327,7 @@ def reset_crossing(  # pylint: disable=too-many-locals
     rng = get_gv_rng_if_none(rng)
 
     state = reset_empty(height, width)
-    assert isinstance(state.grid[height - 2, width - 2], Goal)
+    assert isinstance(state.grid[height - 2, width - 2], Exit)
 
     # token `horizontal` and `vertical` objects
     h, v = object(), object()
@@ -354,7 +354,7 @@ def reset_crossing(  # pylint: disable=too-many-locals
     for x in rivers_v:
         draw_line_vertical(state.grid, range(1, height - 1), x, object_type)
 
-    # sample path to goal
+    # sample path to exit
     path = [h] * len(rivers_v) + [v] * len(rivers_h)
     rng.shuffle(path)
 
@@ -392,7 +392,7 @@ def reset_teleport(
     rng = get_gv_rng_if_none(rng)
 
     state = reset_empty(height, width)
-    assert isinstance(state.grid[height - 2, width - 2], Goal)
+    assert isinstance(state.grid[height - 2, width - 2], Exit)
 
     # Place agent on top left
     state.agent.position = (1, 1)  # type: ignore

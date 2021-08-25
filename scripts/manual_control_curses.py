@@ -16,7 +16,7 @@ from gym_gridverse.action import Action
 from gym_gridverse.envs import InnerEnv
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.geometry import Orientation, Position, Shape
-from gym_gridverse.grid_object import Color, Floor, Goal, GridObject, Wall
+from gym_gridverse.grid_object import Color, Exit, Floor, GridObject, Wall
 from gym_gridverse.observation import Observation
 from gym_gridverse.spaces import (
     ActionSpace,
@@ -290,9 +290,9 @@ def main(
 
 if __name__ == "__main__":
     domain_space = DomainSpace(
-        StateSpace(Shape(10, 10), [Floor, Wall, Goal], [Color.NONE]),
+        StateSpace(Shape(10, 10), [Floor, Wall, Exit], [Color.NONE]),
         ActionSpace(list(Action)),
-        ObservationSpace(Shape(7, 7), [Floor, Wall, Goal], [Color.NONE]),
+        ObservationSpace(Shape(7, 7), [Floor, Wall, Exit], [Color.NONE]),
     )
 
     # reset_function = partial(reset_fs.reset_rooms, 10, 10, (2, 2))
@@ -313,17 +313,17 @@ if __name__ == "__main__":
         reward_fs.reduce_sum,
         reward_functions=[
             partial(reward_fs.living_reward, reward=-0.01),
-            partial(reward_fs.reach_goal, reward_on=10.0),
+            partial(reward_fs.reach_exit, reward_on=10.0),
             partial(
                 reward_fs.getting_closer,
                 reward_closer=0.1,
                 reward_further=-0.1,
-                object_type=Goal,
+                object_type=Exit,
             ),
         ],
     )
 
-    terminating_function = terminating_fs.reach_goal
+    terminating_function = terminating_fs.reach_exit
 
     domain: InnerEnv = GridWorld(
         domain_space,

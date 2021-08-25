@@ -8,8 +8,8 @@ from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Color,
     Door,
+    Exit,
     Floor,
-    Goal,
     Key,
     NoneGridObject,
     Wall,
@@ -144,7 +144,7 @@ def no_overlap_fixture():
     height, width = 4, 5
 
     # hard coded from above
-    max_object_type = Goal.type_index  # pylint: disable=no-member
+    max_object_type = Exit.type_index  # pylint: disable=no-member
     max_object_status = 0
     max_color_value = Color.GREEN.value
 
@@ -251,9 +251,9 @@ def test_no_overlap_convert(
         first_item_color,
     ]
 
-    # we expect goal to be in corner
+    # we expect exit to be in corner
     expected_grid_state[height - 2, width - 2, :] = [
-        Goal.type_index,
+        Exit.type_index,
         first_item_status,
         first_item_color,
     ]

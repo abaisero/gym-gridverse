@@ -4,7 +4,7 @@ from typing import Callable, Iterator, Optional, Sequence, Type
 from gym_gridverse.action import Action
 from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
-from gym_gridverse.grid_object import Goal, GridObject, MovingObstacle, Wall
+from gym_gridverse.grid_object import Exit, GridObject, MovingObstacle, Wall
 from gym_gridverse.state import State
 
 TerminatingFunction = Callable[[State, Action, State], bool]
@@ -116,8 +116,8 @@ def overlap(
     return isinstance(next_state.grid[next_state.agent.position], object_type)
 
 
-def reach_goal(state: State, action: Action, next_state: State) -> bool:
-    """terminating condition for Agent reaching the Goal
+def reach_exit(state: State, action: Action, next_state: State) -> bool:
+    """terminating condition for Agent reaching the Exit
 
     Args:
         state (`State`):
@@ -125,9 +125,9 @@ def reach_goal(state: State, action: Action, next_state: State) -> bool:
         next_state (`State`):
 
     Returns:
-        bool: True if next_state agent is on goal
+        bool: True if next_state agent is on exit
     """
-    return overlap(state, action, next_state, object_type=Goal)
+    return overlap(state, action, next_state, object_type=Exit)
 
 
 def bump_moving_obstacle(
@@ -224,8 +224,8 @@ def factory(
 
         return partial(overlap, object_type=object_type)
 
-    if name == 'reach_goal':
-        return reach_goal
+    if name == 'reach_exit':
+        return reach_exit
 
     if name == 'bump_moving_obstacle':
         return bump_moving_obstacle

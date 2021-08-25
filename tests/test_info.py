@@ -14,8 +14,8 @@ from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Box,
     Color,
+    Exit,
     Floor,
-    Goal,
     GridObject,
     Hidden,
     Key,
@@ -116,11 +116,11 @@ def test_grid_object_types():
     grid[0, 0] = Wall()
     assert grid.object_types() == set([Floor, Wall])
 
-    grid[0, 0] = Goal()
-    assert grid.object_types() == set([Floor, Goal])
+    grid[0, 0] = Exit()
+    assert grid.object_types() == set([Floor, Exit])
 
     grid[1, 1] = Wall()
-    assert grid.object_types() == set([Floor, Goal, Wall])
+    assert grid.object_types() == set([Floor, Exit, Wall])
 
 
 def test_grid_get_item():

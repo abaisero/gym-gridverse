@@ -17,8 +17,8 @@ from gym_gridverse.geometry import Shape
 from gym_gridverse.grid_object import (
     Color,
     Door,
+    Exit,
     Floor,
-    Goal,
     GridObject,
     Key,
     MovingObstacle,
@@ -102,14 +102,14 @@ def plain_navigation_task(
         transition_fs.update_agent
     ]
     rewards: List[reward_functions.RewardFunction] = [
-        reward_functions.reach_goal
+        reward_functions.reach_exit
     ]
     terminations: List[terminating_functions.TerminatingFunction] = [
-        terminating_functions.reach_goal
+        terminating_functions.reach_exit
     ]
 
     grid_shape = reset_func().grid.shape  # XXX: we hate this
-    objects = [Wall, Floor, Goal]
+    objects = [Wall, Floor, Exit]
     colors = [Color.NONE]
 
     state_space = StateSpace(grid_shape, objects, colors)
@@ -144,18 +144,18 @@ def env_dynamic_obstacle(
         transition_fs.step_moving_obstacles,
     ]
     rewards: List[reward_functions.RewardFunction] = [
-        reward_functions.reach_goal,
+        reward_functions.reach_exit,
         reward_functions.bump_moving_obstacle,
         reward_functions.bump_into_wall,
     ]
     terminations: List[terminating_functions.TerminatingFunction] = [
-        terminating_functions.reach_goal,
+        terminating_functions.reach_exit,
         terminating_functions.bump_moving_obstacle,
         terminating_functions.bump_into_wall,
     ]
 
     grid_shape = reset_func().grid.shape  # XXX: we hate this
-    objects = [Wall, Floor, Goal, MovingObstacle]
+    objects = [Wall, Floor, Exit, MovingObstacle]
     colors = [Color.NONE]
 
     state_space = StateSpace(grid_shape, objects, colors)
@@ -218,14 +218,14 @@ def gym_keydoor_env(size: int) -> InnerEnv:
         transition_fs.pickup_mechanics,
     ]
     rewards: List[reward_functions.RewardFunction] = [
-        reward_functions.reach_goal
+        reward_functions.reach_exit
     ]
     terminations: List[terminating_functions.TerminatingFunction] = [
-        terminating_functions.reach_goal
+        terminating_functions.reach_exit
     ]
 
     grid_shape = reset().grid.shape  # XXX: we hate this
-    objects: List[Type[GridObject]] = [Wall, Floor, Goal, Door, Key]
+    objects: List[Type[GridObject]] = [Wall, Floor, Exit, Door, Key]
     colors = [Color.NONE, Color.YELLOW]
     observation_shape = Shape(7, 7)
 

@@ -17,8 +17,8 @@ from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Color,
     Door,
+    Exit,
     Floor,
-    Goal,
     GridObject,
     Key,
     Wall,
@@ -58,8 +58,8 @@ def test_max_color_index(colors: Sequence[Color], expected: int):
 @pytest.mark.parametrize(
     'object_types,expected',
     [
-        ([Floor, Goal], Floor.num_states()),
-        ([Floor, Goal, Door], Door.num_states()),
+        ([Floor, Exit], Floor.num_states()),
+        ([Floor, Exit, Door], Door.num_states()),
     ],
 )
 def test_max_object_status(
@@ -72,8 +72,8 @@ def test_max_object_status(
 @pytest.mark.parametrize(
     'object_types,expected',
     [
-        ([Floor, Goal], Goal.type_index),
-        ([Floor, Goal, Door], Door.type_index),
+        ([Floor, Exit], Exit.type_index),
+        ([Floor, Exit, Door], Door.type_index),
     ],
 )
 def test_max_object_type(

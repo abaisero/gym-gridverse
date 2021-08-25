@@ -49,7 +49,7 @@ def test_layout_schema(data, expected: bool):
     [
         ('floor', True),
         ('wall', True),
-        ('goal', True),
+        ('exit', True),
         ('door', True),
         ('key', True),
         ('moving_obstacle', True),
@@ -59,7 +59,7 @@ def test_layout_schema(data, expected: bool):
         # TODO: remove these
         ('Floor', True),
         ('Wall', True),
-        ('Goal', True),
+        ('Exit', True),
         ('Door', True),
         ('Key', True),
         ('MovingObstacle', True),

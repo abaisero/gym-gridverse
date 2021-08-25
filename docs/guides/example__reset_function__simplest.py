@@ -5,7 +5,7 @@ import numpy.random as rnd
 from gym_gridverse.agent import Agent
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid import Grid
-from gym_gridverse.grid_object import Floor, Goal, Wall
+from gym_gridverse.grid_object import Exit, Floor, Wall
 from gym_gridverse.state import State
 
 
@@ -13,13 +13,13 @@ def simplest_reset(
     *,
     rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
 ) -> State:
-    """smallest possible room with goal right in front of agent"""
+    """smallest possible room with exit right in front of agent"""
 
     # constructed the grid directly from objects
     grid = Grid.from_objects(
         [
             [Wall(), Wall(), Wall()],
-            [Wall(), Goal(), Wall()],
+            [Wall(), Exit(), Wall()],
             [Wall(), Floor(), Wall()],
             [Wall(), Wall(), Wall()],
         ]

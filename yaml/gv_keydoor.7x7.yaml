@@ -1,11 +1,11 @@
 state_space:
   shape: [ 7, 7 ]
-  objects: [ Wall, Floor, Goal, Door, Key ]
+  objects: [ Wall, Floor, Exit, Door, Key ]
   colors: [ NONE, YELLOW ]
 
 observation_space:
   shape: [ 7, 7 ]
-  objects: [ Wall, Floor, Goal, Door, Key ]
+  objects: [ Wall, Floor, Exit, Door, Key ]
   colors: [ NONE, YELLOW ]
 
 reset_function:
@@ -17,7 +17,7 @@ transition_functions:
   - name: pickup_mechanics
 
 reward_functions:
-  - name: reach_goal
+  - name: reach_exit
     reward_on: 5.0
     reward_off: 0.0
   - name: pickndrop
@@ -29,7 +29,7 @@ reward_functions:
     reward_close: -1.0
   - name: getting_closer
     distance_function: manhattan
-    object_type: Goal
+    object_type: Exit
     reward_closer: 0.2
     reward_further: -0.2
   - name: living_reward
@@ -39,4 +39,4 @@ observation_function:
   name: full_observation
 
 terminating_function:
-  name: reach_goal
+  name: reach_exit

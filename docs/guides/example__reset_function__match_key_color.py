@@ -5,7 +5,7 @@ import numpy.random as rnd
 from gym_gridverse.agent import Agent
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid import Grid
-from gym_gridverse.grid_object import Color, Door, Floor, Goal, Key, Wall
+from gym_gridverse.grid_object import Color, Door, Exit, Floor, Key, Wall
 from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
 
@@ -29,7 +29,7 @@ def match_key_color(
     grid = Grid.from_objects(
         [
             [Wall(), Wall(), Wall(), Wall(), Wall()],
-            [Wall(), Wall(), Goal(), Wall(), Wall()],
+            [Wall(), Wall(), Exit(), Wall(), Wall()],
             [Wall(), Wall(), door, Wall(), Wall()],
             [Wall(), key1, Floor(), key2, Wall()],
             [Wall(), key3, Floor(), key4, Wall()],

@@ -5,20 +5,20 @@ from gym_gridverse.agent import Agent
 from gym_gridverse.envs.terminating_functions import (
     bump_into_wall,
     factory,
-    reach_goal,
+    reach_exit,
 )
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid import Grid
-from gym_gridverse.grid_object import Goal, Wall
+from gym_gridverse.grid_object import Exit, Wall
 from gym_gridverse.state import State
 
 
 # TODO: turn into fixture
-def make_goal_state(agent_on_goal: bool) -> State:
-    """makes a simple state with goal object and agent on or off the goal"""
+def make_exit_state(agent_on_exit: bool) -> State:
+    """makes a simple state with exit object and agent on or off the exit"""
     grid = Grid(2, 1)
-    grid[0, 0] = Goal()
-    agent_position = (0, 0) if agent_on_goal else (1, 0)
+    grid[0, 0] = Exit()
+    agent_position = (0, 0) if agent_on_exit else (1, 0)
     agent = Agent(agent_position, Orientation.N)
     return State(grid, agent)
 
@@ -35,14 +35,14 @@ def make_wall_state() -> State:
 @pytest.mark.parametrize(
     'next_state,expected',
     [
-        # on goal
-        (make_goal_state(agent_on_goal=True), True),
-        # off goal
-        (make_goal_state(agent_on_goal=False), False),
+        # on exit
+        (make_exit_state(agent_on_exit=True), True),
+        # off exit
+        (make_exit_state(agent_on_exit=False), False),
     ],
 )
-def test_reach_goal(next_state: State, expected: bool):
-    assert reach_goal(None, None, next_state) == expected  # type: ignore
+def test_reach_exit(next_state: State, expected: bool):
+    assert reach_exit(None, None, next_state) == expected  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -79,8 +79,8 @@ def test_bump_into_wall_special_case():
         ),
         ('reduce_any', {'terminating_functions': []}),
         ('reduce_all', {'terminating_functions': []}),
-        ('overlap', {'object_type': Goal}),
-        ('reach_goal', {}),
+        ('overlap', {'object_type': Exit}),
+        ('reach_exit', {}),
         ('bump_moving_obstacle', {}),
         ('bump_into_wall', {}),
     ],

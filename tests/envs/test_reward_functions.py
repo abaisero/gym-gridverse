@@ -12,14 +12,14 @@ from gym_gridverse.envs.reward_functions import (
     living_reward,
     pickndrop,
     proportional_to_distance,
-    reach_goal,
+    reach_exit,
 )
 from gym_gridverse.geometry import Orientation, Position, PositionOrTuple
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Color,
     Door,
-    Goal,
+    Exit,
     Key,
     MovingObstacle,
     Wall,
@@ -27,25 +27,25 @@ from gym_gridverse.grid_object import (
 from gym_gridverse.state import State
 
 
-def make_5x5_goal_state() -> State:
-    """makes a simple 5x5 state with goal object in the middle"""
+def make_5x5_exit_state() -> State:
+    """makes a simple 5x5 state with exit object in the middle"""
     grid = Grid(5, 5)
-    grid[2, 2] = Goal()
+    grid[2, 2] = Exit()
     agent = Agent((0, 0), Orientation.N)
     return State(grid, agent)
 
 
-def make_goal_state(agent_on_goal: bool) -> State:
+def make_exit_state(agent_on_exit: bool) -> State:
     """makes a simple state with a wall in front of the agent"""
     grid = Grid(2, 1)
-    grid[0, 0] = Goal()
-    agent_position = (0, 0) if agent_on_goal else (1, 0)
+    grid[0, 0] = Exit()
+    agent_position = (0, 0) if agent_on_exit else (1, 0)
     agent = Agent(agent_position, Orientation.N)
     return State(grid, agent)
 
 
 def make_wall_state(orientation: Orientation = Orientation.N) -> State:
-    """makes a simple state with goal object and agent on or off the goal"""
+    """makes a simple state with exit object and agent on or off the exit"""
     grid = Grid(2, 1)
     grid[0, 0] = Wall()
     agent = Agent((1, 0), orientation)
@@ -69,7 +69,7 @@ def make_key_state(has_key: bool) -> State:
 
 
 def make_moving_obstacle_state(agent_on_obstacle: bool) -> State:
-    """makes a simple state with goal object and agent on or off the goal"""
+    """makes a simple state with exit object and agent on or off the exit"""
     grid = Grid(2, 1)
     grid[0, 0] = MovingObstacle()
     agent_position = (0, 0) if agent_on_obstacle else (1, 0)
@@ -96,7 +96,7 @@ def test_living_reward(
 
 
 @pytest.mark.parametrize(
-    'agent_on_goal,kwargs,expected',
+    'agent_on_exit,kwargs,expected',
     [
         (True, {}, 1.0),
         (False, {}, 0.0),
@@ -104,8 +104,8 @@ def test_living_reward(
         (False, {'reward_on': 10.0, 'reward_off': -1.0}, -1.0),
     ],
 )
-def test_reach_goal(
-    agent_on_goal: bool,
+def test_reach_exit(
+    agent_on_exit: bool,
     kwargs,
     expected: float,
     forbidden_state_maker,
@@ -113,8 +113,8 @@ def test_reach_goal(
 ):
     state = forbidden_state_maker()
     action = forbidden_action_maker()
-    next_state = make_goal_state(agent_on_goal=agent_on_goal)
-    assert reach_goal(state, action, next_state, **kwargs) == expected
+    next_state = make_exit_state(agent_on_exit=agent_on_exit)
+    assert reach_exit(state, action, next_state, **kwargs) == expected
 
 
 @pytest.mark.parametrize(
@@ -177,18 +177,18 @@ def test_proportional_to_distance_default(
 ):
     state = forbidden_state_maker()
     action = forbidden_action_maker()
-    next_state = make_5x5_goal_state()
+    next_state = make_5x5_exit_state()
     # TODO: find better way to construct this state
     next_state.agent.position = Position.from_position_or_tuple(position)
 
     reward = proportional_to_distance(
-        state, action, next_state, object_type=Goal, **kwargs
+        state, action, next_state, object_type=Exit, **kwargs
     )
     assert round(reward, 7) == expected
 
 
 @pytest.mark.parametrize(
-    'agent_on_goal,next_agent_on_goal,kwargs,expected',
+    'agent_on_exit,next_agent_on_exit,kwargs,expected',
     [
         (False, False, {}, 0.0),
         (False, True, {}, 1.0),
@@ -201,23 +201,23 @@ def test_proportional_to_distance_default(
     ],
 )
 def test_getting_closer(
-    agent_on_goal: bool,
-    next_agent_on_goal: bool,
+    agent_on_exit: bool,
+    next_agent_on_exit: bool,
     kwargs,
     expected: float,
     forbidden_action_maker,
 ):
-    state = make_goal_state(agent_on_goal)
+    state = make_exit_state(agent_on_exit)
     action = forbidden_action_maker()
-    next_state = make_goal_state(next_agent_on_goal)
+    next_state = make_exit_state(next_agent_on_exit)
     assert (
-        getting_closer(state, action, next_state, object_type=Goal, **kwargs)
+        getting_closer(state, action, next_state, object_type=Exit, **kwargs)
         == expected
     )
 
 
 @pytest.mark.parametrize(
-    'agent_on_goal,next_agent_on_goal,kwargs,expected',
+    'agent_on_exit,next_agent_on_exit,kwargs,expected',
     [
         (False, False, {}, 0.0),
         (False, True, {}, 1.0),
@@ -230,18 +230,18 @@ def test_getting_closer(
     ],
 )
 def test_getting_closer_shortest_path(
-    agent_on_goal: bool,
-    next_agent_on_goal: bool,
+    agent_on_exit: bool,
+    next_agent_on_exit: bool,
     kwargs,
     expected: float,
     forbidden_action_maker,
 ):
-    state = make_goal_state(agent_on_goal)
+    state = make_exit_state(agent_on_exit)
     action = forbidden_action_maker()
-    next_state = make_goal_state(next_agent_on_goal)
+    next_state = make_exit_state(next_agent_on_exit)
     assert (
         getting_closer_shortest_path(
-            state, action, next_state, object_type=Goal, **kwargs
+            state, action, next_state, object_type=Exit, **kwargs
         )
         == expected
     )
@@ -459,16 +459,16 @@ def test_pickndrop(
         ('reduce_sum', {'reward_functions': []}),
         (
             'overlap',
-            {'object_type': Goal, 'reward_on': 1.0, 'reward_off': -1.0},
+            {'object_type': Exit, 'reward_on': 1.0, 'reward_off': -1.0},
         ),
         ('living_reward', {'reward': 1.0}),
-        ('reach_goal', {'reward_on': 1.0, 'reward_off': -1.0}),
+        ('reach_exit', {'reward_on': 1.0, 'reward_off': -1.0}),
         ('bump_moving_obstacle', {'reward': -1.0}),
         (
             'proportional_to_distance',
             {
                 'distance_function': Position.manhattan_distance,
-                'object_type': Goal,
+                'object_type': Exit,
                 'reward_per_unit_distance': -0.1,
             },
         ),
@@ -476,7 +476,7 @@ def test_pickndrop(
             'getting_closer',
             {
                 'distance_function': Position.manhattan_distance,
-                'object_type': Goal,
+                'object_type': Exit,
                 'reward_closer': -0.1,
                 'reward_further': -0.1,
             },
@@ -484,7 +484,7 @@ def test_pickndrop(
         (
             'getting_closer_shortest_path',
             {
-                'object_type': Goal,
+                'object_type': Exit,
                 'reward_closer': -0.1,
                 'reward_further': -0.1,
             },
@@ -508,7 +508,7 @@ def test_factory_valid(name: str, kwargs):
         ('reduce_sum', {}, ValueError),
         ('overlap', {}, ValueError),
         ('living_reward', {}, ValueError),
-        ('reach_goal', {}, ValueError),
+        ('reach_exit', {}, ValueError),
         ('bump_moving_obstacle', {}, ValueError),
         ('proportional_to_distance', {}, ValueError),
         ('getting_closer', {}, ValueError),

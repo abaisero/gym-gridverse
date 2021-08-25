@@ -85,7 +85,7 @@ def object_type_schema():
         Or(
             'floor',
             'wall',
-            'goal',
+            'exit',
             'door',
             'key',
             'moving_obstacle',
@@ -95,7 +95,7 @@ def object_type_schema():
             # XXX remove these
             'Floor',
             'Wall',
-            'Goal',
+            'Exit',
             'Door',
             'Key',
             'MovingObstacle',

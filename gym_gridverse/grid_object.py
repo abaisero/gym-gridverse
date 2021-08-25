@@ -244,7 +244,7 @@ class Wall(GridObject):
         return f'{self.__class__.__name__}()'
 
 
-class Goal(GridObject):
+class Exit(GridObject):
     """ The (second) most basic object in the grid: blocking cell """
 
     type_index: int
@@ -278,7 +278,7 @@ class Goal(GridObject):
         return False
 
     def render_as_char(self) -> str:
-        return "G"
+        return "E"
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
@@ -616,8 +616,8 @@ def factory(
     if name in ['wall', 'Wall']:
         return Wall()
 
-    if name in ['goal', 'Goal']:
-        return Goal()
+    if name in ['exit', 'Exit']:
+        return Exit()
 
     if name in ['door', 'Door']:
         checkraise(
@@ -694,8 +694,8 @@ def factory_type(name: str) -> Type[GridObject]:
     if name in ['wall', 'Wall']:
         return Wall
 
-    if name in ['goal', 'Goal']:
-        return Goal
+    if name in ['exit', 'Exit']:
+        return Exit
 
     if name in ['door', 'Door']:
         return Door

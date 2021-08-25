@@ -14,8 +14,8 @@ from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid_object import (
     Color,
     Door,
+    Exit,
     Floor,
-    Goal,
     Hidden,
     Key,
     MovingObstacle,
@@ -119,12 +119,12 @@ def make_agent() -> rendering.Geom:
     return geom_agent
 
 
-def make_goal(goal: Goal) -> rendering.Geom:  # pylint: disable=unused-argument
-    geom_goal = rendering.make_polygon(
+def make_exit(exit_: Exit) -> rendering.Geom:  # pylint: disable=unused-argument
+    geom_exit = rendering.make_polygon(
         [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)],
         filled=True,
     )
-    geom_goal.set_color(*GREEN)
+    geom_exit.set_color(*GREEN)
 
     pad = 0.8
     geom_flag = rendering.make_polyline(
@@ -133,7 +133,7 @@ def make_goal(goal: Goal) -> rendering.Geom:  # pylint: disable=unused-argument
     geom_flag.set_linewidth(2)
     geom_flag.add_attr(rendering.Transform(translation=(-pad / 4, 0.0)))
 
-    return Group([geom_goal, geom_flag])
+    return Group([geom_exit, geom_flag])
 
 
 def make_hidden(  # pylint: disable=unused-argument
@@ -575,8 +575,8 @@ class GridVerseViewer:
                 geom = make_door(obj)
                 self._draw_geom_onetime(geom, position)
 
-            if isinstance(obj, Goal):
-                geom = make_goal(obj)
+            if isinstance(obj, Exit):
+                geom = make_exit(obj)
                 self._draw_geom_onetime(geom, position)
 
             if isinstance(obj, MovingObstacle):

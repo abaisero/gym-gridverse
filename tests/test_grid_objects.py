@@ -12,8 +12,8 @@ from gym_gridverse.grid_object import (
     Box,
     Color,
     Door,
+    Exit,
     Floor,
-    Goal,
     GridObject,
     Hidden,
     Key,
@@ -40,7 +40,7 @@ class DummyNonRegisteredObject(  # pylint: disable=abstract-method
         (Hidden, True),
         (Floor, True),
         (Wall, True),
-        (Goal, True),
+        (Exit, True),
         (Door, True),
         (Key, True),
         (MovingObstacle, True),
@@ -74,7 +74,7 @@ def test_grid_object_registration():
             Hidden.type_index,
             Floor.type_index,
             Wall.type_index,
-            Goal.type_index,
+            Exit.type_index,
             Door.type_index,
             Key.type_index,
             MovingObstacle.type_index,
@@ -90,7 +90,7 @@ def test_grid_object_registration():
         Hidden,
         Floor,
         Wall,
-        Goal,
+        Exit,
         Door,
         Key,
         MovingObstacle,
@@ -168,20 +168,20 @@ def test_wall_properties():
     assert wall.num_states() == 1
 
 
-def test_goal_properties():
+def test_exit_properties():
     """ Basic property tests """
 
-    goal = Goal()
+    exit_ = Exit()
 
-    assert goal.transparent
-    assert not goal.blocks
-    assert goal.color == Color.NONE
-    assert not goal.can_be_picked_up
-    assert goal.state_index == 0
+    assert exit_.transparent
+    assert not exit_.blocks
+    assert exit_.color == Color.NONE
+    assert not exit_.can_be_picked_up
+    assert exit_.state_index == 0
 
-    assert goal.can_be_represented_in_state()
-    assert goal.render_as_char() == 'G'
-    assert goal.num_states() == 1
+    assert exit_.can_be_represented_in_state()
+    assert exit_.render_as_char() == 'E'
+    assert exit_.num_states() == 1
 
 
 def test_door_open_door_properties():
@@ -330,8 +330,8 @@ def test_beacon_properties():
         ('floor', {}),
         ('Wall', {}),
         ('wall', {}),
-        ('Goal', {}),
-        ('goal', {}),
+        ('Exit', {}),
+        ('exit', {}),
         ('Door', {'status': 'LOCKED', 'color': 'RED'}),
         ('door', {'status': 'LOCKED', 'color': 'RED'}),
         ('Key', {'color': 'RED'}),

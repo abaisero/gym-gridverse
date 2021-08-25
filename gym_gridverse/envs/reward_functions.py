@@ -12,7 +12,7 @@ from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import DistanceFunction, Position
 from gym_gridverse.grid_object import (
     Door,
-    Goal,
+    Exit,
     GridObject,
     MovingObstacle,
     Wall,
@@ -121,7 +121,7 @@ def living_reward(
         state (`State`):
         action (`Action`):
         next_state (`State`):
-        reward (`float`): reward for when agent is on goal
+        reward (`float`): reward for when agent is on exit
 
     Returns:
         float: the input reward
@@ -129,7 +129,7 @@ def living_reward(
     return reward
 
 
-def reach_goal(
+def reach_exit(
     state: State,
     action: Action,
     next_state: State,
@@ -137,14 +137,14 @@ def reach_goal(
     reward_on: float = 1.0,
     reward_off: float = 0.0,
 ) -> float:
-    """reward for the Agent being on a Goal
+    """reward for the Agent being on a Exit
 
     Args:
         state (`State`):
         action (`Action`):
         next_state (`State`):
-        reward_on (`float`): reward for when agent is on goal
-        reward_off (`float`): reward for when agent is not on goal
+        reward_on (`float`): reward for when agent is on exit
+        reward_off (`float`): reward for when agent is not on exit
 
     Returns:
         float: one of the two input rewards
@@ -153,7 +153,7 @@ def reach_goal(
         state,
         action,
         next_state,
-        object_type=Goal,
+        object_type=Exit,
         reward_on=reward_on,
         reward_off=reward_off,
     )
@@ -517,7 +517,7 @@ def factory(  # pylint: disable=too-many-branches
 
         return partial(living_reward, reward=reward)
 
-    if name == 'reach_goal':
+    if name == 'reach_exit':
         checkraise(
             lambda: reward_on is not None and reward_off is not None,
             ValueError,
@@ -525,7 +525,7 @@ def factory(  # pylint: disable=too-many-branches
             name,
         )
 
-        return partial(reach_goal, reward_on=reward_on, reward_off=reward_off)
+        return partial(reach_exit, reward_on=reward_on, reward_off=reward_off)
 
     if name == 'bump_moving_obstacle':
         checkraise(
