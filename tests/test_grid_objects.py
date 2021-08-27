@@ -29,7 +29,7 @@ from gym_gridverse.state import State
 class DummyNonRegisteredObject(  # pylint: disable=abstract-method
     GridObject, register=False
 ):
-    """ Some dummy grid object that is _not_ registered """
+    """Some dummy grid object that is _not_ registered"""
 
 
 @pytest.mark.parametrize(
@@ -54,17 +54,17 @@ def test_registration(object_type: Type[GridObject], expected: bool):
 
 
 def test_none_grid_object_registration():
-    """ Tests the registration as a Grid Object """
+    """Tests the registration as a Grid Object"""
     assert NoneGridObject in GridObject.object_types
 
 
 def test_hidden_registration():
-    """ Tests the registration as a Grid Object """
+    """Tests the registration as a Grid Object"""
     assert Hidden in GridObject.object_types
 
 
 def test_grid_object_registration():
-    """ Test registration of type indices """
+    """Test registration of type indices"""
 
     # pylint: disable=no-member
     assert len(GridObject.object_types) == 11
@@ -102,7 +102,7 @@ def test_grid_object_registration():
 
 
 def simple_state_without_object() -> State:
-    """ Returns a 2x2 (empty) grid with an agent without an item """
+    """Returns a 2x2 (empty) grid with an agent without an item"""
     return State(
         Grid(height=2, width=2),
         Agent(position=(0, 0), orientation=Orientation.N, obj=Floor()),
@@ -110,7 +110,7 @@ def simple_state_without_object() -> State:
 
 
 def test_none_grid_object_properties():
-    """ Basic stupid tests for none grid object """
+    """Basic stupid tests for none grid object"""
 
     none = NoneGridObject()
 
@@ -123,7 +123,7 @@ def test_none_grid_object_properties():
 
 
 def test_hidden_properties():
-    """ Basic stupid tests for hidden grid object """
+    """Basic stupid tests for hidden grid object"""
 
     hidden = Hidden()
 
@@ -137,7 +137,7 @@ def test_hidden_properties():
 
 
 def test_floor_properties():
-    """ Basic stupid tests for floor grid object """
+    """Basic stupid tests for floor grid object"""
 
     floor = Floor()
 
@@ -153,7 +153,7 @@ def test_floor_properties():
 
 
 def test_wall_properties():
-    """ Basic property tests """
+    """Basic property tests"""
 
     wall = Wall()
 
@@ -169,7 +169,7 @@ def test_wall_properties():
 
 
 def test_exit_properties():
-    """ Basic property tests """
+    """Basic property tests"""
 
     exit_ = Exit()
 
@@ -185,7 +185,7 @@ def test_exit_properties():
 
 
 def test_door_open_door_properties():
-    """ Basic property tests """
+    """Basic property tests"""
 
     color = Color.GREEN
     open_door = Door(Door.Status.OPEN, color)
@@ -204,7 +204,7 @@ def test_door_open_door_properties():
 
 
 def test_door_closed_door_properties():
-    """ Basic property tests """
+    """Basic property tests"""
 
     color = Color.NONE
     closed_door = Door(Door.Status.CLOSED, color)
@@ -222,7 +222,7 @@ def test_door_closed_door_properties():
 
 
 def test_door_locked_door_properties():
-    """ Basic property tests """
+    """Basic property tests"""
 
     color = Color.NONE
     locked_door = Door(Door.Status.LOCKED, color)
@@ -240,7 +240,7 @@ def test_door_locked_door_properties():
 
 
 def test_key_properties():
-    """ Basic property tests """
+    """Basic property tests"""
 
     color = Color.YELLOW
     key = Key(color)
@@ -272,7 +272,7 @@ def test_moving_obstacle_basic_properties():
 
 
 def test_box_basic_properties():
-    """Tests basic properties of box """
+    """Tests basic properties of box"""
 
     box = Box(Floor())
 

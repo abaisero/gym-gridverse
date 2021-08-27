@@ -163,7 +163,7 @@ def test_move_action(
 
 # TODO: integrate with previous test
 def test_move_action_blocked_by_grid_object():
-    """ Puts an object on (2,0) and try to move there"""
+    """Puts an object on (2,0) and try to move there"""
     grid = Grid(height=3, width=2)
     agent = Agent(position=(2, 1), orientation=Orientation.N)
 

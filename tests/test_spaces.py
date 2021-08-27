@@ -176,7 +176,7 @@ def space_contains_observation(
     agent_pos: Position = Position(0, 0),
     orientation: Orientation = Orientation.N,
 ):
-    """helper function to test whether space contains obs given inputs """
+    """helper function to test whether space contains obs given inputs"""
     observation_space = ObservationSpace(space_shape, space_objs, space_colors)
     obs = Observation(grid, Agent(agent_pos, orientation, agent_obj))
 

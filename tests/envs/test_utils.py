@@ -32,7 +32,7 @@ from gym_gridverse.geometry import Orientation, PositionOrTuple
 def test_non_movement_actions(
     position: PositionOrTuple, orientation: Orientation, action: Action
 ):
-    """ Any action that does not 'move' should not affect next position"""
+    """Any action that does not 'move' should not affect next position"""
     assert (
         updated_agent_position_if_unobstructed(position, orientation, action)
         == position

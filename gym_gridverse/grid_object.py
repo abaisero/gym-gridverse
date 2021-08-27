@@ -9,7 +9,7 @@ from gym_gridverse.debugging import checkraise
 
 
 class Color(enum.Enum):
-    """ Color of grid objects """
+    """Color of grid objects"""
 
     NONE = 0
     RED = enum.auto()
@@ -19,7 +19,7 @@ class Color(enum.Enum):
 
 
 class GridObject(metaclass=abc.ABCMeta):
-    """ A cell in the grid """
+    """A cell in the grid"""
 
     # registry as list/mapping int -> GridObject
     object_types: List[GridObject] = []
@@ -34,41 +34,41 @@ class GridObject(metaclass=abc.ABCMeta):
     @classmethod
     @abc.abstractmethod
     def can_be_represented_in_state(cls) -> bool:
-        """ Returns whether the state_index fully represents the object state """
+        """Returns whether the state_index fully represents the object state"""
 
     @property
     @abc.abstractmethod
     def state_index(self) -> int:
-        """ Returns the state index of the object """
+        """Returns the state index of the object"""
 
     @classmethod
     @abc.abstractmethod
     def num_states(cls) -> int:
-        """ Number of states this class can take on"""
+        """Number of states this class can take on"""
 
     @property
     @abc.abstractmethod
     def color(self) -> Color:
-        """ returns the color of the object """
+        """returns the color of the object"""
 
     @property
     @abc.abstractmethod
     def transparent(self) -> bool:
-        """ Whether the agent can see _through_ the object """
+        """Whether the agent can see _through_ the object"""
 
     @property
     @abc.abstractmethod
     def can_be_picked_up(self) -> bool:
-        """ Whether the agent can see pick up the object """
+        """Whether the agent can see pick up the object"""
 
     @property
     @abc.abstractmethod
     def blocks(self) -> bool:
-        """ Whether the object blocks the agent """
+        """Whether the object blocks the agent"""
 
     @abc.abstractmethod
     def render_as_char(self) -> str:
-        """ A single char representation of the object"""
+        """A single char representation of the object"""
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, GridObject):
@@ -85,7 +85,7 @@ class GridObject(metaclass=abc.ABCMeta):
 
 
 class NoneGridObject(GridObject):
-    """ object representing the absence of an object """
+    """object representing the absence of an object"""
 
     type_index: int
 
@@ -125,7 +125,7 @@ class NoneGridObject(GridObject):
 
 
 class Hidden(GridObject):
-    """ object representing an unobservable cell """
+    """object representing an unobservable cell"""
 
     type_index: int
 
@@ -165,7 +165,7 @@ class Hidden(GridObject):
 
 
 class Floor(GridObject):
-    """ Most basic object in the grid, represents empty cell """
+    """Most basic object in the grid, represents empty cell"""
 
     type_index: int
 
@@ -205,7 +205,7 @@ class Floor(GridObject):
 
 
 class Wall(GridObject):
-    """ The (second) most basic object in the grid: blocking cell """
+    """The (second) most basic object in the grid: blocking cell"""
 
     type_index: int
 
@@ -245,7 +245,7 @@ class Wall(GridObject):
 
 
 class Exit(GridObject):
-    """ The (second) most basic object in the grid: blocking cell """
+    """The (second) most basic object in the grid: blocking cell"""
 
     type_index: int
 
@@ -306,7 +306,7 @@ class Door(GridObject):
     type_index: int
 
     class Status(enum.Enum):
-        """ open, closed or locked """
+        """open, closed or locked"""
 
         OPEN = 0
         CLOSED = enum.auto()
@@ -357,12 +357,12 @@ class Door(GridObject):
 
     @property
     def is_open(self) -> bool:
-        """ returns whether the door is opened """
+        """returns whether the door is opened"""
         return self._state == self.Status.OPEN
 
     @property
     def locked(self) -> bool:
-        """ returns whether the door is locked """
+        """returns whether the door is locked"""
         return self._state == self.Status.LOCKED
 
     def render_as_char(self) -> str:
@@ -377,12 +377,12 @@ class Door(GridObject):
 
 
 class Key(GridObject):
-    """ A key opens a door with the same color """
+    """A key opens a door with the same color"""
 
     type_index: int
 
     def __init__(self, c: Color):
-        """ Creates a key of color `c` """
+        """Creates a key of color `c`"""
         self._color = c
 
     @classmethod

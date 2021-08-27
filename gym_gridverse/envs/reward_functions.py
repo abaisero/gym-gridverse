@@ -1,4 +1,3 @@
-import itertools as itt
 from collections import deque
 from functools import lru_cache, partial
 from typing import Callable, Iterator, Optional, Sequence, Tuple, Type

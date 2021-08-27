@@ -234,7 +234,7 @@ def _step_moving_obstacle(
 
 def step_moving_obstacles(
     state: State,
-    action: Action,
+    action: Action,  # pylint: disable=unused-argument
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> None:
@@ -251,7 +251,7 @@ def step_moving_obstacles(
     """
     rng = get_gv_rng_if_none(rng)
 
-    for position, obj in _unique_object_type_positions(
+    for position, _ in _unique_object_type_positions(
         state.grid, MovingObstacle
     ):
         _step_moving_obstacle(state.grid, position, rng=rng)
@@ -261,7 +261,7 @@ def actuate_door(
     state: State,
     action: Action,
     *,
-    rng: Optional[rnd.Generator] = None,
+    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
 ) -> None:
     """Attempts to open door
 
@@ -305,7 +305,7 @@ def actuate_box(
     state: State,
     action: Action,
     *,
-    rng: Optional[rnd.Generator] = None,
+    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
 ) -> None:
     """Attempts to open door
 
@@ -323,7 +323,7 @@ def actuate_box(
 
     position = state.agent.position_in_front()
 
-    if not position in state.grid:
+    if position not in state.grid:
         return
 
     box = state.grid[position]

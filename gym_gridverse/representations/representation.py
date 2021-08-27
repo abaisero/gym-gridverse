@@ -5,7 +5,6 @@ import numpy as np
 
 from gym_gridverse.agent import Agent
 from gym_gridverse.debugging import checkraise
-from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid import Grid
 from gym_gridverse.observation import Observation
 from gym_gridverse.representations.spaces import (

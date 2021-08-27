@@ -116,7 +116,7 @@ def make_agent() -> rendering.Geom:
         [(-pad, -pad), (0.0, pad), (pad, -pad)], filled=False
     )
     geom_agent.set_linewidth(3)
-    geom_agent.set_color(*BLUE)
+    geom_agent.set_color(0, 0, 0)
     return geom_agent
 
 

@@ -11,7 +11,7 @@ from gym_gridverse.representations.representation import (
     no_overlap_convert,
     no_overlap_representation_space,
 )
-from gym_gridverse.representations.spaces import CategoricalSpace, Space
+from gym_gridverse.representations.spaces import Space
 from gym_gridverse.spaces import ObservationSpace
 
 

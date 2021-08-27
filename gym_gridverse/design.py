@@ -35,7 +35,7 @@ def draw_room_grid(
 
 
 def draw_area(
-    grid: Grid, area: Area, factory: GridObjectFactory, *, fill
+    grid: Grid, area: Area, factory: GridObjectFactory, *, fill: bool
 ) -> List[Position]:
     """use factory-created grid-objects to draw area on grid"""
     positions = list(area.positions() if fill else area.positions_border())
