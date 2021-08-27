@@ -309,8 +309,8 @@ def test_beacon_properties():
     color = Color.YELLOW
     beacon = Beacon(color)
 
-    assert not beacon.transparent
-    assert beacon.blocks
+    assert beacon.transparent
+    assert not beacon.blocks
     assert beacon.color == color
     assert not beacon.can_be_picked_up
     assert beacon.state_index == 0

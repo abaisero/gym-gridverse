@@ -98,6 +98,13 @@ def factory_reset_function(
     else:
         object_type = factory_type(data_object_type)
 
+    try:
+        data_colors = data['colors']
+    except KeyError:
+        colors = None
+    else:
+        colors = set(factory_colors(data_colors))
+
     return reset_fs.factory(
         data['name'],
         height=state_space.grid_shape.height,
@@ -107,6 +114,7 @@ def factory_reset_function(
         num_obstacles=data.get('num_obstacles'),
         num_rivers=data.get('num_rivers'),
         object_type=object_type,
+        colors=colors,
     )
 
 
@@ -168,6 +176,8 @@ def factory_reward_function(data) -> reward_fs.RewardFunction:
         reward_close=data.get('reward_close'),
         reward_pick=data.get('reward_pick'),
         reward_drop=data.get('reward_drop'),
+        reward_good=data.get('reward_good'),
+        reward_bad=data.get('reward_bad'),
     )
 
 

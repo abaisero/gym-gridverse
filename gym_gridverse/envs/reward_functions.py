@@ -11,6 +11,7 @@ from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import DistanceFunction, Position
 from gym_gridverse.grid_object import (
+    Beacon,
     Door,
     Exit,
     GridObject,
@@ -449,6 +450,44 @@ def pickndrop(
     )
 
 
+def reach_exit_memory(
+    state: State,  # pylint: disable=unused-argument
+    action: Action,  # pylint: disable=unused-argument
+    next_state: State,
+    *,
+    reward_good: float = 1.0,
+    reward_bad: float = -1.0,
+) -> float:
+    """reward for the Agent being on a Exit
+
+    Args:
+        state (`State`):
+        action (`Action`):
+        next_state (`State`):
+        reward_good (`float`): reward for when agent is on the good exit
+        reward_bad (`float`): reward for when agent is on the bad exit
+
+    Returns:
+        float: one of the two input rewards
+    """
+
+    agent_grid_object = next_state.grid[next_state.agent.position]
+    grid_objects = (
+        next_state.grid[position] for position in next_state.grid.positions()
+    )
+    beacon_color = next(
+        grid_object.color
+        for grid_object in grid_objects
+        if isinstance(grid_object, Beacon)
+    )
+
+    return (
+        (reward_good if agent_grid_object.color is beacon_color else reward_bad)
+        if isinstance(agent_grid_object, Exit)
+        else 0.0
+    )
+
+
 def factory(  # pylint: disable=too-many-branches
     name: str,
     *,
@@ -466,6 +505,8 @@ def factory(  # pylint: disable=too-many-branches
     reward_close: Optional[float] = None,
     reward_pick: Optional[float] = None,
     reward_drop: Optional[float] = None,
+    reward_good: Optional[float] = None,
+    reward_bad: Optional[float] = None,
 ) -> RewardFunction:
 
     if name == 'reduce':
@@ -627,6 +668,18 @@ def factory(  # pylint: disable=too-many-branches
             object_type=object_type,
             reward_pick=reward_pick,
             reward_drop=reward_drop,
+        )
+
+    if name == 'reach_exit_memory':
+        checkraise(
+            lambda: reward_good is not None and reward_bad is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
+
+        return partial(
+            reach_exit_memory, reward_good=reward_good, reward_bad=reward_bad
         )
 
     raise ValueError('invalid reward function name {name}')

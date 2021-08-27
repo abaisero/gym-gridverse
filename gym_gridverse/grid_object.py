@@ -249,6 +249,9 @@ class Exit(GridObject):
 
     type_index: int
 
+    def __init__(self, color: Color = Color.NONE):
+        self._color = color
+
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
@@ -259,7 +262,7 @@ class Exit(GridObject):
 
     @property
     def color(self) -> Color:
-        return Color.NONE
+        return self._color
 
     @classmethod
     def num_states(cls) -> int:
@@ -579,7 +582,7 @@ class Beacon(GridObject):
 
     @property
     def transparent(self) -> bool:
-        return False
+        return True
 
     @property
     def can_be_picked_up(self) -> bool:
@@ -587,7 +590,7 @@ class Beacon(GridObject):
 
     @property
     def blocks(self) -> bool:
-        return True
+        return False
 
     def render_as_char(self) -> str:
         return "B"

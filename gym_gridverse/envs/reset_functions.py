@@ -1,6 +1,6 @@
 import itertools as itt
 from functools import partial
-from typing import Optional, Tuple, Type
+from typing import Optional, Set, Tuple, Type
 
 import more_itertools as mitt
 import numpy as np
@@ -10,6 +10,7 @@ from typing_extensions import Protocol  # python3.7 compatibility
 from gym_gridverse.agent import Agent
 from gym_gridverse.debugging import checkraise
 from gym_gridverse.design import (
+    draw_area,
     draw_line_horizontal,
     draw_line_vertical,
     draw_room_grid,
@@ -18,6 +19,7 @@ from gym_gridverse.design import (
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
+    Beacon,
     Color,
     Door,
     Exit,
@@ -420,6 +422,61 @@ def reset_teleport(
     return state
 
 
+def reset_memory(
+    height: int,
+    width: int,
+    colors: Set[Color],
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> State:
+
+    checkraise(
+        lambda: height >= 5,
+        ValueError,
+        'Memory environment height must be >= 5, given {}',
+        height,
+    )
+    checkraise(
+        lambda: width >= 5 and width % 2 == 1,
+        ValueError,
+        'Memory environment height must be odd and >= 5, given {}',
+        height,
+    )
+    checkraise(
+        lambda: Color.NONE not in colors,
+        ValueError,
+        'Memory environment colors must not include NONE, given {}',
+        colors,
+    )
+    checkraise(
+        lambda: len(colors) >= 2,
+        ValueError,
+        'Memory environment colors must have at least 2 colors, given {}',
+        colors,
+    )
+
+    rng = get_gv_rng_if_none(rng)
+
+    grid = Grid(height, width)
+    draw_area(grid, grid.area, Wall, fill=True)
+    draw_line_horizontal(grid, 1, range(2, width - 2), Floor)
+    draw_line_horizontal(grid, height - 2, range(2, width - 2), Floor)
+    draw_line_vertical(grid, range(2, height - 2), width // 2, Floor)
+
+    color_good, color_bad = rng.choice(list(colors), size=2, replace=False)
+    x_exit_good, x_exit_bad = rng.choice([1, width - 2], size=2, replace=False)
+    grid[1, x_exit_good] = Exit(color_good)
+    grid[1, x_exit_bad] = Exit(color_bad)
+    grid[height - 2, 1] = Beacon(color_good)
+    grid[height - 2, width - 2] = Beacon(color_good)
+
+    agent_position = (height // 2, width // 2)
+    agent_orientation = Orientation.N
+    agent = Agent(agent_position, agent_orientation)
+
+    return State(grid, agent)
+
+
 def factory(
     name: str,
     *,
@@ -430,6 +487,7 @@ def factory(
     num_obstacles: Optional[int] = None,
     num_rivers: Optional[int] = None,
     object_type: Optional[Type[GridObject]] = None,
+    colors: Optional[Set[Color]] = None,
 ) -> ResetFunction:
 
     if name == 'empty':
@@ -518,5 +576,17 @@ def factory(
         )
 
         return partial(reset_teleport, height=height, width=width)
+
+    if name == 'memory':
+        checkraise(
+            lambda: height is not None
+            and width is not None
+            and colors is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
+
+        return partial(reset_memory, height=height, width=width, colors=colors)
 
     raise ValueError(f'invalid reset function name `{name}`')

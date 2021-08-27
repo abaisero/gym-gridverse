@@ -12,6 +12,7 @@ from pyglet.gl import glClearColor
 from gym_gridverse.action import Action
 from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid_object import (
+    Beacon,
     Color,
     Door,
     Exit,
@@ -120,12 +121,6 @@ def make_agent() -> rendering.Geom:
 
 
 def make_exit(exit_: Exit) -> rendering.Geom:  # pylint: disable=unused-argument
-    geom_exit = rendering.make_polygon(
-        [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)],
-        filled=True,
-    )
-    geom_exit.set_color(*GREEN)
-
     pad = 0.8
     geom_flag = rendering.make_polyline(
         [(0.0, -pad), (0.0, pad), (pad, pad / 2), (0.0, 0.0)]
@@ -133,7 +128,18 @@ def make_exit(exit_: Exit) -> rendering.Geom:  # pylint: disable=unused-argument
     geom_flag.set_linewidth(2)
     geom_flag.add_attr(rendering.Transform(translation=(-pad / 4, 0.0)))
 
-    return Group([geom_exit, geom_flag])
+    if exit_.color is not Color.NONE:
+        geom_exit = rendering.make_polygon(
+            [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)],
+            filled=True,
+        )
+
+        geom_exit.set_color(*colormap[exit_.color])
+        geoms = [geom_exit, geom_flag]
+    else:
+        geoms = [geom_flag]
+
+    return Group(geoms)
 
 
 def make_hidden(  # pylint: disable=unused-argument
@@ -396,6 +402,24 @@ def make_telepod(telepod: Telepod) -> rendering.Geom:
     return Group([geom_circle, geom_boundary, geom_spiral])
 
 
+def make_beacon(beacon: Beacon) -> rendering.Geom:
+    res = 100
+    geom_circle = rendering.make_circle(0.8, res=res, filled=True)
+    geom_circle.set_color(*colormap[beacon.color])
+    geom_boundary = rendering.make_circle(0.8, res=res, filled=False)
+    geom_boundary.set_linewidth(2)
+    geom_diag_1 = rendering.make_polygon(
+        [(0.4, -0.4), (-0.4, 0.4)], filled=False
+    )
+    geom_diag_1.set_linewidth(2)
+    geom_diag_2 = rendering.make_polygon(
+        [(0.4, 0.4), (-0.4, -0.4)], filled=False
+    )
+    geom_diag_2.set_linewidth(2)
+
+    return Group([geom_circle, geom_boundary, geom_diag_1, geom_diag_2])
+
+
 def convert_pos(
     position: Position,
     *,
@@ -585,6 +609,10 @@ class GridVerseViewer:
 
             if isinstance(obj, Telepod):
                 geom = make_telepod(obj)
+                self._draw_geom_onetime(geom, position)
+
+            if isinstance(obj, Beacon):
+                geom = make_beacon(obj)
                 self._draw_geom_onetime(geom, position)
 
         geom = make_agent()

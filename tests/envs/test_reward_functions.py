@@ -490,10 +490,20 @@ def test_pickndrop(
             },
         ),
         ('bump_into_wall', {'reward': -1.0}),
-        ('actuate_door', {'reward_open': 1.0, 'reward_close': -1.0,},),
+        (
+            'actuate_door',
+            {
+                'reward_open': 1.0,
+                'reward_close': -1.0,
+            },
+        ),
         (
             'pickndrop',
-            {'object_type': Key, 'reward_pick': 1.0, 'reward_drop': -1.0,},
+            {
+                'object_type': Key,
+                'reward_pick': 1.0,
+                'reward_drop': -1.0,
+            },
         ),
     ],
 )
