@@ -31,7 +31,7 @@ reward_functions:
     reward: -0.05
 
 observation_function:
-  name: full_observation
+  name: partial_observation
 
 terminating_function:
   name: reach_exit
