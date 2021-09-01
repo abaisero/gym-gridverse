@@ -115,6 +115,8 @@ def factory_reset_function(
         num_rivers=data.get('num_rivers'),
         object_type=object_type,
         colors=colors,
+        num_beacons=data.get('num_beacons'),
+        num_exits=data.get('num_exits'),
     )
 
 

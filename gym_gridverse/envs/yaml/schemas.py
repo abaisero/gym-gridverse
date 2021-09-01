@@ -184,6 +184,8 @@ def reset_function_schema():
             Optional('num_rivers'): And(int, positive_schema()),
             Optional('object_type'): object_type_schema(),
             Optional('colors'): colors_schema(),
+            Optional('num_beacons'): And(int, positive_schema()),
+            Optional('num_exits'): And(int, positive_schema()),
         },
         name='reset_function',
         as_reference=True,

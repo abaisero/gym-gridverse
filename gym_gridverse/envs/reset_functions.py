@@ -477,6 +477,120 @@ def reset_memory(
     return State(grid, agent)
 
 
+def reset_memory_rooms(
+    height: int,
+    width: int,
+    layout: Tuple[int, int],
+    colors: Set[Color],
+    num_beacons: int,
+    num_exits: int,
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> State:
+
+    checkraise(
+        lambda: Color.NONE not in colors,
+        ValueError,
+        'Memory-rooms environment colors must not include NONE, given {}',
+        colors,
+    )
+    checkraise(
+        lambda: len(colors) >= 2,
+        ValueError,
+        'Memory-rooms environment colors must have at least 2 colors, given {}',
+        colors,
+    )
+    checkraise(
+        lambda: num_beacons >= 1,
+        ValueError,
+        'Memory-rooms environment must have at least 1 beacon, given {}',
+        num_beacons,
+    )
+    checkraise(
+        lambda: num_exits >= 2,
+        ValueError,
+        'Memory-rooms environment must have at least 2 exit, given {}',
+        num_exits,
+    )
+
+    rng = get_gv_rng_if_none(rng)
+
+    layout_height, layout_width = layout
+
+    y_splits = np.linspace(
+        0,
+        height - 1,
+        num=layout_height + 1,
+        dtype=int,
+    )
+
+    checkraise(
+        lambda: len(y_splits) == len(set(y_splits)),
+        ValueError,
+        'insufficient height ({}) for layout ({})',
+        height,
+        layout,
+    )
+
+    x_splits = np.linspace(
+        0,
+        width - 1,
+        num=layout_width + 1,
+        dtype=int,
+    )
+
+    checkraise(
+        lambda: len(x_splits) == len(set(x_splits)),
+        ValueError,
+        'insufficient width ({}) for layout ({})',
+        height,
+        layout,
+    )
+
+    grid = Grid(height, width)
+    draw_room_grid(grid, y_splits, x_splits, Wall)
+
+    # passages in horizontal walls
+    for y in y_splits[1:-1]:
+        for x_from, x_to in mitt.pairwise(x_splits):
+            x = rng.integers(x_from + 1, x_to)
+            grid[y, x] = Floor()
+
+    # passages in vertical walls
+    for y_from, y_to in mitt.pairwise(y_splits):
+        for x in x_splits[1:-1]:
+            y = rng.integers(y_from + 1, y_to)
+            grid[y, x] = Floor()
+
+    # sample agent, beacon, and exit positions
+    positions = rng.choice(
+        [
+            position
+            for position in grid.positions()
+            if isinstance(grid[position], Floor)
+        ],
+        size=1 + num_beacons + num_exits,
+        replace=False,
+    )
+
+    agent_position = positions[0]
+    agent_orientation = rng.choice(list(Orientation))
+    agent = Agent(agent_position, agent_orientation)
+
+    sample_colors = rng.choice(list(colors), size=num_exits, replace=False)
+
+    good_color = sample_colors[0]
+    beacon_positions = positions[1 : 1 + num_beacons]
+    for beacon_position in beacon_positions:
+        grid[beacon_position] = Beacon(good_color)
+
+    exit_positions = positions[1 + num_beacons :]
+    for exit_position, exit_color in zip(exit_positions, sample_colors):
+        grid[exit_position] = Exit(exit_color)
+
+    return State(grid, agent)
+
+
 def factory(
     name: str,
     *,
@@ -488,6 +602,8 @@ def factory(
     num_rivers: Optional[int] = None,
     object_type: Optional[Type[GridObject]] = None,
     colors: Optional[Set[Color]] = None,
+    num_beacons: Optional[int] = None,
+    num_exits: Optional[int] = None,
 ) -> ResetFunction:
 
     if name == 'empty':
@@ -588,5 +704,28 @@ def factory(
         )
 
         return partial(reset_memory, height=height, width=width, colors=colors)
+
+    if name == 'memory_rooms':
+        checkraise(
+            lambda: height is not None
+            and width is not None
+            and layout is not None
+            and colors is not None
+            and num_beacons is not None
+            and num_exits is not None,
+            ValueError,
+            'invalid parameters for name `{}`',
+            name,
+        )
+
+        return partial(
+            reset_memory_rooms,
+            height=height,
+            width=width,
+            layout=layout,
+            colors=colors,
+            num_beacons=num_beacons,
+            num_exits=num_exits,
+        )
 
     raise ValueError(f'invalid reset function name `{name}`')
