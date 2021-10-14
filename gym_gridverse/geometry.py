@@ -379,6 +379,16 @@ def get_manhattan_boundary(
 DistanceFunction = Callable[[Position, Position], float]
 
 
+def distance_function_factory(name: str):
+    if name == 'manhattan':
+        return Position.manhattan_distance
+
+    if name == 'euclidean':
+        return Position.euclidean_distance
+
+    raise ValueError(f'invalid distance function name {name}')
+
+
 class StrideDirection(enum.Enum):
     NW = enum.auto()
     NE = enum.auto()

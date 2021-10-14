@@ -14,7 +14,12 @@ from gym_gridverse.envs import (
 )
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.envs.yaml import schemas
-from gym_gridverse.geometry import Position, Shape
+from gym_gridverse.geometry import (
+    DistanceFunction,
+    Position,
+    Shape,
+    distance_function_factory,
+)
 from gym_gridverse.grid_object import Color, GridObject, factory_type
 from gym_gridverse.spaces import (
     ActionSpace,
@@ -42,6 +47,11 @@ def factory_object_types(data) -> List[Type[GridObject]]:
 def factory_colors(data) -> List[Color]:
     data = schemas.colors_schema().validate(data)
     return [Color[name] for name in data]
+
+
+def factory_distance_function(data) -> DistanceFunction:
+    data = schemas.distance_function_schema().validate(data)
+    return distance_function_factory(data)
 
 
 def factory_state_space(data) -> StateSpace:
@@ -153,15 +163,7 @@ def factory_reward_function(data) -> reward_fs.RewardFunction:
     except KeyError:
         distance_function = None
     else:
-        # TODO: make a distance function factory somewhere
-        if data_distance_function == 'manhattan':
-            distance_function = Position.manhattan_distance
-        elif data_distance_function == 'euclidean':
-            distance_function = Position.euclidean_distance
-        else:
-            raise ValueError(
-                f'invalid distance function {data_distance_function}'
-            )
+        distance_function = factory_distance_function(data_distance_function)
 
     return reward_fs.factory(
         data['name'],
