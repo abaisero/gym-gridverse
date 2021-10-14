@@ -126,13 +126,20 @@ def factory_reset_function(
         colors=colors,
         num_beacons=data.get('num_beacons'),
         num_exits=data.get('num_exits'),
+        kwargs=data.get('kwargs', {}),
     )
 
 
 def factory_transition_function(data) -> transition_fs.TransitionFunction:
     data = schemas.transition_functions_schema().validate(data)
 
-    transition_functions = [transition_fs.factory(d['name']) for d in data]
+    transition_functions = [
+        transition_fs.factory(
+            d['name'],
+            kwargs=d.get('kwargs', {}),
+        )
+        for d in data
+    ]
     return partial(
         transition_fs.chain, transition_functions=transition_functions
     )
@@ -181,6 +188,7 @@ def factory_reward_function(data) -> reward_fs.RewardFunction:
         reward_drop=data.get('reward_drop'),
         reward_good=data.get('reward_good'),
         reward_bad=data.get('reward_bad'),
+        kwargs=data.get('kwargs', {}),
     )
 
 
@@ -236,6 +244,7 @@ def factory_terminating_function(data) -> terminating_fs.TerminatingFunction:
         data['name'],
         terminating_functions=terminating_functions,
         object_type=object_type,
+        kwargs=data.get('kwargs', {}),
     )
 
 

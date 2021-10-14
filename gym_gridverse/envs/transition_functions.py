@@ -1,6 +1,6 @@
 """ Functions to model dynamics """
 from functools import partial
-from typing import Iterator, List, Optional, Sequence, Tuple, Type
+from typing import Dict, Iterator, List, Optional, Sequence, Tuple, Type
 
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
@@ -23,6 +23,10 @@ from gym_gridverse.grid_object import (
 )
 from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
+from gym_gridverse.utils.custom_functions import (
+    get_custom_function,
+    is_custom_function,
+)
 
 
 class TransitionFunction(Protocol):
@@ -360,6 +364,7 @@ def step_telepod(
 def factory(
     name: str,
     transition_functions: Optional[Sequence[TransitionFunction]] = None,
+    kwargs: Optional[Dict] = None,
 ) -> TransitionFunction:
 
     if name == 'chain':
@@ -389,5 +394,9 @@ def factory(
 
     if name == 'step_telepod':
         return step_telepod
+
+    if is_custom_function(name):
+        function = get_custom_function(name)
+        return partial(function, **kwargs)
 
     raise ValueError(f'invalid transition function name `{name}`')

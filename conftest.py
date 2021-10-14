@@ -1,3 +1,5 @@
+import os
+import sys
 from unittest.mock import MagicMock, PropertyMock
 
 import pytest
@@ -7,6 +9,13 @@ from gym_gridverse.state import State
 
 # avoid discovering tests in setup.py
 collect_ignore = ["setup.py"]
+
+
+# setup PYTHONPATH to allow import custom modules in yaml/
+@pytest.fixture(scope='session', autouse=True)
+def execute_before_tests():
+    base = os.path.dirname(__file__)
+    sys.path.append(f'{base}/yaml')
 
 
 @pytest.fixture

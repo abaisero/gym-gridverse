@@ -1,6 +1,6 @@
 import itertools as itt
 from functools import partial
-from typing import Optional, Set, Tuple, Type
+from typing import Dict, Optional, Set, Tuple, Type
 
 import more_itertools as mitt
 import numpy as np
@@ -32,6 +32,10 @@ from gym_gridverse.grid_object import (
 )
 from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
+from gym_gridverse.utils.custom_functions import (
+    get_custom_function,
+    is_custom_function,
+)
 
 
 class ResetFunction(Protocol):
@@ -603,6 +607,7 @@ def factory(
     colors: Optional[Set[Color]] = None,
     num_beacons: Optional[int] = None,
     num_exits: Optional[int] = None,
+    kwargs: Optional[Dict] = None,
 ) -> ResetFunction:
 
     if name == 'empty':
@@ -726,5 +731,9 @@ def factory(
             num_beacons=num_beacons,
             num_exits=num_exits,
         )
+
+    if is_custom_function(name):
+        function = get_custom_function(name)
+        return partial(function, **kwargs)
 
     raise ValueError(f'invalid reset function name `{name}`')

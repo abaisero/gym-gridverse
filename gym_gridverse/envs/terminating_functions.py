@@ -1,11 +1,15 @@
 from functools import partial
-from typing import Callable, Iterator, Optional, Sequence, Type
+from typing import Callable, Dict, Iterator, Optional, Sequence, Type
 
 from gym_gridverse.action import Action
 from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.grid_object import Exit, GridObject, MovingObstacle, Wall
 from gym_gridverse.state import State
+from gym_gridverse.utils.custom_functions import (
+    get_custom_function,
+    is_custom_function,
+)
 
 TerminatingFunction = Callable[[State, Action, State], bool]
 """Signature for functions to determine whether a transition is terminal"""
@@ -182,6 +186,7 @@ def factory(
     terminating_functions: Optional[Sequence[TerminatingFunction]] = None,
     reduction: Optional[TerminatingReductionFunction] = None,
     object_type: Optional[Type[GridObject]] = None,
+    kwargs: Optional[Dict] = None,
 ) -> TerminatingFunction:
 
     if name == 'reduce':
@@ -236,5 +241,9 @@ def factory(
 
     if name == 'bump_into_wall':
         return bump_into_wall
+
+    if is_custom_function(name):
+        function = get_custom_function(name)
+        return partial(function, **kwargs)
 
     raise ValueError(f'invalid terminating function name `{name}`')

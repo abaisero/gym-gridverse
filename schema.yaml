@@ -24,13 +24,17 @@
                             "key",
                             "moving_obstacle",
                             "box",
+                            "telepod",
+                            "beacon",
                             "Floor",
                             "Wall",
                             "Exit",
                             "Door",
                             "Key",
                             "MovingObstacle",
-                            "Box"
+                            "Box",
+                            "Telepod",
+                            "Beacon"
                         ]
                     }
                 },
@@ -94,13 +98,17 @@
                             "key",
                             "moving_obstacle",
                             "box",
+                            "telepod",
+                            "beacon",
                             "Floor",
                             "Wall",
                             "Exit",
                             "Door",
                             "Key",
                             "MovingObstacle",
-                            "Box"
+                            "Box",
+                            "Telepod",
+                            "Beacon"
                         ]
                     }
                 },
@@ -196,14 +204,40 @@
                         "key",
                         "moving_obstacle",
                         "box",
+                        "telepod",
+                        "beacon",
                         "Floor",
                         "Wall",
                         "Exit",
                         "Door",
                         "Key",
                         "MovingObstacle",
-                        "Box"
+                        "Box",
+                        "Telepod",
+                        "Beacon"
                     ]
+                },
+                "colors": {
+                    "description": "A non-empty list of unique color names",
+                    "type": "array",
+                    "items": {
+                        "enum": [
+                            "NONE",
+                            "RED",
+                            "GREEN",
+                            "BLUE",
+                            "YELLOW"
+                        ]
+                    }
+                },
+                "num_beacons": {
+                    "type": "integer"
+                },
+                "num_exits": {
+                    "type": "integer"
+                },
+                "kwargs": {
+                    "type": "object"
                 }
             },
             "required": [
@@ -217,6 +251,9 @@
             "properties": {
                 "name": {
                     "type": "string"
+                },
+                "kwargs": {
+                    "type": "object"
                 }
             },
             "required": [
@@ -265,14 +302,39 @@
                         "key",
                         "moving_obstacle",
                         "box",
+                        "telepod",
+                        "beacon",
                         "Floor",
                         "Wall",
                         "Exit",
                         "Door",
                         "Key",
                         "MovingObstacle",
-                        "Box"
+                        "Box",
+                        "Telepod",
+                        "Beacon"
                     ]
+                },
+                "reward_open": {
+                    "type": "number"
+                },
+                "reward_close": {
+                    "type": "number"
+                },
+                "reward_pick": {
+                    "type": "number"
+                },
+                "reward_drop": {
+                    "type": "number"
+                },
+                "reward_good": {
+                    "type": "number"
+                },
+                "reward_bad": {
+                    "type": "number"
+                },
+                "kwargs": {
+                    "type": "object"
                 },
                 "reward_functions": {
                     "description": "A list of reward functions",
@@ -326,14 +388,21 @@
                         "key",
                         "moving_obstacle",
                         "box",
+                        "telepod",
+                        "beacon",
                         "Floor",
                         "Wall",
                         "Exit",
                         "Door",
                         "Key",
                         "MovingObstacle",
-                        "Box"
+                        "Box",
+                        "Telepod",
+                        "Beacon"
                     ]
+                },
+                "kwargs": {
+                    "type": "object"
                 },
                 "terminating_functions": {
                     "description": "A list of terminating functions",

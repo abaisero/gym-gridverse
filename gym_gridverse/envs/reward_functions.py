@@ -1,6 +1,6 @@
 from collections import deque
 from functools import lru_cache, partial
-from typing import Callable, Iterator, Optional, Sequence, Tuple, Type
+from typing import Callable, Dict, Iterator, Optional, Sequence, Tuple, Type
 
 import more_itertools as mitt
 import numpy as np
@@ -18,6 +18,10 @@ from gym_gridverse.grid_object import (
     Wall,
 )
 from gym_gridverse.state import State
+from gym_gridverse.utils.custom_functions import (
+    get_custom_function,
+    is_custom_function,
+)
 
 RewardFunction = Callable[[State, Action, State], float]
 """Signature that all reward functions must follow"""
@@ -510,6 +514,7 @@ def factory(  # pylint: disable=too-many-branches
     reward_drop: Optional[float] = None,
     reward_good: Optional[float] = None,
     reward_bad: Optional[float] = None,
+    kwargs: Optional[Dict] = None,
 ) -> RewardFunction:
 
     if name == 'reduce':
@@ -686,4 +691,8 @@ def factory(  # pylint: disable=too-many-branches
             reach_exit_memory, reward_good=reward_good, reward_bad=reward_bad
         )
 
-    raise ValueError('invalid reward function name {name}')
+    if is_custom_function(name):
+        function = get_custom_function(name)
+        return partial(function, **kwargs)
+
+    raise ValueError(f'invalid reward function name {name}')

@@ -186,6 +186,7 @@ def reset_function_schema():
             Optional('colors'): colors_schema(),
             Optional('num_beacons'): And(int, positive_schema()),
             Optional('num_exits'): And(int, positive_schema()),
+            Optional('kwargs'): dict,
         },
         name='reset_function',
         as_reference=True,
@@ -195,7 +196,10 @@ def reset_function_schema():
 @lru_cache()
 def transition_function_schema():
     return Schema(
-        {'name': str},
+        {
+            'name': str,
+            Optional('kwargs'): dict,
+        },
         description='A transition function',
         name='transition_function',
         as_reference=True,
@@ -240,6 +244,7 @@ def _reward_function_schemas():
             Optional('reward_drop'): float,
             Optional('reward_good'): float,
             Optional('reward_bad'): float,
+            Optional('kwargs'): dict,
         },
         description='A reward function',
         name='reward_function',
@@ -304,6 +309,7 @@ def terminating_function_schema():
         {
             'name': str,
             Optional('object_type'): object_type_schema(),
+            Optional('kwargs'): dict,
         },
         description='A terminating function',
         name='terminating_function',

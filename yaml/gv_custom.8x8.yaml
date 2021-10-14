@@ -1,0 +1,38 @@
+state_space:
+  shape: [ 8, 8 ]
+  objects: [ Wall, Floor, Exit ]
+  colors: [ NONE ]
+
+action_space:
+  - MOVE_FORWARD
+  - MOVE_BACKWARD
+  - MOVE_LEFT
+  - MOVE_RIGHT
+  - TURN_LEFT
+  - TURN_RIGHT
+
+observation_space:
+  shape: [ 7, 7 ]
+  objects: [ Wall, Floor, Exit ]
+  colors: [ NONE ]
+
+reset_function:
+  name: empty
+  random_agent: True
+
+transition_functions:
+  - name: custom:multi_update_agent
+    kwargs:
+      n: 2
+
+reward_functions:
+  - name: custom:checkerboard
+    kwargs:
+      reward_even: 2.0
+      reward_odd: -2.0
+
+observation_function:
+  name: partial_observation
+
+terminating_function:
+  name: reach_exit
