@@ -1,5 +1,5 @@
 from functools import partial
-from typing import List, Optional, Tuple, Type
+from typing import List, Tuple, Type
 
 import yaml
 from gym_gridverse.action import Action
@@ -92,27 +92,11 @@ def factory_reset_function(
 ) -> reset_fs.ResetFunction:
     data = schemas.reset_function_schema().validate(data)
 
-    layout: Optional[Tuple[int, int]]
-    try:
-        data_layout = data['layout']
-    except KeyError:
-        layout = None
-    else:
-        layout = tuple(data_layout)  # type: ignore
-
-    try:
-        data_object_type = data['object_type']
-    except KeyError:
-        object_type = None
-    else:
-        object_type = factory_type(data_object_type)
-
-    try:
-        data_colors = data['colors']
-    except KeyError:
-        colors = None
-    else:
-        colors = set(factory_colors(data_colors))
+    layout = tuple(data['layout']) if 'layout' in data else None
+    object_type = (
+        factory_type(data['object_type']) if 'object_type' in data else None
+    )
+    colors = set(factory_colors(data['colors'])) if 'colors' in data else None
 
     return reset_fs.factory(
         data['name'],
@@ -148,28 +132,19 @@ def factory_transition_function(data) -> transition_fs.TransitionFunction:
 def factory_reward_function(data) -> reward_fs.RewardFunction:
     data = schemas.reward_function_schema().validate(data)
 
-    try:
-        data_reward_functions = data['reward_functions']
-    except KeyError:
-        reward_functions = None
-    else:
-        reward_functions = [
-            factory_reward_function(d) for d in data_reward_functions
-        ]
-
-    try:
-        data_object_type = data['object_type']
-    except KeyError:
-        object_type = None
-    else:
-        object_type = factory_type(data_object_type)
-
-    try:
-        data_distance_function = data['distance_function']
-    except KeyError:
-        distance_function = None
-    else:
-        distance_function = factory_distance_function(data_distance_function)
+    reward_functions = (
+        [factory_reward_function(d) for d in data['reward_functions']]
+        if 'reward_functions' in data
+        else None
+    )
+    object_type = (
+        factory_type(data['object_type']) if 'object_type' in data else None
+    )
+    distance_function = (
+        factory_distance_function(data['distance_function'])
+        if 'distance_function' in data
+        else None
+    )
 
     return reward_fs.factory(
         data['name'],
@@ -203,15 +178,12 @@ def factory_observation_function(
 ) -> observation_fs.ObservationFunction:
     data = schemas.observation_function_schema().validate(data)
 
-    try:
-        data_visibility_function = data['visibility_function']
-    except KeyError:
-        visibility_function = None
-    else:
-        # TODO: test
-        visibility_function = factory_visibility_function(
-            data_visibility_function
-        )
+    # TODO: test
+    visibility_function = (
+        factory_visibility_function(data['visibility_function'])
+        if 'visibility_function' in data
+        else None
+    )
 
     return observation_fs.factory(
         data['name'],
@@ -223,22 +195,15 @@ def factory_observation_function(
 def factory_terminating_function(data) -> terminating_fs.TerminatingFunction:
     data = schemas.terminating_function_schema().validate(data)
 
-    try:
-        data_terminating_functions = data['terminating_functions']
-    except KeyError:
-        terminating_functions = None
-    else:
-        terminating_functions = [
-            factory_terminating_function(d) for d in data_terminating_functions
-        ]
-
-    try:
-        data_object_type = data['object_type']
-    except KeyError:
-        object_type = None
-    else:
-        # TODO: test
-        object_type = factory_type(data_object_type)
+    terminating_functions = (
+        [factory_terminating_function(d) for d in data['terminating_functions']]
+        if 'terminating_functions' in data
+        else None
+    )
+    # TODO: test
+    object_type = (
+        factory_type(data['object_type']) if 'object_type' in data else None
+    )
 
     return terminating_fs.factory(
         data['name'],
@@ -252,14 +217,11 @@ def factory_env_from_data(data) -> InnerEnv:
     data = schemas.env_schema().validate(data)
 
     state_space = factory_state_space(data['state_space'])
-
-    try:
-        data_action_space = data['action_space']
-    except KeyError:
-        action_space = ActionSpace(list(Action))
-    else:
-        action_space = factory_action_space(data_action_space)
-
+    action_space = (
+        factory_action_space(data['action_space'])
+        if 'action_space' in data
+        else ActionSpace(list(Action))
+    )
     observation_space = factory_observation_space(data['observation_space'])
 
     domain_space = DomainSpace(state_space, action_space, observation_space)

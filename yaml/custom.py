@@ -7,6 +7,7 @@ from gym_gridverse.envs.transition_functions import update_agent
 from gym_gridverse.state import State
 
 
+#  custom transition function
 def multi_update_agent(
     state: State,
     action: Action,
@@ -18,6 +19,7 @@ def multi_update_agent(
         update_agent(state, action)
 
 
+#  custom reward function
 def checkerboard(
     state: State,  # pylint: disable=unused-argument
     action: Action,  # pylint: disable=unused-argument

@@ -9,19 +9,22 @@ from gym_gridverse.grid_object import Color
 
 
 @lru_cache()
-def pair_schema():
-    return Schema(lambda data: len(data) == 2, error='{} should have length 2')
-
-
-@lru_cache()
 def non_empty_schema():
     return Schema(len, error='{} should not be empty')
 
 
 @lru_cache()
-def at_least_2_schema():
+def len_schema(n: int):
     return Schema(
-        lambda data: len(data) >= 2, error='{} should have at least 2 elements'
+        lambda data: len(data) == n, error=f'{{}} should have length {n}'
+    )
+
+
+@lru_cache()
+def len_at_least_n_schema(n: int):
+    return Schema(
+        lambda data: len(data) >= n,
+        error=f'{{}} should have at least {n} elements',
     )
 
 
@@ -31,18 +34,10 @@ def positive_schema():
 
 
 @lru_cache()
-def odd_second_schema():
+def odd_element_schema(i: int):
     return Schema(
-        lambda data: data[1] % 2 == 1,
-        error='{} should have an odd second element',
-    )
-
-
-@lru_cache()
-def odd_width_schema():
-    return Schema(
-        lambda data: data[1] % 2 == 1,
-        error='{} should have an odd width element',
+        lambda data: data[i] % 2 == 1,
+        error=f'element {i} of {{}} should be odd',
     )
 
 
@@ -62,7 +57,7 @@ def shape_schema():
     return Schema(
         And(
             [And(int, positive_schema())],
-            pair_schema(),
+            len_schema(2),
         ),
         description='A pair of positive integers',
     )
@@ -73,7 +68,7 @@ def layout_schema():
     return Schema(
         And(
             [And(int, positive_schema())],
-            pair_schema(),
+            len_schema(2),
         ),
         description='A pair of positive integers',
     )
@@ -150,7 +145,7 @@ def action_space_schema():
     return Schema(
         And(
             [action.name for action in Action],
-            at_least_2_schema(),
+            len_at_least_n_schema(2),
             unique_schema(),
         ),
         description='A non-empty list of unique action names',
@@ -161,7 +156,7 @@ def action_space_schema():
 def observation_space_schema():
     return Schema(
         {
-            'shape': And(shape_schema(), odd_width_schema()),
+            'shape': And(shape_schema(), odd_element_schema(1)),
             'objects': object_types_schema(),
             'colors': colors_schema(),
         },
