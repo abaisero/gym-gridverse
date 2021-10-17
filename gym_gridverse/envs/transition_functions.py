@@ -1,13 +1,12 @@
 """ Functions to model dynamics """
 from functools import partial
-from typing import Dict, Iterator, List, Optional, Sequence, Tuple, Type
+from typing import Iterator, List, Optional, Sequence, Tuple, Type
 
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.action import ROTATION_ACTIONS, TRANSLATION_ACTIONS, Action
 from gym_gridverse.agent import Agent
-from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import Position, get_manhattan_boundary
 from gym_gridverse.grid import Grid
@@ -23,9 +22,11 @@ from gym_gridverse.grid_object import (
 )
 from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
-from gym_gridverse.utils.custom_functions import (
+from gym_gridverse.utils.functions import (
+    checkraise_kwargs,
     get_custom_function,
     is_custom_function,
+    select_kwargs,
 )
 
 
@@ -342,7 +343,7 @@ def step_telepod(
     state: State,
     action: Action,  # pylint: disable=unused-argument
     *,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+    rng: Optional[rnd.Generator] = None,
 ) -> None:
     """Teleports the agent if positioned on the telepod"""
 
@@ -361,21 +362,17 @@ def step_telepod(
         state.agent.position = rng.choice(positions)
 
 
-def factory(
-    name: str,
-    transition_functions: Optional[Sequence[TransitionFunction]] = None,
-    kwargs: Optional[Dict] = None,
-) -> TransitionFunction:
+def factory(name: str, **kwargs) -> TransitionFunction:
+
+    required_keys: List[str]
+    optional_keys: List[str]
 
     if name == 'chain':
-        checkraise(
-            lambda: transition_functions is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(chain, transition_functions=transition_functions)
+        required_keys = ['transition_functions']
+        optional_keys = []
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(chain, **kwargs)
 
     if name == 'update_agent':
         return update_agent

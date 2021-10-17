@@ -479,6 +479,9 @@ def test_pickndrop(
     assert pickndrop(state, action, next_state, **kwargs) == expected
 
 
+# TODO: test `reduce` function
+
+
 @pytest.mark.parametrize(
     'name,kwargs',
     [
@@ -543,14 +546,9 @@ def test_factory_valid(name: str, kwargs):
         ('invalid', {}, ValueError),
         ('reduce_sum', {}, ValueError),
         ('overlap', {}, ValueError),
-        ('living_reward', {}, ValueError),
-        ('reach_exit', {}, ValueError),
-        ('bump_moving_obstacle', {}, ValueError),
         ('proportional_to_distance', {}, ValueError),
         ('getting_closer', {}, ValueError),
         ('getting_closer_shortest_path', {}, ValueError),
-        ('bump_into_wall', {}, ValueError),
-        ('actuate_door', {}, ValueError),
         ('pickndrop', {}, ValueError),
     ],
 )

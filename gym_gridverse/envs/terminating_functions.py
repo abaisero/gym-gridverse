@@ -1,14 +1,15 @@
 from functools import partial
-from typing import Callable, Dict, Iterator, Optional, Sequence, Type
+from typing import Callable, Dict, Iterator, List, Sequence, Type
 
 from gym_gridverse.action import Action
-from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.grid_object import Exit, GridObject, MovingObstacle, Wall
 from gym_gridverse.state import State
-from gym_gridverse.utils.custom_functions import (
+from gym_gridverse.utils.functions import (
+    checkraise_kwargs,
     get_custom_function,
     is_custom_function,
+    select_kwargs,
 )
 
 TerminatingFunction = Callable[[State, Action, State], bool]
@@ -180,58 +181,38 @@ def bump_into_wall(
     )
 
 
-def factory(
-    name: str,
-    *,
-    terminating_functions: Optional[Sequence[TerminatingFunction]] = None,
-    reduction: Optional[TerminatingReductionFunction] = None,
-    object_type: Optional[Type[GridObject]] = None,
-    kwargs: Optional[Dict] = None,
-) -> TerminatingFunction:
+def factory(name: str, **kwargs) -> TerminatingFunction:
+
+    required_keys: List[str]
+    optional_keys: List[str]
 
     if name == 'reduce':
-        checkraise(
-            lambda: terminating_functions is not None and reduction is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(
-            reduce_any,
-            terminating_functions=terminating_functions,
-            reduction=reduction,
-        )
+        required_keys = ['terminating_functions', 'reduction']
+        optional_keys = []
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reduce_any, **kwargs)
 
     if name == 'reduce_any':
-        checkraise(
-            lambda: terminating_functions is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(reduce_any, terminating_functions=terminating_functions)
+        required_keys = ['terminating_functions']
+        optional_keys = []
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reduce_any, **kwargs)
 
     if name == 'reduce_all':
-        checkraise(
-            lambda: terminating_functions is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(reduce_all, terminating_functions=terminating_functions)
+        required_keys = ['terminating_functions']
+        optional_keys = []
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reduce_all, **kwargs)
 
     if name == 'overlap':
-        checkraise(
-            lambda: object_type is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(overlap, object_type=object_type)
+        required_keys = ['object_type']
+        optional_keys = []
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(overlap, **kwargs)
 
     if name == 'reach_exit':
         return reach_exit

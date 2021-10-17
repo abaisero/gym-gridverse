@@ -3,7 +3,7 @@ import glob
 import pytest
 
 import yaml
-from gym_gridverse.envs.yaml import schemas
+from gym_gridverse.envs.yaml.schemas import schemas
 
 
 @pytest.mark.parametrize(
@@ -21,8 +21,7 @@ from gym_gridverse.envs.yaml import schemas
     ],
 )
 def test_shape_schema(data, expected: bool):
-    schema = schemas.shape_schema()
-    assert schema.is_valid(data) == expected
+    assert schemas['shape'].is_valid(data) == expected
 
 
 @pytest.mark.parametrize(
@@ -40,8 +39,7 @@ def test_shape_schema(data, expected: bool):
     ],
 )
 def test_layout_schema(data, expected: bool):
-    schema = schemas.layout_schema()
-    assert schema.is_valid(data) == expected
+    assert schemas['layout'].is_valid(data) == expected
 
 
 @pytest.mark.parametrize(
@@ -70,8 +68,7 @@ def test_layout_schema(data, expected: bool):
     ],
 )
 def test_object_type_schema(data, expected: bool):
-    schema = schemas.object_type_schema()
-    assert schema.is_valid(data) == expected
+    assert schemas['object_type'].is_valid(data) == expected
 
 
 @pytest.mark.parametrize(
@@ -85,24 +82,22 @@ def test_object_type_schema(data, expected: bool):
     ],
 )
 def test_state_space_schema(data, expected: bool):
-    schema = schemas.state_space_schema()
-    assert schema.is_valid(data) == expected
+    assert schemas['state_space'].is_valid(data) == expected
 
 
 @pytest.mark.parametrize(
     'data,expected',
     [
         (['MOVE_FORWARD', 'MOVE_BACKWARD'], True),
+        (['MOVE_FORWARD'], True),
         # invalid (wrong length)
         ([], False),
-        (['MOVE_FORWARD'], False),
         # invalid (contains duplicates)
         (['MOVE_FORWARD', 'MOVE_FORWARD'], False),
     ],
 )
 def test_action_space_schema(data, expected: bool):
-    schema = schemas.action_space_schema()
-    assert schema.is_valid(data) == expected
+    assert schemas['action_space'].is_valid(data) == expected
 
 
 @pytest.mark.parametrize(
@@ -118,8 +113,7 @@ def test_action_space_schema(data, expected: bool):
     ],
 )
 def test_observation_space_schema(data, expected: bool):
-    schema = schemas.observation_space_schema()
-    assert schema.is_valid(data) == expected
+    assert schemas['observation_space'].is_valid(data) == expected
 
 
 # NOTE: individual xxx_function_schema are annoying to test comprehensively;
@@ -131,5 +125,4 @@ def test_env_schema(path: str):
     with open(path) as f:
         data = yaml.safe_load(f)
 
-    schema = schemas.env_schema()
-    assert schema.is_valid(data)
+    assert schemas['env'].is_valid(data)

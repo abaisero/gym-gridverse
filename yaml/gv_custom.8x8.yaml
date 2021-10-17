@@ -22,14 +22,12 @@ reset_function:
 
 transition_functions:
   - name: custom:multi_update_agent
-    kwargs:
-      n: 2
+    n: 2
 
 reward_functions:
   - name: custom:checkerboard
-    kwargs:
-      reward_even: 2.0
-      reward_odd: -2.0
+    reward_even: 2.0
+    reward_odd: -2.0
 
 observation_function:
   name: partial_observation

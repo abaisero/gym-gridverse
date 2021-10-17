@@ -1,4 +1,3 @@
-from functools import partial
 from typing import List, Tuple, Type
 
 import yaml
@@ -13,7 +12,7 @@ from gym_gridverse.envs import (
     visibility_functions as visibility_fs,
 )
 from gym_gridverse.envs.gridworld import GridWorld
-from gym_gridverse.envs.yaml import schemas
+from gym_gridverse.envs.yaml.schemas import schemas
 from gym_gridverse.geometry import (
     DistanceFunction,
     Shape,
@@ -28,33 +27,76 @@ from gym_gridverse.spaces import (
 )
 
 
+def process_reserved_keys(data):
+
+    if 'transition_functions' in data:
+        data['transition_functions'] = [
+            factory_transition_function(d) for d in data['transition_functions']
+        ]
+
+    if 'reward_functions' in data:
+        data['reward_functions'] = [
+            factory_reward_function(d) for d in data['reward_functions']
+        ]
+
+    if 'terminating_functions' in data:
+        data['terminating_functions'] = [
+            factory_terminating_function(d)
+            for d in data['terminating_functions']
+        ]
+
+    if 'reward_function' in data:
+        data['reward_function'] = factory_reward_function(
+            data['reward_function']
+        )
+
+    if 'distance_function' in data:
+        data['distance_function'] = factory_distance_function(
+            data['distance_function']
+        )
+
+    if 'visibility_function' in data:
+        data['visibility_function'] = factory_visibility_function(
+            data['visibility_function']
+        )
+
+    if 'layout' in data:
+        data['layout'] = tuple(data['layout'])
+
+    if 'object_type' in data:
+        data['object_type'] = factory_type(data['object_type'])
+
+    if 'colors' in data:
+        data['colors'] = set(factory_colors(data['colors']))
+
+
 def factory_shape(data) -> Shape:
-    data = schemas.shape_schema().validate(data)
+    data = schemas['shape'].validate(data)
     return Shape(*data)
 
 
 def factory_layout(data) -> Tuple[int, int]:
-    data = schemas.layout_schema().validate(data)
+    data = schemas['layout'].validate(data)
     return tuple(data)  # type: ignore
 
 
 def factory_object_types(data) -> List[Type[GridObject]]:
-    data = schemas.object_types_schema().validate(data)
+    data = schemas['object_types'].validate(data)
     return [factory_type(d) for d in data]
 
 
 def factory_colors(data) -> List[Color]:
-    data = schemas.colors_schema().validate(data)
+    data = schemas['colors'].validate(data)
     return [Color[name] for name in data]
 
 
 def factory_distance_function(data) -> DistanceFunction:
-    data = schemas.distance_function_schema().validate(data)
+    data = schemas['distance_function'].validate(data)
     return distance_function_factory(data)
 
 
 def factory_state_space(data) -> StateSpace:
-    data = schemas.state_space_schema().validate(data)
+    data = schemas['state_space'].validate(data)
 
     shape = factory_shape(data['shape'])
     objects = factory_object_types(data['objects'])
@@ -68,17 +110,17 @@ def factory_state_space(data) -> StateSpace:
 
 
 def factory_action_space(data) -> ActionSpace:
-    data = schemas.action_space_schema().validate(data)
+    data = schemas['action_space'].validate(data)
 
     return ActionSpace([Action[name] for name in data])
 
 
 def factory_observation_space(data) -> ObservationSpace:
-    data = schemas.observation_space_schema().validate(data)
+    data = schemas['observation_space'].validate(data)
 
     shape = factory_shape(data['shape'])
-    objects = [factory_type(name) for name in data['objects']]
-    colors = [Color[name] for name in data['colors']]
+    objects = factory_object_types(data['objects'])
+    colors = factory_colors(data['colors'])
 
     return ObservationSpace(
         grid_shape=shape,
@@ -90,131 +132,71 @@ def factory_observation_space(data) -> ObservationSpace:
 def factory_reset_function(
     data, state_space: StateSpace
 ) -> reset_fs.ResetFunction:
-    data = schemas.reset_function_schema().validate(data)
+    data = schemas['reset_function'].validate(data)
 
-    layout = tuple(data['layout']) if 'layout' in data else None
-    object_type = (
-        factory_type(data['object_type']) if 'object_type' in data else None
-    )
-    colors = set(factory_colors(data['colors'])) if 'colors' in data else None
-
+    name = data.pop('name')
+    process_reserved_keys(data)
     return reset_fs.factory(
-        data['name'],
+        name,
         height=state_space.grid_shape.height,
         width=state_space.grid_shape.width,
-        layout=layout,
-        random_agent_pos=data.get('random_agent'),
-        num_obstacles=data.get('num_obstacles'),
-        num_rivers=data.get('num_rivers'),
-        object_type=object_type,
-        colors=colors,
-        num_beacons=data.get('num_beacons'),
-        num_exits=data.get('num_exits'),
-        kwargs=data.get('kwargs', {}),
+        **data,
     )
 
 
 def factory_transition_function(data) -> transition_fs.TransitionFunction:
-    data = schemas.transition_functions_schema().validate(data)
+    data = schemas['transition_function'].validate(data)
 
-    transition_functions = [
-        transition_fs.factory(
-            d['name'],
-            kwargs=d.get('kwargs', {}),
-        )
-        for d in data
-    ]
-    return partial(
-        transition_fs.chain, transition_functions=transition_functions
-    )
+    name = data.pop('name')
+    process_reserved_keys(data)
+    return transition_fs.factory(name, **data)
 
 
 def factory_reward_function(data) -> reward_fs.RewardFunction:
-    data = schemas.reward_function_schema().validate(data)
+    data = schemas['reward_function'].validate(data)
 
-    reward_functions = (
-        [factory_reward_function(d) for d in data['reward_functions']]
-        if 'reward_functions' in data
-        else None
-    )
-    object_type = (
-        factory_type(data['object_type']) if 'object_type' in data else None
-    )
-    distance_function = (
-        factory_distance_function(data['distance_function'])
-        if 'distance_function' in data
-        else None
-    )
-
-    return reward_fs.factory(
-        data['name'],
-        reward_functions=reward_functions,
-        object_type=object_type,
-        distance_function=distance_function,
-        reward=data.get('reward'),
-        reward_on=data.get('reward_on'),
-        reward_off=data.get('reward_off'),
-        reward_per_unit_distance=data.get('reward_per_unit_distance'),
-        reward_closer=data.get('reward_closer'),
-        reward_further=data.get('reward_further'),
-        reward_open=data.get('reward_open'),
-        reward_close=data.get('reward_close'),
-        reward_pick=data.get('reward_pick'),
-        reward_drop=data.get('reward_drop'),
-        reward_good=data.get('reward_good'),
-        reward_bad=data.get('reward_bad'),
-        kwargs=data.get('kwargs', {}),
-    )
+    name = data.pop('name')
+    process_reserved_keys(data)
+    if name == 'getting_closer' and 'object_type' not in data:
+        breakpoint()  # XXX BREAKPOINT
+    return reward_fs.factory(name, **data)
 
 
 def factory_visibility_function(data):
-    # TODO: test
-    data = schemas.visibility_function_schema().validate(data)
-    return visibility_fs.factory(data['name'])
+    # TODO: test, maybe? (re-check coverage)
+    data = schemas['visibility_function'].validate(data)
+
+    name = data.pop('name')
+    process_reserved_keys(data)
+    return visibility_fs.factory(name, **data)
 
 
 def factory_observation_function(
     data, observation_space: ObservationSpace
 ) -> observation_fs.ObservationFunction:
-    data = schemas.observation_function_schema().validate(data)
+    # TODO: test, maybe? (re-check coverage)
+    data = schemas['observation_function'].validate(data)
 
-    # TODO: test
-    visibility_function = (
-        factory_visibility_function(data['visibility_function'])
-        if 'visibility_function' in data
-        else None
-    )
-
+    name = data.pop('name')
+    process_reserved_keys(data)
     return observation_fs.factory(
-        data['name'],
+        name,
         observation_space=observation_space,
-        visibility_function=visibility_function,
+        **data,
     )
 
 
 def factory_terminating_function(data) -> terminating_fs.TerminatingFunction:
-    data = schemas.terminating_function_schema().validate(data)
+    # TODO: test, maybe? (re-check coverage)
+    data = schemas['terminating_function'].validate(data)
 
-    terminating_functions = (
-        [factory_terminating_function(d) for d in data['terminating_functions']]
-        if 'terminating_functions' in data
-        else None
-    )
-    # TODO: test
-    object_type = (
-        factory_type(data['object_type']) if 'object_type' in data else None
-    )
-
-    return terminating_fs.factory(
-        data['name'],
-        terminating_functions=terminating_functions,
-        object_type=object_type,
-        kwargs=data.get('kwargs', {}),
-    )
+    name = data.pop('name')
+    process_reserved_keys(data)
+    return terminating_fs.factory(name, **data)
 
 
 def factory_env_from_data(data) -> InnerEnv:
-    data = schemas.env_schema().validate(data)
+    data = schemas['env'].validate(data)
 
     state_space = factory_state_space(data['state_space'])
     action_space = (
@@ -223,12 +205,11 @@ def factory_env_from_data(data) -> InnerEnv:
         else ActionSpace(list(Action))
     )
     observation_space = factory_observation_space(data['observation_space'])
-
     domain_space = DomainSpace(state_space, action_space, observation_space)
 
     reset_function = factory_reset_function(data['reset_function'], state_space)
     transition_function = factory_transition_function(
-        data['transition_functions']
+        {'name': 'chain', 'transition_functions': data['transition_functions']}
     )
     reward_function = factory_reward_function(
         {'name': 'reduce_sum', 'reward_functions': data['reward_functions']}

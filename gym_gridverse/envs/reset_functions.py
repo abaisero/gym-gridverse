@@ -1,6 +1,6 @@
 import itertools as itt
 from functools import partial
-from typing import Dict, Optional, Set, Tuple, Type
+from typing import List, Optional, Set, Tuple, Type
 
 import more_itertools as mitt
 import numpy as np
@@ -32,9 +32,11 @@ from gym_gridverse.grid_object import (
 )
 from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
-from gym_gridverse.utils.custom_functions import (
+from gym_gridverse.utils.functions import (
+    checkraise_kwargs,
     get_custom_function,
     is_custom_function,
+    select_kwargs,
 )
 
 
@@ -171,7 +173,7 @@ def reset_dynamic_obstacles(
     height: int,
     width: int,
     num_obstacles: int,
-    random_agent_pos: bool = False,
+    random_agent: bool = False,
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> State:
@@ -190,7 +192,7 @@ def reset_dynamic_obstacles(
 
     rng = get_gv_rng_if_none(rng)
 
-    state = reset_empty(height, width, random_agent_pos, rng=rng)
+    state = reset_empty(height, width, random_agent, rng=rng)
     vacant_positions = [
         position
         for position in state.grid.positions()
@@ -594,143 +596,73 @@ def reset_memory_rooms(
     return State(grid, agent)
 
 
-def factory(
-    name: str,
-    *,
-    height: Optional[int] = None,
-    width: Optional[int] = None,
-    layout: Optional[Tuple[int, int]] = None,
-    random_agent_pos: Optional[bool] = None,
-    num_obstacles: Optional[int] = None,
-    num_rivers: Optional[int] = None,
-    object_type: Optional[Type[GridObject]] = None,
-    colors: Optional[Set[Color]] = None,
-    num_beacons: Optional[int] = None,
-    num_exits: Optional[int] = None,
-    kwargs: Optional[Dict] = None,
-) -> ResetFunction:
+def factory(name: str, **kwargs) -> ResetFunction:
+
+    required_keys: List[str]
+    optional_keys: List[str]
 
     if name == 'empty':
-        checkraise(
-            lambda: height is not None
-            and width is not None
-            and random_agent_pos is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(
-            reset_empty,
-            height=height,
-            width=width,
-            random_agent=random_agent_pos,
-        )
+        required_keys = ['height', 'width']
+        optional_keys = ['random_agent', 'random_exit']
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reset_empty, **kwargs)
 
     if name == 'rooms':
-        checkraise(
-            lambda: height is not None
-            and width is not None
-            and layout is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(reset_rooms, height=height, width=width, layout=layout)
+        required_keys = ['height', 'width', 'layout']
+        optional_keys = []
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reset_rooms, **kwargs)
 
     if name == 'dynamic_obstacles':
-        checkraise(
-            lambda: height is not None
-            and width is not None
-            and num_obstacles is not None
-            and random_agent_pos is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(
-            reset_dynamic_obstacles,
-            height=height,
-            width=width,
-            num_obstacles=num_obstacles,
-            random_agent_pos=random_agent_pos,
-        )
+        required_keys = ['height', 'width', 'num_obstacles']
+        optional_keys = ['random_agent']
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reset_dynamic_obstacles, **kwargs)
 
     if name == 'keydoor':
-        checkraise(
-            lambda: height is not None and width is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(reset_keydoor, height, width)
+        required_keys = ['height', 'width']
+        optional_keys = []
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reset_keydoor, **kwargs)
 
     if name == 'crossing':
-        checkraise(
-            lambda: height is not None
-            and width is not None
-            and num_rivers is not None
-            and object_type is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(
-            reset_crossing,
-            height=height,
-            width=width,
-            num_rivers=num_rivers,
-            object_type=object_type,
-        )
+        required_keys = ['height', 'width', 'num_rivers', 'object_type']
+        optional_keys = []
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reset_crossing, **kwargs)
 
     if name == 'teleport':
-        checkraise(
-            lambda: height is not None and width is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(reset_teleport, height=height, width=width)
+        required_keys = ['height', 'width']
+        optional_keys = []
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reset_teleport, **kwargs)
 
     if name == 'memory':
-        checkraise(
-            lambda: height is not None
-            and width is not None
-            and colors is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(reset_memory, height=height, width=width, colors=colors)
+        required_keys = ['height', 'width', 'colors']
+        optional_keys = []
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reset_memory, **kwargs)
 
     if name == 'memory_rooms':
-        checkraise(
-            lambda: height is not None
-            and width is not None
-            and layout is not None
-            and colors is not None
-            and num_beacons is not None
-            and num_exits is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(
-            reset_memory_rooms,
-            height=height,
-            width=width,
-            layout=layout,
-            colors=colors,
-            num_beacons=num_beacons,
-            num_exits=num_exits,
-        )
+        required_keys = [
+            'height',
+            'width',
+            'layout',
+            'colors',
+            'num_beacons',
+            'num_exits',
+        ]
+        optional_keys = []
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reset_memory_rooms, **kwargs)
 
     if is_custom_function(name):
         function = get_custom_function(name)

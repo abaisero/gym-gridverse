@@ -1,12 +1,11 @@
 from collections import deque
 from functools import lru_cache, partial
-from typing import Callable, Dict, Iterator, Optional, Sequence, Tuple, Type
+from typing import Callable, Iterator, List, Sequence, Tuple, Type
 
 import more_itertools as mitt
 import numpy as np
 
 from gym_gridverse.action import Action
-from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import DistanceFunction, Position
 from gym_gridverse.grid_object import (
@@ -18,9 +17,11 @@ from gym_gridverse.grid_object import (
     Wall,
 )
 from gym_gridverse.state import State
-from gym_gridverse.utils.custom_functions import (
+from gym_gridverse.utils.functions import (
+    checkraise_kwargs,
     get_custom_function,
     is_custom_function,
+    select_kwargs,
 )
 
 RewardFunction = Callable[[State, Action, State], float]
@@ -495,201 +496,101 @@ def reach_exit_memory(
     )
 
 
-def factory(  # pylint: disable=too-many-branches
-    name: str,
-    *,
-    reward_functions: Optional[Sequence[RewardFunction]] = None,
-    reduction: Optional[RewardReductionFunction] = None,
-    reward: Optional[float] = None,
-    reward_on: Optional[float] = None,
-    reward_off: Optional[float] = None,
-    object_type: Optional[Type[GridObject]] = None,
-    distance_function: Optional[DistanceFunction] = None,
-    reward_per_unit_distance: Optional[float] = None,
-    reward_closer: Optional[float] = None,
-    reward_further: Optional[float] = None,
-    reward_open: Optional[float] = None,
-    reward_close: Optional[float] = None,
-    reward_pick: Optional[float] = None,
-    reward_drop: Optional[float] = None,
-    reward_good: Optional[float] = None,
-    reward_bad: Optional[float] = None,
-    kwargs: Optional[Dict] = None,
-) -> RewardFunction:
+def factory(name: str, **kwargs) -> RewardFunction:
+
+    required_keys: List[str]
+    optional_keys: List[str]
 
     if name == 'reduce':
-        # TODO: test
-        checkraise(
-            lambda: reward_functions is not None and reduction is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(
-            reduce, reward_functions=reward_functions, reduction=reduction
-        )
+        required_keys = ['reward_functions', 'reduction']
+        optional_keys = []
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reduce, **kwargs)
 
     if name == 'reduce_sum':
-        checkraise(
-            lambda: reward_functions is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(reduce_sum, reward_functions=reward_functions)
+        required_keys = ['reward_functions']
+        optional_keys = []
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reduce_sum, **kwargs)
 
     if name == 'overlap':
-        checkraise(
-            lambda: object_type is not None
-            and reward_on is not None
-            and reward_off is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(
-            overlap,
-            object_type=object_type,
-            reward_on=reward_on,
-            reward_off=reward_off,
-        )
+        required_keys = ['object_type']
+        optional_keys = ['reward_on', 'reward_off']
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(overlap, **kwargs)
 
     if name == 'living_reward':
-        checkraise(
-            lambda: reward is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(living_reward, reward=reward)
+        required_keys = []
+        optional_keys = ['reward']
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(living_reward, **kwargs)
 
     if name == 'reach_exit':
-        checkraise(
-            lambda: reward_on is not None and reward_off is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(reach_exit, reward_on=reward_on, reward_off=reward_off)
+        required_keys = []
+        optional_keys = ['reward_on', 'reward_off']
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reach_exit, **kwargs)
 
     if name == 'bump_moving_obstacle':
-        checkraise(
-            lambda: reward is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(bump_moving_obstacle, reward=reward)
+        required_keys = []
+        optional_keys = ['reward']
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(bump_moving_obstacle, **kwargs)
 
     if name == 'proportional_to_distance':
-        checkraise(
-            lambda: distance_function is not None
-            and object_type is not None
-            and reward_per_unit_distance is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(
-            proportional_to_distance,
-            distance_function=distance_function,
-            object_type=object_type,
-            reward_per_unit_distance=reward_per_unit_distance,
-        )
+        required_keys = ['object_type']
+        optional_keys = ['distance_function', 'reward_per_unit_distance']
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(proportional_to_distance, **kwargs)
 
     if name == 'getting_closer':
-        checkraise(
-            lambda: distance_function is not None
-            and object_type is not None
-            and reward_closer is not None
-            and reward_further is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(
-            getting_closer,
-            distance_function=distance_function,
-            object_type=object_type,
-            reward_closer=reward_closer,
-            reward_further=reward_further,
-        )
+        required_keys = ['object_type']
+        optional_keys = ['distance_function', 'reward_closer', 'reward_further']
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(getting_closer, **kwargs)
 
     if name == 'getting_closer_shortest_path':
-        checkraise(
-            lambda: object_type is not None
-            and reward_closer is not None
-            and reward_further is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(
-            getting_closer_shortest_path,
-            object_type=object_type,
-            reward_closer=reward_closer,
-            reward_further=reward_further,
-        )
+        required_keys = ['object_type']
+        optional_keys = ['reward_closer', 'reward_further']
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(getting_closer_shortest_path, **kwargs)
 
     if name == 'bump_into_wall':
-        checkraise(
-            lambda: reward is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(bump_into_wall, reward=reward)
+        required_keys = []
+        optional_keys = ['reward']
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(bump_into_wall, **kwargs)
 
     if name == 'actuate_door':
-        checkraise(
-            lambda: reward_open is not None and reward_close is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(
-            actuate_door, reward_open=reward_open, reward_close=reward_close
-        )
+        required_keys = []
+        optional_keys = ['reward_open', 'reward_close']
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(actuate_door, **kwargs)
 
     if name == 'pickndrop':
-        checkraise(
-            lambda: object_type is not None
-            and reward_pick is not None
-            and reward_drop is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(
-            pickndrop,
-            object_type=object_type,
-            reward_pick=reward_pick,
-            reward_drop=reward_drop,
-        )
+        required_keys = ['object_type']
+        optional_keys = ['reward_pick', 'reward_drop']
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(pickndrop, **kwargs)
 
     if name == 'reach_exit_memory':
-        checkraise(
-            lambda: reward_good is not None and reward_bad is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return partial(
-            reach_exit_memory, reward_good=reward_good, reward_bad=reward_bad
-        )
+        required_keys = []
+        optional_keys = ['reward_good', 'reward_bad']
+        checkraise_kwargs(kwargs, required_keys)
+        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+        return partial(reach_exit_memory, **kwargs)
 
     if is_custom_function(name):
         function = get_custom_function(name)

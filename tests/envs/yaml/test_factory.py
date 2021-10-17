@@ -1,4 +1,5 @@
 import glob
+import itertools as itt
 
 import pytest
 from schema import SchemaError
@@ -122,7 +123,6 @@ def test_factory_action_space(data):
     'data',
     [
         [],
-        ['MOVE_FORWARD'],
         ['MOVE_FORWARD', 'MOVE_FORWARD'],
     ],
 )
@@ -165,7 +165,7 @@ def test_factory_observation_space_fail(data):
 
 
 # NOTE: individual factory_xxx_function are annoying to test comprehensively;
-# they are tested indirectly by testing the entire format in the following test
+# they are tested indirectly by testing the entire format from the yaml files
 
 
 # NOTE testing all yaml files in yaml/
@@ -173,3 +173,10 @@ def test_factory_observation_space_fail(data):
 def test_factory_rnv_from_yaml(path: str):
     env = yaml_factory.factory_env_from_yaml(path)
     assert isinstance(env, InnerEnv)
+
+    # testing for runtime errors
+    env.reset()
+    for action in itt.islice(itt.cycle(env.action_space.actions), 10):
+        _, done = env.step(action)
+        if done:
+            env.reset()
