@@ -684,6 +684,7 @@ def factory(
 
 
 def factory_type(name: str) -> Type[GridObject]:
+    # TODO: test
 
     if name in ['none_grid_object', 'NoneGridObject']:
         return NoneGridObject

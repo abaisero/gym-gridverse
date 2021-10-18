@@ -452,6 +452,34 @@ def test_actuate_box(
 
 
 @pytest.mark.parametrize(
+    'orientation,action',
+    [
+        # empty box
+        (Orientation.N, Action.ACTUATE),
+        (Orientation.S, Action.ACTUATE),
+        (Orientation.N, Action.PICK_N_DROP),
+        (Orientation.S, Action.PICK_N_DROP),
+        # content is key
+        (Orientation.N, Action.ACTUATE),
+        (Orientation.S, Action.ACTUATE),
+        (Orientation.N, Action.PICK_N_DROP),
+        (Orientation.S, Action.PICK_N_DROP),
+    ],
+)
+def test_actuate_no_box(
+    orientation: Orientation,
+    action: Action,
+):
+    grid = Grid(2, 1)
+    agent = Agent((1, 0), orientation)
+    state = State(grid, agent)
+
+    prev_state = copy.deepcopy(state)
+    actuate_box(state, action)
+    assert prev_state == state
+
+
+@pytest.mark.parametrize(
     'position_telepod1,position_telepod2,position_agent,expected',
     [
         ((0, 0), (1, 1), (0, 0), (1, 1)),

@@ -170,12 +170,13 @@ def raytracing_visibility(
     return visibility
 
 
-def stochastic_raytracing_visibility(  # TODO: add test
+def stochastic_raytracing_visibility(
     grid: Grid,
     position: Position,
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> np.ndarray:
+    # TODO: add test
     rng = get_gv_rng_if_none(rng)
 
     area = Area((0, grid.height - 1), (0, grid.width - 1))

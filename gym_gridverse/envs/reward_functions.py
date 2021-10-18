@@ -46,6 +46,8 @@ def reduce(
     Returns:
         bool: reduction operator over the input reward functions
     """
+    # TODO: test
+
     return reduction(
         reward_function(state, action, next_state)
         for reward_function in reward_functions
@@ -70,6 +72,7 @@ def reduce_sum(
     Returns:
         float: sum of the evaluated input reward functions
     """
+    # TODO: test
     return reduce(
         state,
         action,
@@ -469,6 +472,7 @@ def reach_exit_memory(
     Returns:
         float: one of the two input rewards
     """
+    # TODO: test
 
     agent_grid_object = next_state.grid[next_state.agent.position]
     grid_objects = (
@@ -509,6 +513,7 @@ def factory(  # pylint: disable=too-many-branches
 ) -> RewardFunction:
 
     if name == 'reduce':
+        # TODO: test
         checkraise(
             lambda: reward_functions is not None and reduction is not None,
             ValueError,

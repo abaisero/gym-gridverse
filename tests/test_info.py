@@ -213,6 +213,69 @@ def test_grid_subgrid(
     assert grid.subgrid(area) == expected
 
 
+def test_grid_equality():
+    """A simple test that equality is not limited to just checking (first) objects"""
+
+    grid_1 = Grid.from_objects(
+        [
+            [Wall(), Floor(), Wall(), Floor()],
+            [Floor(), Wall(), Floor(), Wall()],
+            [Wall(), Floor(), Wall(), Floor()],
+        ]
+    )
+
+    grid_2 = Grid.from_objects(
+        [
+            [Wall(), Floor(), Wall(), Floor()],
+            [Floor(), Wall(), Floor(), Wall()],
+            [Wall(), Floor(), Wall(), Floor()],
+            [Wall(), Floor(), Wall(), Floor()],
+        ]
+    )
+
+    grid_3 = Grid.from_objects(
+        [
+            [Wall(), Floor(), Wall(), Floor(), Floor()],
+            [Floor(), Wall(), Floor(), Wall(), Floor()],
+            [Wall(), Floor(), Wall(), Floor(), Floor()],
+        ]
+    )
+
+    assert grid_1 != grid_2
+    assert grid_2 != grid_1
+    assert grid_1 != grid_3
+    assert grid_3 != grid_1
+    assert grid_2 != grid_3
+    assert grid_3 != grid_2
+
+
+@pytest.mark.parametrize(
+    'object_list',
+    [
+        [
+            [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
+            [Hidden(), Wall(), Floor(), Wall(), Floor(), Hidden()],
+            [Hidden(), Floor(), Wall(), Floor(), Wall(), Hidden()],
+            [Hidden(), Wall(), Floor(), Wall(), Floor(), Hidden()],
+            [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
+        ],
+        [[Wall(), Floor()]],
+        [
+            [Hidden(), Hidden(), Hidden()],
+            [Hidden(), Wall(), Floor()],
+            [Hidden(), Floor(), Wall()],
+        ],
+        [
+            [Floor(), Wall(), Hidden()],
+            [Wall(), Floor(), Hidden()],
+            [Hidden(), Hidden(), Hidden()],
+        ],
+    ],
+)
+def test_grid_to_objects(object_list):
+    assert object_list == Grid.from_objects(object_list).to_objects()
+
+
 def test_grid_subgrid_references():
     key = Key(Color.RED)
     box = Box(key)

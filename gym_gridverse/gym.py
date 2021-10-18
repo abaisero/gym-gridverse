@@ -69,6 +69,7 @@ class GymEnvironment(gym.Env):
 
     def set_state_representation(self, name: str):
         """Change underlying state representation"""
+        # TODO: test
         self.outer_env.state_rep = create_state_representation(
             name, self.outer_env.inner_env.state_space
         )
@@ -78,6 +79,7 @@ class GymEnvironment(gym.Env):
 
     def set_observation_representation(self, name: str):
         """Change underlying observation representation"""
+        # TODO: test
         self.outer_env.observation_rep = create_observation_representation(
             name, self.outer_env.inner_env.observation_space
         )
@@ -87,6 +89,7 @@ class GymEnvironment(gym.Env):
 
     @classmethod
     def from_environment(cls, env: OuterEnv):
+        # TODO: test
         return cls(lambda: env)
 
     @property
@@ -107,6 +110,7 @@ class GymEnvironment(gym.Env):
         return self.observation, reward, done, {}
 
     def render(self, mode='human'):
+        # TODO: test
         # only import rendering if actually rendering (avoid importing when
         # using library remotely using ssh on a display-less environment)
         from gym_gridverse.rendering import (  # pylint: disable=import-outside-toplevel
@@ -149,6 +153,7 @@ class GymEnvironment(gym.Env):
             )
 
     def close(self):
+        # TODO: test
         if self._state_viewer is not None:
             self._state_viewer.close()
             self._state_viewer = None

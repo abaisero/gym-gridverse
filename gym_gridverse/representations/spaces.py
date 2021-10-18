@@ -46,6 +46,7 @@ def is_dtype_compatible(x: np.ndarray, space_type: SpaceType) -> bool:
     Returns:
         bool:
     """
+    # TODO: test
     if space_type is SpaceType.CATEGORICAL:
         return is_dtype_integer(x)
 

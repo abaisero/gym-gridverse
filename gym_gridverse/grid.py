@@ -114,6 +114,7 @@ class Grid:
         try:
             return self._grid[y, x]
         except IndexError as e:
+            # TODO: test
             raise IndexError(f'position {position} not in grid') from e
 
     def __setitem__(self, position: PositionOrTuple, obj: GridObject):
@@ -127,6 +128,7 @@ class Grid:
         try:
             self._grid[y, x] = obj
         except IndexError as e:
+            # TODO: test
             raise IndexError(f'position {position} not in grid') from e
 
     def swap(self, p: Position, q: Position):

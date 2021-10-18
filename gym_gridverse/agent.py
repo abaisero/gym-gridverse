@@ -79,6 +79,7 @@ class Agent:
         return hash((self.pose, self.obj))
 
     def __repr__(self):
+        # TODO: test
         return (
             f'{self.__class__.__name__}({self.position!r}, {self.orientation!s})'
             if isinstance(self.obj, NoneGridObject)

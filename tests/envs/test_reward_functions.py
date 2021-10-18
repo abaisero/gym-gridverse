@@ -1,3 +1,5 @@
+from typing import Optional
+
 import pytest
 
 from gym_gridverse.action import Action
@@ -52,10 +54,13 @@ def make_wall_state(orientation: Orientation = Orientation.N) -> State:
     return State(grid, agent)
 
 
-def make_door_state(door_status: Door.Status) -> State:
+def make_door_state(door_status: Optional[Door.Status]) -> State:
     """makes a simple state with a door"""
     grid = Grid(2, 1)
-    grid[0, 0] = Door(door_status, Color.RED)
+
+    if door_status:
+        grid[0, 0] = Door(door_status, Color.RED)
+
     agent = Agent((1, 0), Orientation.N)
     return State(grid, agent)
 
@@ -352,6 +357,27 @@ def test_bump_into_wall(
             Action.ACTUATE,
             {'reward_open': -1.5, 'reward_close': 1.5},
             0.0,
+        ),
+        (
+            None,
+            Door.Status.OPEN,
+            Action.ACTUATE,
+            {'reward_open': -1.5, 'reward_close': 1.5},
+            0,
+        ),
+        (
+            Door.Status.OPEN,
+            None,
+            Action.ACTUATE,
+            {'reward_open': -1.5, 'reward_close': 1.5},
+            0,
+        ),
+        (
+            None,
+            None,
+            Action.ACTUATE,
+            {'reward_open': -1.5, 'reward_close': 1.5},
+            0,
         ),
     ],
 )

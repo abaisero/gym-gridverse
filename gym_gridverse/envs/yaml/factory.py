@@ -185,6 +185,7 @@ def factory_reward_function(data) -> reward_fs.RewardFunction:
 
 
 def factory_visibility_function(data):
+    # TODO: test
     data = schemas.visibility_function_schema().validate(data)
     return visibility_fs.factory(data['name'])
 
@@ -199,6 +200,7 @@ def factory_observation_function(
     except KeyError:
         visibility_function = None
     else:
+        # TODO: test
         visibility_function = factory_visibility_function(
             data_visibility_function
         )
@@ -227,6 +229,7 @@ def factory_terminating_function(data) -> terminating_fs.TerminatingFunction:
     except KeyError:
         object_type = None
     else:
+        # TODO: test
         object_type = factory_type(data_object_type)
 
     return terminating_fs.factory(

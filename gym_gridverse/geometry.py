@@ -259,6 +259,7 @@ class Orientation(enum.Enum):
         assert False, 'self must be of type Orientation'
 
     def as_radians(self) -> float:
+        # TODO: test
         radians = {
             Orientation.N: 0.0,
             Orientation.W: math.pi / 2,
@@ -380,6 +381,7 @@ DistanceFunction = Callable[[Position, Position], float]
 
 
 def distance_function_factory(name: str):
+    # TODO: test
     if name == 'manhattan':
         return Position.manhattan_distance
 

@@ -35,6 +35,7 @@ def reduce(
     Returns:
         bool: reduction operator over the input terminating functions
     """
+    # TODO: test
     return reduction(
         terminating_function(state, action, next_state)
         for terminating_function in terminating_functions
@@ -59,6 +60,7 @@ def reduce_any(
     Returns:
         bool: OR operator over the input terminating functions
     """
+    # TODO: test
     return reduce(
         state,
         action,
@@ -86,6 +88,7 @@ def reduce_all(
     Returns:
         bool: AND operator over the input terminating functions
     """
+    # TODO: test
     return reduce(
         state,
         action,
@@ -143,6 +146,7 @@ def bump_moving_obstacle(
     Returns:
         bool: True if next_state agent is on a MovingObstacle
     """
+    # TODO: test
     return overlap(state, action, next_state, object_type=MovingObstacle)
 
 

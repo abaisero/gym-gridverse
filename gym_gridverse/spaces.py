@@ -79,6 +79,7 @@ class StateSpace:
 
     @property
     def agent_state_size(self) -> Tuple[int, int, int, int, int]:
+        # TODO: test
         return (
             self.grid_shape.height,
             self.grid_shape.height,
@@ -89,10 +90,12 @@ class StateSpace:
 
     @property
     def agent_state_shape(self) -> int:
+        # TODO: test
         return len(self.agent_state_size)
 
     @property
     def grid_state_shape(self) -> Shape:
+        # TODO: test
         return self.grid_shape
 
     @property
@@ -115,6 +118,7 @@ class StateSpace:
 
     @property
     def max_agent_object_status(self) -> int:
+        # TODO: test
         # NOTE: Add Hidden as the default 'non' object the agent is holding
         return _max_object_status(self.object_types + [NoneGridObject])
 
@@ -131,6 +135,7 @@ class ActionSpace:
         return self.actions[action]
 
     def action_to_int(self, action: Action) -> int:
+        # TODO: test
         return self.actions.index(action)
 
     @property
@@ -203,6 +208,7 @@ class ObservationSpace:
 
     @property
     def agent_state_size(self) -> Tuple[int, int, int, int, int]:
+        # TODO: test
         return (
             self.grid_shape.height,
             self.grid_shape.width,
@@ -213,10 +219,12 @@ class ObservationSpace:
 
     @property
     def agent_state_shape(self) -> int:
+        # TODO: test
         return len(self.agent_state_size)
 
     @property
     def grid_state_shape(self) -> Shape:
+        # TODO: test
         return self.grid_shape
 
     @property
@@ -236,11 +244,13 @@ class ObservationSpace:
 
     @property
     def max_agent_object_type(self) -> int:
+        # TODO: test
         # NOTE: Add Hidden as the default 'non' object the agent is holding
         return _max_object_type(self.object_types + [NoneGridObject])
 
     @property
     def max_agent_object_status(self) -> int:
+        # TODO: test
         # NOTE: Add Hidden as the default 'non' object the agent is holding
         return _max_object_status(self.object_types + [NoneGridObject])
 

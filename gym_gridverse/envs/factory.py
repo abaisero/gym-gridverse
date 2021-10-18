@@ -278,4 +278,6 @@ def env_from_descr(descr: str) -> InnerEnv:
     try:
         return STRING_TO_GYM_CONSTRUCTOR[descr]()
     except KeyError as error:
-        raise ValueError(f"No environment named {descr} is implemented") from error
+        raise ValueError(
+            f"No environment named {descr} is implemented"
+        ) from error

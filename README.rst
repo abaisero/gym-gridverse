@@ -104,6 +104,7 @@ problems.
 Future work / in progress:
 """"""""""""""""""""""""""
 
+* 100\% test coverage
 * Multi-agent support
 * Benchmark performance of reinforcement learning and planning algorithms
 

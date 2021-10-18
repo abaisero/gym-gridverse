@@ -48,6 +48,7 @@ def reset_empty(
     rng: Optional[rnd.Generator] = None,
 ) -> State:
     """An empty environment"""
+    # TODO: test
 
     checkraise(
         lambda: height >= 4 and width >= 4,
@@ -56,8 +57,6 @@ def reset_empty(
     )
 
     rng = get_gv_rng_if_none(rng)
-
-    # TODO: test creation (e.g. count number of walls, exits, check held item)
 
     grid = Grid(height, width)
     draw_wall_boundary(grid)

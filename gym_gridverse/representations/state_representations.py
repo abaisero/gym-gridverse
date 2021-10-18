@@ -110,6 +110,7 @@ def create_state_representation(
     Returns:
         Representation:
     """
+    # TODO: test
 
     if name == 'default':
         return DefaultStateRepresentation(state_space)

@@ -76,6 +76,8 @@ class NoOverlapObservationRepresentation(ObservationRepresentation):
 
     """
 
+    # TODO: test
+
     def __init__(self, observation_space: ObservationSpace):
         self.observation_space = observation_space
 
@@ -135,6 +137,7 @@ def create_observation_representation(
     Returns:
         Representation:
     """
+    # TODO: test
 
     if name == 'default':
         return DefaultObservationRepresentation(observation_space)
