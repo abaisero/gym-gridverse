@@ -101,6 +101,12 @@ Further, GridVerse_ environments provide both a state-ful and a functional
 interface, depending on whether you are addressing learning or planning
 problems.
 
+Future work / in progress:
+""""""""""""""""""""""""""
+
+* Multi-agent support
+* Benchmark performance of reinforcement learning and planning algorithms
+
 Examples
 """"""""
 

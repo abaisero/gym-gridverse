@@ -30,6 +30,14 @@ gym\_gridverse.agent module
    :undoc-members:
    :show-inheritance:
 
+gym\_gridverse.debugging module
+-------------------------------
+
+.. automodule:: gym_gridverse.debugging
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 gym\_gridverse.design module
 ----------------------------
 

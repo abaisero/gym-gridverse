@@ -263,7 +263,7 @@ def getting_closer(
 @lru_cache(maxsize=10)
 def dijkstra(
     layout: Tuple[Tuple[bool]], source_position: Tuple[int, int]
-) -> np.array:
+) -> np.ndarray:
     layout_array = np.array(layout)
 
     visited = np.zeros(layout_array.shape, dtype=bool)

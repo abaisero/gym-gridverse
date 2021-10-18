@@ -38,8 +38,8 @@ predefined reward functions, among which:
   on the same tile as a unique
   :py:class:`~gym_gridverse.grid_object.GridObject`.
 
-- :py:func:`~gym_gridverse.envs.reward_functions.reach_goal` -- a reward for
-  reaching the :py:class:`~gym_gridverse.grid_object.Goal`.
+- :py:func:`~gym_gridverse.envs.reward_functions.reach_exit` -- a reward for
+  reaching the :py:class:`~gym_gridverse.grid_object.Exit`.
 
 - :py:func:`~gym_gridverse.envs.reward_functions.getting_closer` -- a reward
   for moving closer to a unique
@@ -52,7 +52,7 @@ predefined reward functions, among which:
 .. note::
   Reward functions are modular and can be combined to costruct more complicated
   or specialized rewards by calling each other, e.g., the implementation of
-  :py:func:`~gym_gridverse.envs.reward_functions.reach_goal` internally refers
+  :py:func:`~gym_gridverse.envs.reward_functions.reach_exit` internally refers
   to :py:func:`~gym_gridverse.envs.reward_functions.overlap`.  A standard way
   to combine multiple reward functions is using
   :py:func:`~gym_gridverse.envs.reward_functions.reduce_sum`, which returns the
