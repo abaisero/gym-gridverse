@@ -1,4 +1,7 @@
 """ Functions to model dynamics """
+import inspect
+import itertools as itt
+import warnings
 from functools import partial
 from typing import Iterator, List, Optional, Sequence, Tuple, Type
 
@@ -24,10 +27,11 @@ from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
 from gym_gridverse.utils.functions import (
     checkraise_kwargs,
-    get_custom_function,
+    import_custom_function,
     is_custom_function,
     select_kwargs,
 )
+from gym_gridverse.utils.registry import FunctionRegistry
 
 
 class TransitionFunction(Protocol):
@@ -41,6 +45,91 @@ class TransitionFunction(Protocol):
         ...
 
 
+class TransitionFunctionRegistry(FunctionRegistry):
+    def get_protocol_parameters(
+        self, signature: inspect.Signature
+    ) -> List[inspect.Parameter]:
+        state, action = itt.islice(signature.parameters.values(), 2)
+        rng = signature.parameters['rng']
+        return [state, action, rng]
+
+    def check_signature(self, function: TransitionFunction):
+        name = function.__name__
+        signature = inspect.signature(function)
+        state, action, rng = self.get_protocol_parameters(signature)
+
+        # checks first 2 arguments are positional ...
+        if state.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ]:
+            raise ValueError(
+                f'The first argument ({state.name}) '
+                f'of a registered reward function ({name}) '
+                'should be allowed to be a positional argument.'
+            )
+
+        if action.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ]:
+            raise ValueError(
+                f'The second argument ({action.name}) '
+                f'of a registered reward function ({name}) '
+                'should be allowed to be a positional argument.'
+            )
+
+        # and `rng` is keyword
+        if rng.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.KEYWORD_ONLY,
+        ]:
+            raise ValueError(
+                f'The `rng` argument ({rng.name}) '
+                f'of a registered reward function ({name}) '
+                'should be allowed to be a keyword argument.'
+            )
+
+        # checks if annotations, if given, are consistent
+        if state.annotation not in [inspect.Parameter.empty, State]:
+            warnings.warn(
+                f'The first argument ({state.name}) '
+                f'of a registered reward function ({name}) '
+                f'has an annotation ({state.annotation}) '
+                'which is not `State`.'
+            )
+
+        if action.annotation not in [inspect.Parameter.empty, Action]:
+            warnings.warn(
+                f'The second argument ({action.name}) '
+                f'of a registered reward function ({name}) '
+                f'has an annotation ({action.annotation}) '
+                'which is not `Action`.'
+            )
+
+        if rng.annotation not in [
+            inspect.Parameter.empty,
+            Optional[rnd.Generator],
+        ]:
+            warnings.warn(
+                f'The `rng` argument ({rng.name}) '
+                f'of a registered reward function ({name}) '
+                f'has an annotation ({rng.annotation}) '
+                'which is not `Optional[rnd.Generator]`.'
+            )
+
+        if signature.return_annotation not in [inspect.Parameter.empty, None]:
+            warnings.warn(
+                f'The return type of a registered transition function ({name}) '
+                f'has an annotation ({signature.return_annotation}) '
+                'which is not `None`.'
+            )
+
+
+transition_function_registry = TransitionFunctionRegistry()
+
+
+@transition_function_registry.register
 def chain(
     state: State,
     action: Action,
@@ -117,6 +206,7 @@ def rotate_agent(agent: Agent, action: Action) -> None:
         agent.orientation = agent.orientation.rotate_right()
 
 
+@transition_function_registry.register
 def update_agent(
     state: State,
     action: Action,
@@ -146,6 +236,7 @@ def update_agent(
         move_agent(state.agent, state.grid, action)
 
 
+@transition_function_registry.register
 def pickup_mechanics(
     state: State,
     action: Action,
@@ -237,6 +328,7 @@ def _step_moving_obstacle(
         grid.swap(position, next_position)
 
 
+@transition_function_registry.register
 def step_moving_obstacles(
     state: State,
     action: Action,  # pylint: disable=unused-argument
@@ -262,6 +354,7 @@ def step_moving_obstacles(
         _step_moving_obstacle(state.grid, position, rng=rng)
 
 
+@transition_function_registry.register
 def actuate_door(
     state: State,
     action: Action,
@@ -306,6 +399,7 @@ def actuate_door(
             door.state = Door.Status.OPEN
 
 
+@transition_function_registry.register
 def actuate_box(
     state: State,
     action: Action,
@@ -339,6 +433,7 @@ def actuate_box(
     state.grid[position] = box.content
 
 
+@transition_function_registry.register
 def step_telepod(
     state: State,
     action: Action,  # pylint: disable=unused-argument
@@ -364,36 +459,30 @@ def step_telepod(
 
 def factory(name: str, **kwargs) -> TransitionFunction:
 
-    required_keys: List[str]
-    optional_keys: List[str]
-
-    if name == 'chain':
-        required_keys = ['transition_functions']
-        optional_keys = []
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(chain, **kwargs)
-
-    if name == 'update_agent':
-        return update_agent
-
-    if name == 'pickup_mechanics':
-        return pickup_mechanics
-
-    if name == 'step_moving_obstacles':
-        return step_moving_obstacles
-
-    if name == 'actuate_door':
-        return actuate_door
-
-    if name == 'actuate_box':
-        return actuate_box
-
-    if name == 'step_telepod':
-        return step_telepod
-
     if is_custom_function(name):
-        function = get_custom_function(name)
-        return partial(function, **kwargs)
+        name = import_custom_function(name)
 
-    raise ValueError(f'invalid transition function name `{name}`')
+    try:
+        function = transition_function_registry[name]
+    except KeyError as error:
+        raise ValueError(f'invalid transition function name {name}') from error
+
+    signature = inspect.signature(function)
+    required_keys = [
+        parameter.name
+        for parameter in transition_function_registry.get_nonprotocol_parameters(
+            signature
+        )
+        if parameter.default is inspect.Parameter.empty
+    ]
+    optional_keys = [
+        parameter.name
+        for parameter in transition_function_registry.get_nonprotocol_parameters(
+            signature
+        )
+        if parameter.default is not inspect.Parameter.empty
+    ]
+
+    checkraise_kwargs(kwargs, required_keys)
+    kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+    return partial(function, **kwargs)

@@ -4,11 +4,15 @@ import numpy.random as rnd
 
 from gym_gridverse.action import Action
 from gym_gridverse.envs.reward_functions import reward_function_registry
-from gym_gridverse.envs.transition_functions import update_agent
+from gym_gridverse.envs.transition_functions import (
+    transition_function_registry,
+    update_agent,
+)
 from gym_gridverse.state import State
 
 
 #  custom transition function
+@transition_function_registry.register
 def multi_update_agent(
     state: State,
     action: Action,
