@@ -102,14 +102,6 @@ gym\_gridverse.recording module
    :undoc-members:
    :show-inheritance:
 
-gym\_gridverse.render\_as\_string module
-----------------------------------------
-
-.. automodule:: gym_gridverse.render_as_string
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 gym\_gridverse.rendering module
 -------------------------------
 

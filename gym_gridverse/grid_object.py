@@ -66,10 +66,6 @@ class GridObject(metaclass=abc.ABCMeta):
     def blocks(self) -> bool:
         """Whether the object blocks the agent"""
 
-    @abc.abstractmethod
-    def render_as_char(self) -> str:
-        """A single char representation of the object"""
-
     def __eq__(self, other) -> bool:
         if not isinstance(other, GridObject):
             return NotImplemented
@@ -117,9 +113,6 @@ class NoneGridObject(GridObject):
     def blocks(self) -> bool:  # type: ignore
         assert False
 
-    def render_as_char(self) -> str:
-        return " "
-
     def __repr__(self):
         return f'{self.__class__.__name__}()'
 
@@ -156,9 +149,6 @@ class Hidden(GridObject):
     @property
     def blocks(self) -> bool:  # type: ignore
         assert False
-
-    def render_as_char(self) -> str:
-        return "."
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
@@ -197,9 +187,6 @@ class Floor(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def render_as_char(self) -> str:
-        return " "
-
     def __repr__(self):
         return f'{self.__class__.__name__}()'
 
@@ -236,9 +223,6 @@ class Wall(GridObject):
     @property
     def blocks(self) -> bool:
         return True
-
-    def render_as_char(self) -> str:
-        return "#"
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
@@ -279,9 +263,6 @@ class Exit(GridObject):
     @property
     def blocks(self) -> bool:
         return False
-
-    def render_as_char(self) -> str:
-        return "E"
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
@@ -365,13 +346,6 @@ class Door(GridObject):
         """returns whether the door is locked"""
         return self._state == self.Status.LOCKED
 
-    def render_as_char(self) -> str:
-        return {
-            self.Status.OPEN: "_",
-            self.Status.CLOSED: "d",
-            self.Status.LOCKED: "D",
-        }[self._state]
-
     def __repr__(self):
         return f'{self.__class__.__name__}({self.state!s}, {self.color!s})'
 
@@ -413,9 +387,6 @@ class Key(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def render_as_char(self) -> str:
-        return "K"
-
     def __repr__(self):
         return f'{self.__class__.__name__}({self.color!s})'
 
@@ -455,9 +426,6 @@ class MovingObstacle(GridObject):
     @property
     def blocks(self) -> bool:
         return False
-
-    def render_as_char(self) -> str:
-        return "*"
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
@@ -506,9 +474,6 @@ class Box(GridObject):
     def blocks(self) -> bool:
         return True
 
-    def render_as_char(self) -> str:
-        return "b"
-
     def __repr__(self):
         return f'{self.__class__.__name__}({self.content!r})'
 
@@ -549,9 +514,6 @@ class Telepod(GridObject):
     def blocks(self) -> bool:
         return False
 
-    def render_as_char(self) -> str:
-        return "T"
-
     def __repr__(self):
         return f'{self.__class__.__name__}({self.color!s})'
 
@@ -591,9 +553,6 @@ class Beacon(GridObject):
     @property
     def blocks(self) -> bool:
         return False
-
-    def render_as_char(self) -> str:
-        return "B"
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.color!s})'

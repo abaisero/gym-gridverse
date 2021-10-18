@@ -118,7 +118,6 @@ def test_none_grid_object_properties():
     assert none.state_index == 0
 
     assert none.can_be_represented_in_state()
-    assert none.render_as_char() == ' '
     assert none.num_states() == 1
 
 
@@ -132,7 +131,6 @@ def test_hidden_properties():
     assert hidden.state_index == 0
 
     assert not hidden.can_be_represented_in_state()
-    assert hidden.render_as_char() == '.'
     assert hidden.num_states() == 1
 
 
@@ -148,7 +146,6 @@ def test_floor_properties():
     assert floor.state_index == 0
 
     assert floor.can_be_represented_in_state()
-    assert floor.render_as_char() == ' '
     assert floor.num_states() == 1
 
 
@@ -164,7 +161,6 @@ def test_wall_properties():
     assert wall.state_index == 0
 
     assert wall.can_be_represented_in_state()
-    assert wall.render_as_char() == '#'
     assert wall.num_states() == 1
 
 
@@ -180,7 +176,6 @@ def test_exit_properties():
     assert exit_.state_index == 0
 
     assert exit_.can_be_represented_in_state()
-    assert exit_.render_as_char() == 'E'
     assert exit_.num_states() == 1
 
 
@@ -199,7 +194,6 @@ def test_door_open_door_properties():
     assert not open_door.blocks
 
     assert open_door.can_be_represented_in_state()
-    assert open_door.render_as_char() == '_'
     assert open_door.num_states() == 3
 
 
@@ -218,7 +212,6 @@ def test_door_closed_door_properties():
     assert closed_door.blocks
 
     assert closed_door.can_be_represented_in_state()
-    assert closed_door.render_as_char() == 'd'
 
 
 def test_door_locked_door_properties():
@@ -236,7 +229,6 @@ def test_door_locked_door_properties():
     assert locked_door.blocks
 
     assert locked_door.can_be_represented_in_state()
-    assert locked_door.render_as_char() == 'D'
 
 
 def test_key_properties():
@@ -267,7 +259,6 @@ def test_moving_obstacle_basic_properties():
     assert obstacle.state_index == 0
 
     assert obstacle.can_be_represented_in_state()
-    assert obstacle.render_as_char() == '*'
     assert obstacle.num_states() == 1
 
 
@@ -283,7 +274,6 @@ def test_box_basic_properties():
     assert box.state_index == 0
 
     assert not box.can_be_represented_in_state()
-    assert box.render_as_char() == 'b'
     assert box.num_states() == 1
 
 
