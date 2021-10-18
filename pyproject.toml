@@ -11,5 +11,5 @@ combine_as_imports = true
 line_length = 80
 
 [tool.pylint.messages_control]  # black compatibility
-disable = "C0330,C0326"
-max_line_length = 80
+disable = "C0103,C0114,C0115,C0116,C0330,C0326,R0801,R0902,R0903,R0911,R0913,R0914"
+max_line_length = 120

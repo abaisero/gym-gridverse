@@ -277,5 +277,5 @@ STRING_TO_GYM_CONSTRUCTOR: Dict[str, Callable[[], InnerEnv]] = {
 def env_from_descr(descr: str) -> InnerEnv:
     try:
         return STRING_TO_GYM_CONSTRUCTOR[descr]()
-    except KeyError:
-        raise ValueError(f"No environment named {descr} is implemented")
+    except KeyError as error:
+        raise ValueError(f"No environment named {descr} is implemented") from error

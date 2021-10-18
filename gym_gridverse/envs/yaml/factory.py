@@ -16,7 +16,6 @@ from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.envs.yaml import schemas
 from gym_gridverse.geometry import (
     DistanceFunction,
-    Position,
     Shape,
     distance_function_factory,
 )

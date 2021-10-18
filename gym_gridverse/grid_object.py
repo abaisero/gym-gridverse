@@ -323,7 +323,7 @@ class Door(GridObject):
     @state.setter
     def state(self, value: Door.Status):
         if not isinstance(value, Door.Status):
-            return TypeError('value ({value}) must be of type Door.Status')
+            raise TypeError('value ({value}) must be of type Door.Status')
 
         self._state = value
 
