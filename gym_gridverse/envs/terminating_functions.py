@@ -1,5 +1,8 @@
+import inspect
+import itertools as itt
+import warnings
 from functools import partial
-from typing import Callable, Dict, Iterator, List, Sequence, Type
+from typing import Callable, Iterator, List, Sequence, Type
 
 from gym_gridverse.action import Action
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
@@ -11,15 +14,95 @@ from gym_gridverse.utils.functions import (
     is_custom_function,
     select_kwargs,
 )
+from gym_gridverse.utils.registry import FunctionRegistry
 
 TerminatingFunction = Callable[[State, Action, State], bool]
 """Signature for functions to determine whether a transition is terminal"""
-
 
 TerminatingReductionFunction = Callable[[Iterator[bool]], bool]
 """Signature for a boolean reduction function"""
 
 
+class TerminatingFunctionRegistry(FunctionRegistry):
+    def get_protocol_parameters(
+        self, signature: inspect.Signature
+    ) -> List[inspect.Parameter]:
+        state, action, next_state = itt.islice(signature.parameters.values(), 3)
+        return [state, action, next_state]
+
+    def check_signature(self, function: TerminatingFunction):
+        name = function.__name__
+        signature = inspect.signature(function)
+        state, action, next_state = self.get_protocol_parameters(signature)
+
+        # checks first 3 arguments are positional
+        if state.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ]:
+            raise ValueError(
+                f'The first argument ({state.name}) '
+                f'of a registered terminating function ({name}) '
+                'should be allowed to be a positional argument.'
+            )
+
+        if action.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ]:
+            raise ValueError(
+                f'The second argument ({action.name}) '
+                f'of a registered terminating function ({name}) '
+                'should be allowed to be a positional argument.'
+            )
+
+        if next_state.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ]:
+            raise ValueError(
+                f'The third argument ({next_state.name}) '
+                f'of a registered terminating function ({name}) '
+                'should be allowed to be a positional argument.'
+            )
+
+        # checks if annotations, if given, are consistent
+        if state.annotation not in [inspect.Parameter.empty, State]:
+            warnings.warn(
+                f'The first argument ({state.name}) '
+                f'of a registered terminating function ({name}) '
+                f'has an annotation ({state.annotation}) '
+                'which is not `State`.'
+            )
+
+        if action.annotation not in [inspect.Parameter.empty, Action]:
+            warnings.warn(
+                f'The second argument ({action.name}) '
+                f'of a registered terminating function ({name}) '
+                f'has an annotation ({action.annotation}) '
+                'which is not `Action`.'
+            )
+
+        if next_state.annotation not in [inspect.Parameter.empty, State]:
+            warnings.warn(
+                f'The third argument ({next_state.name}) '
+                f'of a registered terminating function ({name}) '
+                f'has an annotation ({next_state.annotation}) '
+                'which is not `State`.'
+            )
+
+        if signature.return_annotation not in [inspect.Parameter.empty, bool]:
+            warnings.warn(
+                f'The return type of a registered terminating function ({name}) '
+                f'has an annotation ({signature.return_annotation}) '
+                'which is not `bool`.'
+            )
+
+
+terminating_function_registry = TerminatingFunctionRegistry()
+
+
+@terminating_function_registry.register
 def reduce(
     state: State,
     action: Action,
@@ -47,6 +130,7 @@ def reduce(
     )
 
 
+@terminating_function_registry.register
 def reduce_any(
     state: State,
     action: Action,
@@ -75,6 +159,7 @@ def reduce_any(
     )
 
 
+@terminating_function_registry.register
 def reduce_all(
     state: State,
     action: Action,
@@ -103,6 +188,7 @@ def reduce_all(
     )
 
 
+@terminating_function_registry.register
 def overlap(
     state: State,  # pylint: disable=unused-argument
     action: Action,  # pylint: disable=unused-argument
@@ -124,6 +210,7 @@ def overlap(
     return isinstance(next_state.grid[next_state.agent.position], object_type)
 
 
+@terminating_function_registry.register
 def reach_exit(state: State, action: Action, next_state: State) -> bool:
     """terminating condition for Agent reaching the Exit
 
@@ -138,6 +225,7 @@ def reach_exit(state: State, action: Action, next_state: State) -> bool:
     return overlap(state, action, next_state, object_type=Exit)
 
 
+@terminating_function_registry.register
 def bump_moving_obstacle(
     state: State, action: Action, next_state: State
 ) -> bool:
@@ -155,6 +243,7 @@ def bump_moving_obstacle(
     return overlap(state, action, next_state, object_type=MovingObstacle)
 
 
+@terminating_function_registry.register
 def bump_into_wall(
     state: State,
     action: Action,
@@ -183,48 +272,30 @@ def bump_into_wall(
 
 def factory(name: str, **kwargs) -> TerminatingFunction:
 
-    required_keys: List[str]
-    optional_keys: List[str]
-
-    if name == 'reduce':
-        required_keys = ['terminating_functions', 'reduction']
-        optional_keys = []
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reduce_any, **kwargs)
-
-    if name == 'reduce_any':
-        required_keys = ['terminating_functions']
-        optional_keys = []
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reduce_any, **kwargs)
-
-    if name == 'reduce_all':
-        required_keys = ['terminating_functions']
-        optional_keys = []
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reduce_all, **kwargs)
-
-    if name == 'overlap':
-        required_keys = ['object_type']
-        optional_keys = []
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(overlap, **kwargs)
-
-    if name == 'reach_exit':
-        return reach_exit
-
-    if name == 'bump_moving_obstacle':
-        return bump_moving_obstacle
-
-    if name == 'bump_into_wall':
-        return bump_into_wall
-
     if is_custom_function(name):
-        function = get_custom_function(name)
-        return partial(function, **kwargs)
+        name = import_custom_function(name)
 
-    raise ValueError(f'invalid terminating function name `{name}`')
+    try:
+        function = terminating_function_registry[name]
+    except KeyError as error:
+        raise ValueError(f'invalid terminating function name {name}') from error
+
+    signature = inspect.signature(function)
+    required_keys = [
+        parameter.name
+        for parameter in terminating_function_registry.get_nonprotocol_parameters(
+            signature
+        )
+        if parameter.default is inspect.Parameter.empty
+    ]
+    optional_keys = [
+        parameter.name
+        for parameter in terminating_function_registry.get_nonprotocol_parameters(
+            signature
+        )
+        if parameter.default is not inspect.Parameter.empty
+    ]
+
+    checkraise_kwargs(kwargs, required_keys)
+    kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+    return partial(function, **kwargs)
