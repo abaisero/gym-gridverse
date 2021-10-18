@@ -3,6 +3,7 @@ from typing import Optional
 import numpy.random as rnd
 
 from gym_gridverse.action import Action
+from gym_gridverse.envs.reward_functions import reward_function_registry
 from gym_gridverse.envs.transition_functions import update_agent
 from gym_gridverse.state import State
 
@@ -20,6 +21,7 @@ def multi_update_agent(
 
 
 #  custom reward function
+@reward_function_registry.register
 def checkerboard(
     state: State,  # pylint: disable=unused-argument
     action: Action,  # pylint: disable=unused-argument

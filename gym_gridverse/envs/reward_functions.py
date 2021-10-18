@@ -1,3 +1,6 @@
+import inspect
+import itertools as itt
+import warnings
 from collections import deque
 from functools import lru_cache, partial
 from typing import Callable, Iterator, List, Sequence, Tuple, Type
@@ -19,10 +22,11 @@ from gym_gridverse.grid_object import (
 from gym_gridverse.state import State
 from gym_gridverse.utils.functions import (
     checkraise_kwargs,
-    get_custom_function,
+    import_custom_function,
     is_custom_function,
     select_kwargs,
 )
+from gym_gridverse.utils.registry import FunctionRegistry
 
 RewardFunction = Callable[[State, Action, State], float]
 """Signature that all reward functions must follow"""
@@ -31,6 +35,86 @@ RewardReductionFunction = Callable[[Iterator[float]], float]
 """Signature for a float reduction function"""
 
 
+class RewardFunctionRegistry(FunctionRegistry):
+    def get_protocol_parameters(
+        self, signature: inspect.Signature
+    ) -> List[inspect.Parameter]:
+        state, action, next_state = itt.islice(signature.parameters.values(), 3)
+        return [state, action, next_state]
+
+    def check_signature(self, function: RewardFunction):
+        name = function.__name__
+        signature = inspect.signature(function)
+        state, action, next_state = self.get_protocol_parameters(signature)
+
+        # checks first 3 arguments are positional
+        if state.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ]:
+            raise ValueError(
+                f'The first argument ({state.name}) '
+                f'of a registered reward function ({name}) '
+                'should be allowed to be a positional argument.'
+            )
+
+        if action.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ]:
+            raise ValueError(
+                f'The second argument ({action.name}) '
+                f'of a registered reward function ({name}) '
+                'should be allowed to be a positional argument.'
+            )
+
+        if next_state.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ]:
+            raise ValueError(
+                f'The third argument ({next_state.name}) '
+                f'of a registered reward function ({name}) '
+                'should be allowed to be a positional argument.'
+            )
+
+        # checks if annotations, if given, are consistent
+        if state.annotation not in [inspect.Parameter.empty, State]:
+            warnings.warn(
+                f'The first argument ({state.name}) '
+                f'of a registered reward function ({name}) '
+                f'has an annotation ({state.annotation}) '
+                'which is not `State`.'
+            )
+
+        if action.annotation not in [inspect.Parameter.empty, Action]:
+            warnings.warn(
+                f'The second argument ({action.name}) '
+                f'of a registered reward function ({name}) '
+                f'has an annotation ({action.annotation}) '
+                'which is not `Action`.'
+            )
+
+        if next_state.annotation not in [inspect.Parameter.empty, State]:
+            warnings.warn(
+                f'The third argument ({next_state.name}) '
+                f'of a registered reward function ({name}) '
+                f'has an annotation ({next_state.annotation}) '
+                'which is not `State`.'
+            )
+
+        if signature.return_annotation not in [inspect.Parameter.empty, float]:
+            warnings.warn(
+                f'The return type of a registered reward function ({name}) '
+                f'has an annotation ({signature.return_annotation}) '
+                'which is not `float`.'
+            )
+
+
+reward_function_registry = RewardFunctionRegistry()
+
+
+@reward_function_registry.register
 def reduce(
     state: State,
     action: Action,
@@ -59,6 +143,7 @@ def reduce(
     )
 
 
+@reward_function_registry.register
 def reduce_sum(
     state: State,
     action: Action,
@@ -87,6 +172,7 @@ def reduce_sum(
     )
 
 
+@reward_function_registry.register
 def overlap(
     state: State,  # pylint: disable=unused-argument
     action: Action,  # pylint: disable=unused-argument
@@ -116,6 +202,7 @@ def overlap(
     )
 
 
+@reward_function_registry.register
 def living_reward(
     state: State,  # pylint: disable=unused-argument
     action: Action,  # pylint: disable=unused-argument
@@ -137,6 +224,7 @@ def living_reward(
     return reward
 
 
+@reward_function_registry.register
 def reach_exit(
     state: State,
     action: Action,
@@ -167,6 +255,7 @@ def reach_exit(
     )
 
 
+@reward_function_registry.register
 def bump_moving_obstacle(
     state: State, action: Action, next_state: State, *, reward: float = -1.0
 ) -> float:
@@ -191,6 +280,7 @@ def bump_moving_obstacle(
     )
 
 
+@reward_function_registry.register
 def proportional_to_distance(
     state: State,  # pylint: disable=unused-argument
     action: Action,  # pylint: disable=unused-argument
@@ -223,6 +313,7 @@ def proportional_to_distance(
     return reward_per_unit_distance * distance
 
 
+@reward_function_registry.register
 def getting_closer(
     state: State,
     action: Action,  # pylint: disable=unused-argument
@@ -300,6 +391,7 @@ def dijkstra(
     return distances
 
 
+@reward_function_registry.register
 def getting_closer_shortest_path(
     state: State,
     action: Action,  # pylint: disable=unused-argument
@@ -349,6 +441,7 @@ def getting_closer_shortest_path(
     )
 
 
+@reward_function_registry.register
 def bump_into_wall(
     state: State,
     action: Action,
@@ -380,6 +473,7 @@ def bump_into_wall(
     )
 
 
+@reward_function_registry.register
 def actuate_door(
     state: State,
     action: Action,
@@ -424,6 +518,7 @@ def actuate_door(
     )
 
 
+@reward_function_registry.register
 def pickndrop(
     state: State,
     action: Action,  # pylint: disable=unused-argument
@@ -457,6 +552,7 @@ def pickndrop(
     )
 
 
+@reward_function_registry.register
 def reach_exit_memory(
     state: State,  # pylint: disable=unused-argument
     action: Action,  # pylint: disable=unused-argument
@@ -498,102 +594,30 @@ def reach_exit_memory(
 
 def factory(name: str, **kwargs) -> RewardFunction:
 
-    required_keys: List[str]
-    optional_keys: List[str]
-
-    if name == 'reduce':
-        required_keys = ['reward_functions', 'reduction']
-        optional_keys = []
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reduce, **kwargs)
-
-    if name == 'reduce_sum':
-        required_keys = ['reward_functions']
-        optional_keys = []
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reduce_sum, **kwargs)
-
-    if name == 'overlap':
-        required_keys = ['object_type']
-        optional_keys = ['reward_on', 'reward_off']
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(overlap, **kwargs)
-
-    if name == 'living_reward':
-        required_keys = []
-        optional_keys = ['reward']
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(living_reward, **kwargs)
-
-    if name == 'reach_exit':
-        required_keys = []
-        optional_keys = ['reward_on', 'reward_off']
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reach_exit, **kwargs)
-
-    if name == 'bump_moving_obstacle':
-        required_keys = []
-        optional_keys = ['reward']
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(bump_moving_obstacle, **kwargs)
-
-    if name == 'proportional_to_distance':
-        required_keys = ['object_type']
-        optional_keys = ['distance_function', 'reward_per_unit_distance']
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(proportional_to_distance, **kwargs)
-
-    if name == 'getting_closer':
-        required_keys = ['object_type']
-        optional_keys = ['distance_function', 'reward_closer', 'reward_further']
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(getting_closer, **kwargs)
-
-    if name == 'getting_closer_shortest_path':
-        required_keys = ['object_type']
-        optional_keys = ['reward_closer', 'reward_further']
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(getting_closer_shortest_path, **kwargs)
-
-    if name == 'bump_into_wall':
-        required_keys = []
-        optional_keys = ['reward']
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(bump_into_wall, **kwargs)
-
-    if name == 'actuate_door':
-        required_keys = []
-        optional_keys = ['reward_open', 'reward_close']
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(actuate_door, **kwargs)
-
-    if name == 'pickndrop':
-        required_keys = ['object_type']
-        optional_keys = ['reward_pick', 'reward_drop']
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(pickndrop, **kwargs)
-
-    if name == 'reach_exit_memory':
-        required_keys = []
-        optional_keys = ['reward_good', 'reward_bad']
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reach_exit_memory, **kwargs)
-
     if is_custom_function(name):
-        function = get_custom_function(name)
-        return partial(function, **kwargs)
+        name = import_custom_function(name)
 
-    raise ValueError(f'invalid reward function name {name}')
+    try:
+        function = reward_function_registry[name]
+    except KeyError as error:
+        raise ValueError(f'invalid reward function name {name}') from error
+
+    signature = inspect.signature(function)
+    required_keys = [
+        parameter.name
+        for parameter in reward_function_registry.get_nonprotocol_parameters(
+            signature
+        )
+        if parameter.default is inspect.Parameter.empty
+    ]
+    optional_keys = [
+        parameter.name
+        for parameter in reward_function_registry.get_nonprotocol_parameters(
+            signature
+        )
+        if parameter.default is not inspect.Parameter.empty
+    ]
+
+    checkraise_kwargs(kwargs, required_keys)
+    kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+    return partial(function, **kwargs)

@@ -18,11 +18,17 @@ def select_kwargs(kwargs: Dict[str, Any], keys: Container[str]):
     return {key: value for key, value in kwargs.items() if key in keys}
 
 
-def is_custom_function(name):
+def is_custom_function(name: str) -> bool:
     return ':' in name
 
 
-def get_custom_function(name):
+def import_custom_function(name: str) -> str:
+    module_name, function_name = name.split(':')
+    importlib.import_module(module_name)
+    return function_name
+
+
+def get_custom_function(name: str):
     module_name, function_name = name.split(':')
     module = importlib.import_module(module_name)
     function = getattr(module, function_name)

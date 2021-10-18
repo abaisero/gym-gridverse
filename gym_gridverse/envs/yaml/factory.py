@@ -157,8 +157,6 @@ def factory_reward_function(data) -> reward_fs.RewardFunction:
 
     name = data.pop('name')
     process_reserved_keys(data)
-    if name == 'getting_closer' and 'object_type' not in data:
-        breakpoint()  # XXX BREAKPOINT
     return reward_fs.factory(name, **data)
 
 
