@@ -217,6 +217,14 @@ def test_position_subtract(pos1: Position, pos2: Position, expected: Position):
 
 
 @pytest.mark.parametrize(
+    'pos,expected',
+    [(Position(y, x), Position(-y, -x)) for x in range(2) for y in range(2)],
+)
+def test_position_negative(pos: Position, expected: Position):
+    assert -pos == expected
+
+
+@pytest.mark.parametrize(
     'pos1,pos2,expected',
     [
         (Position(0, 0), Position(0, 0), 0.0),

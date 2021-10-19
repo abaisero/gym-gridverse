@@ -192,6 +192,9 @@ class Position:
     def __rsub__(self, other) -> Position:
         return self - other
 
+    def __neg__(self):
+        return Position(-self.y, -self.x)
+
     def __iter__(self) -> Iterator[int]:
         return iter((self.y, self.x))
 
