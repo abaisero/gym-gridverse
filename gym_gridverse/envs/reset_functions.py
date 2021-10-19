@@ -1,4 +1,6 @@
+import inspect
 import itertools as itt
+import warnings
 from functools import partial
 from typing import List, Optional, Set, Tuple, Type
 
@@ -34,10 +36,11 @@ from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
 from gym_gridverse.utils.functions import (
     checkraise_kwargs,
-    get_custom_function,
+    import_custom_function,
     is_custom_function,
     select_kwargs,
 )
+from gym_gridverse.utils.registry import FunctionRegistry
 
 
 class ResetFunction(Protocol):
@@ -45,7 +48,54 @@ class ResetFunction(Protocol):
         ...
 
 
-def reset_empty(
+class ResetFunctionRegistry(FunctionRegistry):
+    def get_protocol_parameters(
+        self, signature: inspect.Signature
+    ) -> List[inspect.Parameter]:
+        rng = signature.parameters['rng']
+        return [rng]
+
+    def check_signature(self, function: ResetFunction):
+        name = function.__name__
+        signature = inspect.signature(function)
+        (rng,) = self.get_protocol_parameters(signature)
+
+        # checks `rng` is keyword
+        if rng.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.KEYWORD_ONLY,
+        ]:
+            raise ValueError(
+                f'The `rng` argument ({rng.name}) '
+                f'of a registered reward function ({name}) '
+                'should be allowed to be a keyword argument.'
+            )
+
+        # checks if annotations, if given, are consistent
+        if rng.annotation not in [
+            inspect.Parameter.empty,
+            Optional[rnd.Generator],
+        ]:
+            warnings.warn(
+                f'The `rng` argument ({rng.name}) '
+                f'of a registered reward function ({name}) '
+                f'has an annotation ({rng.annotation}) '
+                'which is not `Optional[rnd.Generator]`.'
+            )
+
+        if signature.return_annotation not in [inspect.Parameter.empty, State]:
+            warnings.warn(
+                f'The return type of a registered reset function ({name}) '
+                f'has an annotation ({signature.return_annotation}) '
+                'which is not `State`.'
+            )
+
+
+reset_function_registry = ResetFunctionRegistry()
+
+
+@reset_function_registry.register
+def empty(
     height: int,
     width: int,
     random_agent: bool = False,
@@ -93,7 +143,8 @@ def reset_empty(
     return State(grid, agent)
 
 
-def reset_rooms(  # pylint: disable=too-many-locals
+@reset_function_registry.register
+def rooms(  # pylint: disable=too-many-locals
     height: int,
     width: int,
     layout: Tuple[int, int],
@@ -169,7 +220,8 @@ def reset_rooms(  # pylint: disable=too-many-locals
     return State(grid, agent)
 
 
-def reset_dynamic_obstacles(
+@reset_function_registry.register
+def dynamic_obstacles(
     height: int,
     width: int,
     num_obstacles: int,
@@ -192,7 +244,7 @@ def reset_dynamic_obstacles(
 
     rng = get_gv_rng_if_none(rng)
 
-    state = reset_empty(height, width, random_agent, rng=rng)
+    state = empty(height, width, random_agent, rng=rng)
     vacant_positions = [
         position
         for position in state.grid.positions()
@@ -217,7 +269,8 @@ def reset_dynamic_obstacles(
     return state
 
 
-def reset_keydoor(
+@reset_function_registry.register
+def keydoor(
     height: int, width: int, *, rng: Optional[rnd.Generator] = None
 ) -> State:
     """An environment with a key and a door
@@ -249,7 +302,7 @@ def reset_keydoor(
 
     rng = get_gv_rng_if_none(rng)
 
-    state = reset_empty(height, width)
+    state = empty(height, width)
     assert isinstance(state.grid[height - 2, width - 2], Exit)
 
     # Generate vertical splitting wall
@@ -278,7 +331,8 @@ def reset_keydoor(
     return state
 
 
-def reset_crossing(  # pylint: disable=too-many-locals
+@reset_function_registry.register
+def crossing(  # pylint: disable=too-many-locals
     height: int,
     width: int,
     num_rivers: int,
@@ -333,7 +387,7 @@ def reset_crossing(  # pylint: disable=too-many-locals
 
     rng = get_gv_rng_if_none(rng)
 
-    state = reset_empty(height, width)
+    state = empty(height, width)
     assert isinstance(state.grid[height - 2, width - 2], Exit)
 
     # token `horizontal` and `vertical` objects
@@ -392,13 +446,14 @@ def reset_crossing(  # pylint: disable=too-many-locals
     return state
 
 
-def reset_teleport(
+@reset_function_registry.register
+def teleport(
     height: int, width: int, *, rng: Optional[rnd.Generator] = None
 ) -> State:
 
     rng = get_gv_rng_if_none(rng)
 
-    state = reset_empty(height, width)
+    state = empty(height, width)
     assert isinstance(state.grid[height - 2, width - 2], Exit)
 
     # Place agent on top left
@@ -427,7 +482,8 @@ def reset_teleport(
     return state
 
 
-def reset_memory(
+@reset_function_registry.register
+def memory(
     height: int,
     width: int,
     colors: Set[Color],
@@ -482,7 +538,8 @@ def reset_memory(
     return State(grid, agent)
 
 
-def reset_memory_rooms(
+@reset_function_registry.register
+def memory_rooms(
     height: int,
     width: int,
     layout: Tuple[int, int],
@@ -598,74 +655,30 @@ def reset_memory_rooms(
 
 def factory(name: str, **kwargs) -> ResetFunction:
 
-    required_keys: List[str]
-    optional_keys: List[str]
-
-    if name == 'empty':
-        required_keys = ['height', 'width']
-        optional_keys = ['random_agent', 'random_exit']
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reset_empty, **kwargs)
-
-    if name == 'rooms':
-        required_keys = ['height', 'width', 'layout']
-        optional_keys = []
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reset_rooms, **kwargs)
-
-    if name == 'dynamic_obstacles':
-        required_keys = ['height', 'width', 'num_obstacles']
-        optional_keys = ['random_agent']
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reset_dynamic_obstacles, **kwargs)
-
-    if name == 'keydoor':
-        required_keys = ['height', 'width']
-        optional_keys = []
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reset_keydoor, **kwargs)
-
-    if name == 'crossing':
-        required_keys = ['height', 'width', 'num_rivers', 'object_type']
-        optional_keys = []
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reset_crossing, **kwargs)
-
-    if name == 'teleport':
-        required_keys = ['height', 'width']
-        optional_keys = []
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reset_teleport, **kwargs)
-
-    if name == 'memory':
-        required_keys = ['height', 'width', 'colors']
-        optional_keys = []
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reset_memory, **kwargs)
-
-    if name == 'memory_rooms':
-        required_keys = [
-            'height',
-            'width',
-            'layout',
-            'colors',
-            'num_beacons',
-            'num_exits',
-        ]
-        optional_keys = []
-        checkraise_kwargs(kwargs, required_keys)
-        kwargs = select_kwargs(kwargs, required_keys + optional_keys)
-        return partial(reset_memory_rooms, **kwargs)
-
     if is_custom_function(name):
-        function = get_custom_function(name)
-        return partial(function, **kwargs)
+        name = import_custom_function(name)
 
-    raise ValueError(f'invalid reset function name `{name}`')
+    try:
+        function = reset_function_registry[name]
+    except KeyError as error:
+        raise ValueError(f'invalid reset function name {name}') from error
+
+    signature = inspect.signature(function)
+    required_keys = [
+        parameter.name
+        for parameter in reset_function_registry.get_nonprotocol_parameters(
+            signature
+        )
+        if parameter.default is inspect.Parameter.empty
+    ]
+    optional_keys = [
+        parameter.name
+        for parameter in reset_function_registry.get_nonprotocol_parameters(
+            signature
+        )
+        if parameter.default is not inspect.Parameter.empty
+    ]
+
+    checkraise_kwargs(kwargs, required_keys)
+    kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+    return partial(function, **kwargs)

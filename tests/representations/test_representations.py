@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from gym_gridverse.agent import Agent
-from gym_gridverse.envs.reset_functions import reset_empty
+from gym_gridverse.envs.reset_functions import empty
 from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
@@ -204,7 +204,7 @@ def test_no_overlap_convert(
     first_item_status = max_object_type + 1
     first_item_color = max_object_type + max_object_status + 2
 
-    state = reset_empty(height, width, random_agent=True)
+    state = empty(height, width, random_agent=True)
 
     # pylint: disable=no-member
     expected_agent_state = np.array(

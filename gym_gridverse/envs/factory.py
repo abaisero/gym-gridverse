@@ -132,7 +132,7 @@ def env_dynamic_obstacle(
 
     # +2 size to accommodate the walls
     reset_func = partial(
-        reset_functions.reset_dynamic_obstacles,
+        reset_functions.dynamic_obstacles,
         size + 2,
         size + 2,
         num_obstacles,
@@ -183,7 +183,7 @@ def env_empty(size: int, random_pos: bool) -> InnerEnv:
     """
 
     # +2 size to accommodate the walls
-    reset = partial(reset_functions.reset_empty, size + 2, size + 2, random_pos)
+    reset = partial(reset_functions.empty, size + 2, size + 2, random_pos)
 
     return plain_navigation_task(reset)
 
@@ -195,7 +195,7 @@ def env_four_room() -> InnerEnv:
         InnerEnv:
     """
 
-    reset = partial(reset_functions.reset_rooms, 19, 19, layout=(2, 2))
+    reset = partial(reset_functions.rooms, 19, 19, layout=(2, 2))
 
     return plain_navigation_task(reset)
 
@@ -210,7 +210,7 @@ def gym_keydoor_env(size: int) -> InnerEnv:
         InnerEnv:
     """
 
-    reset = partial(reset_functions.reset_keydoor, size + 2, size + 2)
+    reset = partial(reset_functions.keydoor, size + 2, size + 2)
 
     transitions: List[transition_fs.TransitionFunction] = [
         transition_fs.update_agent,
