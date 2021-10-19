@@ -1,5 +1,8 @@
-import functools
-from typing import Optional
+import inspect
+import itertools as itt
+import warnings
+from functools import partial
+from typing import List, Optional
 
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
@@ -8,17 +11,19 @@ from gym_gridverse.agent import Agent
 from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.visibility_functions import (
     VisibilityFunction,
-    fully_transparent,
-    minigrid,
-    partially_occluded,
-    raytracing,
-    stochastic_raytracing,
+    visibility_function_registry,
 )
-from gym_gridverse.geometry import Orientation, Shape
+from gym_gridverse.geometry import Area, Orientation
 from gym_gridverse.grid_object import Hidden
 from gym_gridverse.observation import Observation
-from gym_gridverse.spaces import ObservationSpace
 from gym_gridverse.state import State
+from gym_gridverse.utils.functions import (
+    checkraise_kwargs,
+    import_custom_function,
+    is_custom_function,
+    select_kwargs,
+)
+from gym_gridverse.utils.registry import FunctionRegistry
 
 
 class ObservationFunction(Protocol):
@@ -28,26 +33,96 @@ class ObservationFunction(Protocol):
         ...
 
 
+class ObservationFunctionRegistry(FunctionRegistry):
+    def get_protocol_parameters(
+        self, signature: inspect.Signature
+    ) -> List[inspect.Parameter]:
+        (state,) = itt.islice(signature.parameters.values(), 1)
+        rng = signature.parameters['rng']
+        return [state, rng]
+
+    def check_signature(self, function: ObservationFunction):
+        signature = inspect.signature(function)
+        state, rng = self.get_protocol_parameters(signature)
+
+        # checks first argument is positional ...
+        if state.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ]:
+            raise ValueError(
+                f'The first argument ({state.name}) '
+                f'of a registered observation function ({function}) '
+                'should be allowed to be a positional argument.'
+            )
+
+        # and `rng` is keyword
+        if rng.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.KEYWORD_ONLY,
+        ]:
+            raise ValueError(
+                f'The `rng` argument ({rng.name}) '
+                f'of a registered observation function ({function}) '
+                'should be allowed to be a keyword argument.'
+            )
+
+        # checks if annotations, if given, are consistent
+        if state.annotation not in [inspect.Parameter.empty, State]:
+            warnings.warn(
+                f'The first argument ({state.name}) '
+                f'of a registered observation function ({function}) '
+                f'has an annotation ({state.annotation}) '
+                'which is not `State`.'
+            )
+
+        if rng.annotation not in [
+            inspect.Parameter.empty,
+            Optional[rnd.Generator],
+        ]:
+            warnings.warn(
+                f'The `rng` argument ({rng.name}) '
+                f'of a registered observation function ({function}) '
+                f'has an annotation ({rng.annotation}) '
+                'which is not `Optional[rnd.Generator]`.'
+            )
+
+        if signature.return_annotation not in [
+            inspect.Parameter.empty,
+            Observation,
+        ]:
+            warnings.warn(
+                f'The return type of a registered observation function ({function}) '
+                f'has an annotation ({signature.return_annotation}) '
+                'which is not `Observation`.'
+            )
+
+
+observation_function_registry = ObservationFunctionRegistry()
+
 # TODO: write documentation
 
 
+@observation_function_registry.register
 def from_visibility(
     state: State,
     *,
-    observation_space: ObservationSpace,
+    area: Area,
     visibility_function: VisibilityFunction,
     rng: Optional[rnd.Generator] = None,
-):
-    area = state.agent.get_pov_area(observation_space.area)
-    observation_grid = state.grid.subgrid(area).change_orientation(
+) -> Observation:
+    pov_area = state.agent.get_pov_area(area)
+    pov_agent_position = -area.top_left
+
+    observation_grid = state.grid.subgrid(pov_area).change_orientation(
         state.agent.orientation
     )
     visibility = visibility_function(
-        observation_grid, observation_space.agent_position, rng=rng
+        observation_grid, pov_agent_position, rng=rng
     )
 
     checkraise(
-        lambda: Shape(*visibility.shape) == observation_space.grid_shape,
+        lambda: visibility.shape == (area.height, area.width),
         ValueError,
         'incorrect shape of visibility mask',
     )
@@ -57,117 +132,47 @@ def from_visibility(
             observation_grid[pos] = Hidden()
 
     observation_agent = Agent(
-        observation_space.agent_position, Orientation.N, state.agent.obj
+        pov_agent_position, Orientation.N, state.agent.obj
     )
     return Observation(observation_grid, observation_agent)
 
 
-full_observation = functools.partial(from_visibility, visibility_function=fully_transparent)
-"""`ObservationFunction` where every tile is visible"""
+for (name, visibility_function) in visibility_function_registry.items():
+    observation_function = partial(
+        from_visibility, visibility_function=visibility_function
+    )
+    observation_function_registry.register(observation_function, name=name)
 
-partial_observation = functools.partial(
-    from_visibility, visibility_function=partially_occluded
-)
-"""`ObservationFunction` which is blocked by non-transparent obstacles"""
-
-minigrid_observation = functools.partial(
-    from_visibility, visibility_function=minigrid
-)
-"""`ObservationFunction` implementation as done in 'MiniGrid'"""
-
-raytracing_observation = functools.partial(
-    from_visibility, visibility_function=raytracing
-)
-"""`ObservationFunction` with ray tracing"""
-
-stochastic_raytracing_observation = functools.partial(
-    from_visibility,
-    visibility_function=stochastic_raytracing,
-)
-"""`ObservationFunction` with stochastic ray tracing"""
+    # XXX: HACK!!! look away!!!
+    globals()[name] = observation_function
 
 
-def factory(
-    name: str,
-    *,
-    observation_space: Optional[ObservationSpace] = None,
-    visibility_function: Optional[VisibilityFunction] = None,
-) -> ObservationFunction:
+def factory(name: str, **kwargs) -> ObservationFunction:
 
-    if name == 'from_visibility':
-        checkraise(
-            lambda: observation_space is not None
-            and visibility_function is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
+    if is_custom_function(name):
+        name = import_custom_function(name)
+
+    try:
+        function = observation_function_registry[name]
+    except KeyError as error:
+        raise ValueError(f'invalid observation function name {name}') from error
+
+    signature = inspect.signature(function)
+    required_keys = [
+        parameter.name
+        for parameter in observation_function_registry.get_nonprotocol_parameters(
+            signature
         )
-
-        return functools.partial(
-            from_visibility,
-            observation_space=observation_space,
-            visibility_function=visibility_function,
+        if parameter.default is inspect.Parameter.empty
+    ]
+    optional_keys = [
+        parameter.name
+        for parameter in observation_function_registry.get_nonprotocol_parameters(
+            signature
         )
+        if parameter.default is not inspect.Parameter.empty
+    ]
 
-    if name == 'full_observation':
-        checkraise(
-            lambda: observation_space is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return functools.partial(
-            full_observation, observation_space=observation_space
-        )
-
-    if name == 'partial_observation':
-        checkraise(
-            lambda: observation_space is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return functools.partial(
-            partial_observation, observation_space=observation_space
-        )
-
-    if name == 'minigrid_observation':
-        checkraise(
-            lambda: observation_space is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return functools.partial(
-            minigrid_observation, observation_space=observation_space
-        )
-
-    if name == 'raytracing_observation':
-        checkraise(
-            lambda: observation_space is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return functools.partial(
-            raytracing_observation, observation_space=observation_space
-        )
-
-    if name == 'stochastic_raytracing_observation':
-        checkraise(
-            lambda: observation_space is not None,
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
-
-        return functools.partial(
-            stochastic_raytracing_observation,
-            observation_space=observation_space,
-        )
-
-    raise ValueError(f'invalid observation function name {name}')
+    checkraise_kwargs(kwargs, required_keys)
+    kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+    return partial(function, **kwargs)

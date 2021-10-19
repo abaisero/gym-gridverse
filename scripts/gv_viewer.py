@@ -120,7 +120,7 @@ def set_observation_function(env: GridWorld, name: str):
         name: name of observation function
     """
     observation_function = observation_fs.factory(
-        name, observation_space=env.observation_space
+        name, area=env.observation_space.area
     )
 
     # pylint: disable=protected-access
@@ -179,10 +179,11 @@ def main():  # pylint: disable=too-many-locals
 
     observation_function_names = itt.cycle(
         [
-            'full_observation',
-            'minigrid_observation',
-            'partial_observation',
-            'raytracing_observation',
+            'fully_transparent',
+            'partially_occluded',
+            'minigrid',
+            'raytracing',
+            'stochastic_raytracing',
         ]
     )
 

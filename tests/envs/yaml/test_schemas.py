@@ -102,13 +102,10 @@ def test_action_space_schema(data, expected: bool):
 @pytest.mark.parametrize(
     'data,expected',
     [
-        ({'shape': [11, 11], 'objects': ['Floor'], 'colors': ['NONE']}, True),
-        # invalid (even width)
-        ({'shape': [11, 10], 'objects': ['Floor'], 'colors': ['NONE']}, False),
+        ({'objects': ['Floor'], 'colors': ['NONE']}, True),
         # invalid (missing fields)
-        ({'objects': ['Floor'], 'colors': ['NONE']}, False),
-        ({'shape': [11, 11], 'colors': ['NONE']}, False),
-        ({'shape': [11, 11], 'objects': ['Floor']}, False),
+        ({'colors': ['NONE']}, False),
+        ({'objects': ['Floor']}, False),
     ],
 )
 def test_observation_space_schema(data, expected: bool):

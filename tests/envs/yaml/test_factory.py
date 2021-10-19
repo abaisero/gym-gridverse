@@ -99,39 +99,6 @@ def test_factory_action_space_fail(data):
         yaml_factory.factory_action_space(data)
 
 
-@pytest.mark.parametrize(
-    'data',
-    [
-        {'shape': [5, 5], 'objects': ['Floor'], 'colors': ['NONE']},
-    ],
-)
-def test_factory_observation_space(data):
-    observation_space = yaml_factory.factory_observation_space(data)
-    assert isinstance(observation_space, ObservationSpace)
-
-    for object_type in observation_space.object_types:
-        assert issubclass(object_type, GridObject)
-
-    for color in observation_space.colors:
-        assert isinstance(color, Color)
-
-
-@pytest.mark.parametrize(
-    'data',
-    [
-        # invalid (even width)
-        {'shape': [5, 4], 'objects': ['Floor'], 'colors': ['NONE']},
-        # invalid (missing fields)
-        {'objects': ['Floor'], 'colors': ['NONE']},
-        {'shape': [5, 5], 'colors': ['NONE']},
-        {'shape': [5, 5], 'objects': ['Floor']},
-    ],
-)
-def test_factory_observation_space_fail(data):
-    with pytest.raises(SchemaError):
-        yaml_factory.factory_observation_space(data)
-
-
 # NOTE: individual factory_xxx_function are annoying to test comprehensively;
 # they are tested indirectly by testing the entire format from the yaml files
 

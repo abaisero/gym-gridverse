@@ -66,8 +66,8 @@ def create_env(
 
     # TODO: make more general
     observation = partial(
-        observation_functions.minigrid_observation,
-        observation_space=domain_space.observation_space,
+        observation_functions.minigrid,
+        area=domain_space.observation_space.area,
     )
 
     # Rewards are additive

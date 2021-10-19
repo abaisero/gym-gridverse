@@ -14,12 +14,16 @@ from gym_gridverse.envs import (
 from gym_gridverse.envs.gridworld import GridWorld
 from gym_gridverse.envs.yaml.schemas import schemas
 from gym_gridverse.geometry import (
+    Area,
     DistanceFunction,
     Shape,
     distance_function_factory,
 )
 from gym_gridverse.grid_object import Color, GridObject, factory_type
-from gym_gridverse.space_builders import StateSpaceBuilder
+from gym_gridverse.space_builders import (
+    ObservationSpaceBuilder,
+    StateSpaceBuilder,
+)
 from gym_gridverse.spaces import (
     ActionSpace,
     DomainSpace,
@@ -66,6 +70,9 @@ def process_reserved_keys(data):
 
     if 'layout' in data:
         data['layout'] = tuple(data['layout'])
+
+    if 'area' in data:
+        data['area'] = Area(*data['area'])
 
     if 'object_type' in data:
         data['object_type'] = factory_type(data['object_type'])
@@ -116,18 +123,15 @@ def factory_action_space(data) -> ActionSpace:
     return ActionSpace([Action[name] for name in data])
 
 
-def factory_observation_space(data) -> ObservationSpace:
+def factory_observation_space_builder(data) -> ObservationSpaceBuilder:
     data = schemas['observation_space'].validate(data)
-
-    shape = factory_shape(data['shape'])
     objects = factory_object_types(data['objects'])
     colors = factory_colors(data['colors'])
 
-    return ObservationSpace(
-        grid_shape=shape,
-        object_types=objects,
-        colors=colors,
-    )
+    observation_space_builder = ObservationSpaceBuilder()
+    observation_space_builder.set_object_types(objects)
+    observation_space_builder.set_colors(colors)
+    return observation_space_builder
 
 
 def factory_reset_function(data) -> reset_fs.ResetFunction:
@@ -166,19 +170,13 @@ def factory_visibility_function(data) -> visibility_fs.VisibilityFunction:
     return visibility_fs.factory(name, **data)
 
 
-def factory_observation_function(
-    data, observation_space: ObservationSpace
-) -> observation_fs.ObservationFunction:
+def factory_observation_function(data) -> observation_fs.ObservationFunction:
     # TODO: test, maybe? (re-check coverage)
     data = schemas['observation_function'].validate(data)
 
     name = data.pop('name')
     process_reserved_keys(data)
-    return observation_fs.factory(
-        name,
-        observation_space=observation_space,
-        **data,
-    )
+    return observation_fs.factory(name, **data)
 
 
 def factory_terminating_function(data) -> terminating_fs.TerminatingFunction:
@@ -199,7 +197,9 @@ def factory_env_from_data(data) -> InnerEnv:
         if 'action_space' in data
         else ActionSpace(list(Action))
     )
-    observation_space = factory_observation_space(data['observation_space'])
+    observation_space_builder = factory_observation_space_builder(
+        data['observation_space']
+    )
 
     reset_function = factory_reset_function(data['reset_function'])
     transition_function = factory_transition_function(
@@ -209,14 +209,19 @@ def factory_env_from_data(data) -> InnerEnv:
         {'name': 'reduce_sum', 'reward_functions': data['reward_functions']}
     )
     observation_function = factory_observation_function(
-        data['observation_function'], observation_space
+        data['observation_function']
     )
     terminating_function = factory_terminating_function(
         data['terminating_function']
     )
 
-    state_space_builder.set_grid_shape(reset_function().grid.shape)
+    state = reset_function()
+    state_space_builder.set_grid_shape(state.grid.shape)
     state_space = state_space_builder.build()
+
+    observation = observation_function(state)
+    observation_space_builder.set_grid_shape(observation.grid.shape)
+    observation_space = observation_space_builder.build()
 
     domain_space = DomainSpace(state_space, action_space, observation_space)
 

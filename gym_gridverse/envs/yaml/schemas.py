@@ -35,13 +35,13 @@ def _odd_element_schema(i: int):
 
 
 @lru_cache()
-def _positive_pair():
-    return Schema(
-        And(
-            [And(int, _positive_schema())],
-            _len_schema(2),
-        )
-    )
+def _pair(subschema):
+    return Schema(And([subschema], _len_schema(2)))
+
+
+@lru_cache()
+def _positive_int_pair():
+    return _pair(Schema(And(int, _positive_schema())))
 
 
 @lru_cache()
@@ -54,8 +54,9 @@ def _unique_schema():
 
 # base schemas
 schemas = {
-    'shape': _positive_pair(),
-    'layout': _positive_pair(),
+    'shape': _positive_int_pair(),
+    'layout': _positive_int_pair(),
+    'area': _pair(_pair(int)),
     'object_type': Schema(
         Or(
             'floor',
@@ -153,12 +154,8 @@ schemas.update(
             name='reward_function',
             as_reference=True,
         ),
-        # TODO use object: object for this too
         'observation_function': Schema(
-            {
-                'name': str,
-                Optional('visibility_function'): schemas['visibility_function'],
-            },
+            {'name': str, Optional(object): object},
             description='An observation function',
             name='observation_function',
             as_reference=True,
@@ -249,7 +246,6 @@ schemas.update(
         ),
         'observation_space': Schema(
             {
-                'shape': And(schemas['shape'], _odd_element_schema(1)),
                 'objects': schemas['object_types'],
                 'colors': schemas['colors'],
             },

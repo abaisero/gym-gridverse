@@ -4,10 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from gym_gridverse.agent import Agent
-from gym_gridverse.envs.observation_functions import (
-    factory,
-    minigrid_observation,
-)
+from gym_gridverse.envs.observation_functions import factory, minigrid
 from gym_gridverse.geometry import Orientation, Shape
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Floor, GridObject, Hidden, Wall
@@ -24,15 +21,13 @@ from gym_gridverse.state import State
         Agent((3, 7), Orientation.W),
     ],
 )
-def test_minigrid_observation(agent: Agent):
+def test_minigrid(agent: Agent):
     grid = Grid(10, 10)
     grid[5, 5] = Wall()
 
     state = State(grid, agent)
     observation_space = ObservationSpace(Shape(6, 5), [], [])
-    observation = minigrid_observation(
-        state, observation_space=observation_space
-    )
+    observation = minigrid(state, area=observation_space.area)
     assert observation.agent.position == (5, 2)
     assert observation.agent.orientation == Orientation.N
     assert observation.agent.obj == state.agent.obj
@@ -89,7 +84,7 @@ def test_minigrid_observation(agent: Agent):
         ),
     ],
 )
-def test_minigrid_observation_partially_observable(
+def test_minigrid_partially_occluded(
     agent: Agent, expected_objects: Sequence[Sequence[GridObject]]
 ):
     grid = Grid.from_objects(
@@ -101,9 +96,7 @@ def test_minigrid_observation_partially_observable(
     )
     state = State(grid, agent)
     observation_space = ObservationSpace(Shape(6, 5), [], [])
-    observation = minigrid_observation(
-        state, observation_space=observation_space
-    )
+    observation = minigrid(state, area=observation_space.area)
     expected = Grid.from_objects(expected_objects)
     assert observation.grid == expected
 
@@ -112,16 +105,16 @@ def test_minigrid_observation_partially_observable(
     'name,kwargs',
     [
         ('from_visibility', {'visibility_function': MagicMock()}),
-        ('full_observation', {}),
-        ('partial_observation', {}),
-        ('minigrid_observation', {}),
-        ('raytracing_observation', {}),
-        ('stochastic_raytracing_observation', {}),
+        ('fully_transparent', {}),
+        ('partially_occluded', {}),
+        ('minigrid', {}),
+        ('raytracing', {}),
+        ('stochastic_raytracing', {}),
     ],
 )
 def test_factory_valid(name: str, kwargs):
     observation_space = MagicMock()
-    factory(name, observation_space=observation_space, **kwargs)
+    factory(name, area=observation_space.area, **kwargs)
 
 
 @pytest.mark.parametrize(
@@ -129,11 +122,11 @@ def test_factory_valid(name: str, kwargs):
     [
         ('invalid', {}, ValueError),
         ('from_visibility', {}, ValueError),
-        ('full_observation', {}, ValueError),
-        ('partial_observation', {}, ValueError),
-        ('minigrid_observation', {}, ValueError),
-        ('raytracing_observation', {}, ValueError),
-        ('stochastic_raytracing_observation', {}, ValueError),
+        ('fully_transparent', {}, ValueError),
+        ('partially_occluded', {}, ValueError),
+        ('minigrid', {}, ValueError),
+        ('raytracing', {}, ValueError),
+        ('stochastic_raytracing', {}, ValueError),
     ],
 )
 def test_factory_invalid(name: str, kwargs, exception: Exception):

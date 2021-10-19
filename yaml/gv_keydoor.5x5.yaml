@@ -3,7 +3,6 @@ state_space:
   colors: [ NONE, YELLOW ]
 
 observation_space:
-  shape: [ 7, 7 ]
   objects: [ Wall, Floor, Exit, Door, Key ]
   colors: [ NONE, YELLOW ]
 
@@ -36,7 +35,8 @@ reward_functions:
     reward: -0.05
 
 observation_function:
-  name: partial_observation
+  name: partially_occluded
+  area: [ [ -6, 0 ], [-3, 3 ] ]
 
 terminating_function:
   name: reach_exit
