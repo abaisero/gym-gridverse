@@ -1,5 +1,4 @@
 state_space:
-  shape: [ 5, 5 ]
   objects: [ Wall, Floor, Exit ]
   colors: [ NONE ]
 
@@ -18,6 +17,7 @@ observation_space:
 
 reset_function:
   name: crossing
+  shape: [ 5, 5 ]
   num_rivers: 1
   object_type: Wall
 

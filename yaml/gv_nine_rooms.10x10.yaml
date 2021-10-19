@@ -1,5 +1,4 @@
 state_space:
-  shape: [ 10, 10 ]
   objects: [ Wall, Floor, Exit ]
   colors: [ NONE ]
 
@@ -18,6 +17,7 @@ observation_space:
 
 reset_function:
   name: rooms
+  shape: [ 10, 10 ]
   layout: [ 3, 3 ]
 
 transition_functions:

@@ -22,7 +22,7 @@ from gym_gridverse.envs.transition_functions import (
     step_moving_obstacles,
     step_telepod,
 )
-from gym_gridverse.geometry import Orientation, Position, PositionOrTuple
+from gym_gridverse.geometry import Orientation, Position, PositionOrTuple, Shape
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Box,
@@ -275,7 +275,7 @@ def test_step_moving_obstacles_once_per_obstacle():
     position, hence being called twice. This test is here to make sure that
     does not happen again.
     """
-    state = dynamic_obstacles(height=6, width=6, num_obstacles=4)
+    state = dynamic_obstacles(Shape(6, 6), num_obstacles=4)
 
     counts = {}
 

@@ -74,11 +74,10 @@ def test_object_type_schema(data, expected: bool):
 @pytest.mark.parametrize(
     'data,expected',
     [
-        ({'shape': [11, 11], 'objects': ['Floor'], 'colors': ['NONE']}, True),
+        ({'objects': ['Floor'], 'colors': ['NONE']}, True),
         # invalid (missing fields)
-        ({'objects': ['Floor'], 'colors': ['NONE']}, False),
-        ({'shape': [11, 11], 'colors': ['NONE']}, False),
-        ({'shape': [11, 11], 'objects': ['Floor']}, False),
+        ({'colors': ['NONE']}, False),
+        ({'objects': ['Floor']}, False),
     ],
 )
 def test_state_space_schema(data, expected: bool):

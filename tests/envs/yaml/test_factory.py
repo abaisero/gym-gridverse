@@ -75,38 +75,6 @@ def test_factory_layout_fail(data):
 @pytest.mark.parametrize(
     'data',
     [
-        {'shape': [11, 11], 'objects': ['Floor'], 'colors': ['NONE']},
-    ],
-)
-def test_factory_state_space(data):
-    state_space = yaml_factory.factory_state_space(data)
-    assert isinstance(state_space, StateSpace)
-    assert isinstance(state_space.grid_shape, Shape)
-
-    for object_type in state_space.object_types:
-        assert issubclass(object_type, GridObject)
-
-    for color in state_space.colors:
-        assert isinstance(color, Color)
-
-
-@pytest.mark.parametrize(
-    'data',
-    [
-        # missing fields
-        {'objects': ['Floor'], 'colors': ['NONE']},
-        {'shape': [11, 11], 'colors': ['NONE']},
-        {'shape': [11, 11], 'objects': ['Floor']},
-    ],
-)
-def test_factory_state_space_fail(data):
-    with pytest.raises(SchemaError):
-        yaml_factory.factory_state_space(data)
-
-
-@pytest.mark.parametrize(
-    'data',
-    [
         ['MOVE_FORWARD', 'MOVE_BACKWARD'],
     ],
 )

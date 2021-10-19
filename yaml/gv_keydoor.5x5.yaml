@@ -1,5 +1,4 @@
 state_space:
-  shape: [ 5, 5 ]
   objects: [ Wall, Floor, Exit, Door, Key ]
   colors: [ NONE, YELLOW ]
 
@@ -10,6 +9,7 @@ observation_space:
 
 reset_function:
   name: keydoor
+  shape: [ 5, 5 ]
 
 transition_functions:
   - name: update_agent

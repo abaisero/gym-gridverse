@@ -18,7 +18,7 @@ from gym_gridverse.design import (
     draw_room_grid,
     draw_wall_boundary,
 )
-from gym_gridverse.geometry import Orientation
+from gym_gridverse.geometry import Orientation, Shape
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Beacon,
@@ -96,8 +96,7 @@ reset_function_registry = ResetFunctionRegistry()
 
 @reset_function_registry.register
 def empty(
-    height: int,
-    width: int,
+    shape: Shape,
     random_agent: bool = False,
     random_exit: bool = False,
     *,
@@ -107,22 +106,24 @@ def empty(
     # TODO: test
 
     checkraise(
-        lambda: height >= 4 and width >= 4,
+        lambda: shape.height >= 4 and shape.width >= 4,
         ValueError,
         'height and width need to be at least 4',
     )
 
     rng = get_gv_rng_if_none(rng)
 
-    grid = Grid(height, width)
+    # TODO: test creation (e.g. count number of walls, exits, check held item)
+
+    grid = Grid(shape.height, shape.width)
     draw_wall_boundary(grid)
 
     if random_exit:
-        exit_y = rng.integers(1, height - 2, endpoint=True)
-        exit_x = rng.integers(1, width - 2, endpoint=True)
+        exit_y = rng.integers(1, shape.height - 2, endpoint=True)
+        exit_x = rng.integers(1, shape.width - 2, endpoint=True)
     else:
-        exit_y = height - 2
-        exit_x = width - 2
+        exit_y = shape.height - 2
+        exit_x = shape.width - 2
 
     grid[exit_y, exit_x] = Exit()
 
@@ -145,8 +146,7 @@ def empty(
 
 @reset_function_registry.register
 def rooms(  # pylint: disable=too-many-locals
-    height: int,
-    width: int,
+    shape: Shape,
     layout: Tuple[int, int],
     *,
     rng: Optional[rnd.Generator] = None,
@@ -160,7 +160,7 @@ def rooms(  # pylint: disable=too-many-locals
 
     y_splits = np.linspace(
         0,
-        height - 1,
+        shape.height - 1,
         num=layout_height + 1,
         dtype=int,
     )
@@ -169,13 +169,13 @@ def rooms(  # pylint: disable=too-many-locals
         lambda: len(y_splits) == len(set(y_splits)),
         ValueError,
         'insufficient height ({}) for layout ({})',
-        height,
+        shape.height,
         layout,
     )
 
     x_splits = np.linspace(
         0,
-        width - 1,
+        shape.width - 1,
         num=layout_width + 1,
         dtype=int,
     )
@@ -184,11 +184,11 @@ def rooms(  # pylint: disable=too-many-locals
         lambda: len(x_splits) == len(set(x_splits)),
         ValueError,
         'insufficient width ({}) for layout ({})',
-        height,
+        shape.height,
         layout,
     )
 
-    grid = Grid(height, width)
+    grid = Grid(shape.height, shape.width)
     draw_room_grid(grid, y_splits, x_splits, Wall)
 
     # passages in horizontal walls
@@ -222,8 +222,7 @@ def rooms(  # pylint: disable=too-many-locals
 
 @reset_function_registry.register
 def dynamic_obstacles(
-    height: int,
-    width: int,
+    shape: Shape,
     num_obstacles: int,
     random_agent: bool = False,
     *,
@@ -232,8 +231,7 @@ def dynamic_obstacles(
     """An environment with dynamically moving obstacles
 
     Args:
-        height (`int`): height of grid
-        width (`int`): width of grid
+        shape (`Shape`): shape of grid
         num_obstacles (`int`): number of dynamic obstacles
         random_agent (`bool, optional`): position of agent, in corner if False
         rng: (`Generator, optional`)
@@ -244,7 +242,7 @@ def dynamic_obstacles(
 
     rng = get_gv_rng_if_none(rng)
 
-    state = empty(height, width, random_agent, rng=rng)
+    state = empty(shape, random_agent, rng=rng)
     vacant_positions = [
         position
         for position in state.grid.positions()
@@ -270,9 +268,7 @@ def dynamic_obstacles(
 
 
 @reset_function_registry.register
-def keydoor(
-    height: int, width: int, *, rng: Optional[rnd.Generator] = None
-) -> State:
+def keydoor(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
     """An environment with a key and a door
 
     Creates a height x width (including outer walls) grid with a random column
@@ -286,29 +282,29 @@ def keydoor(
         #########
 
     Args:
-        height (`int`):
-        width (`int`):
+        shape (`Shape`):
         rng: (`Generator, optional`)
 
     Returns:
         State:
     """
+
     checkraise(
-        lambda: height >= 3 and width >= 5 and (height, width) != (3, 5),
+        lambda: shape.height >= 3 and shape.width >= 5 and shape != Shape(3, 5),
         ValueError,
         'Shape must larger than (3, 5), given {}',
-        (height, width),
+        shape,
     )
 
     rng = get_gv_rng_if_none(rng)
 
-    state = empty(height, width)
-    assert isinstance(state.grid[height - 2, width - 2], Exit)
+    state = empty(shape)
+    assert isinstance(state.grid[shape.height - 2, shape.width - 2], Exit)
 
     # Generate vertical splitting wall
-    x_wall = rng.integers(2, width - 3, endpoint=True)
+    x_wall = rng.integers(2, shape.width - 3, endpoint=True)
     line_wall = draw_line_vertical(
-        state.grid, range(1, height - 1), x_wall, Wall
+        state.grid, range(1, shape.height - 1), x_wall, Wall
     )
 
     # Place yellow, locked door
@@ -317,13 +313,13 @@ def keydoor(
 
     # Place yellow key left of wall
     # XXX: potential general function
-    y_key = rng.integers(1, height - 2, endpoint=True)
+    y_key = rng.integers(1, shape.height - 2, endpoint=True)
     x_key = rng.integers(1, x_wall - 1, endpoint=True)
     state.grid[y_key, x_key] = Key(Color.YELLOW)
 
     # Place agent left of wall
     # XXX: potential general function
-    y_agent = rng.integers(1, height - 2, endpoint=True)
+    y_agent = rng.integers(1, shape.height - 2, endpoint=True)
     x_agent = rng.integers(1, x_wall - 1, endpoint=True)
     state.agent.position = (y_agent, x_agent)  # type: ignore
     state.agent.orientation = rng.choice(list(Orientation))
@@ -333,8 +329,7 @@ def keydoor(
 
 @reset_function_registry.register
 def crossing(  # pylint: disable=too-many-locals
-    height: int,
-    width: int,
+    shape: Shape,
     num_rivers: int,
     object_type: Type[GridObject],
     *,
@@ -357,8 +352,7 @@ def crossing(  # pylint: disable=too-many-locals
         #########
 
     Args:
-        height (`int`): odd height of grid
-        width (`int`): odd width of grid
+        shape (`Shape`): shape (odd height and width) of grid
         num_rivers (`int`): number of `rivers`
         object_type (`Type[GridObject]`): river's object type
         rng: (`Generator, optional`)
@@ -366,17 +360,18 @@ def crossing(  # pylint: disable=too-many-locals
     Returns:
         State:
     """
+
     checkraise(
-        lambda: height >= 5 and height % 2 == 1,
+        lambda: shape.height >= 5 and shape.height % 2 == 1,
         ValueError,
         'Crossing environment height must be odd and >= 5, given {}',
-        height,
+        shape.height,
     )
     checkraise(
-        lambda: width >= 5 and width % 2 == 1,
+        lambda: shape.width >= 5 and shape.width % 2 == 1,
         ValueError,
         'Crossing environment width must be odd and >= 5, given {}',
-        width,
+        shape.width,
     )
     checkraise(
         lambda: num_rivers >= 0,
@@ -387,8 +382,8 @@ def crossing(  # pylint: disable=too-many-locals
 
     rng = get_gv_rng_if_none(rng)
 
-    state = empty(height, width)
-    assert isinstance(state.grid[height - 2, width - 2], Exit)
+    state = empty(shape)
+    assert isinstance(state.grid[shape.height - 2, shape.width - 2], Exit)
 
     # token `horizontal` and `vertical` objects
     h, v = object(), object()
@@ -396,8 +391,8 @@ def crossing(  # pylint: disable=too-many-locals
     # all rivers specified by orientation and position
     rivers = list(
         itt.chain(
-            ((h, i) for i in range(2, height - 2, 2)),
-            ((v, j) for j in range(2, width - 2, 2)),
+            ((h, i) for i in range(2, shape.height - 2, 2)),
+            ((v, j) for j in range(2, shape.width - 2, 2)),
         )
     )
 
@@ -408,20 +403,26 @@ def crossing(  # pylint: disable=too-many-locals
     # create horizontal rivers without crossings
     rivers_h = sorted([pos for direction, pos in rivers if direction is h])
     for y in rivers_h:
-        draw_line_horizontal(state.grid, y, range(1, width - 1), object_type)
+        draw_line_horizontal(
+            state.grid, y, range(1, shape.width - 1), object_type
+        )
 
     # create vertical rivers without crossings
     rivers_v = sorted([pos for direction, pos in rivers if direction is v])
     for x in rivers_v:
-        draw_line_vertical(state.grid, range(1, height - 1), x, object_type)
+        draw_line_vertical(
+            state.grid, range(1, shape.height - 1), x, object_type
+        )
 
     # sample path to exit
     path = [h] * len(rivers_v) + [v] * len(rivers_h)
     rng.shuffle(path)
 
     # create crossing
-    limits_h = [0] + rivers_h + [height - 1]  # horizontal river boundaries
-    limits_v = [0] + rivers_v + [width - 1]  # vertical river boundaries
+    limits_h = (
+        [0] + rivers_h + [shape.height - 1]
+    )  # horizontal river boundaries
+    limits_v = [0] + rivers_v + [shape.width - 1]  # vertical river boundaries
     room_i, room_j = 0, 0  # coordinates of current "room"
     for step_direction in path:
         if step_direction is h:
@@ -447,14 +448,12 @@ def crossing(  # pylint: disable=too-many-locals
 
 
 @reset_function_registry.register
-def teleport(
-    height: int, width: int, *, rng: Optional[rnd.Generator] = None
-) -> State:
+def teleport(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
 
     rng = get_gv_rng_if_none(rng)
 
-    state = empty(height, width)
-    assert isinstance(state.grid[height - 2, width - 2], Exit)
+    state = empty(shape)
+    assert isinstance(state.grid[shape.height - 2, shape.width - 2], Exit)
 
     # Place agent on top left
     state.agent.position = (1, 1)  # type: ignore
@@ -484,24 +483,23 @@ def teleport(
 
 @reset_function_registry.register
 def memory(
-    height: int,
-    width: int,
+    shape: Shape,
     colors: Set[Color],
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> State:
 
     checkraise(
-        lambda: height >= 5,
+        lambda: shape.height >= 5,
         ValueError,
         'Memory environment height must be >= 5, given {}',
-        height,
+        shape.height,
     )
     checkraise(
-        lambda: width >= 5 and width % 2 == 1,
+        lambda: shape.width >= 5 and shape.width % 2 == 1,
         ValueError,
-        'Memory environment height must be odd and >= 5, given {}',
-        height,
+        'Memory environment width must be odd and >= 5, given {}',
+        shape.width,
     )
     checkraise(
         lambda: Color.NONE not in colors,
@@ -518,20 +516,26 @@ def memory(
 
     rng = get_gv_rng_if_none(rng)
 
-    grid = Grid(height, width)
+    grid = Grid(shape.height, shape.width)
     draw_area(grid, grid.area, Wall, fill=True)
-    draw_line_horizontal(grid, 1, range(2, width - 2), Floor)
-    draw_line_horizontal(grid, height - 2, range(2, width - 2), Floor)
-    draw_line_vertical(grid, range(2, height - 2), width // 2, Floor)
+    draw_line_horizontal(grid, 1, range(2, shape.width - 2), Floor)
+    draw_line_horizontal(
+        grid, shape.height - 2, range(2, shape.width - 2), Floor
+    )
+    draw_line_vertical(
+        grid, range(2, shape.height - 2), shape.width // 2, Floor
+    )
 
     color_good, color_bad = rng.choice(list(colors), size=2, replace=False)
-    x_exit_good, x_exit_bad = rng.choice([1, width - 2], size=2, replace=False)
+    x_exit_good, x_exit_bad = rng.choice(
+        [1, shape.width - 2], size=2, replace=False
+    )
     grid[1, x_exit_good] = Exit(color_good)
     grid[1, x_exit_bad] = Exit(color_bad)
-    grid[height - 2, 1] = Beacon(color_good)
-    grid[height - 2, width - 2] = Beacon(color_good)
+    grid[shape.height - 2, 1] = Beacon(color_good)
+    grid[shape.height - 2, shape.width - 2] = Beacon(color_good)
 
-    agent_position = (height // 2, width // 2)
+    agent_position = (shape.height // 2, shape.width // 2)
     agent_orientation = Orientation.N
     agent = Agent(agent_position, agent_orientation)
 
@@ -540,8 +544,7 @@ def memory(
 
 @reset_function_registry.register
 def memory_rooms(
-    height: int,
-    width: int,
+    shape: Shape,
     layout: Tuple[int, int],
     colors: Set[Color],
     num_beacons: int,
@@ -581,7 +584,7 @@ def memory_rooms(
 
     y_splits = np.linspace(
         0,
-        height - 1,
+        shape.height - 1,
         num=layout_height + 1,
         dtype=int,
     )
@@ -589,14 +592,14 @@ def memory_rooms(
     checkraise(
         lambda: len(y_splits) == len(set(y_splits)),
         ValueError,
-        'insufficient height ({}) for layout ({})',
-        height,
+        'insufficient shape.height ({}) for layout ({})',
+        shape.height,
         layout,
     )
 
     x_splits = np.linspace(
         0,
-        width - 1,
+        shape.width - 1,
         num=layout_width + 1,
         dtype=int,
     )
@@ -605,11 +608,11 @@ def memory_rooms(
         lambda: len(x_splits) == len(set(x_splits)),
         ValueError,
         'insufficient width ({}) for layout ({})',
-        height,
+        shape.height,
         layout,
     )
 
-    grid = Grid(height, width)
+    grid = Grid(shape.height, shape.width)
     draw_room_grid(grid, y_splits, x_splits, Wall)
 
     # passages in horizontal walls

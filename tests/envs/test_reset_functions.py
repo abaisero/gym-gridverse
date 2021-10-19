@@ -1,9 +1,9 @@
 import pytest
 
 from gym_gridverse.envs.reset_functions import (
-    factory,
     crossing,
     dynamic_obstacles,
+    factory,
     keydoor,
     teleport,
 )
@@ -33,13 +33,13 @@ def wall_column(size: int, state: State) -> int:
 def test_reset_keydoor_throw_if_too_small(size: int):
     """Asserts method throws if provided size is too small"""
     with pytest.raises(ValueError):
-        keydoor(size, size)
+        keydoor(Shape(size, size))
 
 
 @pytest.mark.parametrize('size', range(5, 12))
 def test_reset_keydoor_wall(size: int):
     """Tests whether the reset state contains a wall column"""
-    state = keydoor(size, size)
+    state = keydoor(Shape(size, size))
 
     # Surrounded by walls
     for i in range(0, size):
@@ -65,7 +65,7 @@ def test_reset_keydoor_wall(size: int):
 
 @pytest.mark.parametrize('size', range(5, 12))
 def test_reset_keydoor_agent_is_left_of_wall(size: int):
-    state = keydoor(size, size)
+    state = keydoor(Shape(size, size))
     assert state.agent.position.x < wall_column(
         size, state
     ), "Agent should be left of wall"
@@ -73,7 +73,7 @@ def test_reset_keydoor_agent_is_left_of_wall(size: int):
 
 @pytest.mark.parametrize('size', range(5, 12))
 def test_reset_keydoor_key(size: int):
-    state = keydoor(size, size)
+    state = keydoor(Shape(size, size))
 
     key_pos = [
         pos
@@ -87,7 +87,7 @@ def test_reset_keydoor_key(size: int):
 
 @pytest.mark.parametrize('size', range(5, 12))
 def test_reset_keydoor_exit(size: int):
-    state = keydoor(size, size)
+    state = keydoor(Shape(size, size))
     assert isinstance(
         state.grid[size - 2, size - 2], Exit
     ), "There should be a exit bottom right"
@@ -97,7 +97,7 @@ def test_reset_keydoor_exit(size: int):
 @pytest.mark.parametrize('width', [10, 20])
 @pytest.mark.parametrize('num_obstacles', [5, 10])
 def test_reset_dynamic_obstacles(height: int, width: int, num_obstacles: int):
-    state = dynamic_obstacles(height, width, num_obstacles)
+    state = dynamic_obstacles(Shape(height, width), num_obstacles)
     assert state.grid.shape == Shape(height, width)
 
     state_num_obstacles = sum(
@@ -111,14 +111,14 @@ def test_reset_dynamic_obstacles(height: int, width: int, num_obstacles: int):
 @pytest.mark.parametrize('width', [9, 13])
 @pytest.mark.parametrize('num_rivers', [3, 5])
 def test_reset_crossing(height: int, width: int, num_rivers: int):
-    state = crossing(height, width, num_rivers, object_type=Wall)
+    state = crossing(Shape(height, width), num_rivers, object_type=Wall)
     assert state.grid.shape == Shape(height, width)
 
 
 @pytest.mark.parametrize('height', [9, 13])
 @pytest.mark.parametrize('width', [9, 13])
 def test_reset_teleport(height: int, width: int):
-    state = teleport(height, width)
+    state = teleport(Shape(height, width))
     assert state.grid.shape == Shape(height, width)
 
     num_telepods = sum(
@@ -133,24 +133,21 @@ def test_reset_teleport(height: int, width: int):
         (
             'empty',
             {
-                'height': 10,
-                'width': 10,
+                'shape': Shape(10, 10),
                 'random_agent_pos': True,
             },
         ),
         (
             'rooms',
             {
-                'height': 10,
-                'width': 10,
+                'shape': Shape(10, 10),
                 'layout': (2, 2),
             },
         ),
         (
             'dynamic_obstacles',
             {
-                'height': 10,
-                'width': 10,
+                'shape': Shape(10, 10),
                 'num_obstacles': 10,
                 'random_agent_pos': True,
             },
@@ -158,15 +155,13 @@ def test_reset_teleport(height: int, width: int):
         (
             'keydoor',
             {
-                'height': 10,
-                'width': 10,
+                'shape': Shape(10, 10),
             },
         ),
         (
             'crossing',
             {
-                'height': 9,
-                'width': 9,
+                'shape': Shape(9, 9),
                 'num_rivers': 3,
                 'object_type': Wall,
             },

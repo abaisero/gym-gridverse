@@ -238,7 +238,6 @@ schemas.update(
     {
         'state_space': Schema(
             {
-                'shape': schemas['shape'],
                 'objects': schemas['object_types'],
                 'colors': schemas['colors'],
             },

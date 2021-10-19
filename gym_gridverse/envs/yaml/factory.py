@@ -19,6 +19,7 @@ from gym_gridverse.geometry import (
     distance_function_factory,
 )
 from gym_gridverse.grid_object import Color, GridObject, factory_type
+from gym_gridverse.space_builders import StateSpaceBuilder
 from gym_gridverse.spaces import (
     ActionSpace,
     DomainSpace,
@@ -60,6 +61,9 @@ def process_reserved_keys(data):
             data['visibility_function']
         )
 
+    if 'shape' in data:
+        data['shape'] = Shape(*data['shape'])
+
     if 'layout' in data:
         data['layout'] = tuple(data['layout'])
 
@@ -95,18 +99,15 @@ def factory_distance_function(data) -> DistanceFunction:
     return distance_function_factory(data)
 
 
-def factory_state_space(data) -> StateSpace:
+def factory_state_space_builder(data) -> StateSpaceBuilder:
     data = schemas['state_space'].validate(data)
-
-    shape = factory_shape(data['shape'])
     objects = factory_object_types(data['objects'])
     colors = factory_colors(data['colors'])
 
-    return StateSpace(
-        grid_shape=shape,
-        object_types=objects,
-        colors=colors,
-    )
+    state_space_builder = StateSpaceBuilder()
+    state_space_builder.set_object_types(objects)
+    state_space_builder.set_colors(colors)
+    return state_space_builder
 
 
 def factory_action_space(data) -> ActionSpace:
@@ -129,17 +130,13 @@ def factory_observation_space(data) -> ObservationSpace:
     )
 
 
-def factory_reset_function(
-    data, state_space: StateSpace
-) -> reset_fs.ResetFunction:
+def factory_reset_function(data) -> reset_fs.ResetFunction:
     data = schemas['reset_function'].validate(data)
 
     name = data.pop('name')
     process_reserved_keys(data)
     return reset_fs.factory(
         name,
-        height=state_space.grid_shape.height,
-        width=state_space.grid_shape.width,
         **data,
     )
 
@@ -196,16 +193,15 @@ def factory_terminating_function(data) -> terminating_fs.TerminatingFunction:
 def factory_env_from_data(data) -> InnerEnv:
     data = schemas['env'].validate(data)
 
-    state_space = factory_state_space(data['state_space'])
+    state_space_builder = factory_state_space_builder(data['state_space'])
     action_space = (
         factory_action_space(data['action_space'])
         if 'action_space' in data
         else ActionSpace(list(Action))
     )
     observation_space = factory_observation_space(data['observation_space'])
-    domain_space = DomainSpace(state_space, action_space, observation_space)
 
-    reset_function = factory_reset_function(data['reset_function'], state_space)
+    reset_function = factory_reset_function(data['reset_function'])
     transition_function = factory_transition_function(
         {'name': 'chain', 'transition_functions': data['transition_functions']}
     )
@@ -218,6 +214,11 @@ def factory_env_from_data(data) -> InnerEnv:
     terminating_function = factory_terminating_function(
         data['terminating_function']
     )
+
+    state_space_builder.set_grid_shape(reset_function().grid.shape)
+    state_space = state_space_builder.build()
+
+    domain_space = DomainSpace(state_space, action_space, observation_space)
 
     return GridWorld(
         domain_space,

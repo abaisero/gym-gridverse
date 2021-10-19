@@ -1,5 +1,4 @@
 state_space:
-  shape: [ 5, 5 ]
   objects: [ Wall, Floor, Exit, Beacon ]
   colors: [ NONE, RED, GREEN, BLUE, YELLOW ]
 
@@ -18,6 +17,7 @@ observation_space:
 
 reset_function:
   name: memory
+  shape: [ 5, 5 ]
   colors: [ RED, GREEN, BLUE, YELLOW ]
 
 transition_functions:
