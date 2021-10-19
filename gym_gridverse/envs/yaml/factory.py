@@ -157,7 +157,7 @@ def factory_reward_function(data) -> reward_fs.RewardFunction:
     return reward_fs.factory(name, **data)
 
 
-def factory_visibility_function(data):
+def factory_visibility_function(data) -> visibility_fs.VisibilityFunction:
     # TODO: test, maybe? (re-check coverage)
     data = schemas['visibility_function'].validate(data)
 

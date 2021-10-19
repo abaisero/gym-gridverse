@@ -4,10 +4,10 @@ import pytest
 
 from gym_gridverse.envs.visibility_functions import (
     factory,
-    full_visibility,
-    minigrid_visibility,
-    partial_visibility,
-    raytracing_visibility,
+    fully_transparent,
+    minigrid,
+    partially_occluded,
+    raytracing,
 )
 from gym_gridverse.geometry import Position
 from gym_gridverse.grid import Grid
@@ -32,7 +32,7 @@ from gym_gridverse.grid_object import Floor, GridObject, Wall
 def test_full_visibility(objects: Sequence[Sequence[GridObject]]):
     grid = Grid.from_objects(objects)
     for position in grid.positions():
-        visibility = full_visibility(grid, position)
+        visibility = fully_transparent(grid, position)
 
         assert visibility.dtype == bool
         assert visibility.all()
@@ -101,7 +101,7 @@ def test_partial_visibility(
     expected_int: Sequence[Sequence[int]],
 ):
     grid = Grid.from_objects(objects)
-    visibility = partial_visibility(grid, position)
+    visibility = partially_occluded(grid, position)
     assert visibility.dtype == bool
     assert (visibility == expected_int).all()
 
@@ -169,7 +169,7 @@ def test_minigrid_visibility(
     expected_int: Sequence[Sequence[int]],
 ):
     grid = Grid.from_objects(objects)
-    visibility = minigrid_visibility(grid, position)
+    visibility = minigrid(grid, position)
     assert visibility.dtype == bool
     assert (visibility == expected_int).all()
 
@@ -237,7 +237,7 @@ def test_raytracing_visibility(
     expected_int: Sequence[Sequence[int]],
 ):
     grid = Grid.from_objects(objects)
-    visibility = raytracing_visibility(grid, position)
+    visibility = raytracing(grid, position)
     assert visibility.dtype == bool
     assert (visibility == expected_int).all()
 
@@ -245,11 +245,11 @@ def test_raytracing_visibility(
 @pytest.mark.parametrize(
     'name',
     [
-        'full_visibility',
-        'partial_visibility',
-        'minigrid_visibility',
-        'raytracing_visibility',
-        'stochastic_raytracing_visibility',
+        'fully_transparent',
+        'partially_occluded',
+        'minigrid',
+        'raytracing',
+        'stochastic_raytracing',
     ],
 )
 def test_factory_valid(name: str):

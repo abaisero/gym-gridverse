@@ -1,4 +1,8 @@
-from typing import Optional
+import functools
+import inspect
+import itertools as itt
+import warnings
+from typing import List, Optional, Union
 
 import numpy as np
 import numpy.random as rnd
@@ -12,7 +16,14 @@ from gym_gridverse.geometry import (
 )
 from gym_gridverse.grid import Grid
 from gym_gridverse.rng import get_gv_rng_if_none
+from gym_gridverse.utils.functions import (
+    checkraise_kwargs,
+    import_custom_function,
+    is_custom_function,
+    select_kwargs,
+)
 from gym_gridverse.utils.raytracing import cached_compute_rays_fancy
+from gym_gridverse.utils.registry import FunctionRegistry
 
 
 class VisibilityFunction(Protocol):
@@ -26,7 +37,95 @@ class VisibilityFunction(Protocol):
         ...
 
 
-def full_visibility(
+class VisibilityFunctionRegistry(FunctionRegistry):
+    def get_protocol_parameters(
+        self, signature: inspect.Signature
+    ) -> List[inspect.Parameter]:
+        grid, position = itt.islice(signature.parameters.values(), 2)
+        rng = signature.parameters['rng']
+        return [grid, position, rng]
+
+    def check_signature(self, function: VisibilityFunction):
+        name = function.__name__
+        signature = inspect.signature(function)
+        grid, position, rng = self.get_protocol_parameters(signature)
+
+        # checks first 2 arguments are positional ...
+        if grid.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ]:
+            raise ValueError(
+                f'The first argument ({grid.name}) '
+                f'of a registered visibility function ({name}) '
+                'should be allowed to be a positional argument.'
+            )
+
+        if position.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ]:
+            raise ValueError(
+                f'The second argument ({position.name}) '
+                f'of a registered visibility function ({name}) '
+                'should be allowed to be a positional argument.'
+            )
+
+        # and `rng` is keyword
+        if rng.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.KEYWORD_ONLY,
+        ]:
+            raise ValueError(
+                f'The `rng` argument ({rng.name}) '
+                f'of a registered visibility function ({name}) '
+                'should be allowed to be a keyword argument.'
+            )
+
+        # checks if annotations, if given, are consistent
+        if grid.annotation not in [inspect.Parameter.empty, Grid]:
+            warnings.warn(
+                f'The first argument ({grid.name}) '
+                f'of a registered visibility function ({name}) '
+                f'has an annotation ({grid.annotation}) '
+                'which is not `Grid`.'
+            )
+
+        if position.annotation not in [inspect.Parameter.empty, Position]:
+            warnings.warn(
+                f'The second argument ({position.name}) '
+                f'of a registered visibility function ({name}) '
+                f'has an annotation ({position.annotation}) '
+                'which is not `Position`.'
+            )
+
+        if rng.annotation not in [
+            inspect.Parameter.empty,
+            Optional[rnd.Generator],
+        ]:
+            warnings.warn(
+                f'The `rng` argument ({rng.name}) '
+                f'of a registered visibility function ({name}) '
+                f'has an annotation ({rng.annotation}) '
+                'which is not `Optional[rnd.Generator]`.'
+            )
+
+        if signature.return_annotation not in [
+            inspect.Parameter.empty,
+            np.ndarray,
+        ]:
+            warnings.warn(
+                f'The return type of a registered visibility function ({name}) '
+                f'has an annotation ({signature.return_annotation}) '
+                'which is not `np.ndarray`.'
+            )
+
+
+visibility_function_registry = VisibilityFunctionRegistry()
+
+
+@visibility_function_registry.register
+def fully_transparent(
     grid: Grid,
     position: Position,  # pylint: disable = unused-argument
     *,
@@ -36,7 +135,8 @@ def full_visibility(
     return np.ones((grid.height, grid.width), dtype=bool)
 
 
-def partial_visibility(
+@visibility_function_registry.register
+def partially_occluded(
     grid: Grid,
     position: Position,
     *,
@@ -105,7 +205,8 @@ def partial_visibility(
     return visibility
 
 
-def minigrid_visibility(
+@visibility_function_registry.register
+def minigrid(
     grid: Grid,
     position: Position,
     *,
@@ -138,10 +239,13 @@ def minigrid_visibility(
     return visibility
 
 
-def raytracing_visibility(
+@visibility_function_registry.register
+def raytracing(
     grid: Grid,
     position: Position,
     *,
+    absolute_counts: bool = True,
+    threshold: Union[int, float] = 1,
     rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
 ) -> np.ndarray:
 
@@ -154,29 +258,26 @@ def raytracing_visibility(
     for ray in rays:
         light = True
         for pos in ray:
-            if light:
-                counts_num[pos.y, pos.x] += 1
-
+            counts_num[pos.y, pos.x] += int(light)
             counts_den[pos.y, pos.x] += 1
-
             light = light and grid[pos].transparent
 
-    # TODO: add as parameter to function
-    visibility = counts_num > 0  # at least one ray makes it
-    # visibility = counts_num > 0.5 * counts_den # half of the rays make it
-    # visibility = counts_num > 0.1 * counts_den  # 10% of the rays make it
-    # visibility = counts_num > 1  # at least 2 rays make it
-
+    visibility = (
+        counts_num >= threshold
+        if absolute_counts
+        else (counts_num / counts_den) >= threshold
+    )
     return visibility
 
 
-def stochastic_raytracing_visibility(
+@visibility_function_registry.register
+def stochastic_raytracing(  # TODO: add test
     grid: Grid,
     position: Position,
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> np.ndarray:
-    # TODO: add test
+
     rng = get_gv_rng_if_none(rng)
 
     area = Area((0, grid.height - 1), (0, grid.width - 1))
@@ -188,11 +289,8 @@ def stochastic_raytracing_visibility(
     for ray in rays:
         light = True
         for pos in ray:
-            if light:
-                counts_num[pos.y, pos.x] += 1
-
+            counts_num[pos.y, pos.x] += int(light)
             counts_den[pos.y, pos.x] += 1
-
             light = light and grid[pos].transparent
 
     probs = np.nan_to_num(counts_num / counts_den)
@@ -200,21 +298,32 @@ def stochastic_raytracing_visibility(
     return visibility
 
 
-def factory(name: str) -> VisibilityFunction:
+def factory(name: str, **kwargs) -> VisibilityFunction:
 
-    if name == 'full_visibility':
-        return full_visibility
+    if is_custom_function(name):
+        name = import_custom_function(name)
 
-    if name == 'partial_visibility':
-        return partial_visibility
+    try:
+        function = visibility_function_registry[name]
+    except KeyError as error:
+        raise ValueError(f'invalid visibility function name {name}') from error
 
-    if name == 'minigrid_visibility':
-        return minigrid_visibility
+    signature = inspect.signature(function)
+    required_keys = [
+        parameter.name
+        for parameter in visibility_function_registry.get_nonprotocol_parameters(
+            signature
+        )
+        if parameter.default is inspect.Parameter.empty
+    ]
+    optional_keys = [
+        parameter.name
+        for parameter in visibility_function_registry.get_nonprotocol_parameters(
+            signature
+        )
+        if parameter.default is not inspect.Parameter.empty
+    ]
 
-    if name == 'raytracing_visibility':
-        return raytracing_visibility
-
-    if name == 'stochastic_raytracing_visibility':
-        return stochastic_raytracing_visibility
-
-    raise ValueError(f'invalid visibility function name {name}')
+    checkraise_kwargs(kwargs, required_keys)
+    kwargs = select_kwargs(kwargs, required_keys + optional_keys)
+    return functools.partial(function, **kwargs)

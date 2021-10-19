@@ -1,4 +1,4 @@
-from functools import partial
+import functools
 from typing import Optional
 
 import numpy.random as rnd
@@ -8,11 +8,11 @@ from gym_gridverse.agent import Agent
 from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.visibility_functions import (
     VisibilityFunction,
-    full_visibility,
-    minigrid_visibility,
-    partial_visibility,
-    raytracing_visibility,
-    stochastic_raytracing_visibility,
+    fully_transparent,
+    minigrid,
+    partially_occluded,
+    raytracing,
+    stochastic_raytracing,
 )
 from gym_gridverse.geometry import Orientation, Shape
 from gym_gridverse.grid_object import Hidden
@@ -62,27 +62,27 @@ def from_visibility(
     return Observation(observation_grid, observation_agent)
 
 
-full_observation = partial(from_visibility, visibility_function=full_visibility)
+full_observation = functools.partial(from_visibility, visibility_function=fully_transparent)
 """`ObservationFunction` where every tile is visible"""
 
-partial_observation = partial(
-    from_visibility, visibility_function=partial_visibility
+partial_observation = functools.partial(
+    from_visibility, visibility_function=partially_occluded
 )
 """`ObservationFunction` which is blocked by non-transparent obstacles"""
 
-minigrid_observation = partial(
-    from_visibility, visibility_function=minigrid_visibility
+minigrid_observation = functools.partial(
+    from_visibility, visibility_function=minigrid
 )
 """`ObservationFunction` implementation as done in 'MiniGrid'"""
 
-raytracing_observation = partial(
-    from_visibility, visibility_function=raytracing_visibility
+raytracing_observation = functools.partial(
+    from_visibility, visibility_function=raytracing
 )
 """`ObservationFunction` with ray tracing"""
 
-stochastic_raytracing_observation = partial(
+stochastic_raytracing_observation = functools.partial(
     from_visibility,
-    visibility_function=stochastic_raytracing_visibility,
+    visibility_function=stochastic_raytracing,
 )
 """`ObservationFunction` with stochastic ray tracing"""
 
@@ -103,7 +103,7 @@ def factory(
             name,
         )
 
-        return partial(
+        return functools.partial(
             from_visibility,
             observation_space=observation_space,
             visibility_function=visibility_function,
@@ -117,7 +117,9 @@ def factory(
             name,
         )
 
-        return partial(full_observation, observation_space=observation_space)
+        return functools.partial(
+            full_observation, observation_space=observation_space
+        )
 
     if name == 'partial_observation':
         checkraise(
@@ -127,7 +129,9 @@ def factory(
             name,
         )
 
-        return partial(partial_observation, observation_space=observation_space)
+        return functools.partial(
+            partial_observation, observation_space=observation_space
+        )
 
     if name == 'minigrid_observation':
         checkraise(
@@ -137,7 +141,7 @@ def factory(
             name,
         )
 
-        return partial(
+        return functools.partial(
             minigrid_observation, observation_space=observation_space
         )
 
@@ -149,7 +153,7 @@ def factory(
             name,
         )
 
-        return partial(
+        return functools.partial(
             raytracing_observation, observation_space=observation_space
         )
 
@@ -161,7 +165,7 @@ def factory(
             name,
         )
 
-        return partial(
+        return functools.partial(
             stochastic_raytracing_observation,
             observation_space=observation_space,
         )
