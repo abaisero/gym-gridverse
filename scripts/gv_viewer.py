@@ -5,17 +5,23 @@ import argparse
 import enum
 import itertools as itt
 import time
-from typing import Dict, Generator, List, Union
+from typing import Dict, Union
 
 import numpy as np
 import pyglet
 
 from gym_gridverse.action import Action
-from gym_gridverse.envs import observation_functions as observation_fs
 from gym_gridverse.envs.gridworld import GridWorld
+from gym_gridverse.envs.observation_functions import (
+    ObservationFunction,
+    factory as observation_function_factory,
+)
+from gym_gridverse.envs.visibility_functions import (
+    factory as visibility_function_factory,
+    visibility_function_registry,
+)
 from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 from gym_gridverse.recording import (
-    Data,
     DataBuilder,
     HUD_Info,
     generate_images,
@@ -108,7 +114,9 @@ def print_legend():
     print(fstr('g', Controls.RECORD_GIF))
 
 
-def set_observation_function(env: GridWorld, name: str):
+def set_observation_function(
+    env: GridWorld, observation_function: ObservationFunction
+):
     """Hacks into `env` in order to set the observation function used
 
     XXX: uses private members and implementation knowledge. The observation
@@ -117,11 +125,8 @@ def set_observation_function(env: GridWorld, name: str):
 
     Args:
         env: grid world to set the observation function for
-        name: name of observation function
+        observation_function: observation function
     """
-    observation_function = observation_fs.factory(
-        name, area=env.observation_space.area
-    )
 
     # pylint: disable=protected-access
 
@@ -177,15 +182,7 @@ def main():  # pylint: disable=too-many-locals
     state_viewer.window.push_handlers(keyboard_handler)
     observation_viewer.window.push_handlers(keyboard_handler)
 
-    observation_function_names = itt.cycle(
-        [
-            'fully_transparent',
-            'partially_occluded',
-            'minigrid',
-            'raytracing',
-            'stochastic_raytracing',
-        ]
-    )
+    visibility_function_names = itt.cycle(visibility_function_registry.keys())
 
     state_data_builder: DataBuilder[np.ndarray]
     observation_data_builder: DataBuilder[np.ndarray]
@@ -249,9 +246,15 @@ def main():  # pylint: disable=too-many-locals
                 quit_ = True
 
             elif command is Controls.CYCLE_OBSERVATION:
-                name = next(observation_function_names)
+                name = next(visibility_function_names)
                 print(f'setting observation function: {name}')
-                set_observation_function(env, name)
+                visibility_function = visibility_function_factory(name)
+                observation_function = observation_function_factory(
+                    'from_visibility',
+                    visibility_function=visibility_function,
+                    area=env.observation_space.area,
+                )
+                set_observation_function(env, observation_function)
 
             state_image = state_viewer.render(
                 env.state, return_rgb_array=True, **hud_info
