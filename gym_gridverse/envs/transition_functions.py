@@ -54,7 +54,6 @@ class TransitionFunctionRegistry(FunctionRegistry):
         return [state, action, rng]
 
     def check_signature(self, function: TransitionFunction):
-        name = function.__name__
         signature = inspect.signature(function)
         state, action, rng = self.get_protocol_parameters(signature)
 
@@ -65,7 +64,7 @@ class TransitionFunctionRegistry(FunctionRegistry):
         ]:
             raise ValueError(
                 f'The first argument ({state.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 'should be allowed to be a positional argument.'
             )
 
@@ -75,7 +74,7 @@ class TransitionFunctionRegistry(FunctionRegistry):
         ]:
             raise ValueError(
                 f'The second argument ({action.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 'should be allowed to be a positional argument.'
             )
 
@@ -86,7 +85,7 @@ class TransitionFunctionRegistry(FunctionRegistry):
         ]:
             raise ValueError(
                 f'The `rng` argument ({rng.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 'should be allowed to be a keyword argument.'
             )
 
@@ -94,7 +93,7 @@ class TransitionFunctionRegistry(FunctionRegistry):
         if state.annotation not in [inspect.Parameter.empty, State]:
             warnings.warn(
                 f'The first argument ({state.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 f'has an annotation ({state.annotation}) '
                 'which is not `State`.'
             )
@@ -102,7 +101,7 @@ class TransitionFunctionRegistry(FunctionRegistry):
         if action.annotation not in [inspect.Parameter.empty, Action]:
             warnings.warn(
                 f'The second argument ({action.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 f'has an annotation ({action.annotation}) '
                 'which is not `Action`.'
             )
@@ -113,14 +112,14 @@ class TransitionFunctionRegistry(FunctionRegistry):
         ]:
             warnings.warn(
                 f'The `rng` argument ({rng.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 f'has an annotation ({rng.annotation}) '
                 'which is not `Optional[rnd.Generator]`.'
             )
 
         if signature.return_annotation not in [inspect.Parameter.empty, None]:
             warnings.warn(
-                f'The return type of a registered transition function ({name}) '
+                f'The return type of a registered transition function ({function}) '
                 f'has an annotation ({signature.return_annotation}) '
                 'which is not `None`.'
             )

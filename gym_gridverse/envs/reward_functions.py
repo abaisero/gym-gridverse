@@ -43,7 +43,6 @@ class RewardFunctionRegistry(FunctionRegistry):
         return [state, action, next_state]
 
     def check_signature(self, function: RewardFunction):
-        name = function.__name__
         signature = inspect.signature(function)
         state, action, next_state = self.get_protocol_parameters(signature)
 
@@ -54,7 +53,7 @@ class RewardFunctionRegistry(FunctionRegistry):
         ]:
             raise ValueError(
                 f'The first argument ({state.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 'should be allowed to be a positional argument.'
             )
 
@@ -64,7 +63,7 @@ class RewardFunctionRegistry(FunctionRegistry):
         ]:
             raise ValueError(
                 f'The second argument ({action.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 'should be allowed to be a positional argument.'
             )
 
@@ -74,7 +73,7 @@ class RewardFunctionRegistry(FunctionRegistry):
         ]:
             raise ValueError(
                 f'The third argument ({next_state.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 'should be allowed to be a positional argument.'
             )
 
@@ -82,7 +81,7 @@ class RewardFunctionRegistry(FunctionRegistry):
         if state.annotation not in [inspect.Parameter.empty, State]:
             warnings.warn(
                 f'The first argument ({state.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 f'has an annotation ({state.annotation}) '
                 'which is not `State`.'
             )
@@ -90,7 +89,7 @@ class RewardFunctionRegistry(FunctionRegistry):
         if action.annotation not in [inspect.Parameter.empty, Action]:
             warnings.warn(
                 f'The second argument ({action.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 f'has an annotation ({action.annotation}) '
                 'which is not `Action`.'
             )
@@ -98,14 +97,14 @@ class RewardFunctionRegistry(FunctionRegistry):
         if next_state.annotation not in [inspect.Parameter.empty, State]:
             warnings.warn(
                 f'The third argument ({next_state.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 f'has an annotation ({next_state.annotation}) '
                 'which is not `State`.'
             )
 
         if signature.return_annotation not in [inspect.Parameter.empty, float]:
             warnings.warn(
-                f'The return type of a registered reward function ({name}) '
+                f'The return type of a registered reward function ({function}) '
                 f'has an annotation ({signature.return_annotation}) '
                 'which is not `float`.'
             )

@@ -56,7 +56,6 @@ class ResetFunctionRegistry(FunctionRegistry):
         return [rng]
 
     def check_signature(self, function: ResetFunction):
-        name = function.__name__
         signature = inspect.signature(function)
         (rng,) = self.get_protocol_parameters(signature)
 
@@ -67,7 +66,7 @@ class ResetFunctionRegistry(FunctionRegistry):
         ]:
             raise ValueError(
                 f'The `rng` argument ({rng.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 'should be allowed to be a keyword argument.'
             )
 
@@ -78,14 +77,14 @@ class ResetFunctionRegistry(FunctionRegistry):
         ]:
             warnings.warn(
                 f'The `rng` argument ({rng.name}) '
-                f'of a registered reward function ({name}) '
+                f'of a registered reward function ({function}) '
                 f'has an annotation ({rng.annotation}) '
                 'which is not `Optional[rnd.Generator]`.'
             )
 
         if signature.return_annotation not in [inspect.Parameter.empty, State]:
             warnings.warn(
-                f'The return type of a registered reset function ({name}) '
+                f'The return type of a registered reset function ({function}) '
                 f'has an annotation ({signature.return_annotation}) '
                 'which is not `State`.'
             )

@@ -46,7 +46,6 @@ class VisibilityFunctionRegistry(FunctionRegistry):
         return [grid, position, rng]
 
     def check_signature(self, function: VisibilityFunction):
-        name = function.__name__
         signature = inspect.signature(function)
         grid, position, rng = self.get_protocol_parameters(signature)
 
@@ -57,7 +56,7 @@ class VisibilityFunctionRegistry(FunctionRegistry):
         ]:
             raise ValueError(
                 f'The first argument ({grid.name}) '
-                f'of a registered visibility function ({name}) '
+                f'of a registered visibility function ({function}) '
                 'should be allowed to be a positional argument.'
             )
 
@@ -67,7 +66,7 @@ class VisibilityFunctionRegistry(FunctionRegistry):
         ]:
             raise ValueError(
                 f'The second argument ({position.name}) '
-                f'of a registered visibility function ({name}) '
+                f'of a registered visibility function ({function}) '
                 'should be allowed to be a positional argument.'
             )
 
@@ -78,7 +77,7 @@ class VisibilityFunctionRegistry(FunctionRegistry):
         ]:
             raise ValueError(
                 f'The `rng` argument ({rng.name}) '
-                f'of a registered visibility function ({name}) '
+                f'of a registered visibility function ({function}) '
                 'should be allowed to be a keyword argument.'
             )
 
@@ -86,7 +85,7 @@ class VisibilityFunctionRegistry(FunctionRegistry):
         if grid.annotation not in [inspect.Parameter.empty, Grid]:
             warnings.warn(
                 f'The first argument ({grid.name}) '
-                f'of a registered visibility function ({name}) '
+                f'of a registered visibility function ({function}) '
                 f'has an annotation ({grid.annotation}) '
                 'which is not `Grid`.'
             )
@@ -94,7 +93,7 @@ class VisibilityFunctionRegistry(FunctionRegistry):
         if position.annotation not in [inspect.Parameter.empty, Position]:
             warnings.warn(
                 f'The second argument ({position.name}) '
-                f'of a registered visibility function ({name}) '
+                f'of a registered visibility function ({function}) '
                 f'has an annotation ({position.annotation}) '
                 'which is not `Position`.'
             )
@@ -105,7 +104,7 @@ class VisibilityFunctionRegistry(FunctionRegistry):
         ]:
             warnings.warn(
                 f'The `rng` argument ({rng.name}) '
-                f'of a registered visibility function ({name}) '
+                f'of a registered visibility function ({function}) '
                 f'has an annotation ({rng.annotation}) '
                 'which is not `Optional[rnd.Generator]`.'
             )
@@ -115,7 +114,7 @@ class VisibilityFunctionRegistry(FunctionRegistry):
             np.ndarray,
         ]:
             warnings.warn(
-                f'The return type of a registered visibility function ({name}) '
+                f'The return type of a registered visibility function ({function}) '
                 f'has an annotation ({signature.return_annotation}) '
                 'which is not `np.ndarray`.'
             )
@@ -294,7 +293,7 @@ def stochastic_raytracing(  # TODO: add test
             light = light and grid[pos].transparent
 
     probs = np.nan_to_num(counts_num / counts_den)
-    visibility = probs <= rng.random(probs.shape)
+    visibility = rng.random(probs.shape) <= probs
     return visibility
 
 
