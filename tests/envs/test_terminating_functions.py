@@ -42,7 +42,7 @@ def make_wall_state() -> State:
     ],
 )
 def test_reach_exit(next_state: State, expected: bool):
-    assert reach_exit(None, None, next_state) == expected  # type: ignore
+    assert reach_exit(None, None, next_state) == expected
 
 
 @pytest.mark.parametrize(
@@ -57,7 +57,7 @@ def test_reach_exit(next_state: State, expected: bool):
     ],
 )
 def test_bump_into_wall(state: State, action: Action, expected: bool):
-    assert bump_into_wall(state, action, None) == expected  # type: ignore
+    assert bump_into_wall(state, action, None) == expected
 
 
 # TODO: incorporate this test with previous one
@@ -100,5 +100,5 @@ def test_factory_valid(name: str, kwargs):
     ],
 )
 def test_factory_invalid(name: str, kwargs, exception: Exception):
-    with pytest.raises(exception):  # type: ignore
+    with pytest.raises(exception):
         factory(name, **kwargs)

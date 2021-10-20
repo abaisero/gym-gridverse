@@ -128,7 +128,7 @@ def generate_images(data: Data[RecordingElement]) -> Iterator[np.ndarray]:
             'done': is_last,
         }
 
-        yield viewer.render(element, return_rgb_array=True, **hud_info)  # type: ignore
+        yield viewer.render(element, return_rgb_array=True, **hud_info)
 
     viewer.close()
 

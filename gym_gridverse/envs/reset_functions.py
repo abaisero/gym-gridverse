@@ -320,7 +320,7 @@ def keydoor(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
     # XXX: potential general function
     y_agent = rng.integers(1, shape.height - 2, endpoint=True)
     x_agent = rng.integers(1, x_wall - 1, endpoint=True)
-    state.agent.position = (y_agent, x_agent)  # type: ignore
+    state.agent.position = (y_agent, x_agent)
     state.agent.orientation = rng.choice(list(Orientation))
 
     return state
@@ -440,7 +440,7 @@ def crossing(
         state.grid[i, j] = Floor()
 
     # Place agent on top left
-    state.agent.position = (1, 1)  # type: ignore
+    state.agent.position = (1, 1)
     state.agent.orientation = Orientation.E
 
     return state
@@ -455,7 +455,7 @@ def teleport(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
     assert isinstance(state.grid[shape.height - 2, shape.width - 2], Exit)
 
     # Place agent on top left
-    state.agent.position = (1, 1)  # type: ignore
+    state.agent.position = (1, 1)
     state.agent.orientation = rng.choice([Orientation.E, Orientation.S])
 
     num_telepods = 2
@@ -474,7 +474,7 @@ def teleport(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
         state.grid[position] = telepod
 
     # Place agent on top left
-    state.agent.position = (1, 1)  # type: ignore
+    state.agent.position = (1, 1)
     state.agent.orientation = rng.choice([Orientation.E, Orientation.S])
 
     return state

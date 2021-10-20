@@ -350,5 +350,5 @@ def test_factory_valid(name: str, kwargs):
     ],
 )
 def test_factory_invalid(name: str, kwargs, exception: Exception):
-    with pytest.raises(exception):  # type: ignore
+    with pytest.raises(exception):
         factory(name, **kwargs)

@@ -263,5 +263,5 @@ def test_factory_valid(name: str):
     ],
 )
 def test_factory_invalid(name: str, exception: Exception):
-    with pytest.raises(exception):  # type: ignore
+    with pytest.raises(exception):
         factory(name)

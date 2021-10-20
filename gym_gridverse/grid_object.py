@@ -102,15 +102,15 @@ class NoneGridObject(GridObject):
         return 1
 
     @property
-    def transparent(self) -> bool:  # type: ignore
+    def transparent(self) -> bool:
         assert False
 
     @property
-    def can_be_picked_up(self) -> bool:  # type: ignore
+    def can_be_picked_up(self) -> bool:
         assert False
 
     @property
-    def blocks(self) -> bool:  # type: ignore
+    def blocks(self) -> bool:
         assert False
 
     def __repr__(self):
@@ -143,11 +143,11 @@ class Hidden(GridObject):
         return False
 
     @property
-    def can_be_picked_up(self) -> bool:  # type: ignore
+    def can_be_picked_up(self) -> bool:
         assert False
 
     @property
-    def blocks(self) -> bool:  # type: ignore
+    def blocks(self) -> bool:
         assert False
 
     def __repr__(self):
