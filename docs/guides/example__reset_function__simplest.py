@@ -9,10 +9,7 @@ from gym_gridverse.grid_object import Exit, Floor, Wall
 from gym_gridverse.state import State
 
 
-def simplest_reset(
-    *,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
-) -> State:
+def simplest_reset(*, rng: Optional[rnd.Generator] = None) -> State:
     """smallest possible room with exit right in front of agent"""
 
     # constructed the grid directly from objects

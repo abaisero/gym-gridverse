@@ -18,7 +18,7 @@ from gym_gridverse.state import State
 
 
 class GridWorld(InnerEnv):
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(
         self,
         domain_space: DomainSpace,
         reset_function: ResetFunction,

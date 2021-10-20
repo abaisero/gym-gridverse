@@ -27,16 +27,14 @@ def default_representation_fixture():
     """Creates an observation representation of 3 by 3"""
     height, width = 3, 3
 
-    max_obj_type = Key.type_index  # pylint: disable=no-member
+    max_obj_type = Key.type_index
     max_obj_state = Door.num_states()
     max_color_value = Color.BLUE.value
 
     return height, width, max_obj_type, max_obj_state, max_color_value
 
 
-def test_default_representation_space(
-    default_representation_fixture,
-):  # pylint: disable = redefined-outer-name
+def test_default_representation_space(default_representation_fixture):
     (
         height,
         width,
@@ -74,16 +72,14 @@ def test_default_representation_space(
     )
 
 
-def test_default_representation_convert(
-    default_representation_fixture,
-):  # pylint: disable = redefined-outer-name
+def test_default_representation_convert(default_representation_fixture):
     height, width, _, _, _ = default_representation_fixture
 
     agent = Agent(Position(0, 2), Orientation.N, Key(Color.RED))
     grid = Grid(height, width)
     grid[1, 1] = Door(Door.Status.CLOSED, Color.BLUE)
 
-    floor_index = Floor.type_index  # pylint: disable=no-member
+    floor_index = Floor.type_index
 
     # y, x, one-hot encoding with North (== 0)
     expected_agent_representation = [
@@ -144,16 +140,14 @@ def no_overlap_fixture():
     height, width = 4, 5
 
     # hard coded from above
-    max_object_type = Exit.type_index  # pylint: disable=no-member
+    max_object_type = Exit.type_index
     max_object_status = 0
     max_color_value = Color.GREEN.value
 
     return height, width, max_object_type, max_object_status, max_color_value
 
 
-def test_no_overlap_space(
-    no_overlap_fixture,
-):  # pylint: disable = redefined-outer-name
+def test_no_overlap_space(no_overlap_fixture):
     (
         height,
         width,
@@ -197,16 +191,13 @@ def test_no_overlap_space(
     )
 
 
-def test_no_overlap_convert(
-    no_overlap_fixture,
-):  # pylint: disable = redefined-outer-name
+def test_no_overlap_convert(no_overlap_fixture):
     height, width, max_object_type, max_object_status, _ = no_overlap_fixture
     first_item_status = max_object_type + 1
     first_item_color = max_object_type + max_object_status + 2
 
     state = empty(Shape(height, width), random_agent=True)
 
-    # pylint: disable=no-member
     expected_agent_state = np.array(
         [
             NoneGridObject.type_index,

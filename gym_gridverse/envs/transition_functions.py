@@ -134,7 +134,7 @@ def chain(
     action: Action,
     *,
     transition_functions: Sequence[TransitionFunction],
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+    rng: Optional[rnd.Generator] = None,
 ) -> None:
     """Run multiple transition functions in a row
 
@@ -210,7 +210,7 @@ def update_agent(
     state: State,
     action: Action,
     *,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+    rng: Optional[rnd.Generator] = None,
 ) -> None:
     """Simply updates the agents location and orientation based on action
 
@@ -240,7 +240,7 @@ def pickup_mechanics(
     state: State,
     action: Action,
     *,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+    rng: Optional[rnd.Generator] = None,
 ) -> None:
     """Implements the effect of the pickup and drop action
 
@@ -330,7 +330,7 @@ def _step_moving_obstacle(
 @transition_function_registry.register
 def step_moving_obstacles(
     state: State,
-    action: Action,  # pylint: disable=unused-argument
+    action: Action,
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> None:
@@ -358,7 +358,7 @@ def actuate_door(
     state: State,
     action: Action,
     *,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+    rng: Optional[rnd.Generator] = None,
 ) -> None:
     """Attempts to open door
 
@@ -403,7 +403,7 @@ def actuate_box(
     state: State,
     action: Action,
     *,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+    rng: Optional[rnd.Generator] = None,
 ) -> None:
     """Attempts to open door
 
@@ -435,7 +435,7 @@ def actuate_box(
 @transition_function_registry.register
 def step_telepod(
     state: State,
-    action: Action,  # pylint: disable=unused-argument
+    action: Action,
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> None:

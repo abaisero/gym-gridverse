@@ -11,7 +11,7 @@ def conic_visibility(
     grid: Grid,
     position: Position,
     *,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+    rng: Optional[rnd.Generator] = None,
 ) -> np.ndarray:
     """cone-shaped visibility, passes through objects"""
 

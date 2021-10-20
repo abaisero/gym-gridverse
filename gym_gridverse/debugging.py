@@ -5,7 +5,7 @@ _gv_debug: Optional[bool] = None
 
 
 def reset_gv_debug(debug: Optional[bool] = None) -> bool:
-    global _gv_debug  # pylint: disable=global-statement
+    global _gv_debug
     _gv_debug = debug if debug is not None else __debug__
     return _gv_debug
 

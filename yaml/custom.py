@@ -18,7 +18,7 @@ def multi_update_agent(
     action: Action,
     *,
     n: int,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+    rng: Optional[rnd.Generator] = None,
 ):
     for _ in range(n):
         update_agent(state, action)
@@ -27,8 +27,8 @@ def multi_update_agent(
 #  custom reward function
 @reward_function_registry.register
 def checkerboard(
-    state: State,  # pylint: disable=unused-argument
-    action: Action,  # pylint: disable=unused-argument
+    state: State,
+    action: Action,
     next_state: State,
     *,
     reward_even: float,

@@ -10,7 +10,7 @@ from gym_gridverse.state import State
 
 def creeping_walls(
     state: State,
-    action: Action,  # pylint: disable=unused-argument
+    action: Action,
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> None:

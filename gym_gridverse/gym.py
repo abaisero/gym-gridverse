@@ -113,9 +113,7 @@ class GymEnvironment(gym.Env):
         # TODO: test
         # only import rendering if actually rendering (avoid importing when
         # using library remotely using ssh on a display-less environment)
-        from gym_gridverse.rendering import (  # pylint: disable=import-outside-toplevel
-            GridVerseViewer,
-        )
+        from gym_gridverse.rendering import GridVerseViewer
 
         if mode not in ['human', 'human_state', 'human_observation']:
             super().render(mode)

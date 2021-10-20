@@ -39,7 +39,7 @@ class Group(rendering.Geom):
             geom.render()
 
 
-def make_grid(  # pylint: disable=too-many-locals
+def make_grid(
     start: Tuple[float, float],
     end: Tuple[float, float],
     num_rows: int,
@@ -120,7 +120,7 @@ def make_agent() -> rendering.Geom:
     return geom_agent
 
 
-def make_exit(exit_: Exit) -> rendering.Geom:  # pylint: disable=unused-argument
+def make_exit(exit_: Exit) -> rendering.Geom:
     pad = 0.8
     geom_flag = rendering.make_polyline(
         [(0.0, -pad), (0.0, pad), (pad, pad / 2), (0.0, 0.0)]
@@ -142,9 +142,7 @@ def make_exit(exit_: Exit) -> rendering.Geom:  # pylint: disable=unused-argument
     return Group(geoms)
 
 
-def make_hidden(  # pylint: disable=unused-argument
-    hidden: Hidden,
-) -> rendering.Geom:
+def make_hidden(hidden: Hidden) -> rendering.Geom:
 
     geom = rendering.make_polygon(
         [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)],
@@ -153,7 +151,7 @@ def make_hidden(  # pylint: disable=unused-argument
     return geom
 
 
-def make_wall(wall: Wall) -> rendering.Geom:  # pylint: disable=unused-argument
+def make_wall(wall: Wall) -> rendering.Geom:
     geom_background = rendering.make_polygon(
         [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)],
         filled=True,
@@ -177,9 +175,7 @@ def make_wall(wall: Wall) -> rendering.Geom:  # pylint: disable=unused-argument
     return Group([geom_background, *geom_tile_lines])
 
 
-def _make_door_open(  # pylint: disable=unused-argument
-    door: Door,
-) -> rendering.Geom:
+def _make_door_open(door: Door) -> rendering.Geom:
     pad = 0.8
 
     geoms_frame_background = [
@@ -211,9 +207,7 @@ def _make_door_open(  # pylint: disable=unused-argument
     return Group([geom_frame_background, geom_frame])
 
 
-def _make_door_closed_locked(  # pylint: disable=unused-argument
-    door: Door,
-) -> rendering.Geom:
+def _make_door_closed_locked(door: Door) -> rendering.Geom:
 
     geom_door = rendering.make_polygon(
         # [(-0.8, -0.8), (-0.8, 0.8), (0.8, 0.8), (0.8, -0.8)], filled=True,
@@ -241,9 +235,7 @@ def _make_door_closed_locked(  # pylint: disable=unused-argument
     return Group([geom_door, geom_frame, geom_keyhole])
 
 
-def _make_door_closed_unlocked(  # pylint: disable=unused-argument
-    door: Door,
-) -> rendering.Geom:
+def _make_door_closed_unlocked(door: Door) -> rendering.Geom:
 
     geom_door = rendering.make_polygon(
         # [(-0.8, -0.8), (-0.8, 0.8), (0.8, 0.8), (0.8, -0.8)], filled=True,
@@ -286,7 +278,7 @@ def make_capsule(length, width, *, filled=True):
     return geom
 
 
-def make_key(key: Key) -> rendering.Geom:  # pylint: disable=unused-argument
+def make_key(key: Key) -> rendering.Geom:
     # OUTLINE
 
     lw = 4
@@ -360,9 +352,7 @@ def make_key(key: Key) -> rendering.Geom:  # pylint: disable=unused-argument
     return Group([geom_outline, geom])
 
 
-def make_moving_obstacle(  # pylint: disable=unused-argument
-    obstacle: MovingObstacle,
-) -> rendering.Geom:
+def make_moving_obstacle(obstacle: MovingObstacle) -> rendering.Geom:
 
     pad = 0.8
     geom = rendering.make_polygon(
@@ -420,17 +410,13 @@ def make_beacon(beacon: Beacon) -> rendering.Geom:
     return Group([geom_circle, geom_boundary, geom_diag_1, geom_diag_2])
 
 
-def convert_pos(
-    position: Position,
-    *,
-    num_rows: int,
-) -> Tuple[float, float]:
+def convert_pos(position: Position, *, num_rows: int) -> Tuple[float, float]:
     return 2 * position.x, 2 * (num_rows - 1 - position.y)
 
 
 # TODO: clean this code;  this is barely working
 class _CustomViewer(rendering.Viewer):
-    def __init__(self, width, height):  # pylint: disable=super-init-not-called
+    def __init__(self, width, height):
         self.width = width
         self.height = height
         self.window = pyglet.window.Window(width=width, height=height)

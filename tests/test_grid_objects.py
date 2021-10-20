@@ -26,9 +26,7 @@ from gym_gridverse.grid_object import (
 from gym_gridverse.state import State
 
 
-class DummyNonRegisteredObject(  # pylint: disable=abstract-method
-    GridObject, register=False
-):
+class DummyNonRegisteredObject(GridObject, register=False):
     """Some dummy grid object that is _not_ registered"""
 
 
@@ -66,7 +64,6 @@ def test_hidden_registration():
 def test_grid_object_registration():
     """Test registration of type indices"""
 
-    # pylint: disable=no-member
     assert len(GridObject.object_types) == 11
     unittest.TestCase().assertCountEqual(
         [

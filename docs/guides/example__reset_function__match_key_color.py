@@ -10,10 +10,7 @@ from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
 
 
-def match_key_color(
-    *,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
-) -> State:
+def match_key_color(*, rng: Optional[rnd.Generator] = None) -> State:
     """the agent has to pick the correct key to open a randomly colored door"""
 
     rng = get_gv_rng_if_none(rng)  # necessary to use rng object!

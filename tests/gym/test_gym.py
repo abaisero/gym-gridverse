@@ -58,7 +58,7 @@ def test_gym_seed(env_id: str, seed: Optional[int]):
 def test_gym_control_loop():
     env = gym.make('GridVerse-Empty-5x5-v0')
 
-    env.reset()  # pylint: disable=unused-variable
+    env.reset()
     for _ in range(10):
         action = env.action_space.sample()
         _, _, done, _ = env.step(action)

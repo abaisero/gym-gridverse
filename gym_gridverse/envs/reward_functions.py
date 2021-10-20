@@ -173,8 +173,8 @@ def reduce_sum(
 
 @reward_function_registry.register
 def overlap(
-    state: State,  # pylint: disable=unused-argument
-    action: Action,  # pylint: disable=unused-argument
+    state: State,
+    action: Action,
     next_state: State,
     *,
     object_type: Type[GridObject],
@@ -203,9 +203,9 @@ def overlap(
 
 @reward_function_registry.register
 def living_reward(
-    state: State,  # pylint: disable=unused-argument
-    action: Action,  # pylint: disable=unused-argument
-    next_state: State,  # pylint: disable=unused-argument
+    state: State,
+    action: Action,
+    next_state: State,
     *,
     reward: float = -1.0,
 ) -> float:
@@ -281,8 +281,8 @@ def bump_moving_obstacle(
 
 @reward_function_registry.register
 def proportional_to_distance(
-    state: State,  # pylint: disable=unused-argument
-    action: Action,  # pylint: disable=unused-argument
+    state: State,
+    action: Action,
     next_state: State,
     *,
     distance_function: DistanceFunction = Position.manhattan_distance,
@@ -315,7 +315,7 @@ def proportional_to_distance(
 @reward_function_registry.register
 def getting_closer(
     state: State,
-    action: Action,  # pylint: disable=unused-argument
+    action: Action,
     next_state: State,
     *,
     distance_function: DistanceFunction = Position.manhattan_distance,
@@ -393,7 +393,7 @@ def dijkstra(
 @reward_function_registry.register
 def getting_closer_shortest_path(
     state: State,
-    action: Action,  # pylint: disable=unused-argument
+    action: Action,
     next_state: State,
     *,
     object_type: Type[GridObject],
@@ -444,7 +444,7 @@ def getting_closer_shortest_path(
 def bump_into_wall(
     state: State,
     action: Action,
-    next_state: State,  # pylint: disable=unused-argument
+    next_state: State,
     *,
     reward: float = -1.0,
 ):
@@ -520,7 +520,7 @@ def actuate_door(
 @reward_function_registry.register
 def pickndrop(
     state: State,
-    action: Action,  # pylint: disable=unused-argument
+    action: Action,
     next_state: State,
     *,
     object_type: Type[GridObject],
@@ -553,8 +553,8 @@ def pickndrop(
 
 @reward_function_registry.register
 def reach_exit_memory(
-    state: State,  # pylint: disable=unused-argument
-    action: Action,  # pylint: disable=unused-argument
+    state: State,
+    action: Action,
     next_state: State,
     *,
     reward_good: float = 1.0,

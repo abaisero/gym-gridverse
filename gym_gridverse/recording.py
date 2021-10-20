@@ -177,7 +177,7 @@ def record(
 def record_images(
     filenames: Iterable[str],
     images: Sequence[np.ndarray],
-    **kwargs,  # pylint: disable=unused-argument
+    **kwargs,
 ):
     """Create image files from input images"""
 
@@ -197,7 +197,7 @@ def record_gif(
     loop: int = 0,
     fps: float = 2.0,
     duration: Optional[float] = None,
-    **kwargs,  # pylint: disable=unused-argument
+    **kwargs,
 ):
     """Create a gif file from input images"""
 
@@ -225,7 +225,7 @@ def record_mp4(
     *,
     fps: float = 2.0,
     duration: Optional[float] = None,
-    **kwargs,  # pylint: disable=unused-argument
+    **kwargs,
 ):
     """Create an mp4 file from input images"""
 

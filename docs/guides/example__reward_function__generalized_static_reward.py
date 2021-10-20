@@ -6,7 +6,7 @@ from gym_gridverse.state import State
 
 def generalized_static_reward(
     state: State,
-    action: Action,  # pylint: disable=unused-argument
+    action: Action,
     next_state: State,
     *,
     reward_if_equals: float = -1.0,

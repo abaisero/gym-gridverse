@@ -107,7 +107,7 @@ def make_moving_obstacle_state():
     ],
 )
 def test_rotate_agent(
-    agent: Agent,  # pylint: disable=redefined-outer-name
+    agent: Agent,
     actions: Sequence[Action],
     expected: Orientation,
 ):

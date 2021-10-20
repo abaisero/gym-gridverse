@@ -5,7 +5,7 @@ from gym_gridverse.state import State
 
 def actual_rotation_reward(
     state: State,
-    action: Action,  # pylint: disable=unused-argument
+    action: Action,
     next_state: State,
     *,
     reward_clockwise: float,

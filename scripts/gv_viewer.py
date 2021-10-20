@@ -69,9 +69,7 @@ class KeyboardHandler:
     def __init__(self):
         self._key = None
 
-    def on_key_press(  # pylint: disable=unused-argument
-        self, symbol, modifiers
-    ):
+    def on_key_press(self, symbol, modifiers):
         self._key = symbol
 
     def get_command(self) -> Command:
@@ -128,8 +126,6 @@ def set_observation_function(
         observation_function: observation function
     """
 
-    # pylint: disable=protected-access
-
     # XXX: hack
     env._functional_observation = observation_function
 
@@ -137,7 +133,7 @@ def set_observation_function(
     env._observation = None
 
 
-def main():  # pylint: disable=too-many-locals
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('env_path', help='env YAML file')
     parser.add_argument(

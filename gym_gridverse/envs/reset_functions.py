@@ -144,7 +144,7 @@ def empty(
 
 
 @reset_function_registry.register
-def rooms(  # pylint: disable=too-many-locals
+def rooms(
     shape: Shape,
     layout: Tuple[int, int],
     *,
@@ -327,7 +327,7 @@ def keydoor(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
 
 
 @reset_function_registry.register
-def crossing(  # pylint: disable=too-many-locals
+def crossing(
     shape: Shape,
     num_rivers: int,
     object_type: Type[GridObject],

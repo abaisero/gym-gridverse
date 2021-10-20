@@ -98,7 +98,7 @@ html_logo = '../images/logo.svg'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-import sphinx_rtd_theme  # isort:skip pylint: disable=unused-import,wrong-import-position
+import sphinx_rtd_theme  # isort:skip
 
 # html_theme = 'classic'
 # html_theme = 'alabaster'

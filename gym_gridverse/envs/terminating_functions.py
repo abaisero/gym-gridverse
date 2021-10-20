@@ -189,8 +189,8 @@ def reduce_all(
 
 @terminating_function_registry.register
 def overlap(
-    state: State,  # pylint: disable=unused-argument
-    action: Action,  # pylint: disable=unused-argument
+    state: State,
+    action: Action,
     next_state: State,
     *,
     object_type: Type[GridObject],
@@ -246,7 +246,7 @@ def bump_moving_obstacle(
 def bump_into_wall(
     state: State,
     action: Action,
-    next_state: State,  # pylint: disable=unused-argument
+    next_state: State,
 ) -> bool:
     """Terminating condition for Agent bumping into a wall
 

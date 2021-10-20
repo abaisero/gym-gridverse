@@ -19,7 +19,7 @@ def rooklike_movement(
     state: State,
     action: Action,
     *,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+    rng: Optional[rnd.Generator] = None,
 ) -> None:
     """moves the agent in a rooklike fashion, until it hits an obstacle"""
 

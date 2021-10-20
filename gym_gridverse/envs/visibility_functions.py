@@ -125,10 +125,7 @@ visibility_function_registry = VisibilityFunctionRegistry()
 
 @visibility_function_registry.register
 def fully_transparent(
-    grid: Grid,
-    position: Position,  # pylint: disable = unused-argument
-    *,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable = unused-argument
+    grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
 ) -> np.ndarray:
 
     return np.ones((grid.height, grid.width), dtype=bool)
@@ -136,10 +133,7 @@ def fully_transparent(
 
 @visibility_function_registry.register
 def partially_occluded(
-    grid: Grid,
-    position: Position,
-    *,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+    grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
 ) -> np.ndarray:
 
     if position.y != grid.height - 1:
@@ -206,10 +200,7 @@ def partially_occluded(
 
 @visibility_function_registry.register
 def minigrid(
-    grid: Grid,
-    position: Position,
-    *,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable = unused-argument
+    grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
 ) -> np.ndarray:
 
     if position.y != grid.height - 1:
@@ -245,7 +236,7 @@ def raytracing(
     *,
     absolute_counts: bool = True,
     threshold: Union[int, float] = 1,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+    rng: Optional[rnd.Generator] = None,
 ) -> np.ndarray:
 
     area = Area((0, grid.height - 1), (0, grid.width - 1))

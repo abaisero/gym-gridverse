@@ -14,7 +14,7 @@ def frontal_line_of_sight(
     state: State,
     *,
     observation_space: ObservationSpace,
-    rng: Optional[rnd.Generator] = None,  # pylint: disable=unused-argument
+    rng: Optional[rnd.Generator] = None,
 ) -> Observation:
     """only tiles in front of the agent can be seen"""
 
