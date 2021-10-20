@@ -19,8 +19,7 @@ requirements = [
     'numpy',
     'pyyaml',
     'schema',
-    'termcolor',
-    'typing-extensions',  # python3.7 compatibility
+    'typing-extensions',
 ]
 
 setup(
