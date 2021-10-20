@@ -1,7 +1,7 @@
 import argparse
 import json
 
-from gym_gridverse.envs.yaml.schemas import env_schema
+from gym_gridverse.envs.yaml.schemas import schemas
 
 
 def main():
@@ -9,7 +9,7 @@ def main():
     parser.add_argument('--indent', type=int, default=4)
     args = parser.parse_args()
 
-    json_schema = env_schema().json_schema('TO-BE-REMOVED')
+    json_schema = schemas['env'].json_schema('TO-BE-REMOVED')
     # remove mandatory $id field ('TO-BE-REMOVED')
     del json_schema['$id']
 
