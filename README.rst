@@ -6,8 +6,8 @@ gym-gridverse
 .. image:: https://img.shields.io/pypi/v/gym-gridverse.svg
         :target: https://pypi.python.org/pypi/gym-gridverse
 
-.. image:: https://img.shields.io/travis/abaisero/gym_gridverse.svg
-        :target: https://travis-ci.com/abaisero/gym_gridverse
+.. image:: https://github.com/abaisero/gym-gridverse/actions/workflows/build.yml/badge.svg
+        :target: https://github.com/abaisero/gym-gridverse/actions/workflows/build.yml
 
 .. image:: https://readthedocs.org/projects/gym-gridverse/badge/?version=latest
         :target: https://gym-gridverse.readthedocs.io/en/latest/?badge=latest
