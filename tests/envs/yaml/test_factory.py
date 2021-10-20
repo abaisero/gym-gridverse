@@ -8,8 +8,7 @@ import gym_gridverse.envs.yaml.factory as yaml_factory
 from gym_gridverse.action import Action
 from gym_gridverse.envs import InnerEnv
 from gym_gridverse.geometry import Shape
-from gym_gridverse.grid_object import Color, GridObject
-from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
+from gym_gridverse.spaces import ActionSpace
 
 
 @pytest.mark.parametrize(

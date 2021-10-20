@@ -10,7 +10,7 @@ from gym_gridverse.grid_object import Exit, GridObject, MovingObstacle, Wall
 from gym_gridverse.state import State
 from gym_gridverse.utils.functions import (
     checkraise_kwargs,
-    get_custom_function,
+    import_custom_function,
     is_custom_function,
     select_kwargs,
 )

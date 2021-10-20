@@ -10,7 +10,7 @@ from gym_gridverse.representations.observation_representations import (
     DefaultObservationRepresentation,
 )
 from gym_gridverse.representations.state_representations import (
-    DefaultStateRepresentation
+    DefaultStateRepresentation,
 )
 
 
