@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       python-version: "3.10"
+    strategy:
+      matrix:
+        tox-env: ["flake8", "isort", "black"]
 
     steps:
     - uses: actions/checkout@v2
@@ -25,7 +28,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install tox tox-gh-actions
     - name: Lint with tox
-      run: tox -e flake8,isort,black
+      run: tox -e ${{ matrix.tox-env }}
 
   test:
     runs-on: ubuntu-latest
