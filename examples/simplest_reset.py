@@ -3,13 +3,15 @@ from typing import Optional
 import numpy.random as rnd
 
 from gym_gridverse.agent import Agent
+from gym_gridverse.envs.reset_functions import reset_function_registry
 from gym_gridverse.geometry import Orientation
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Exit, Floor, Wall
 from gym_gridverse.state import State
 
 
-def simplest_reset(*, rng: Optional[rnd.Generator] = None) -> State:
+@reset_function_registry.register
+def simplest(*, rng: Optional[rnd.Generator] = None) -> State:
     """smallest possible room with exit right in front of agent"""
 
     # constructed the grid directly from objects

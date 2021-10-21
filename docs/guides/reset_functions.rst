@@ -1,13 +1,12 @@
-================
+===============
 Reset Functions
-================
+===============
 
-In this section we describe the reset function protocol, the reset functions
-provided in :py:mod:`~gym_gridverse.envs.reset_functions`, and how to write
-your own custom reset functions.
+In this section we describe the reset function protocol, the reset function
+registry, and how to write your own custom reset functions.
 
 The ResetFunction Protocol
-===========================
+==========================
 
 A reset function is a generative function which represents a (stochastic)
 distribution over initial states.  Using the :py:mod:`typing` standard library,
@@ -26,26 +25,27 @@ the reset function type is defined as a :py:class:`typing.Protocol` with a
     or are binded to specific values later on, e.g., using
     :py:func:`functools.partial`.
 
-Provided Reset Functions
-=========================
+The Reset Function Registry
+===========================
 
 The :py:mod:`~gym_gridverse.envs.reset_functions` module contains some
-predefined reset functions, among which:
+pre-defined reset functions and the
+:py:data:`~gym_gridverse.envs.reset_functions.reset_function_registry`, a
+dictionary-like object through which to register and retrieve reset functions.
+Reset functions are registered using the registry's
+:py:meth:`~gym_gridverse.envs.reset_functions.ResetFunctionRegistry.register`
+method, which can be used as a decorator (see :ref:`Custom Reset Functions`).
 
-- :py:func:`~gym_gridverse.envs.reset_functions.reset_empty` -- a
-  room with a :py:class:`~gym_gridverse.grid_object.Exit`.
+.. automethod:: gym_gridverse.envs.reset_functions.ResetFunctionRegistry.register
+    :noindex:
 
-- :py:func:`~gym_gridverse.envs.reset_functions.reset_rooms` --
-  connected rooms with a :py:class:`~gym_gridverse.grid_object.Exit`.
+As a dictionary,
+:py:data:`~gym_gridverse.envs.reset_functions.reset_function_registry` has a
+:py:meth:`~gym_gridverse.envs.reset_functions.ResetFunctionRegistry.keys`
+method which returns the names of registered functions.
 
-- :py:func:`~gym_gridverse.envs.reset_functions.reset_keydoor` -- two
-  rooms connected by a locked :py:class:`~gym_gridverse.grid_object.Door`; on
-  one side is a :py:class:`~gym_gridverse.grid_object.Key`, and on the other
-  side a :py:class:`~gym_gridverse.grid_object.Exit`.
-    
-- :py:func:`~gym_gridverse.envs.reset_functions.reset_dynamic_obstacles`
-  -- a room with a :py:class:`~gym_gridverse.grid_object.Exit` and many
-  :py:class:`~gym_gridverse.grid_object.MovingObstacle`.
+.. automethod:: gym_gridverse.envs.observation_functions.ResetFunctionRegistry.keys
+    :noindex:
 
 Custom Reset Functions
 ======================
@@ -72,11 +72,14 @@ custom reset function:
 Practical Example 1
 -------------------
 
+.. note::
+  The examples shown here can be found in the ``examples/`` folder.
+
 In this example, we are going to write an extremely simple reset function in
 which the agent is positioned in front of a
 :py:class:`~gym_gridverse.grid_object.Exit`.
 
-.. literalinclude:: example__reset_function__simplest.py
+.. literalinclude:: /../examples/simplest_reset.py
   :language: python
 
 Practical Example 2
@@ -88,5 +91,5 @@ which the agent needs to pick up the correctly colored
 :py:class:`~gym_gridverse.grid_object.Door` and reach the
 :py:class:`~gym_gridverse.grid_object.Exit`.
 
-.. literalinclude:: example__reset_function__match_key_color.py
+.. literalinclude:: /../examples/choose_key_reset.py
   :language: python

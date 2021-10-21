@@ -3,8 +3,7 @@ Transition Functions
 ====================
 
 In this section we describe the transition function protocol, the transition
-functions provided in :py:mod:`~gym_gridverse.envs.transition_functions`, and
-how to write your own custom transition functions.
+function registry, and how to write your own custom transition functions.
 
 The TransitionFunction Protocol
 ===============================
@@ -28,26 +27,29 @@ standard library, the transition function type is defined as a
     values, or are binded to specific values later on, e.g., using
     :py:func:`functools.partial`.
 
-Provided Transition Functions
-=============================
+The Transition Function Registry
+================================
 
 The :py:mod:`~gym_gridverse.envs.transition_functions` module contains some
-predefined transition functions, among which:
+pre-defined transition functions and the
+:py:data:`~gym_gridverse.envs.transition_functions.transition_function_registry`,
+a dictionary-like object through which to register and retrieve transition
+functions.  Transition functions are registered using the registry's
+:py:meth:`~gym_gridverse.envs.transition_functions.TransitionFunctionRegistry.register`
+method, which can be used as a decorator (see :ref:`Custom Transition
+Functions`).
 
-- :py:func:`~gym_gridverse.envs.transition_functions.update_agent` -- moves and
-  turns the agent.
+.. automethod:: gym_gridverse.envs.transition_functions.TransitionFunctionRegistry.register
+    :noindex:
 
-- :py:func:`~gym_gridverse.envs.transition_functions.step_moving_obstacles` -- executes
-  object dynamics.
+As a dictionary,
+:py:data:`~gym_gridverse.envs.transition_functions.transition_function_registry`
+has a
+:py:meth:`~gym_gridverse.envs.transition_functions.TransitionFunctionRegistry.keys`
+method which returns the names of registered functions.
 
-- :py:func:`~gym_gridverse.envs.transition_functions.step_telepod` -- executes
-  object dynamics.
-
-- :py:func:`~gym_gridverse.envs.transition_functions.actuate_door` --
-  executes object actuation.
-
-- :py:func:`~gym_gridverse.envs.transition_functions.pickup_mechanics` -- picks
-  up and drops down objects.
+.. automethod:: gym_gridverse.envs.transition_functions.TransitionFunctionRegistry.keys
+    :noindex:
 
 Custom Transition Functions
 ===========================
@@ -78,10 +80,13 @@ rules;  A custom transition function:
 Practical Example 1
 -------------------
 
+.. note::
+  The examples shown here can be found in the ``examples/`` folder.
+
 In this example, we are going to write a transition function in which at every
 time-step one of the Floor tiles turns into a Wall tile.
 
-.. literalinclude:: example__transition_function__creeping_walls.py
+.. literalinclude:: /../examples/creeping_walls_transition.py
   :language: python
 
 Practical Example 2
@@ -90,7 +95,7 @@ Practical Example 2
 In this example, we are going to write a transition function in which the agent
 moves until it hits an obstacle.
 
-.. literalinclude:: example__transition_function__rooklike_movement.py
+.. literalinclude:: /../examples/chessrook_movement_transition.py
   :language: python
 
 Practical Example 3
@@ -99,5 +104,5 @@ Practical Example 3
 In this example, we are going to write a transition function which randomizes
 the execution of another transition function.
 
-.. literalinclude:: example__transition_function__random_transition.py
+.. literalinclude:: /../examples/random_transition.py
   :language: python

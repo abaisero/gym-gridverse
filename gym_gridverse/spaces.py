@@ -176,12 +176,13 @@ class ObservationSpace:
             self.area.height - 1, self.area.width // 2
         )
 
+        # TODO: We don't need to make assumptions about the agent position
+
     def contains(self, observation: Observation) -> bool:
         """True if the observation satisfies the observation-space"""
         have_same_shape = observation.grid.shape == self.grid_shape
         y_in_grid = 0 <= observation.agent.position.y < self.area.height
         x_in_grid = 0 <= observation.agent.position.x < self.area.width
-        orientation_is_correct = observation.agent.orientation == Orientation.N
         agent_obj_type_in_space = (
             type(observation.agent.obj) in self._agent_object_types
         )
@@ -199,7 +200,6 @@ class ObservationSpace:
             grid_objs_colors_in_space,
             y_in_grid,
             x_in_grid,
-            orientation_is_correct,
             agent_obj_type_in_space,
             agent_obj_color_in_space,
         ]

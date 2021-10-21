@@ -3,17 +3,19 @@ from typing import Optional
 import numpy as np
 import numpy.random as rnd
 
+from gym_gridverse.envs.visibility_functions import visibility_function_registry
 from gym_gridverse.geometry import Position
 from gym_gridverse.grid import Grid
 
 
-def conic_visibility(
+@visibility_function_registry.register
+def conic(
     grid: Grid,
     position: Position,
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> np.ndarray:
-    """cone-shaped visibility, passes through objects"""
+    """cone-shaped visibility, passes through non-transparent objects"""
 
     # initialize visibility matrix to False
     visibility = np.zeros(grid.shape, dtype=bool)

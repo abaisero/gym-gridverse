@@ -3,8 +3,7 @@ Visibility Functions
 ====================
 
 In this section we describe the visibility function protocol, the visibility
-functions provided in :py:mod:`~gym_gridverse.envs.visibility_functions`, and
-how to write your own custom visibility functions.
+function registry, and how to write your own custom visibility functions.
 
 The VisibilityFunction Protocol
 ===============================
@@ -28,24 +27,29 @@ visible or not.
   long as** the extra arguments either have default values, or are binded to
   specific values later on, e.g., using :py:func:`functools.partial`.
 
-Provided Visibility Functions
-=============================
+The Visibility Function Registry
+================================
 
 The :py:mod:`~gym_gridverse.envs.visibility_functions` module contains some
-predefined visibility functions, among which:
+pre-defined visibility functions and the
+:py:data:`~gym_gridverse.envs.visibility_functions.visibility_function_registry`,
+a dictionary-like object through which to register and retrieve visibility
+functions.  Visibility functions are registered using the registry's
+:py:meth:`~gym_gridverse.envs.visibility_functions.VisibilityFunctionRegistry.register`
+method, which can be used as a decorator (see :ref:`Custom Visibility
+Functions`).
 
-- :py:func:`~gym_gridverse.envs.visibility_functions.full_visibility` -- every
-  tile is visible; used to implement
-  :py:func:`~gym_gridverse.envs.observation_functions.full_observation`.
+.. automethod:: gym_gridverse.envs.visibility_functions.VisibilityFunctionRegistry.register
+    :noindex:
 
-- :py:func:`~gym_gridverse.envs.visibility_functions.minigrid_visibility` --
-  the visibility used by the :py:mod:`gym_minigrid` package; used to implement
-  :py:func:`~gym_gridverse.envs.observation_functions.minigrid_observation`.
+As a dictionary,
+:py:data:`~gym_gridverse.envs.visibility_functions.visibility_function_registry`
+has a
+:py:meth:`~gym_gridverse.envs.visibility_functions.VisibilityFunctionRegistry.keys`
+method which returns the names of registered functions.
 
-- :py:func:`~gym_gridverse.envs.visibility_functions.raytracing_visibility` --
-  visibility is determined by direct unobstructed line of sight from the
-  agent's tile; used to implement
-  :py:func:`~gym_gridverse.envs.observation_functions.raytracing_observation`.
+.. automethod:: gym_gridverse.envs.visibility_functions.VisibilityFunctionRegistry.keys
+    :noindex:
 
 Custom Visibility Functions
 ===========================
@@ -74,11 +78,14 @@ rules;  A custom visibility function:
 Practical Example 1
 -------------------
 
+.. note::
+  The examples shown here can be found in the ``examples/`` folder.
+
 In this example, we are going to write a rather questionable visibility
 function in which the visibility of every other tile is determined by a coin
 flip (ignoring tile transparency).
 
-.. literalinclude:: example__visibility_function__coinflip_visibility.py
+.. literalinclude:: /../examples/coinflip_visibility.py
   :language: python
 
 Practical Example 2
@@ -88,5 +95,5 @@ In this example, we are going to write a visibility function in which the
 agent's field of view expands like a 90° angle cone (ignoring tile
 transparency).
 
-.. literalinclude:: example__visibility_function__conic_visibility.py
+.. literalinclude:: /../examples/conic_visibility.py
   :language: python

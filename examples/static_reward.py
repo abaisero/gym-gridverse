@@ -1,8 +1,10 @@
 from gym_gridverse.action import Action
+from gym_gridverse.envs.reward_functions import reward_function_registry
 from gym_gridverse.state import State
 
 
-def static_reward(
+@reward_function_registry.register
+def static(
     state: State,
     action: Action,
     next_state: State,

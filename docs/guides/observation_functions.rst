@@ -3,8 +3,7 @@ Observation Functions
 =====================
 
 In this section we describe the observation function protocol, the observation
-functions provided in :py:mod:`~gym_gridverse.envs.observation_functions`, and
-how to write your own custom observation functions.
+function registry, and how to write your own custom observation functions.
 
 The ObservationFunction Protocol
 ================================
@@ -27,38 +26,38 @@ standard library, the observation function type is defined as a
     values, or are binded to specific values later on, e.g., using
     :py:func:`functools.partial`.
 
-Provided Observation Functions
-==============================
+The Observation Function Registry
+=================================
 
 The :py:mod:`~gym_gridverse.envs.observation_functions` module contains some
-predefined observation functions, among which:
+pre-defined observation functions and the
+:py:data:`~gym_gridverse.envs.observation_functions.observation_function_registry`,
+a dictionary-like object through which to register and retrieve observation
+functions.  Observation functions are registered using the registry's
+:py:meth:`~gym_gridverse.envs.observation_functions.ObservationFunctionRegistry.register`
+method, which can be used as a decorator (see :ref:`Custom Observation
+Functions`).
 
-- :py:func:`~gym_gridverse.envs.observation_functions.from_visibility` -- uses
-  a :py:data:`~gym_gridverse.envs.visibility_functions.VisibilityFunction` to
-  determine which tiles are visible.
+.. automethod:: gym_gridverse.envs.observation_functions.ObservationFunctionRegistry.register
+    :noindex:
 
-- :py:data:`~gym_gridverse.envs.observation_functions.full_observation` --
-  every tile is visible;  implemented via
-  :py:func:`~gym_gridverse.envs.visibility_functions.full_visibility`.
+As a dictionary,
+:py:data:`~gym_gridverse.envs.observation_functions.observation_function_registry`
+has a
+:py:meth:`~gym_gridverse.envs.observation_functions.ObservationFunctionRegistry.keys`
+method which returns the names of registered functions.
 
-- :py:data:`~gym_gridverse.envs.observation_functions.minigrid_observation` --
-  the observation used by the :py:mod:`gym_minigrid` package;  implemented via
-  :py:func:`~gym_gridverse.envs.visibility_functions.minigrid_visibility`.
-
-- :py:func:`~gym_gridverse.envs.observation_functions.raytracing_observation`
-  -- observation is determined by direct unobstructed line of sight from the
-  agent's tile;  implemented via
-  :py:func:`~gym_gridverse.envs.visibility_functions.raytracing_visibility`.
+.. automethod:: gym_gridverse.envs.observation_functions.ObservationFunctionRegistry.keys
+    :noindex:
 
 Custom Observation Functions
 ============================
 
 .. note::
-  While writing your own observation function directly is indeed a
-  possibility, the preferred way to implement new types of observations is by
-  writing a custom
-  :py:data:`~gym_gridverse.envs.visibility_functions.VisibilityFunction` and
-  using it with the
+  While writing your own observation function directly is indeed a possibility,
+  the most common way to implement new observation functions is by writing a
+  custom :py:data:`~gym_gridverse.envs.visibility_functions.VisibilityFunction`
+  and using it with the
   :py:func:`~gym_gridverse.envs.observation_functions.from_visibility`
   observation function.
 
@@ -86,9 +85,12 @@ rules;  A custom observation function:
 Practical Example
 -----------------
 
-In this example, we are going to write an observation function which will
-restrict the agent's view to only the tiles in front, and only until the first
-non-transparent tile.
+.. note::
+  The examples shown here can be found in the ``examples/`` folder.
 
-.. literalinclude:: example__observation_function__frontal_line_of_sight.py
+In this example, we are going to write an observation function which simulates
+a satellite view of the agent, i.e., a view from the top (being able to see
+through walls), and with the agent being off-center in each observation.
+
+.. literalinclude:: /../examples/satellite_observation.py
   :language: python
