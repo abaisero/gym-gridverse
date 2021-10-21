@@ -38,7 +38,7 @@ The following `GridObjects` are provided:
 
 * :code:`Floor` -- An empty tile.
 * :code:`Wall` -- An opaque wall.
-* :code:`Goal` -- A goal tile.
+* :code:`Exit` -- An exit tile.
 * :code:`Door` -- A door which can be opened/closed.
 * :code:`Key` -- An item to open a locked `Door`.
 * :code:`MovingObstacle` -- An obstacle which moves autonomously.
@@ -58,7 +58,7 @@ The following reward functions are provided:
 
 * :code:`reduce_sum` -- A sum of other rewards
 * :code:`living_reward` -- A constant reward
-* :code:`reach_goal` -- A reward for reaching a Goal.
+* :code:`reach_exit` -- A reward for reaching an Exit.
 * :code:`overlap` -- A reward for standing on/off a GridObject type.
 * :code:`proportional_to_distance` -- Reward based on distance from a GridObject type.
 * :code:`getting_closer` -- Rewards for moving closer to/further from a GridObject type.
@@ -78,7 +78,7 @@ The following terminating functions are provided:
 * :code:`reduce_any` -- Terminates if any of the given terminating functions are satisfied.
 * :code:`reduce_all` -- Terminates if all of the given terminating functions are satisfied.
 * :code:`overlap` -- Terminates if the agent is standing on a GridObject type.
-* :code:`reach_goal` -- Terminates if the agent reaches a Goal.
+* :code:`reach_exit` -- Terminates if the agent reaches an Exit.
 * :code:`bump_moving_obstacle` -- Terminates if the agent bumps into a MovingObstacle.
 * :code:`bump_into_wall` -- Terminates if the agent bumps into a Wall.
 
