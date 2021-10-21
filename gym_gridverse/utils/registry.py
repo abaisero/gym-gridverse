@@ -28,6 +28,35 @@ class FunctionRegistry(UserDict, metaclass=abc.ABCMeta):
         assert False
 
     def register(self, function=None, *, name: Optional[str] = None):
+        """Register a function in this registry.
+
+        This method can be either called directly or used as a decorator.
+        Before registration, the function signature is checked to make sure it
+        matches the appropriate protocol, and the name is checked to avoid
+        conflicts.  If `name` is not given, `function.__name__` is used.
+
+        Usage:
+
+            >>> @registry.register
+            >>> def function_1(...):
+                    ...
+
+            >>> @registry.register(name='alt_name_2')
+            >>> def function_2(...):
+                    ...
+
+            >>> def function_3(...):
+                    ...
+            >>> registry.register(function_3)
+
+            >>> def function_4(...):
+                    ...
+            >>> registry.register(function_4, name='alt_name_4')
+
+        Args:
+            function: (`Callable, optional`)
+            name: (`str, optional`)
+        """
 
         # check inputs
         checkraise(
