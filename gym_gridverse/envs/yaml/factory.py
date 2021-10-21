@@ -20,11 +20,11 @@ from gym_gridverse.geometry import (
     distance_function_factory,
 )
 from gym_gridverse.grid_object import Color, GridObject, factory_type
-from gym_gridverse.space_builders import (
+from gym_gridverse.spaces import ActionSpace, DomainSpace
+from gym_gridverse.utils.space_builders import (
     ObservationSpaceBuilder,
     StateSpaceBuilder,
 )
-from gym_gridverse.spaces import ActionSpace, DomainSpace
 
 
 def process_reserved_keys(data):
