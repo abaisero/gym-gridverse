@@ -48,7 +48,11 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 lint: ## check style with flake8
-	flake8 gym_gridverse tests
+	flake8 gym_gridverse tests scripts examples
+
+format: ## run code formatters
+	black gym_gridverse tests scripts examples
+	isort gym_gridverse tests scripts examples
 
 test: ## run tests quickly with the default Python
 	pytest
