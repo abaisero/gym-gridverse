@@ -298,10 +298,10 @@ def test_observation_space_contains__colors(
     'orientation,orientation_ok',
     [
         (Orientation.N, True),
-        # invalid
-        (Orientation.S, False),
-        (Orientation.E, False),
-        (Orientation.W, False),
+        # all orientations are valid now
+        (Orientation.S, True),
+        (Orientation.E, True),
+        (Orientation.W, True),
     ],
 )
 def test_observation_space_contains__agent_pose(
