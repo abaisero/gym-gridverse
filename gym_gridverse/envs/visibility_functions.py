@@ -121,6 +121,7 @@ class VisibilityFunctionRegistry(FunctionRegistry):
 
 
 visibility_function_registry = VisibilityFunctionRegistry()
+"""Visibility function registry"""
 
 
 @visibility_function_registry.register

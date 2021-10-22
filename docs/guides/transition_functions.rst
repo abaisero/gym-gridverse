@@ -34,22 +34,14 @@ The :py:mod:`~gym_gridverse.envs.transition_functions` module contains some
 pre-defined transition functions and the
 :py:data:`~gym_gridverse.envs.transition_functions.transition_function_registry`,
 a dictionary-like object through which to register and retrieve transition
-functions.  Transition functions are registered using the registry's
-:py:meth:`~gym_gridverse.envs.transition_functions.TransitionFunctionRegistry.register`
-method, which can be used as a decorator (see
-:ref:`guides/transition_functions:Custom Transition Functions`).
-
-.. automethod:: gym_gridverse.envs.transition_functions.TransitionFunctionRegistry.register
-    :noindex:
-
-As a dictionary,
+functions.  Transition functions are registered using the
+:py:meth:`~gym_gridverse.utils.registry.FunctionRegistry.register` method,
+which can be used as a decorator (also see
+:ref:`guides/transition_functions:Custom Transition Functions`).  As a
+dictionary,
 :py:data:`~gym_gridverse.envs.transition_functions.transition_function_registry`
-has a
-:py:meth:`~gym_gridverse.envs.transition_functions.TransitionFunctionRegistry.keys`
-method which returns the names of registered functions.
-
-.. automethod:: gym_gridverse.envs.transition_functions.TransitionFunctionRegistry.keys
-    :noindex:
+has a :py:meth:`~dict.keys` method which returns the names of registered
+functions.
 
 Custom Transition Functions
 ===========================
@@ -63,15 +55,14 @@ rules;  A custom transition function:
 
 - **MUST** edit the input state, rather than return a new state altogether.
 
-- **SHOULD** use the :py:data:`rng` argument as the source for any
-  stochasticity.
+- **SHOULD** use the ``rng`` argument as the source for any stochasticity.
 
 - **MUST** use :py:func:`~gym_gridverse.rng.get_gv_rng_if_none` (only if the
-  :py:data:`rng` is used at all).
+  ``rng`` is used at all).
 
 .. warning::
-  The :py:data:`rng` argument is used to control the source of randomness and
-  allow for the environment to be seeded via
+  The ``rng`` argument is used to control the source of randomness and allow
+  for the environment to be seeded via
   :py:meth:`~gym_gridverse.envs.inner_env.InnerEnv.set_seed`, which in turn
   guarantees the reproducibility of traces, runs, and experiments;  if you wish
   to use external sources of randomness, you will have to manage them and their

@@ -28,3 +28,4 @@ To use gym-gridverse in a project::
   guides/reward_functions
   guides/observation_functions
   guides/visibility_functions
+  guides/terminating_functions

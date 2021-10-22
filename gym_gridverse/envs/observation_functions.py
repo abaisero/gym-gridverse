@@ -99,8 +99,7 @@ class ObservationFunctionRegistry(FunctionRegistry):
 
 
 observation_function_registry = ObservationFunctionRegistry()
-
-# TODO: write documentation
+"""Observation function registry"""
 
 
 @observation_function_registry.register

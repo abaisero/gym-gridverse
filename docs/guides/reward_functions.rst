@@ -31,21 +31,12 @@ The :py:mod:`~gym_gridverse.envs.reward_functions` module contains some
 pre-defined reward functions and the
 :py:data:`~gym_gridverse.envs.reward_functions.reward_function_registry`, a
 dictionary-like object through which to register and retrieve reward functions.
-Reward functions are registered using the registry's
-:py:meth:`~gym_gridverse.envs.reward_functions.RewardFunctionRegistry.register`
-method, which can be used as a decorator (see
-:ref:`guides/reward_functions:Custom Reward Functions`).
-
-.. automethod:: gym_gridverse.envs.reward_functions.RewardFunctionRegistry.register
-    :noindex:
-
-As a dictionary,
+Reward functions are registered using the
+:py:meth:`~gym_gridverse.utils.registry.FunctionRegistry.register` method,
+which can be used as a decorator (also see :ref:`guides/reward_functions:Custom
+Reward Functions`).  As a dictionary,
 :py:data:`~gym_gridverse.envs.reward_functions.reward_function_registry` has a
-:py:meth:`~gym_gridverse.envs.reward_functions.RewardFunctionRegistry.keys`
-method which returns the names of registered functions.
-
-.. automethod:: gym_gridverse.envs.reward_functions.RewardFunctionRegistry.keys
-    :noindex:
+:py:meth:`~dict.keys` method which returns the names of registered functions.
 
 Custom Reward Functions
 =======================

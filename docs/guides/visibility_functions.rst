@@ -34,22 +34,14 @@ The :py:mod:`~gym_gridverse.envs.visibility_functions` module contains some
 pre-defined visibility functions and the
 :py:data:`~gym_gridverse.envs.visibility_functions.visibility_function_registry`,
 a dictionary-like object through which to register and retrieve visibility
-functions.  Visibility functions are registered using the registry's
-:py:meth:`~gym_gridverse.envs.visibility_functions.VisibilityFunctionRegistry.register`
-method, which can be used as a decorator (see
-:ref:`guides/visibility_functions:Custom Visibility Functions`).
-
-.. automethod:: gym_gridverse.envs.visibility_functions.VisibilityFunctionRegistry.register
-    :noindex:
-
-As a dictionary,
+functions.  Visibility functions are registered using the
+:py:meth:`~gym_gridverse.utils.registry.FunctionRegistry.register` method,
+which can be used as a decorator (also see
+:ref:`guides/visibility_functions:Custom Visibility Functions`).  As a
+dictionary,
 :py:data:`~gym_gridverse.envs.visibility_functions.visibility_function_registry`
-has a
-:py:meth:`~gym_gridverse.envs.visibility_functions.VisibilityFunctionRegistry.keys`
-method which returns the names of registered functions.
-
-.. automethod:: gym_gridverse.envs.visibility_functions.VisibilityFunctionRegistry.keys
-    :noindex:
+has a :py:meth:`~dict.keys` method which returns the names of registered
+functions.
 
 Custom Visibility Functions
 ===========================
@@ -61,15 +53,14 @@ rules;  A custom visibility function:
   :py:data:`~gym_gridverse.envs.visibility_functions.VisibilityFunction`
   protocol.
 
-- **SHOULD** use the :py:data:`rng` argument as the source for any
-  stochasticity.
+- **SHOULD** use the ``rng`` argument as the source for any stochasticity.
 
 - **MUST** use :py:func:`~gym_gridverse.rng.get_gv_rng_if_none` (only if the
-  :py:data:`rng` is used at all).
+  ``rng`` is used at all).
 
 .. warning::
-  The :py:data:`rng` argument is used to control the source of randomness and
-  allow for the environment to be seeded via
+  The ``rng`` argument is used to control the source of randomness and allow
+  for the environment to be seeded via
   :py:meth:`~gym_gridverse.envs.inner_env.InnerEnv.set_seed`, which in turn
   guarantees the reproducibility of traces, runs, and experiments;  if you wish
   to use external sources of randomness, you will have to manage them and their

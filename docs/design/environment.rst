@@ -130,7 +130,7 @@ The :py:class:`~gym_gridverse.state.State` and
 respective representations convert them into arrays.
 
 A representation takes in the python object, and returns a dictionary of
-:py:class:`str` to :py:class:`np.ndarray` mappings. Typical elements in this
+:py:class:`str` to :py:class:`numpy.ndarray` mappings. Typical elements in this
 array are the ``grid``, ``agent_id_grid``, ``agent``, ``item`` representations.
 
 State Representations

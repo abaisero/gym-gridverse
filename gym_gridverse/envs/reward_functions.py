@@ -111,6 +111,7 @@ class RewardFunctionRegistry(FunctionRegistry):
 
 
 reward_function_registry = RewardFunctionRegistry()
+"""Reward function registry"""
 
 
 @reward_function_registry.register

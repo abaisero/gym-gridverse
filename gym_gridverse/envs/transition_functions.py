@@ -126,6 +126,7 @@ class TransitionFunctionRegistry(FunctionRegistry):
 
 
 transition_function_registry = TransitionFunctionRegistry()
+"""Transition function registry"""
 
 
 @transition_function_registry.register

@@ -91,6 +91,7 @@ class ResetFunctionRegistry(FunctionRegistry):
 
 
 reset_function_registry = ResetFunctionRegistry()
+"""Reset function registry"""
 
 
 @reset_function_registry.register

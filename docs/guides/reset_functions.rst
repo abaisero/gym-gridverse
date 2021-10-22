@@ -32,21 +32,12 @@ The :py:mod:`~gym_gridverse.envs.reset_functions` module contains some
 pre-defined reset functions and the
 :py:data:`~gym_gridverse.envs.reset_functions.reset_function_registry`, a
 dictionary-like object through which to register and retrieve reset functions.
-Reset functions are registered using the registry's
-:py:meth:`~gym_gridverse.envs.reset_functions.ResetFunctionRegistry.register`
-method, which can be used as a decorator (see
-:ref:`guides/reset_functions:Custom Reset Functions`).
-
-.. automethod:: gym_gridverse.envs.reset_functions.ResetFunctionRegistry.register
-    :noindex:
-
-As a dictionary,
+Reset functions are registered using the
+:py:meth:`~gym_gridverse.utils.registry.FunctionRegistry.register` method,
+which can be used as a decorator (also see :ref:`guides/reset_functions:Custom
+Reset Functions`).  As a dictionary,
 :py:data:`~gym_gridverse.envs.reset_functions.reset_function_registry` has a
-:py:meth:`~gym_gridverse.envs.reset_functions.ResetFunctionRegistry.keys`
-method which returns the names of registered functions.
-
-.. automethod:: gym_gridverse.envs.reset_functions.ResetFunctionRegistry.keys
-    :noindex:
+:py:meth:`~dict.keys` method which returns the names of registered functions.
 
 Custom Reset Functions
 ======================
@@ -57,18 +48,18 @@ custom reset function:
 - **MUST** satisfy the
   :py:data:`~gym_gridverse.envs.reset_functions.ResetFunction` protocol.
 
-- **SHOULD** use the :py:data:`rng` argument as the source for any
-  stochasticity.
+- **SHOULD** use the ``rng`` argument as the source for any stochasticity.
 
 - **MUST** use :py:func:`~gym_gridverse.rng.get_gv_rng_if_none` (only if the
-  :py:data:`rng` is used at all).
+  ``rng`` is used at all).
 
-.. warning:: The :py:data:`rng` argument is used to control the source of
-   randomness and allow for the environment to be seeded via
-   :py:meth:`~gym_gridverse.envs.inner_env.InnerEnv.set_seed`, which in turn
-   guarantees the reproducibility of traces, runs, and experiments;  if you
-   wish to use external sources of randomness, you will have to manage them and
-   their seeding yourself.
+.. warning::
+  The ``rng`` argument is used to control the source of randomness and allow
+  for the environment to be seeded via
+  :py:meth:`~gym_gridverse.envs.inner_env.InnerEnv.set_seed`, which in turn
+  guarantees the reproducibility of traces, runs, and experiments;  if you wish
+  to use external sources of randomness, you will have to manage them and their
+  seeding yourself.
 
 Practical Example 1
 -------------------

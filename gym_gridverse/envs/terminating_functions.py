@@ -99,6 +99,7 @@ class TerminatingFunctionRegistry(FunctionRegistry):
 
 
 terminating_function_registry = TerminatingFunctionRegistry()
+"""Terminating function registry"""
 
 
 @terminating_function_registry.register
