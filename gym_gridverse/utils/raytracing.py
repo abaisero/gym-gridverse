@@ -10,6 +10,7 @@ from gym_gridverse.debugging import checkraise
 from gym_gridverse.geometry import Area, Position, PositionOrTuple
 
 Ray = List[Position]
+"""Ray, a list of positions"""
 
 
 def compute_ray(

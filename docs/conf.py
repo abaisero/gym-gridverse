@@ -41,6 +41,7 @@ add_module_names = False
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosectionlabel',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
@@ -195,29 +196,23 @@ nitpicky = True
 nitpick_ignore = [
     ('py:class', 'PositionOrTuple'),
     ('py:class', 'Ray'),
-    ('py:class', 'TextIO'),
-    ('py:class', 'enum.Enum'),
     ('py:class', 'gym.core.Env'),
+    ('py:class', 'gym.core.Wrapper'),
     ('py:class', 'gym.envs.classic_control.rendering.Geom'),
     ('py:class', 'gym.spaces.space.Space'),
-    ('py:class', 'gym_minigrid.wrappers.FullyObsWrapper'),
     ('py:class', 'list<bigint>'),
-    ('py:class', 'np.ndarray'),
-    ('py:class', 'numpy.ndarray'),
-    ('py:class', 'numpy.random.Generator'),
-    ('py:class', 'numpy.random._generator.Generator'),
-    ('py:class', 'rnd.Generator'),
-    ('py:class', 'typing.Protocol'),
-    ('py:class', 'typing_extensions.Protocol'),
-    ('py:data', 'rng'),
-    ('py:func', 'functools.partial'),
+    ('py:class', 'pyglet.window.BaseWindow'),
     ('py:func', 'gym.make'),
-    ('py:meth', '__call__'),
-    ('py:mod', 'gym_minigrid'),
-    ('py:mod', 'typing'),
 ]
 
 # recognizes custom types
 autodoc_type_aliases = {
     'RecordingElement': 'gym_gridverse.recording.RecordingElement',
+}
+
+# intersphinx allows references to other documentations
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
+    'pyglet': ('https://pyglet.readthedocs.io/en/latest/', None),
 }

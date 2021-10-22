@@ -101,10 +101,23 @@ class GymEnvironment(gym.Env):
         return self.outer_env.observation
 
     def reset(self) -> Dict[str, np.ndarray]:
+        """reset the environment state
+
+        Returns:
+            Dict[str, numpy.ndarray]: initial observation
+        """
         self.outer_env.reset()
         return self.observation
 
     def step(self, action: int):
+        """performs environment step
+
+        Args:
+            action (int): agent's action
+
+        Returns:
+            Tuple[Dict[str, numpy.ndarray], float, bool, Dict]: (observation, reward, terminal, info dictionary)
+        """
         action_ = self.outer_env.action_space.int_to_action(action)
         reward, done = self.outer_env.step(action_)
         return self.observation, reward, done, {}
@@ -184,10 +197,23 @@ class GymStateWrapper(gym.Wrapper):
         return self.env.state
 
     def reset(self) -> Dict[str, np.ndarray]:
+        """reset the environment state
+
+        Returns:
+            Dict[str, numpy.ndarray]: initial state
+        """
         self.env.reset()
         return self.observation
 
     def step(self, action: int):
+        """performs environment step
+
+        Args:
+            action (int): agent's action
+
+        Returns:
+            Tuple[Dict[str, numpy.ndarray], float, bool, Dict]: (state, reward, terminal, info dictionary)
+        """
         observation, reward, done, info = self.env.step(action)
         info['observation'] = observation
         return self.observation, reward, done, info

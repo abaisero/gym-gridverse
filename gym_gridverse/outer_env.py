@@ -54,7 +54,7 @@ class OuterEnv:
         """Returns the representation of the current state
 
         Returns:
-            Dict[str, np.ndarray]:
+            Dict[str, numpy.ndarray]:
         """
         checkraise(
             lambda: self.state_rep is not None,
@@ -69,7 +69,7 @@ class OuterEnv:
         """Returns the representation of the current observation
 
         Returns:
-            Dict[str, np.ndarray]:
+            Dict[str, numpy.ndarray]:
         """
         checkraise(
             lambda: self.observation_rep is not None,

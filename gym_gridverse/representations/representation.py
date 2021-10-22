@@ -26,7 +26,7 @@ class Representation(abc.ABC):
         """space of values the representation can return
 
         Representations convert objects to a dictionary of `str` to
-        `np.ndarray` items. The common functionality of these representations
+        `numpy.ndarray` items. The common functionality of these representations
         is to provide space of values that are expected to be returned,
         provided here as a `str` to
         `gym_gridverse.representations.spaces.Space` property.
@@ -176,7 +176,7 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
         agent (Agent):
 
     Returns:
-        Dict[str, np.ndarray]: keys {'grid', 'agent', 'item', 'agent_id_grid'}
+        Dict[str, numpy.ndarray]: keys {'grid', 'agent', 'item', 'agent_id_grid'}
     """
 
     item_representation = np.array(
@@ -303,7 +303,7 @@ def no_overlap_convert(
         height (int): height of the grid
 
     Returns:
-        Dict[str, np.ndarray]: keys {'grid', 'item', 'agent', 'agent_id_grid'}
+        Dict[str, numpy.ndarray]: keys {'grid', 'item', 'agent', 'agent_id_grid'}
     """
 
     rep = default_convert(grid, agent)

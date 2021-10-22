@@ -16,7 +16,7 @@ def is_dtype_integer(x: np.ndarray) -> bool:
     """checks if array has an integer type
 
     Args:
-        x (np.ndarray): x
+        x (numpy.ndarray): x
 
     Returns:
         bool:
@@ -28,7 +28,7 @@ def is_dtype_floating(x: np.ndarray) -> bool:
     """checks if array has a floating type
 
     Args:
-        x (np.ndarray): x
+        x (numpy.ndarray): x
 
     Returns:
         bool:
@@ -40,7 +40,7 @@ def is_dtype_compatible(x: np.ndarray, space_type: SpaceType) -> bool:
     """checks if array type is compatible with space type
 
     Args:
-        x (np.ndarray): x
+        x (numpy.ndarray): x
         space_type (SpaceType): space_type
 
     Returns:
@@ -74,8 +74,8 @@ class Space:
 
         Args:
             space_type (SpaceType): space_type
-            lower_bound (np.ndarray): lower_bound
-            upper_bound (np.ndarray): upper_bound
+            lower_bound (numpy.ndarray): lower_bound
+            upper_bound (numpy.ndarray): upper_bound
         """
         checkraise(
             lambda: is_dtype_compatible(lower_bound, space_type),
@@ -117,7 +117,7 @@ class Space:
         """checks if array is of the correct shape and type, and within the space bounds
 
         Args:
-            x (np.ndarray): x
+            x (numpy.ndarray): x
 
         Returns:
             bool:
@@ -138,7 +138,7 @@ class CategoricalSpace(Space):
         `upper_bound` must be non-negative.
 
         Args:
-            upper_bound (np.ndarray): upper_bound
+            upper_bound (numpy.ndarray): upper_bound
         """
         lower_bound = np.zeros_like(upper_bound)
         super().__init__(
@@ -158,8 +158,8 @@ class DiscreteSpace(Space):
 
         Args:
             space_type (SpaceType): space_type
-            lower_bound (np.ndarray): lower_bound
-            upper_bound (np.ndarray): upper_bound
+            lower_bound (numpy.ndarray): lower_bound
+            upper_bound (numpy.ndarray): upper_bound
         """
         super().__init__(
             SpaceType.DISCRETE,
@@ -178,8 +178,8 @@ class ContinuousSpace(Space):
 
         Args:
             space_type (SpaceType): space_type
-            lower_bound (np.ndarray): lower_bound
-            upper_bound (np.ndarray): upper_bound
+            lower_bound (numpy.ndarray): lower_bound
+            upper_bound (numpy.ndarray): upper_bound
         """
         super().__init__(
             SpaceType.CONTINUOUS,

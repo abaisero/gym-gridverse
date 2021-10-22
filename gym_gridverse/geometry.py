@@ -158,6 +158,8 @@ class Area:
 
 @dataclass(frozen=True)
 class Position:
+    """2D position (y, x), with `y` extending downward and `x` extending rightward"""
+
     y: int
     x: int
 
@@ -237,7 +239,7 @@ class Position:
 
 
 PositionOrTuple = Union[Position, Tuple[int, int]]
-"""Type to describe a position either through its class or two integers"""
+"""Type to describe a position either through its class or a pair of integers"""
 
 
 class Orientation(enum.Enum):
@@ -305,6 +307,8 @@ class Orientation(enum.Enum):
 
 @dataclass(unsafe_hash=True)
 class Pose:
+    """Pair of position and orientation"""
+
     position: Position
     orientation: Orientation
 
