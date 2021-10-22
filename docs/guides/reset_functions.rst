@@ -10,9 +10,8 @@ The ResetFunction Protocol
 
 A reset function is a generative function which represents a (stochastic)
 distribution over initial states.  Using the :py:mod:`typing` standard library,
-the reset function type is defined as a :py:class:`typing.Protocol` with a
-:py:meth:`__call__` member which receives an optional
-:py:class:`numpy.random.Generator` and returns a
+the reset function type is defined as a callable :py:class:`typing.Protocol`
+which receives an optional :py:class:`numpy.random.Generator` and returns a
 :py:class:`~gym_gridverse.state.State`.
 
 .. autoclass:: gym_gridverse.envs.reset_functions.ResetFunction

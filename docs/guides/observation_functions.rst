@@ -8,10 +8,10 @@ function registry, and how to write your own custom observation functions.
 The ObservationFunction Protocol
 ================================
 
-An observation function is a generative function which represents a (stochastic)
-mapping from a state to an observation.  Using the :py:mod:`typing`
-standard library, the observation function type is defined as a
-:py:class:`typing.Protocol` with a :py:meth:`__call__` member which receives a
+An observation function is a generative function which represents a
+(stochastic) mapping from a state to an observation.  Using the
+:py:mod:`typing` standard library, the observation function type is defined as
+a callable :py:class:`typing.Protocol` which receives a
 :py:class:`~gym_gridverse.state.State` and an optional
 :py:class:`numpy.random.Generator`, and returns an
 :py:class:`~gym_gridverse.observation.Observation`.
