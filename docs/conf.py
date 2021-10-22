@@ -182,6 +182,9 @@ texinfo_documents = [
 
 # -- Configurations ----------------------------------------------------
 
+# prevents isues with repeated section labels
+autosectionlabel_prefix_document = True
+
 napoleon_include_init_with_doc = True
 
 # dev options

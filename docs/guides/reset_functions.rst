@@ -34,7 +34,8 @@ pre-defined reset functions and the
 dictionary-like object through which to register and retrieve reset functions.
 Reset functions are registered using the registry's
 :py:meth:`~gym_gridverse.envs.reset_functions.ResetFunctionRegistry.register`
-method, which can be used as a decorator (see :ref:`Custom Reset Functions`).
+method, which can be used as a decorator (see
+:ref:`guides/reset_functions:Custom Reset Functions`).
 
 .. automethod:: gym_gridverse.envs.reset_functions.ResetFunctionRegistry.register
     :noindex:
@@ -44,7 +45,7 @@ As a dictionary,
 :py:meth:`~gym_gridverse.envs.reset_functions.ResetFunctionRegistry.keys`
 method which returns the names of registered functions.
 
-.. automethod:: gym_gridverse.envs.observation_functions.ResetFunctionRegistry.keys
+.. automethod:: gym_gridverse.envs.reset_functions.ResetFunctionRegistry.keys
     :noindex:
 
 Custom Reset Functions

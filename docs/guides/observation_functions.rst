@@ -35,8 +35,8 @@ pre-defined observation functions and the
 a dictionary-like object through which to register and retrieve observation
 functions.  Observation functions are registered using the registry's
 :py:meth:`~gym_gridverse.envs.observation_functions.ObservationFunctionRegistry.register`
-method, which can be used as a decorator (see :ref:`Custom Observation
-Functions`).
+method, which can be used as a decorator (see
+:ref:`guides/observation_functions:Custom Observation Functions`).
 
 .. automethod:: gym_gridverse.envs.observation_functions.ObservationFunctionRegistry.register
     :noindex:

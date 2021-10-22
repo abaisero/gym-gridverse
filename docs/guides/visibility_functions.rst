@@ -36,8 +36,8 @@ pre-defined visibility functions and the
 a dictionary-like object through which to register and retrieve visibility
 functions.  Visibility functions are registered using the registry's
 :py:meth:`~gym_gridverse.envs.visibility_functions.VisibilityFunctionRegistry.register`
-method, which can be used as a decorator (see :ref:`Custom Visibility
-Functions`).
+method, which can be used as a decorator (see
+:ref:`guides/visibility_functions:Custom Visibility Functions`).
 
 .. automethod:: gym_gridverse.envs.visibility_functions.VisibilityFunctionRegistry.register
     :noindex:
