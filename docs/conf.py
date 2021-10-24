@@ -199,7 +199,6 @@ todo_include_todos = True
 
 nitpicky = True
 nitpick_ignore = [
-    ('py:class', 'PositionOrTuple'),
     ('py:class', 'Ray'),
     ('py:class', 'gym.core.Env'),
     ('py:class', 'gym.core.Wrapper'),

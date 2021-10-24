@@ -2,13 +2,7 @@ from typing import Sequence
 
 import pytest
 
-from gym_gridverse.geometry import (
-    Area,
-    Orientation,
-    Position,
-    PositionOrTuple,
-    Shape,
-)
+from gym_gridverse.geometry import Area, Orientation, Position, Shape
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Box,
@@ -37,15 +31,15 @@ def test_grid_shape(grid: Grid, expected: Shape):
 @pytest.mark.parametrize(
     'grid,position,expected',
     [
-        (Grid(3, 4), (0, 0), True),
-        (Grid(3, 4), (2, 3), True),
-        (Grid(3, 4), (-1, 0), False),
-        (Grid(3, 4), (0, -1), False),
-        (Grid(3, 4), (3, 3), False),
-        (Grid(3, 4), (2, 4), False),
+        (Grid(3, 4), Position(0, 0), True),
+        (Grid(3, 4), Position(2, 3), True),
+        (Grid(3, 4), Position(-1, 0), False),
+        (Grid(3, 4), Position(0, -1), False),
+        (Grid(3, 4), Position(3, 3), False),
+        (Grid(3, 4), Position(2, 4), False),
     ],
 )
-def test_grid_contains(grid: Grid, position: PositionOrTuple, expected: bool):
+def test_grid_contains(grid: Grid, position: Position, expected: bool):
     assert (position in grid) == expected
 
 

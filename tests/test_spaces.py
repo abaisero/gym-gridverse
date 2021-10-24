@@ -6,13 +6,7 @@ import pytest
 from gym_gridverse.action import Action
 from gym_gridverse.agent import Agent
 from gym_gridverse.envs.yaml import factory as yaml_factory
-from gym_gridverse.geometry import (
-    Area,
-    Orientation,
-    Position,
-    PositionOrTuple,
-    Shape,
-)
+from gym_gridverse.geometry import Area, Orientation, Position, Shape
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Color,
@@ -154,15 +148,13 @@ def test_observation_space_area(shape: Shape, expected: Area):
 @pytest.mark.parametrize(
     'shape,expected',
     [
-        (Shape(2, 5), (1, 2)),
-        (Shape(3, 5), (2, 2)),
-        (Shape(2, 7), (1, 3)),
-        (Shape(3, 7), (2, 3)),
+        (Shape(2, 5), Position(1, 2)),
+        (Shape(3, 5), Position(2, 2)),
+        (Shape(2, 7), Position(1, 3)),
+        (Shape(3, 7), Position(2, 3)),
     ],
 )
-def test_observation_space_agent_position(
-    shape: Shape, expected: PositionOrTuple
-):
+def test_observation_space_agent_position(shape: Shape, expected: Position):
     observation_space = ObservationSpace(shape, [], [])
     assert observation_space.agent_position == expected
 
@@ -186,19 +178,19 @@ def space_contains_observation(
 @pytest.mark.parametrize(
     'space_shape,observation_shape,agent_position,expected',
     [
-        (Shape(2, 3), Shape(2, 3), (1, 1), True),
-        (Shape(4, 5), Shape(4, 5), (3, 2), True),
+        (Shape(2, 3), Shape(2, 3), Position(1, 1), True),
+        (Shape(4, 5), Shape(4, 5), Position(3, 2), True),
         # invalid
-        (Shape(2, 3), Shape(2, 5), (1, 2), False),
-        (Shape(2, 3), Shape(3, 3), (2, 1), False),
-        (Shape(4, 5), Shape(4, 7), (3, 3), False),
-        (Shape(4, 5), Shape(5, 5), (4, 2), False),
+        (Shape(2, 3), Shape(2, 5), Position(1, 2), False),
+        (Shape(2, 3), Shape(3, 3), Position(2, 1), False),
+        (Shape(4, 5), Shape(4, 7), Position(3, 3), False),
+        (Shape(4, 5), Shape(5, 5), Position(4, 2), False),
     ],
 )
 def test_observation_space_contains__shape(
     space_shape: Shape,
     observation_shape: Shape,
-    agent_position: PositionOrTuple,
+    agent_position: Position,
     expected: bool,
 ):
     observation_space = ObservationSpace(space_shape, [Floor], [Color.NONE])
@@ -234,7 +226,7 @@ def test_observation_space_contains__object_types(
     )
     observation = Observation(
         Grid.from_objects(observation_objects),
-        Agent((0, 1), Orientation.N, agent_object),
+        Agent(Position(0, 1), Orientation.N, agent_object),
     )
 
     assert observation_space.contains(observation) == expected
@@ -276,7 +268,7 @@ def test_observation_space_contains__colors(
     observation_space = ObservationSpace(Shape(2, 1), [Key], space_colors)
     observation = Observation(
         Grid.from_objects(observation_objects),
-        Agent((1, 0), Orientation.N, agent_object),
+        Agent(Position(1, 0), Orientation.N, agent_object),
     )
 
     assert observation_space.contains(observation) == expected
@@ -285,13 +277,13 @@ def test_observation_space_contains__colors(
 @pytest.mark.parametrize(
     'shape,position,position_ok',
     [
-        (Shape(1, 3), (0, 1), True),
-        (Shape(2, 5), (1, 2), True),
+        (Shape(1, 3), Position(0, 1), True),
+        (Shape(2, 5), Position(1, 2), True),
         # invalid
-        (Shape(1, 3), (-1, -1), False),
-        (Shape(1, 3), (1, 3), False),
-        (Shape(2, 5), (-1, -1), False),
-        (Shape(2, 5), (2, 5), False),
+        (Shape(1, 3), Position(-1, -1), False),
+        (Shape(1, 3), Position(1, 3), False),
+        (Shape(2, 5), Position(-1, -1), False),
+        (Shape(2, 5), Position(2, 5), False),
     ],
 )
 @pytest.mark.parametrize(
@@ -306,7 +298,7 @@ def test_observation_space_contains__colors(
 )
 def test_observation_space_contains__agent_pose(
     shape: Shape,
-    position: PositionOrTuple,
+    position: Position,
     position_ok: bool,
     orientation: Orientation,
     orientation_ok: bool,
@@ -320,16 +312,45 @@ def test_observation_space_contains__agent_pose(
     assert observation_space.contains(observation) == expected
 
 
-@pytest.mark.parametrize('shape', [Shape(2, 3), Shape(4, 5)])
-@pytest.mark.parametrize('object_types', [[Floor], [Floor, Wall]])
-@pytest.mark.parametrize('colors', [[Color.NONE], [Color.NONE, Color.RED]])
-@pytest.mark.parametrize('position', [(0, 0), (0, 1), (1, 0), (1, 1)])
-@pytest.mark.parametrize('orientation', [Orientation.N])
+@pytest.mark.parametrize(
+    'shape',
+    [
+        Shape(2, 3),
+        Shape(4, 5),
+    ],
+)
+@pytest.mark.parametrize(
+    'object_types',
+    [
+        [Floor],
+        [Floor, Wall],
+    ],
+)
+@pytest.mark.parametrize(
+    'colors',
+    [
+        [Color.NONE],
+        [Color.NONE, Color.RED],
+    ],
+)
+@pytest.mark.parametrize(
+    'position',
+    [
+        Position(0, 0),
+        Position(0, 1),
+        Position(1, 0),
+        Position(1, 1),
+    ],
+)
+@pytest.mark.parametrize(
+    'orientation',
+    [Orientation.N],
+)
 def test_observation_space_contains(
     shape: Shape,
     object_types: Sequence[Type[GridObject]],
     colors: Sequence[Color],
-    position: PositionOrTuple,
+    position: Position,
     orientation: Orientation,
 ):
     observation_space = ObservationSpace(shape, object_types, colors)

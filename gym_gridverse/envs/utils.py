@@ -1,9 +1,9 @@
 from gym_gridverse.action import TRANSLATION_ACTIONS, Action
-from gym_gridverse.geometry import Orientation, Position, PositionOrTuple
+from gym_gridverse.geometry import Orientation, Position
 
 
 def updated_agent_position_if_unobstructed(
-    agent_pos: PositionOrTuple, agent_orientation: Orientation, action: Action
+    agent_pos: Position, agent_orientation: Orientation, action: Action
 ) -> Position:
     """Returns the desired/intended position according to `action`
 
@@ -16,7 +16,6 @@ def updated_agent_position_if_unobstructed(
     Returns:
         Position: next position
     """
-    agent_pos = Position.from_position_or_tuple(agent_pos)
 
     if action not in TRANSLATION_ACTIONS:
         return agent_pos

@@ -2,21 +2,21 @@ import pytest
 
 from gym_gridverse.action import Action
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
-from gym_gridverse.geometry import Orientation, PositionOrTuple
+from gym_gridverse.geometry import Orientation, Position
 
 
 @pytest.mark.parametrize(
     'position',
     [
-        (-5, -5),
-        (-5, 0),
-        (-5, 5),
-        (0, -5),
-        (0, 0),
-        (0, 5),
-        (5, -5),
-        (5, 0),
-        (5, 5),
+        Position(-5, -5),
+        Position(-5, 0),
+        Position(-5, 5),
+        Position(0, -5),
+        Position(0, 0),
+        Position(0, 5),
+        Position(5, -5),
+        Position(5, 0),
+        Position(5, 5),
     ],
 )
 @pytest.mark.parametrize('orientation', list(Orientation))
@@ -30,7 +30,7 @@ from gym_gridverse.geometry import Orientation, PositionOrTuple
     ],
 )
 def test_non_movement_actions(
-    position: PositionOrTuple, orientation: Orientation, action: Action
+    position: Position, orientation: Orientation, action: Action
 ):
     """Any action that does not 'move' should not affect next position"""
     assert (
@@ -42,20 +42,20 @@ def test_non_movement_actions(
 @pytest.mark.parametrize(
     'position,orientation,action,expected',
     [
-        ((3, 6), Orientation.N, Action.MOVE_FORWARD, (2, 6)),
-        ((5, 2), Orientation.S, Action.MOVE_FORWARD, (6, 2)),
-        ((1, 2), Orientation.W, Action.MOVE_BACKWARD, (1, 3)),
-        ((4, 1), Orientation.E, Action.MOVE_LEFT, (3, 1)),
+        (Position(3, 6), Orientation.N, Action.MOVE_FORWARD, Position(2, 6)),
+        (Position(5, 2), Orientation.S, Action.MOVE_FORWARD, Position(6, 2)),
+        (Position(1, 2), Orientation.W, Action.MOVE_BACKWARD, Position(1, 3)),
+        (Position(4, 1), Orientation.E, Action.MOVE_LEFT, Position(3, 1)),
         # off grid
-        ((0, 1), Orientation.S, Action.MOVE_BACKWARD, (-1, 1)),
-        ((4, 0), Orientation.N, Action.MOVE_LEFT, (4, -1)),
+        (Position(0, 1), Orientation.S, Action.MOVE_BACKWARD, Position(-1, 1)),
+        (Position(4, 0), Orientation.N, Action.MOVE_LEFT, Position(4, -1)),
     ],
 )
 def test_basic_moves(
-    position: PositionOrTuple,
+    position: Position,
     orientation: Orientation,
     action: Action,
-    expected: PositionOrTuple,
+    expected: Position,
 ):
     assert (
         updated_agent_position_if_unobstructed(position, orientation, action)

@@ -18,7 +18,7 @@ from gym_gridverse.design import (
     draw_room_grid,
     draw_wall_boundary,
 )
-from gym_gridverse.geometry import Orientation, Shape
+from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Beacon,
@@ -137,7 +137,7 @@ def empty(
         )
         agent_orientation = rng.choice(list(Orientation))
     else:
-        agent_position = (1, 1)
+        agent_position = Position(1, 1)
         agent_orientation = Orientation.E
 
     agent = Agent(agent_position, agent_orientation)
@@ -321,7 +321,7 @@ def keydoor(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
     # XXX: potential general function
     y_agent = rng.integers(1, shape.height - 2, endpoint=True)
     x_agent = rng.integers(1, x_wall - 1, endpoint=True)
-    state.agent.position = (y_agent, x_agent)
+    state.agent.position = Position(y_agent, x_agent)
     state.agent.orientation = rng.choice(list(Orientation))
 
     return state
@@ -441,7 +441,7 @@ def crossing(
         state.grid[i, j] = Floor()
 
     # Place agent on top left
-    state.agent.position = (1, 1)
+    state.agent.position = Position(1, 1)
     state.agent.orientation = Orientation.E
 
     return state
@@ -456,7 +456,7 @@ def teleport(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
     assert isinstance(state.grid[shape.height - 2, shape.width - 2], Exit)
 
     # Place agent on top left
-    state.agent.position = (1, 1)
+    state.agent.position = Position(1, 1)
     state.agent.orientation = rng.choice([Orientation.E, Orientation.S])
 
     num_telepods = 2
@@ -475,7 +475,7 @@ def teleport(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
         state.grid[position] = telepod
 
     # Place agent on top left
-    state.agent.position = (1, 1)
+    state.agent.position = Position(1, 1)
     state.agent.orientation = rng.choice([Orientation.E, Orientation.S])
 
     return state
@@ -535,7 +535,7 @@ def memory(
     grid[shape.height - 2, 1] = Beacon(color_good)
     grid[shape.height - 2, shape.width - 2] = Beacon(color_good)
 
-    agent_position = (shape.height // 2, shape.width // 2)
+    agent_position = Position(shape.height // 2, shape.width // 2)
     agent_orientation = Orientation.N
     agent = Agent(agent_position, agent_orientation)
 

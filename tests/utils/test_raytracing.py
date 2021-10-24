@@ -3,7 +3,7 @@ from typing import List
 
 import pytest
 
-from gym_gridverse.geometry import Area, PositionOrTuple
+from gym_gridverse.geometry import Area, Position
 from gym_gridverse.utils.raytracing import (
     compute_ray,
     compute_rays,
@@ -14,13 +14,13 @@ from gym_gridverse.utils.raytracing import (
 @pytest.mark.parametrize(
     'position,area',
     [
-        ((2, 0), Area((-1, 1), (-2, 2))),
-        ((-2, 0), Area((-1, 1), (-2, 2))),
-        ((0, 3), Area((-1, 1), (-2, 2))),
-        ((0, -3), Area((-1, 1), (-2, 2))),
+        (Position(2, 0), Area((-1, 1), (-2, 2))),
+        (Position(-2, 0), Area((-1, 1), (-2, 2))),
+        (Position(0, 3), Area((-1, 1), (-2, 2))),
+        (Position(0, -3), Area((-1, 1), (-2, 2))),
     ],
 )
-def test_compute_ray_value_error(position: PositionOrTuple, area: Area):
+def test_compute_ray_value_error(position: Position, area: Area):
     with pytest.raises(ValueError):
         compute_ray(position, area, radians=0.0, step_size=0.01)
 
@@ -29,50 +29,95 @@ def test_compute_ray_value_error(position: PositionOrTuple, area: Area):
     'position,area,degrees,expected',
     [
         # from center
-        ((0, 0), Area((-1, 1), (-2, 2)), 0, [(0, 0), (0, 1), (0, 2)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 45, [(0, 0), (1, 1)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 90, [(0, 0), (1, 0)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 135, [(0, 0), (1, -1)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 180, [(0, 0), (0, -1), (0, -2)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 225, [(0, 0), (-1, -1)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 270, [(0, 0), (-1, 0)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 315, [(0, 0), (-1, 1)]),
-        # from off-center
-        ((1, 1), Area((-1, 1), (-2, 2)), 0, [(1, 1), (1, 2)]),
-        ((1, 1), Area((-1, 1), (-2, 2)), 45, [(1, 1)]),
-        ((1, 1), Area((-1, 1), (-2, 2)), 90, [(1, 1)]),
-        ((1, 1), Area((-1, 1), (-2, 2)), 135, [(1, 1)]),
         (
-            (1, 1),
+            Position(0, 0),
+            Area((-1, 1), (-2, 2)),
+            0,
+            [Position(0, 0), Position(0, 1), Position(0, 2)],
+        ),
+        (
+            Position(0, 0),
+            Area((-1, 1), (-2, 2)),
+            45,
+            [Position(0, 0), Position(1, 1)],
+        ),
+        (
+            Position(0, 0),
+            Area((-1, 1), (-2, 2)),
+            90,
+            [Position(0, 0), Position(1, 0)],
+        ),
+        (
+            Position(0, 0),
+            Area((-1, 1), (-2, 2)),
+            135,
+            [Position(0, 0), Position(1, -1)],
+        ),
+        (
+            Position(0, 0),
             Area((-1, 1), (-2, 2)),
             180,
-            [(1, 1), (1, 0), (1, -1), (1, -2)],
+            [Position(0, 0), Position(0, -1), Position(0, -2)],
         ),
         (
-            (1, 1),
+            Position(0, 0),
             Area((-1, 1), (-2, 2)),
             225,
-            [(1, 1), (0, 0), (-1, -1)],
+            [Position(0, 0), Position(-1, -1)],
         ),
         (
-            (1, 1),
+            Position(0, 0),
             Area((-1, 1), (-2, 2)),
             270,
-            [(1, 1), (0, 1), (-1, 1)],
+            [Position(0, 0), Position(-1, 0)],
         ),
         (
-            (1, 1),
+            Position(0, 0),
             Area((-1, 1), (-2, 2)),
             315,
-            [(1, 1), (0, 2)],
+            [Position(0, 0), Position(-1, 1)],
+        ),
+        # from off-center
+        (
+            Position(1, 1),
+            Area((-1, 1), (-2, 2)),
+            0,
+            [Position(1, 1), Position(1, 2)],
+        ),
+        (Position(1, 1), Area((-1, 1), (-2, 2)), 45, [Position(1, 1)]),
+        (Position(1, 1), Area((-1, 1), (-2, 2)), 90, [Position(1, 1)]),
+        (Position(1, 1), Area((-1, 1), (-2, 2)), 135, [Position(1, 1)]),
+        (
+            Position(1, 1),
+            Area((-1, 1), (-2, 2)),
+            180,
+            [Position(1, 1), Position(1, 0), Position(1, -1), Position(1, -2)],
+        ),
+        (
+            Position(1, 1),
+            Area((-1, 1), (-2, 2)),
+            225,
+            [Position(1, 1), Position(0, 0), Position(-1, -1)],
+        ),
+        (
+            Position(1, 1),
+            Area((-1, 1), (-2, 2)),
+            270,
+            [Position(1, 1), Position(0, 1), Position(-1, 1)],
+        ),
+        (
+            Position(1, 1),
+            Area((-1, 1), (-2, 2)),
+            315,
+            [Position(1, 1), Position(0, 2)],
         ),
     ],
 )
 def test_compute_ray_unique(
-    position: PositionOrTuple,
+    position: Position,
     area: Area,
     degrees: float,
-    expected: List[PositionOrTuple],
+    expected: List[Position],
 ):
     radians = degrees * math.pi / 180
     ray = compute_ray(
@@ -85,21 +130,61 @@ def test_compute_ray_unique(
 @pytest.mark.parametrize(
     'position,area,degrees,expected',
     [
-        ((0, 0), Area((-1, 1), (-2, 2)), 0, [(0, 0), (0, 1), (0, 2)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 45, [(0, 0), (1, 1)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 90, [(0, 0), (1, 0)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 135, [(0, 0), (1, -1)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 180, [(0, 0), (0, -1), (0, -2)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 225, [(0, 0), (-1, -1)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 270, [(0, 0), (-1, 0)]),
-        ((0, 0), Area((-1, 1), (-2, 2)), 315, [(0, 0), (-1, 1)]),
+        (
+            Position(0, 0),
+            Area((-1, 1), (-2, 2)),
+            0,
+            [Position(0, 0), Position(0, 1), Position(0, 2)],
+        ),
+        (
+            Position(0, 0),
+            Area((-1, 1), (-2, 2)),
+            45,
+            [Position(0, 0), Position(1, 1)],
+        ),
+        (
+            Position(0, 0),
+            Area((-1, 1), (-2, 2)),
+            90,
+            [Position(0, 0), Position(1, 0)],
+        ),
+        (
+            Position(0, 0),
+            Area((-1, 1), (-2, 2)),
+            135,
+            [Position(0, 0), Position(1, -1)],
+        ),
+        (
+            Position(0, 0),
+            Area((-1, 1), (-2, 2)),
+            180,
+            [Position(0, 0), Position(0, -1), Position(0, -2)],
+        ),
+        (
+            Position(0, 0),
+            Area((-1, 1), (-2, 2)),
+            225,
+            [Position(0, 0), Position(-1, -1)],
+        ),
+        (
+            Position(0, 0),
+            Area((-1, 1), (-2, 2)),
+            270,
+            [Position(0, 0), Position(-1, 0)],
+        ),
+        (
+            Position(0, 0),
+            Area((-1, 1), (-2, 2)),
+            315,
+            [Position(0, 0), Position(-1, 1)],
+        ),
     ],
 )
 def test_compute_ray_non_unique(
-    position: PositionOrTuple,
+    position: Position,
     area: Area,
     degrees: float,
-    expected: List[PositionOrTuple],
+    expected: List[Position],
 ):
     radians = degrees * math.pi / 180
     ray = compute_ray(
@@ -113,13 +198,13 @@ def test_compute_ray_non_unique(
 @pytest.mark.parametrize(
     'position,area',
     [
-        ((-1, -2), Area((-1, 1), (-2, 2))),
-        ((-1, 2), Area((-1, 1), (-2, 2))),
-        ((1, -2), Area((-1, 1), (-2, 2))),
-        ((1, 2), Area((-1, 1), (-2, 2))),
+        (Position(-1, -2), Area((-1, 1), (-2, 2))),
+        (Position(-1, 2), Area((-1, 1), (-2, 2))),
+        (Position(1, -2), Area((-1, 1), (-2, 2))),
+        (Position(1, 2), Area((-1, 1), (-2, 2))),
     ],
 )
-def test_compute_rays(position: PositionOrTuple, area: Area):
+def test_compute_rays(position: Position, area: Area):
     rays = compute_rays(position, area)
     assert len(rays) == 360
 
@@ -130,13 +215,13 @@ def test_compute_rays(position: PositionOrTuple, area: Area):
 @pytest.mark.parametrize(
     'position,area',
     [
-        ((-1, -2), Area((-1, 1), (-2, 2))),
-        ((-1, 2), Area((-1, 1), (-2, 2))),
-        ((1, -2), Area((-1, 1), (-2, 2))),
-        ((1, 2), Area((-1, 1), (-2, 2))),
+        (Position(-1, -2), Area((-1, 1), (-2, 2))),
+        (Position(-1, 2), Area((-1, 1), (-2, 2))),
+        (Position(1, -2), Area((-1, 1), (-2, 2))),
+        (Position(1, 2), Area((-1, 1), (-2, 2))),
     ],
 )
-def test_compute_rays_fancy(position: PositionOrTuple, area: Area):
+def test_compute_rays_fancy(position: Position, area: Area):
     rays = compute_rays_fancy(position, area)
     assert len(rays) == (area.height + 1) * (area.width + 1)
 

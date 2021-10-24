@@ -5,7 +5,7 @@ import pytest
 
 from gym_gridverse.agent import Agent
 from gym_gridverse.envs.observation_functions import factory, minigrid
-from gym_gridverse.geometry import Orientation, Shape
+from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Floor, GridObject, Hidden, Wall
 from gym_gridverse.spaces import ObservationSpace
@@ -15,10 +15,10 @@ from gym_gridverse.state import State
 @pytest.mark.parametrize(
     'agent',
     [
-        Agent((7, 7), Orientation.N),
-        Agent((3, 3), Orientation.S),
-        Agent((7, 3), Orientation.E),
-        Agent((3, 7), Orientation.W),
+        Agent(Position(7, 7), Orientation.N),
+        Agent(Position(3, 3), Orientation.S),
+        Agent(Position(7, 3), Orientation.E),
+        Agent(Position(3, 7), Orientation.W),
     ],
 )
 def test_minigrid(agent: Agent):
@@ -28,7 +28,7 @@ def test_minigrid(agent: Agent):
     state = State(grid, agent)
     observation_space = ObservationSpace(Shape(6, 5), [], [])
     observation = minigrid(state, area=observation_space.area)
-    assert observation.agent.position == (5, 2)
+    assert observation.agent.position == Position(5, 2)
     assert observation.agent.orientation == Orientation.N
     assert observation.agent.obj == state.agent.obj
     assert observation.grid.shape == Shape(6, 5)
@@ -39,7 +39,7 @@ def test_minigrid(agent: Agent):
     'agent,expected_objects',
     [
         (
-            Agent((2, 1), Orientation.N),
+            Agent(Position(2, 1), Orientation.N),
             [
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
@@ -50,7 +50,7 @@ def test_minigrid(agent: Agent):
             ],
         ),
         (
-            Agent((0, 1), Orientation.S),
+            Agent(Position(0, 1), Orientation.S),
             [
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
@@ -61,7 +61,7 @@ def test_minigrid(agent: Agent):
             ],
         ),
         (
-            Agent((2, 1), Orientation.E),
+            Agent(Position(2, 1), Orientation.E),
             [
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
@@ -72,7 +72,7 @@ def test_minigrid(agent: Agent):
             ],
         ),
         (
-            Agent((2, 1), Orientation.W),
+            Agent(Position(2, 1), Orientation.W),
             [
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],

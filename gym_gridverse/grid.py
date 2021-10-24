@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, Sequence, Set, Type
+from typing import Iterable, List, Optional, Sequence, Set, Tuple, Type, Union
 
 import numpy as np
 
 from gym_gridverse.debugging import checkraise
 
-from .geometry import Area, Orientation, Position, PositionOrTuple, Shape
+from .geometry import Area, Orientation, Position, Shape
 from .grid_object import Floor, GridObject, Hidden
+
+PositionOrTuple = Union[Position, Tuple[int, int]]
 
 
 class Grid:
@@ -80,7 +82,7 @@ class Grid:
         return Area((0, self.height - 1), (0, self.width - 1))
 
     # TODO: remove;  Grid is not a collection of positions
-    def __contains__(self, position: PositionOrTuple) -> bool:
+    def __contains__(self, position: Position) -> bool:
         """checks if position is in the grid"""
         y, x = position
         return 0 <= y < self.height and 0 <= x < self.width
@@ -109,7 +111,11 @@ class Grid:
         return set(type(self[position]) for position in self.positions())
 
     def __getitem__(self, position: PositionOrTuple) -> GridObject:
-        y, x = position
+        y, x = (
+            (position.y, position.x)
+            if isinstance(position, Position)
+            else position
+        )
 
         try:
             return self._grid[y, x]
@@ -124,7 +130,12 @@ class Grid:
             'grid can only contain entities',
         )
 
-        y, x = position
+        y, x = (
+            (position.y, position.x)
+            if isinstance(position, Position)
+            else position
+        )
+
         try:
             self._grid[y, x] = obj
         except IndexError as e:
@@ -149,12 +160,12 @@ class Grid:
             Grid: New instance, sliced appropriately
         """
 
-        def get_obj(y: int, x: int) -> GridObject:
-            return self[y, x] if (y, x) in self else Hidden()
+        def get_obj(position: Position) -> GridObject:
+            return self[position] if position in self else Hidden()
 
         return Grid.from_objects(
             [
-                [get_obj(y, x) for x in area.positions_xs()]
+                [get_obj(Position(y, x)) for x in area.positions_xs()]
                 for y in area.positions_ys()
             ]
         )

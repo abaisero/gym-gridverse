@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from .geometry import Area, Orientation, Pose, Position, PositionOrTuple
+from .geometry import Area, Orientation, Pose, Position
 from .grid_object import GridObject, NoneGridObject
 
 
@@ -19,19 +19,18 @@ class Agent:
 
     def __init__(
         self,
-        position: PositionOrTuple,
+        position: Position,
         orientation: Orientation,
         obj: Optional[GridObject] = None,
     ):
         """Creates the agent on `position` with `orientation` and holding `obj`
 
         Args:
-            position (PositionOrTuple):
+            position (Position):
             orientation (Orientation):
             obj (Optional[GridObject]):
         """
 
-        position = Position.from_position_or_tuple(position)
         self.pose = Pose(position, orientation)
         self.obj: GridObject = NoneGridObject() if obj is None else obj
 
@@ -40,8 +39,8 @@ class Agent:
         return self.pose.position
 
     @position.setter
-    def position(self, position: PositionOrTuple):
-        self.pose.position = Position.from_position_or_tuple(position)
+    def position(self, position: Position):
+        self.pose.position = position
 
     @property
     def orientation(self) -> Orientation:

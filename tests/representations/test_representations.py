@@ -254,7 +254,7 @@ def test_no_overlap_convert(no_overlap_fixture):
     )
 
     expected_agent_id_grid = np.zeros((height, width), dtype=int)
-    expected_agent_id_grid[state.agent.position.astuple()] = 1
+    expected_agent_id_grid[state.agent.position.y, state.agent.position.x] = 1
 
     np.testing.assert_array_equal(representation['grid'], expected_grid_state)
     np.testing.assert_array_equal(

@@ -4,7 +4,7 @@ import numpy.random as rnd
 
 from gym_gridverse.agent import Agent
 from gym_gridverse.envs.reset_functions import reset_function_registry
-from gym_gridverse.geometry import Orientation
+from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Color, Door, Exit, Floor, Key, Wall
 from gym_gridverse.rng import get_gv_rng_if_none
@@ -38,6 +38,6 @@ def choose_key(*, rng: Optional[rnd.Generator] = None) -> State:
     )
 
     # positioning the agent in the above grid
-    agent = Agent((4, 2), Orientation.N)
+    agent = Agent(Position(4, 2), Orientation.N)
 
     return State(grid, agent)

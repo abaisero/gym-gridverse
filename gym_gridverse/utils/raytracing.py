@@ -7,14 +7,14 @@ import more_itertools as mitt
 import numpy as np
 
 from gym_gridverse.debugging import checkraise
-from gym_gridverse.geometry import Area, Position, PositionOrTuple
+from gym_gridverse.geometry import Area, Position
 
 Ray = List[Position]
 """Ray, a list of positions"""
 
 
 def compute_ray(
-    position: PositionOrTuple,
+    position: Position,
     area: Area,
     *,
     radians: float,
@@ -28,7 +28,7 @@ def compute_ray(
     radians) until the area is left.
 
     Args:
-        position (PositionOrTuple): initial position, must be in area.
+        position (Position): initial position, must be in area.
         area (Area): boundary over rays.
         radians (float): ray direction.
         step_size (float): ray step granularity.
@@ -46,8 +46,6 @@ def compute_ray(
         area,
     )
 
-    position = Position.from_position_or_tuple(position)
-
     y0, x0 = float(position.y), float(position.x)
     dy = step_size * math.sin(radians)
     dx = step_size * math.cos(radians)
@@ -62,7 +60,7 @@ def compute_ray(
     return list(positions)
 
 
-def compute_rays(position: PositionOrTuple, area: Area) -> List[Ray]:
+def compute_rays(position: Position, area: Area) -> List[Ray]:
     """Returns rays obtained at 1° granularity.
 
     A ray is a list of positions which are hit by a direct line starting at the
@@ -71,7 +69,7 @@ def compute_rays(position: PositionOrTuple, area: Area) -> List[Ray]:
     359°.
 
     Args:
-        position (PositionOrTuple): initial position, must be in area.
+        position (Position): initial position, must be in area.
         area (Area): boundary over rays.
 
     Returns:
@@ -90,7 +88,7 @@ def compute_rays(position: PositionOrTuple, area: Area) -> List[Ray]:
     return rays
 
 
-def compute_rays_fancy(position: PositionOrTuple, area: Area) -> List[Ray]:
+def compute_rays_fancy(position: Position, area: Area) -> List[Ray]:
     """Returns rays obtained by targeting edge points.
 
     A ray is a list of positions which are hit by a direct line starting at the
@@ -99,13 +97,12 @@ def compute_rays_fancy(position: PositionOrTuple, area: Area) -> List[Ray]:
     edges.
 
     Args:
-        position (PositionOrTuple): initial position, must be in area.
+        position (Position): initial position, must be in area.
         area (Area): boundary over rays.
 
     Returns:
         List[Ray]:
     """
-    position = Position.from_position_or_tuple(position)
 
     # compute corners of each cell
     ys = np.linspace(area.ymin, area.ymax + 1, num=area.height + 1) - 0.5

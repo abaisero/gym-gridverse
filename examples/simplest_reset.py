@@ -4,7 +4,7 @@ import numpy.random as rnd
 
 from gym_gridverse.agent import Agent
 from gym_gridverse.envs.reset_functions import reset_function_registry
-from gym_gridverse.geometry import Orientation
+from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Exit, Floor, Wall
 from gym_gridverse.state import State
@@ -25,6 +25,6 @@ def simplest(*, rng: Optional[rnd.Generator] = None) -> State:
     )
 
     # positioning the agent in the above grid
-    agent = Agent((2, 1), Orientation.N)
+    agent = Agent(Position(2, 1), Orientation.N)
 
     return State(grid, agent)

@@ -22,7 +22,7 @@ from gym_gridverse.envs.transition_functions import (
     step_moving_obstacles,
     step_telepod,
 )
-from gym_gridverse.geometry import Orientation, Position, PositionOrTuple, Shape
+from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Box,
@@ -52,7 +52,7 @@ def make_moving_obstacle_state():
         # Facing north, rotate to WEST
         (
             Agent(
-                (random.randint(0, 10), random.randint(0, 10)),
+                Position(random.randint(0, 10), random.randint(0, 10)),
                 Orientation.N,
                 NoneGridObject(),
             ),
@@ -62,7 +62,7 @@ def make_moving_obstacle_state():
         # Not rotating
         (
             Agent(
-                (random.randint(0, 10), random.randint(0, 10)),
+                Position(random.randint(0, 10), random.randint(0, 10)),
                 Orientation.W,
                 NoneGridObject(),
             ),
@@ -72,7 +72,7 @@ def make_moving_obstacle_state():
         # Two rotation to EAST
         (
             Agent(
-                (random.randint(0, 10), random.randint(0, 10)),
+                Position(random.randint(0, 10), random.randint(0, 10)),
                 Orientation.W,
                 NoneGridObject(),
             ),
@@ -82,7 +82,7 @@ def make_moving_obstacle_state():
         # One back to SOUTH
         (
             Agent(
-                (random.randint(0, 10), random.randint(0, 10)),
+                Position(random.randint(0, 10), random.randint(0, 10)),
                 Orientation.E,
                 NoneGridObject(),
             ),
@@ -92,7 +92,7 @@ def make_moving_obstacle_state():
         # Full circle for fun to SOUTH
         (
             Agent(
-                (random.randint(0, 10), random.randint(0, 10)),
+                Position(random.randint(0, 10), random.randint(0, 10)),
                 Orientation.S,
                 NoneGridObject(),
             ),
@@ -121,36 +121,41 @@ def test_rotate_agent(
     'position,orientation,actions,expected',
     [
         #  unblocked movement
-        ((2, 1), Orientation.N, [Action.MOVE_LEFT], (2, 0)),
-        ((2, 0), Orientation.N, [Action.MOVE_RIGHT], (2, 1)),
+        (Position(2, 1), Orientation.N, [Action.MOVE_LEFT], Position(2, 0)),
+        (Position(2, 0), Orientation.N, [Action.MOVE_RIGHT], Position(2, 1)),
         (
-            (2, 1),
+            Position(2, 1),
             Orientation.N,
             [Action.MOVE_FORWARD, Action.MOVE_FORWARD],
-            (0, 1),
+            Position(0, 1),
         ),
-        ((0, 1), Orientation.N, [Action.MOVE_BACKWARD], (1, 1)),
+        (Position(0, 1), Orientation.N, [Action.MOVE_BACKWARD], Position(1, 1)),
         # blocked by grid object
         # blocked by edges
-        ((2, 1), Orientation.N, [Action.MOVE_RIGHT], (2, 1)),
+        (Position(2, 1), Orientation.N, [Action.MOVE_RIGHT], Position(2, 1)),
         # non-movements
-        ((2, 1), Orientation.N, [Action.TURN_RIGHT], (2, 1)),
-        ((2, 1), Orientation.N, [Action.TURN_LEFT], (2, 1)),
-        ((2, 1), Orientation.N, [Action.ACTUATE], (2, 1)),
-        ((2, 1), Orientation.N, [Action.PICK_N_DROP], (2, 1)),
+        (Position(2, 1), Orientation.N, [Action.TURN_RIGHT], Position(2, 1)),
+        (Position(2, 1), Orientation.N, [Action.TURN_LEFT], Position(2, 1)),
+        (Position(2, 1), Orientation.N, [Action.ACTUATE], Position(2, 1)),
+        (Position(2, 1), Orientation.N, [Action.PICK_N_DROP], Position(2, 1)),
         # facing east
-        ((2, 1), Orientation.E, [Action.MOVE_LEFT, Action.MOVE_LEFT], (0, 1)),
-        ((0, 1), Orientation.E, [Action.MOVE_BACKWARD], (0, 0)),
-        ((0, 0), Orientation.E, [Action.MOVE_FORWARD], (0, 1)),
-        ((0, 1), Orientation.E, [Action.MOVE_FORWARD], (0, 1)),
-        ((0, 1), Orientation.E, [Action.MOVE_RIGHT], (1, 1)),
+        (
+            Position(2, 1),
+            Orientation.E,
+            [Action.MOVE_LEFT, Action.MOVE_LEFT],
+            Position(0, 1),
+        ),
+        (Position(0, 1), Orientation.E, [Action.MOVE_BACKWARD], Position(0, 0)),
+        (Position(0, 0), Orientation.E, [Action.MOVE_FORWARD], Position(0, 1)),
+        (Position(0, 1), Orientation.E, [Action.MOVE_FORWARD], Position(0, 1)),
+        (Position(0, 1), Orientation.E, [Action.MOVE_RIGHT], Position(1, 1)),
     ],
 )
 def test_move_action(
-    position: PositionOrTuple,
+    position: Position,
     orientation: Orientation,
     actions: Sequence[Action],
-    expected: PositionOrTuple,
+    expected: Position,
 ):
     grid = Grid(height=3, width=2)
     agent = Agent(position=position, orientation=orientation)
@@ -404,7 +409,7 @@ def test_actuate_door(
     # agent facing door
     grid = Grid(2, 1)
     grid[0, 0] = door = Door(door_state, door_color)
-    agent = Agent((1, 0), Orientation.N, Key(key_color))
+    agent = Agent(Position(1, 0), Orientation.N, Key(key_color))
     state = State(grid, agent)
 
     actuate_door(state, action)
@@ -413,7 +418,7 @@ def test_actuate_door(
     # agent facing away
     grid = Grid(2, 1)
     grid[0, 0] = door = Door(door_state, door_color)
-    agent = Agent((1, 0), Orientation.S, Key(key_color))
+    agent = Agent(Position(1, 0), Orientation.S, Key(key_color))
     state = State(grid, agent)
 
     actuate_door(state, action)
@@ -443,7 +448,7 @@ def test_actuate_box(
 ):
     grid = Grid(2, 1)
     grid[0, 0] = box = Box(content)
-    agent = Agent((1, 0), orientation)
+    agent = Agent(Position(1, 0), orientation)
     state = State(grid, agent)
 
     actuate_box(state, action)
@@ -471,7 +476,7 @@ def test_actuate_no_box(
     action: Action,
 ):
     grid = Grid(2, 1)
-    agent = Agent((1, 0), orientation)
+    agent = Agent(Position(1, 0), orientation)
     state = State(grid, agent)
 
     prev_state = copy.deepcopy(state)
@@ -482,14 +487,14 @@ def test_actuate_no_box(
 @pytest.mark.parametrize(
     'position_telepod1,position_telepod2,position_agent,expected',
     [
-        ((0, 0), (1, 1), (0, 0), (1, 1)),
-        ((0, 0), (1, 1), (0, 1), (0, 1)),
-        ((0, 0), (1, 1), (1, 0), (1, 0)),
-        ((0, 0), (1, 1), (1, 1), (0, 0)),
-        ((1, 1), (0, 0), (0, 0), (1, 1)),
-        ((1, 1), (0, 0), (0, 1), (0, 1)),
-        ((1, 1), (0, 0), (1, 0), (1, 0)),
-        ((1, 1), (0, 0), (1, 1), (0, 0)),
+        (Position(0, 0), Position(1, 1), Position(0, 0), Position(1, 1)),
+        (Position(0, 0), Position(1, 1), Position(0, 1), Position(0, 1)),
+        (Position(0, 0), Position(1, 1), Position(1, 0), Position(1, 0)),
+        (Position(0, 0), Position(1, 1), Position(1, 1), Position(0, 0)),
+        (Position(1, 1), Position(0, 0), Position(0, 0), Position(1, 1)),
+        (Position(1, 1), Position(0, 0), Position(0, 1), Position(0, 1)),
+        (Position(1, 1), Position(0, 0), Position(1, 0), Position(1, 0)),
+        (Position(1, 1), Position(0, 0), Position(1, 1), Position(0, 0)),
     ],
 )
 def test_teleport(

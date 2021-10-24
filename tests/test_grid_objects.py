@@ -5,7 +5,7 @@ from typing import Type
 import pytest
 
 from gym_gridverse.agent import Agent
-from gym_gridverse.geometry import Orientation
+from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Beacon,
@@ -102,7 +102,7 @@ def simple_state_without_object() -> State:
     """Returns a 2x2 (empty) grid with an agent without an item"""
     return State(
         Grid(height=2, width=2),
-        Agent(position=(0, 0), orientation=Orientation.N, obj=Floor()),
+        Agent(Position(0, 0), Orientation.N, Floor()),
     )
 
 

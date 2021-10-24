@@ -9,7 +9,7 @@ from gym_gridverse.envs.terminating_functions import (
     factory,
     reach_exit,
 )
-from gym_gridverse.geometry import Orientation
+from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Exit, Wall
 from gym_gridverse.state import State
@@ -20,7 +20,7 @@ def make_exit_state(agent_on_exit: bool) -> State:
     """makes a simple state with exit object and agent on or off the exit"""
     grid = Grid(2, 1)
     grid[0, 0] = Exit()
-    agent_position = (0, 0) if agent_on_exit else (1, 0)
+    agent_position = Position(0, 0) if agent_on_exit else Position(1, 0)
     agent = Agent(agent_position, Orientation.N)
     return State(grid, agent)
 
@@ -30,7 +30,7 @@ def make_wall_state() -> State:
     """makes a simple state with Wall object and agent in front of it"""
     grid = Grid(2, 1)
     grid[0, 0] = Wall()
-    agent = Agent((1, 0), Orientation.N)
+    agent = Agent(Position(1, 0), Orientation.N)
     return State(grid, agent)
 
 

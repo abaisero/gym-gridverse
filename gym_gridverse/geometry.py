@@ -4,7 +4,7 @@ import enum
 import itertools as itt
 import math
 from dataclasses import dataclass
-from typing import Callable, Iterable, Iterator, List, Tuple, Union
+from typing import Callable, Iterable, Iterator, List, Tuple
 
 from cached_property import cached_property
 
@@ -126,15 +126,13 @@ class Area:
             for x in range(self.xmin + 1, self.xmax)
         )
 
-    def contains(self, position: PositionOrTuple) -> bool:
-        position = Position.from_position_or_tuple(position)
+    def contains(self, position: Position) -> bool:
         return (
             self.ymin <= position.y <= self.ymax
             and self.xmin <= position.x <= self.xmax
         )
 
-    def translate(self, position: PositionOrTuple) -> Area:
-        position = Position.from_position_or_tuple(position)
+    def translate(self, position: Position) -> Area:
         return Area(
             (self.ymin + position.y, self.ymax + position.y),
             (self.xmin + position.x, self.xmax + position.x),
@@ -162,15 +160,6 @@ class Position:
 
     y: int
     x: int
-
-    @staticmethod
-    def from_position_or_tuple(position: PositionOrTuple) -> Position:
-        return (
-            position if isinstance(position, Position) else Position(*position)
-        )
-
-    def astuple(self) -> Tuple[int, int]:
-        return (self.y, self.x)
 
     def __add__(self, other) -> Position:
         try:
@@ -224,22 +213,14 @@ class Position:
         raise TypeError('orientation must be of type Orientation')
 
     @staticmethod
-    def manhattan_distance(p: PositionOrTuple, q: PositionOrTuple) -> float:
-        p = Position.from_position_or_tuple(p)
-        q = Position.from_position_or_tuple(q)
+    def manhattan_distance(p: Position, q: Position) -> float:
         diff = p - q
         return abs(diff.y) + abs(diff.x)
 
     @staticmethod
-    def euclidean_distance(p: PositionOrTuple, q: PositionOrTuple) -> float:
-        p = Position.from_position_or_tuple(p)
-        q = Position.from_position_or_tuple(q)
+    def euclidean_distance(p: Position, q: Position) -> float:
         diff = p - q
         return math.sqrt(diff.y ** 2 + diff.x ** 2)
-
-
-PositionOrTuple = Union[Position, Tuple[int, int]]
-"""Type to describe a position either through its class or a pair of integers"""
 
 
 class Orientation(enum.Enum):
@@ -331,9 +312,7 @@ class Pose:
         return relative_area.rotate(self.orientation).translate(self.position)
 
 
-def get_manhattan_boundary(
-    position: PositionOrTuple, distance: int
-) -> List[Position]:
+def get_manhattan_boundary(position: Position, distance: int) -> List[Position]:
     """Returns the cells (excluding pos) with Manhattan distance of pos
 
     For distance = 1, will return the left, upper, right and lower cell of
@@ -348,7 +327,7 @@ def get_manhattan_boundary(
           x
 
     Args:
-        position (PositionOrTuple): The center of the return boundary (excluded)
+        position (Position): The center of the return boundary (excluded)
         distance (int): The distance of the boundary returned
 
     Returns:
@@ -360,8 +339,6 @@ def get_manhattan_boundary(
         'distance ({}) must be positive',
         distance,
     )
-
-    position = Position.from_position_or_tuple(position)
 
     boundary: List[Position] = []
     # from top, adding points clockwise in 4 straight lines

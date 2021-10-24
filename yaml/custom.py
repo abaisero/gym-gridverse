@@ -34,5 +34,8 @@ def checkerboard(
     reward_even: float,
     reward_odd: float,
 ):
-    y, x = next_state.agent.position.astuple()
-    return reward_even if (y + x) % 2 == 0 else reward_odd
+    return (
+        reward_even
+        if (next_state.agent.position.y + next_state.agent.position.x) % 2 == 0
+        else reward_odd
+    )
