@@ -10,7 +10,7 @@ def reset_gv_debug(debug: Optional[bool] = None) -> bool:
     return _gv_debug
 
 
-def get_gv_debug() -> bool:
+def gv_debug() -> bool:
     return reset_gv_debug() if _gv_debug is None else _gv_debug
 
 
@@ -21,5 +21,5 @@ def checkraise(
     *args,
     **kwargs
 ):
-    if get_gv_debug() and not condition_f():
+    if gv_debug() and not condition_f():
         raise error_type(error_message_fmt.format(*args, **kwargs))
