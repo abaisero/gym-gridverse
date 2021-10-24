@@ -3,8 +3,6 @@ from typing import Tuple
 
 import numpy as np
 
-from gym_gridverse.debugging import checkraise
-
 
 class SpaceType(enum.Enum):
     CATEGORICAL = 0
@@ -77,33 +75,20 @@ class Space:
             lower_bound (numpy.ndarray): lower_bound
             upper_bound (numpy.ndarray): upper_bound
         """
-        checkraise(
-            lambda: is_dtype_compatible(lower_bound, space_type),
-            ValueError,
-            'incompatible lower bound dtype {}',
-            lower_bound.dtype,
-        )
-
-        checkraise(
-            lambda: is_dtype_compatible(upper_bound, space_type),
-            ValueError,
-            'incompatible upper bound dtype {}',
-            upper_bound.dtype,
-        )
-
-        checkraise(
-            lambda: lower_bound.shape == upper_bound.shape,
-            ValueError,
-            'incompatible bound shapes {} {}',
-            lower_bound.shape,
-            upper_bound.shape,
-        )
-
-        checkraise(
-            lambda: np.all(lower_bound <= upper_bound),
-            ValueError,
-            'incompatible bound values',
-        )
+        if not is_dtype_compatible(lower_bound, space_type):
+            raise ValueError(
+                f'incompatible lower bound dtype {lower_bound.dtype}'
+            )
+        if not is_dtype_compatible(upper_bound, space_type):
+            raise ValueError(
+                f'incompatible upper bound dtype {upper_bound.dtype}'
+            )
+        if lower_bound.shape != upper_bound.shape:
+            raise ValueError(
+                f'incompatible bound shapes {lower_bound.shape} {upper_bound.shape}'
+            )
+        if np.any(lower_bound > upper_bound):
+            raise ValueError('incompatible bound values')
 
         self.space_type = space_type
         self.lower_bound = lower_bound

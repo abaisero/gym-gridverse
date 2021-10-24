@@ -8,7 +8,6 @@ import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.agent import Agent
-from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.visibility_functions import (
     VisibilityFunction,
     visibility_function_registry,
@@ -120,11 +119,10 @@ def from_visibility(
         observation_grid, pov_agent_position, rng=rng
     )
 
-    checkraise(
-        lambda: visibility.shape == (area.height, area.width),
-        ValueError,
-        'incorrect shape of visibility mask',
-    )
+    if visibility.shape != (area.height, area.width):
+        raise ValueError(
+            'incorrect visibility shape ({visibility.shape}), should be {(area.height, area.width)}'
+        )
 
     for pos in observation_grid.positions():
         if not visibility[pos.y, pos.x]:

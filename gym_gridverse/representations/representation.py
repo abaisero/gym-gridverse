@@ -4,7 +4,6 @@ from typing import Dict, Tuple
 import numpy as np
 
 from gym_gridverse.agent import Agent
-from gym_gridverse.debugging import checkraise
 from gym_gridverse.grid import Grid
 from gym_gridverse.observation import Observation
 from gym_gridverse.representations.spaces import (
@@ -37,11 +36,10 @@ class StateRepresentation(Representation):
     """Base interface for state representations: enforces `convert`"""
 
     def __init__(self, state_space: StateSpace):
-        checkraise(
-            lambda: state_space.can_be_represented,
-            ValueError,
-            'state space contains objects which cannot be represented in state',
-        )
+        if not state_space.can_be_represented:
+            raise ValueError(
+                'state space contains objects which cannot be represented in state'
+            )
 
         self.state_space = state_space
 
@@ -99,18 +97,10 @@ def default_representation_space(
     Returns:
         Dict[str, Space]: keys {'grid', 'agent', 'item', 'agent_id_grid'}
     """
-    checkraise(
-        lambda: max_type_index >= 0,
-        ValueError,
-        'max_type_index ({}) must be non-negative',
-        max_type_index,
-    )
-    checkraise(
-        lambda: height > 0 and width > 0,
-        ValueError,
-        'height and width ({}) must be positive',
-        (height, width),
-    )
+    if max_type_index < 0:
+        raise ValueError(f'negative max_type_index ({max_type_index})')
+    if height < 0 or width < 0:
+        raise ValueError(f'negative height or width ({height, width})')
 
     grid_space = CategoricalSpace(
         np.array(

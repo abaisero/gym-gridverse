@@ -8,8 +8,6 @@ from typing import Callable, Iterable, Iterator, List, Tuple
 
 from cached_property import cached_property
 
-from gym_gridverse.debugging import checkraise
-
 
 @dataclass(frozen=True)
 class Shape:
@@ -31,18 +29,10 @@ class Area:
     xs: Tuple[int, int]
 
     def __post_init__(self):
-        checkraise(
-            lambda: self.ys[0] <= self.ys[1],
-            ValueError,
-            'ys ({}) should be non-decreasing',
-            self.ys,
-        )
-        checkraise(
-            lambda: self.xs[0] <= self.xs[1],
-            ValueError,
-            'xs ({}) should be non-decreasing',
-            self.xs,
-        )
+        if self.ys[0] > self.ys[1]:
+            raise ValueError('ys ({self.ys}) should be non-decreasing')
+        if self.xs[0] > self.xs[1]:
+            raise ValueError('xs ({self.xs}) should be non-decreasing')
 
     @cached_property
     def ymin(self) -> int:
@@ -333,12 +323,8 @@ def get_manhattan_boundary(position: Position, distance: int) -> List[Position]:
     Returns:
         List[Position]: List of positions (excluding pos) representing the boundary
     """
-    checkraise(
-        lambda: distance > 0,
-        ValueError,
-        'distance ({}) must be positive',
-        distance,
-    )
+    if distance <= 0:
+        raise ValueError(f'distance ({distance}) must be positive')
 
     boundary: List[Position] = []
     # from top, adding points clockwise in 4 straight lines

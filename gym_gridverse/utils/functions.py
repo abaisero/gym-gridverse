@@ -1,17 +1,11 @@
 import importlib
 from typing import Any, Collection, Container, Dict
 
-from gym_gridverse.debugging import checkraise
-
 
 def checkraise_kwargs(kwargs: Dict[str, Any], required_keys: Collection[str]):
     for key in required_keys:
-        checkraise(
-            lambda: key in kwargs,
-            ValueError,
-            'missing keyword argument `{}`',
-            key,
-        )
+        if key not in kwargs:
+            raise ValueError(f'missing keyword argument `{key}`')
 
 
 def select_kwargs(kwargs: Dict[str, Any], keys: Container[str]):

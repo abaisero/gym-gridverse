@@ -6,7 +6,6 @@ from typing import Iterable, List
 import more_itertools as mitt
 import numpy as np
 
-from gym_gridverse.debugging import checkraise
 from gym_gridverse.geometry import Area, Position
 
 Ray = List[Position]
@@ -38,13 +37,8 @@ def compute_ray(
         Ray: ray from the given position until the area boundary
     """
 
-    checkraise(
-        lambda: area.contains(position),
-        ValueError,
-        'position {} must be inside area {}',
-        position,
-        area,
-    )
+    if not area.contains(position):
+        raise ValueError(f'Position {position} is not inside area {area}')
 
     y0, x0 = float(position.y), float(position.x)
     dy = step_size * math.sin(radians)

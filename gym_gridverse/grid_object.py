@@ -5,8 +5,6 @@ import abc
 import enum
 from typing import Callable, List, Type
 
-from gym_gridverse.debugging import checkraise
-
 
 class Color(enum.Enum):
     """Color of grid objects"""
@@ -438,11 +436,8 @@ class Box(GridObject):
 
     def __init__(self, content: GridObject):
         """Boxes have no special status or color"""
-        checkraise(
-            lambda: not isinstance(content, (NoneGridObject, Hidden)),
-            ValueError,
-            'box cannot contain NoneGridObject or Hidden types',
-        )
+        if isinstance(content, (NoneGridObject, Hidden)):
+            raise ValueError('Box cannot contain NoneGridObject or Hidden')
 
         self.content = content
 
@@ -576,29 +571,22 @@ def factory(name: str, **kwargs) -> GridObject:
         return Exit()
 
     if name in ['door', 'Door']:
-        checkraise(
-            lambda: isinstance(kwargs.get('status'), str)
-            and isinstance(kwargs.get('color'), str),
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
+        status = kwargs.get('status')
+        color = kwargs.get('color')
 
-        status = kwargs['status']
-        color = kwargs['color']
+        if status is None or color is None:
+            raise ValueError(f'invalid inputs for {name}')
+
         status = Door.Status[status]
         color = Color[color]
         return Door(status, color)
 
     if name in ['key', 'Key']:
-        checkraise(
-            lambda: isinstance(kwargs.get('color'), str),
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
+        color = kwargs.get('color')
 
-        color = kwargs['color']
+        if color is None:
+            raise ValueError(f'invalid inputs for {name}')
+
         color = Color[color]
         return Key(color)
 
@@ -606,37 +594,28 @@ def factory(name: str, **kwargs) -> GridObject:
         return MovingObstacle()
 
     if name in ['box', 'Box']:
-        checkraise(
-            lambda: isinstance(kwargs.get('obj'), GridObject),
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
+        obj = kwargs.get('obj')
 
-        obj = kwargs['obj']
+        if obj is None:
+            raise ValueError(f'invalid inputs for {name}')
+
         return Box(obj)
 
     if name in ['telepod', 'Telepod']:
-        checkraise(
-            lambda: isinstance(kwargs.get('color'), str),
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
+        color = kwargs.get('color')
 
-        color = kwargs['color']
+        if color is None:
+            raise ValueError(f'invalid inputs for {name}')
+
         color = Color[color]
         return Telepod(color)
 
     if name in ['beacon', 'Beacon']:
-        checkraise(
-            lambda: isinstance(kwargs.get('color'), str),
-            ValueError,
-            'invalid parameters for name `{}`',
-            name,
-        )
+        color = kwargs.get('color')
 
-        color = kwargs['color']
+        if color is None:
+            raise ValueError(f'invalid inputs for {name}')
+
         color = Color[color]
         return Beacon(color)
 

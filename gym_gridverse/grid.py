@@ -4,8 +4,6 @@ from typing import Iterable, List, Optional, Sequence, Set, Tuple, Type, Union
 
 import numpy as np
 
-from gym_gridverse.debugging import checkraise
-
 from .geometry import Area, Orientation, Position, Shape
 from .grid_object import Floor, GridObject, Hidden
 
@@ -124,11 +122,8 @@ class Grid:
             raise IndexError(f'position {position} not in grid') from e
 
     def __setitem__(self, position: PositionOrTuple, obj: GridObject):
-        checkraise(
-            lambda: isinstance(obj, GridObject),
-            TypeError,
-            'grid can only contain entities',
-        )
+        if not isinstance(obj, GridObject):
+            raise TypeError('grid can only contain grid objects')
 
         y, x = (
             (position.y, position.x)
@@ -144,8 +139,11 @@ class Grid:
 
     def swap(self, p: Position, q: Position):
         """swap the objects at two positions"""
-        checkraise(lambda: p in self, ValueError, 'position {} not in grid', p)
-        checkraise(lambda: q in self, ValueError, 'position {} not in grid', q)
+        if p not in self:
+            raise ValueError(f'Position {p} not in grid')
+        if q not in self:
+            raise ValueError(f'Position {q} not in grid')
+
         self[p], self[q] = self[q], self[p]
 
     def subgrid(self, area: Area) -> Grid:

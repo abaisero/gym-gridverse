@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Iterable, Sequence, Tuple, Type
 
 from gym_gridverse.action import Action
-from gym_gridverse.debugging import checkraise
 from gym_gridverse.geometry import Area, Orientation, Position, Shape
 from gym_gridverse.grid_object import Color, GridObject, Hidden, NoneGridObject
 from gym_gridverse.observation import Observation
@@ -150,11 +149,9 @@ class ObservationSpace:
         object_types: Sequence[Type[GridObject]],
         colors: Sequence[Color],
     ):
-        checkraise(
-            lambda: grid_shape.width % 2 != 0,
-            ValueError,
-            'shape should have an odd width',
-        )
+        # TODO we should generalize this
+        if grid_shape.width % 2 == 0:
+            raise ValueError('shape should have an odd width')
 
         self.grid_shape = grid_shape
         self.object_types = list(object_types)

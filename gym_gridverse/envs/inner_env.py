@@ -2,7 +2,6 @@ import abc
 from typing import Optional, Tuple
 
 from gym_gridverse.action import Action
-from gym_gridverse.debugging import checkraise
 from gym_gridverse.observation import Observation
 from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
 from gym_gridverse.state import State
@@ -77,11 +76,10 @@ class InnerEnv(metaclass=abc.ABCMeta):
         Returns:
             State: the current state of the environment
         """
-        checkraise(
-            lambda: self._state is not None,
-            RuntimeError,
-            'The state was not set properly;  was the environment reset?',
-        )
+        if self._state is None:
+            raise RuntimeError(
+                'The state was not set properly;  was the environment reset?'
+            )
 
         return self._state
 

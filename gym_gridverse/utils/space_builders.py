@@ -1,6 +1,5 @@
 from typing import Optional, Sequence, Type
 
-from gym_gridverse.debugging import checkraise
 from gym_gridverse.geometry import Shape
 from gym_gridverse.grid_object import Color, GridObject
 from gym_gridverse.spaces import ObservationSpace, StateSpace
@@ -22,21 +21,14 @@ class StateSpaceBuilder:
         self.colors = colors
 
     def build(self) -> StateSpace:
-        checkraise(
-            lambda: self.grid_shape is not None,
-            RuntimeError,
-            'StateSpaceBuilder.build() called without setting `grid_shape`',
-        )
-        checkraise(
-            lambda: self.object_types is not None,
-            RuntimeError,
-            'StateSpaceBuilder.build() called without setting `object_types`',
-        )
-        checkraise(
-            lambda: self.colors is not None,
-            RuntimeError,
-            'StateSpaceBuilder.build() called without setting `colors`',
-        )
+        if self.grid_shape is None:
+            raise RuntimeError('`grid_shape` was not set')
+
+        if self.object_types is None:
+            raise RuntimeError('`object_types` was not set')
+
+        if self.colors is None:
+            raise RuntimeError('`colors` was not set')
 
         return StateSpace(self.grid_shape, self.object_types, self.colors)
 
@@ -57,20 +49,13 @@ class ObservationSpaceBuilder:
         self.colors = colors
 
     def build(self) -> ObservationSpace:
-        checkraise(
-            lambda: self.grid_shape is not None,
-            RuntimeError,
-            'ObservationSpaceBuilder.build() called without setting `grid_shape`',
-        )
-        checkraise(
-            lambda: self.object_types is not None,
-            RuntimeError,
-            'ObservationSpaceBuilder.build() called without setting `object_types`',
-        )
-        checkraise(
-            lambda: self.colors is not None,
-            RuntimeError,
-            'ObservationSpaceBuilder.build() called without setting `colors`',
-        )
+        if self.grid_shape is None:
+            raise RuntimeError('`grid_shape` was not set')
+
+        if self.object_types is None:
+            raise RuntimeError('`object_types` was not set')
+
+        if self.colors is None:
+            raise RuntimeError('`colors` was not set')
 
         return ObservationSpace(self.grid_shape, self.object_types, self.colors)

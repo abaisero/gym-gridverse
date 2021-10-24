@@ -2,7 +2,6 @@ from typing import Dict, Optional, Tuple
 
 import numpy as np
 
-from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.inner_env import Action, InnerEnv
 from gym_gridverse.representations.representation import (
     ObservationRepresentation,
@@ -56,11 +55,8 @@ class OuterEnv:
         Returns:
             Dict[str, numpy.ndarray]:
         """
-        checkraise(
-            lambda: self.state_rep is not None,
-            RuntimeError,
-            'State representation not available',
-        )
+        if self.state_rep is None:
+            raise RuntimeError('State representation not available')
 
         return self.state_rep.convert(self.inner_env.state)
 
@@ -71,10 +67,7 @@ class OuterEnv:
         Returns:
             Dict[str, numpy.ndarray]:
         """
-        checkraise(
-            lambda: self.observation_rep is not None,
-            RuntimeError,
-            'Observation representation not available',
-        )
+        if self.observation_rep is None:
+            raise RuntimeError('Observation representation not available')
 
         return self.observation_rep.convert(self.inner_env.observation)

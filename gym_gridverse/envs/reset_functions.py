@@ -10,7 +10,6 @@ import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.agent import Agent
-from gym_gridverse.debugging import checkraise
 from gym_gridverse.design import (
     draw_area,
     draw_line_horizontal,
@@ -105,11 +104,8 @@ def empty(
     """An empty environment"""
     # TODO: test
 
-    checkraise(
-        lambda: shape.height >= 4 and shape.width >= 4,
-        ValueError,
-        'height and width need to be at least 4',
-    )
+    if shape.height < 4 or shape.width < 4:
+        raise ValueError('height and width need to be at least 4')
 
     rng = get_gv_rng_if_none(rng)
 
@@ -165,13 +161,10 @@ def rooms(
         dtype=int,
     )
 
-    checkraise(
-        lambda: len(y_splits) == len(set(y_splits)),
-        ValueError,
-        'insufficient height ({}) for layout ({})',
-        shape.height,
-        layout,
-    )
+    if len(y_splits) != len(set(y_splits)):
+        raise ValueError(
+            f'insufficient height ({shape.height}) for layout ({layout})'
+        )
 
     x_splits = np.linspace(
         0,
@@ -180,13 +173,10 @@ def rooms(
         dtype=int,
     )
 
-    checkraise(
-        lambda: len(x_splits) == len(set(x_splits)),
-        ValueError,
-        'insufficient width ({}) for layout ({})',
-        shape.height,
-        layout,
-    )
+    if len(x_splits) != len(set(x_splits)):
+        raise ValueError(
+            f'insufficient width ({shape.width}) for layout ({layout})'
+        )
 
     grid = Grid(shape.height, shape.width)
     draw_room_grid(grid, y_splits, x_splits, Wall)
@@ -289,12 +279,8 @@ def keydoor(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
         State:
     """
 
-    checkraise(
-        lambda: shape.height >= 3 and shape.width >= 5 and shape != Shape(3, 5),
-        ValueError,
-        'Shape must larger than (3, 5), given {}',
-        shape,
-    )
+    if shape.height < 3 or shape.width < 5 or shape == Shape(3, 5):
+        raise ValueError(f'Shape must larger than (3, 5), given {shape}')
 
     rng = get_gv_rng_if_none(rng)
 
@@ -361,24 +347,12 @@ def crossing(
         State:
     """
 
-    checkraise(
-        lambda: shape.height >= 5 and shape.height % 2 == 1,
-        ValueError,
-        'Crossing environment height must be odd and >= 5, given {}',
-        shape.height,
-    )
-    checkraise(
-        lambda: shape.width >= 5 and shape.width % 2 == 1,
-        ValueError,
-        'Crossing environment width must be odd and >= 5, given {}',
-        shape.width,
-    )
-    checkraise(
-        lambda: num_rivers >= 0,
-        ValueError,
-        'Crossing environment number of walls must be >= 0, given {}',
-        num_rivers,
-    )
+    if shape.height < 5 or shape.height % 2 == 0:
+        raise ValueError(f'height ({shape.height}) must be odd and >= 5')
+    if shape.width < 5 or shape.width % 2 == 0:
+        raise ValueError(f'width ({shape.width}) must be odd and >= 5')
+    if num_rivers <= 0:
+        raise ValueError(f'number of rivers ({num_rivers}) must be positive')
 
     rng = get_gv_rng_if_none(rng)
 
@@ -489,30 +463,14 @@ def memory(
     rng: Optional[rnd.Generator] = None,
 ) -> State:
 
-    checkraise(
-        lambda: shape.height >= 5,
-        ValueError,
-        'Memory environment height must be >= 5, given {}',
-        shape.height,
-    )
-    checkraise(
-        lambda: shape.width >= 5 and shape.width % 2 == 1,
-        ValueError,
-        'Memory environment width must be odd and >= 5, given {}',
-        shape.width,
-    )
-    checkraise(
-        lambda: Color.NONE not in colors,
-        ValueError,
-        'Memory environment colors must not include NONE, given {}',
-        colors,
-    )
-    checkraise(
-        lambda: len(colors) >= 2,
-        ValueError,
-        'Memory environment colors must have at least 2 colors, given {}',
-        colors,
-    )
+    if shape.height < 5:
+        raise ValueError(f'height ({shape.height}) must be >= 5')
+    if shape.width < 5 or shape.width % 2 == 0:
+        raise ValueError(f'width ({shape.width}) must be odd and >= 5')
+    if Color.NONE in colors:
+        raise ValueError(f'colors ({colors}) must not include Colors.NONE')
+    if len(colors) < 2:
+        raise ValueError(f'colors ({colors}) must have at least 2 colors')
 
     rng = get_gv_rng_if_none(rng)
 
@@ -553,30 +511,14 @@ def memory_rooms(
     rng: Optional[rnd.Generator] = None,
 ) -> State:
 
-    checkraise(
-        lambda: Color.NONE not in colors,
-        ValueError,
-        'Memory-rooms environment colors must not include NONE, given {}',
-        colors,
-    )
-    checkraise(
-        lambda: len(colors) >= 2,
-        ValueError,
-        'Memory-rooms environment colors must have at least 2 colors, given {}',
-        colors,
-    )
-    checkraise(
-        lambda: num_beacons >= 1,
-        ValueError,
-        'Memory-rooms environment must have at least 1 beacon, given {}',
-        num_beacons,
-    )
-    checkraise(
-        lambda: num_exits >= 2,
-        ValueError,
-        'Memory-rooms environment must have at least 2 exit, given {}',
-        num_exits,
-    )
+    if Color.NONE in colors:
+        raise ValueError(f'colors ({colors}) must not include NONE')
+    if len(colors) < 2:
+        raise ValueError(f'colors ({colors}) must have at least 2 colors')
+    if num_beacons < 1:
+        raise ValueError(f'num_beacons ({num_beacons}) must be positive')
+    if num_exits < 2:
+        raise ValueError(f'num_exits ({num_exits}) must be >= 2')
 
     rng = get_gv_rng_if_none(rng)
 
@@ -589,13 +531,10 @@ def memory_rooms(
         dtype=int,
     )
 
-    checkraise(
-        lambda: len(y_splits) == len(set(y_splits)),
-        ValueError,
-        'insufficient shape.height ({}) for layout ({})',
-        shape.height,
-        layout,
-    )
+    if len(y_splits) != len(set(y_splits)):
+        raise ValueError(
+            f'insufficient shape.height ({shape.height}) for layout ({layout})'
+        )
 
     x_splits = np.linspace(
         0,
@@ -604,13 +543,10 @@ def memory_rooms(
         dtype=int,
     )
 
-    checkraise(
-        lambda: len(x_splits) == len(set(x_splits)),
-        ValueError,
-        'insufficient width ({}) for layout ({})',
-        shape.height,
-        layout,
-    )
+    if len(x_splits) != len(set(x_splits)):
+        raise ValueError(
+            f'insufficient shape.width ({shape.width}) for layout ({layout})'
+        )
 
     grid = Grid(shape.height, shape.width)
     draw_room_grid(grid, y_splits, x_splits, Wall)

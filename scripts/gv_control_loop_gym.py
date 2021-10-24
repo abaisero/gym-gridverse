@@ -5,7 +5,6 @@ import time
 
 import gym
 
-from gym_gridverse.debugging import checkraise
 from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 from gym_gridverse.gym import GymEnvironment
 from gym_gridverse.outer_env import OuterEnv
@@ -34,12 +33,10 @@ def make_env(id_or_path: str) -> GymEnvironment:
         env = GymEnvironment.from_environment(outer_env)
 
     else:
-        checkraise(
-            lambda: isinstance(env, GymEnvironment),
-            ValueError,
-            'gym id {} is not associated with a GridVerse environment',
-            id_or_path,
-        )
+        if not isinstance(env, GymEnvironment):
+            raise ValueError(
+                f'gym id {id_or_path} is not associated with a GridVerse environment'
+            )
 
     return env
 
