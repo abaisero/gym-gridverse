@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Type
 
 import pytest
 
@@ -552,6 +552,6 @@ def test_factory_valid(name: str, kwargs):
         ('pickndrop', {}, ValueError),
     ],
 )
-def test_factory_invalid(name: str, kwargs, exception: Exception):
+def test_factory_invalid(name: str, kwargs, exception: Type[Exception]):
     with pytest.raises(exception):
         factory(name, **kwargs)

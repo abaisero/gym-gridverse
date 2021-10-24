@@ -349,6 +349,6 @@ def test_factory_valid(name: str, kwargs):
         ('box', {}, ValueError),
     ],
 )
-def test_factory_invalid(name: str, kwargs, exception: Exception):
+def test_factory_invalid(name: str, kwargs, exception: Type[Exception]):
     with pytest.raises(exception):
         factory(name, **kwargs)

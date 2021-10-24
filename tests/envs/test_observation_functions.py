@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, Type
 from unittest.mock import MagicMock
 
 import pytest
@@ -129,6 +129,6 @@ def test_factory_valid(name: str, kwargs):
         ('stochastic_raytracing', {}, ValueError),
     ],
 )
-def test_factory_invalid(name: str, kwargs, exception: Exception):
+def test_factory_invalid(name: str, kwargs, exception: Type[Exception]):
     with pytest.raises(exception):
         factory(name, **kwargs)

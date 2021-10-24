@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, Type
 
 import pytest
 
@@ -262,6 +262,6 @@ def test_factory_valid(name: str):
         ('invalid', ValueError),
     ],
 )
-def test_factory_invalid(name: str, exception: Exception):
+def test_factory_invalid(name: str, exception: Type[Exception]):
     with pytest.raises(exception):
         factory(name)

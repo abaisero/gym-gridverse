@@ -1,3 +1,5 @@
+from typing import Type
+
 import pytest
 
 from gym_gridverse.action import Action
@@ -99,6 +101,6 @@ def test_factory_valid(name: str, kwargs):
         ('overlap', {}, ValueError),
     ],
 )
-def test_factory_invalid(name: str, kwargs, exception: Exception):
+def test_factory_invalid(name: str, kwargs, exception: Type[Exception]):
     with pytest.raises(exception):
         factory(name, **kwargs)
