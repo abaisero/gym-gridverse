@@ -83,7 +83,8 @@ def factory_shape(data) -> Shape:
 
 def factory_layout(data) -> Tuple[int, int]:
     data = schemas['layout'].validate(data)
-    return tuple(data)
+    layout_y, layout_x = data
+    return (layout_y, layout_x)
 
 
 def factory_object_types(data) -> List[Type[GridObject]]:

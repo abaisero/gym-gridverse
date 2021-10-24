@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import abc
 import enum
-from typing import Callable, List, Optional, Type
+from typing import Callable, List, Type
 
 from gym_gridverse.debugging import checkraise
 
@@ -558,13 +558,7 @@ class Beacon(GridObject):
         return f'{self.__class__.__name__}({self.color!s})'
 
 
-def factory(
-    name: str,
-    *,
-    status: Optional[str] = None,
-    color: Optional[str] = None,
-    obj: Optional[GridObject] = None,
-) -> GridObject:
+def factory(name: str, **kwargs) -> GridObject:
 
     if name in ['none_grid_object', 'NoneGridObject']:
         return NoneGridObject()
@@ -583,61 +577,68 @@ def factory(
 
     if name in ['door', 'Door']:
         checkraise(
-            lambda: isinstance(status, str) and isinstance(color, str),
+            lambda: isinstance(kwargs.get('status'), str)
+            and isinstance(kwargs.get('color'), str),
             ValueError,
             'invalid parameters for name `{}`',
             name,
         )
 
-        status_ = Door.Status[status]
-        color_ = Color[color]
-        return Door(status_, color_)
+        status = kwargs['status']
+        color = kwargs['color']
+        status = Door.Status[status]
+        color = Color[color]
+        return Door(status, color)
 
     if name in ['key', 'Key']:
         checkraise(
-            lambda: isinstance(color, str),
+            lambda: isinstance(kwargs.get('color'), str),
             ValueError,
             'invalid parameters for name `{}`',
             name,
         )
 
-        color_ = Color[color]
-        return Key(color_)
+        color = kwargs['color']
+        color = Color[color]
+        return Key(color)
 
     if name in ['moving_obstacle', 'MovingObstacle']:
         return MovingObstacle()
 
     if name in ['box', 'Box']:
         checkraise(
-            lambda: isinstance(obj, GridObject),
+            lambda: isinstance(kwargs.get('obj'), GridObject),
             ValueError,
             'invalid parameters for name `{}`',
             name,
         )
 
+        obj = kwargs['obj']
         return Box(obj)
 
     if name in ['telepod', 'Telepod']:
         checkraise(
-            lambda: isinstance(color, str),
+            lambda: isinstance(kwargs.get('color'), str),
             ValueError,
             'invalid parameters for name `{}`',
             name,
         )
 
-        color_ = Color[color]
-        return Telepod(color_)
+        color = kwargs['color']
+        color = Color[color]
+        return Telepod(color)
 
     if name in ['beacon', 'Beacon']:
         checkraise(
-            lambda: isinstance(color, str),
+            lambda: isinstance(kwargs.get('color'), str),
             ValueError,
             'invalid parameters for name `{}`',
             name,
         )
 
-        color_ = Color[color]
-        return Beacon(color_)
+        color = kwargs['color']
+        color = Color[color]
+        return Beacon(color)
 
     raise ValueError(f'invalid grid-object name {name}')
 
