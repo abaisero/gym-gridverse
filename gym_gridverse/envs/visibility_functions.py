@@ -240,11 +240,9 @@ def raytracing(
     rng: Optional[rnd.Generator] = None,
 ) -> np.ndarray:
 
-    area = Area((0, grid.shape.height - 1), (0, grid.shape.width - 1))
-    rays = cached_compute_rays_fancy(position, area)
-
-    counts_num = np.zeros((area.height, area.width), dtype=int)
-    counts_den = np.zeros((area.height, area.width), dtype=int)
+    rays = cached_compute_rays_fancy(position, grid.area)
+    counts_num = np.zeros((grid.shape.height, grid.shape.width), dtype=int)
+    counts_den = np.zeros((grid.shape.height, grid.shape.width), dtype=int)
 
     for ray in rays:
         light = True
@@ -271,11 +269,9 @@ def stochastic_raytracing(  # TODO: add test
 
     rng = get_gv_rng_if_none(rng)
 
-    area = Area((0, grid.shape.height - 1), (0, grid.shape.width - 1))
-    rays = cached_compute_rays_fancy(position, area)
-
-    counts_num = np.zeros((area.height, area.width), dtype=int)
-    counts_den = np.zeros((area.height, area.width), dtype=int)
+    rays = cached_compute_rays_fancy(position, grid.area)
+    counts_num = np.zeros((grid.shape.height, grid.shape.width), dtype=int)
+    counts_den = np.zeros((grid.shape.height, grid.shape.width), dtype=int)
 
     for ray in rays:
         light = True
