@@ -42,8 +42,19 @@ class TerminatingFunctionRegistry(FunctionRegistry):
     def get_protocol_parameters(
         self, signature: inspect.Signature
     ) -> List[inspect.Parameter]:
-        state, action, next_state = itt.islice(signature.parameters.values(), 3)
-        rng = signature.parameters['rng']
+
+        try:
+            state, action, next_state = itt.islice(
+                signature.parameters.values(), 3
+            )
+        except ValueError as error:
+            raise TypeError('signature needs 3 positional argument') from error
+
+        try:
+            rng = signature.parameters['rng']
+        except KeyError as error:
+            raise TypeError('signature needs `rng` keyword argument') from error
+
         return [state, action, next_state, rng]
 
     def check_signature(self, function: TerminatingFunction):
@@ -55,7 +66,7 @@ class TerminatingFunctionRegistry(FunctionRegistry):
             inspect.Parameter.POSITIONAL_OR_KEYWORD,
             inspect.Parameter.POSITIONAL_ONLY,
         ]:
-            raise ValueError(
+            raise TypeError(
                 f'The first argument ({state.name}) '
                 f'of a registered terminating function ({function}) '
                 'should be allowed to be a positional argument.'
@@ -65,7 +76,7 @@ class TerminatingFunctionRegistry(FunctionRegistry):
             inspect.Parameter.POSITIONAL_OR_KEYWORD,
             inspect.Parameter.POSITIONAL_ONLY,
         ]:
-            raise ValueError(
+            raise TypeError(
                 f'The second argument ({action.name}) '
                 f'of a registered terminating function ({function}) '
                 'should be allowed to be a positional argument.'
@@ -75,7 +86,7 @@ class TerminatingFunctionRegistry(FunctionRegistry):
             inspect.Parameter.POSITIONAL_OR_KEYWORD,
             inspect.Parameter.POSITIONAL_ONLY,
         ]:
-            raise ValueError(
+            raise TypeError(
                 f'The third argument ({next_state.name}) '
                 f'of a registered terminating function ({function}) '
                 'should be allowed to be a positional argument.'
@@ -86,7 +97,7 @@ class TerminatingFunctionRegistry(FunctionRegistry):
             inspect.Parameter.POSITIONAL_OR_KEYWORD,
             inspect.Parameter.KEYWORD_ONLY,
         ]:
-            raise ValueError(
+            raise TypeError(
                 f'The `rng` argument ({rng.name}) '
                 f'of a registered reward function ({function}) '
                 'should be allowed to be a keyword argument.'

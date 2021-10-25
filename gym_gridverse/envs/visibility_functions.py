@@ -41,8 +41,17 @@ class VisibilityFunctionRegistry(FunctionRegistry):
     def get_protocol_parameters(
         self, signature: inspect.Signature
     ) -> List[inspect.Parameter]:
-        grid, position = itt.islice(signature.parameters.values(), 2)
-        rng = signature.parameters['rng']
+
+        try:
+            grid, position = itt.islice(signature.parameters.values(), 2)
+        except ValueError as error:
+            raise TypeError('signature needs 2 positional argument') from error
+
+        try:
+            rng = signature.parameters['rng']
+        except KeyError as error:
+            raise TypeError('signature needs `rng` keyword argument') from error
+
         return [grid, position, rng]
 
     def check_signature(self, function: VisibilityFunction):
@@ -54,7 +63,7 @@ class VisibilityFunctionRegistry(FunctionRegistry):
             inspect.Parameter.POSITIONAL_OR_KEYWORD,
             inspect.Parameter.POSITIONAL_ONLY,
         ]:
-            raise ValueError(
+            raise TypeError(
                 f'The first argument ({grid.name}) '
                 f'of a registered visibility function ({function}) '
                 'should be allowed to be a positional argument.'
@@ -64,7 +73,7 @@ class VisibilityFunctionRegistry(FunctionRegistry):
             inspect.Parameter.POSITIONAL_OR_KEYWORD,
             inspect.Parameter.POSITIONAL_ONLY,
         ]:
-            raise ValueError(
+            raise TypeError(
                 f'The second argument ({position.name}) '
                 f'of a registered visibility function ({function}) '
                 'should be allowed to be a positional argument.'
@@ -75,7 +84,7 @@ class VisibilityFunctionRegistry(FunctionRegistry):
             inspect.Parameter.POSITIONAL_OR_KEYWORD,
             inspect.Parameter.KEYWORD_ONLY,
         ]:
-            raise ValueError(
+            raise TypeError(
                 f'The `rng` argument ({rng.name}) '
                 f'of a registered visibility function ({function}) '
                 'should be allowed to be a keyword argument.'

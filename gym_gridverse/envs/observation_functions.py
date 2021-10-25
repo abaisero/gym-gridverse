@@ -36,8 +36,17 @@ class ObservationFunctionRegistry(FunctionRegistry):
     def get_protocol_parameters(
         self, signature: inspect.Signature
     ) -> List[inspect.Parameter]:
-        (state,) = itt.islice(signature.parameters.values(), 1)
-        rng = signature.parameters['rng']
+
+        try:
+            (state,) = itt.islice(signature.parameters.values(), 1)
+        except ValueError as error:
+            raise TypeError('signature needs 1 positional argument') from error
+
+        try:
+            rng = signature.parameters['rng']
+        except KeyError as error:
+            raise TypeError('signature needs `rng` keyword argument') from error
+
         return [state, rng]
 
     def check_signature(self, function: ObservationFunction):
@@ -49,7 +58,7 @@ class ObservationFunctionRegistry(FunctionRegistry):
             inspect.Parameter.POSITIONAL_OR_KEYWORD,
             inspect.Parameter.POSITIONAL_ONLY,
         ]:
-            raise ValueError(
+            raise TypeError(
                 f'The first argument ({state.name}) '
                 f'of a registered observation function ({function}) '
                 'should be allowed to be a positional argument.'
@@ -60,7 +69,7 @@ class ObservationFunctionRegistry(FunctionRegistry):
             inspect.Parameter.POSITIONAL_OR_KEYWORD,
             inspect.Parameter.KEYWORD_ONLY,
         ]:
-            raise ValueError(
+            raise TypeError(
                 f'The `rng` argument ({rng.name}) '
                 f'of a registered observation function ({function}) '
                 'should be allowed to be a keyword argument.'

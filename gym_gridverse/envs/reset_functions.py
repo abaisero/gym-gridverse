@@ -51,7 +51,12 @@ class ResetFunctionRegistry(FunctionRegistry):
     def get_protocol_parameters(
         self, signature: inspect.Signature
     ) -> List[inspect.Parameter]:
-        rng = signature.parameters['rng']
+
+        try:
+            rng = signature.parameters['rng']
+        except KeyError as error:
+            raise TypeError('signature needs `rng` keyword argument') from error
+
         return [rng]
 
     def check_signature(self, function: ResetFunction):
@@ -63,7 +68,7 @@ class ResetFunctionRegistry(FunctionRegistry):
             inspect.Parameter.POSITIONAL_OR_KEYWORD,
             inspect.Parameter.KEYWORD_ONLY,
         ]:
-            raise ValueError(
+            raise TypeError(
                 f'The `rng` argument ({rng.name}) '
                 f'of a registered reward function ({function}) '
                 'should be allowed to be a keyword argument.'
