@@ -22,7 +22,7 @@ from gym_gridverse.state import State
     ],
 )
 def test_minigrid(agent: Agent):
-    grid = Grid(10, 10)
+    grid = Grid.from_shape((10, 10))
     grid[5, 5] = Wall()
 
     state = State(grid, agent)
@@ -87,7 +87,7 @@ def test_minigrid(agent: Agent):
 def test_minigrid_partially_occluded(
     agent: Agent, expected_objects: Sequence[Sequence[GridObject]]
 ):
-    grid = Grid.from_objects(
+    grid = Grid(
         [
             [Floor(), Floor(), Floor()],
             [Wall(), Wall(), Wall()],
@@ -97,7 +97,7 @@ def test_minigrid_partially_occluded(
     state = State(grid, agent)
     observation_space = ObservationSpace(Shape(6, 5), [], [])
     observation = minigrid(state, area=observation_space.area)
-    expected = Grid.from_objects(expected_objects)
+    expected = Grid(expected_objects)
     assert observation.grid == expected
 
 

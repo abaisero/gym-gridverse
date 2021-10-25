@@ -26,7 +26,7 @@ def choose_key(*, rng: Optional[rnd.Generator] = None) -> State:
     door = Door(Door.Status.LOCKED, rng.choice(colors))
 
     # grids can be constructed directly from objects
-    grid = Grid.from_objects(
+    grid = Grid(
         [
             [Wall(), Wall(), Wall(), Wall(), Wall()],
             [Wall(), Wall(), Exit(), Wall(), Wall()],

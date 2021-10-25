@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Optional, Sequence, Set, Tuple, Type, Union
+from typing import List, Set, Tuple, Type, Union
 
 import numpy as np
 
@@ -8,6 +8,7 @@ from .geometry import Area, Orientation, Position, Shape
 from .grid_object import Floor, GridObject, Hidden
 
 PositionOrTuple = Union[Position, Tuple[int, int]]
+ShapeOrTuple = Union[Shape, Tuple[int, int]]
 
 
 class Grid:
@@ -18,49 +19,31 @@ class Grid:
     simplify interacting with the objects, such as getting areas
     """
 
-    def __init__(
-        self, height: int, width: int, *, objects: Optional[np.ndarray] = None
-    ):
+    def __init__(self, objects: np.ndarray):
         """Constructs a `height` x `width` grid of :py:class:`~gym_gridverse.grid_object.Floor`
 
         Args:
-            height (int):
-            width (int):
-
+            objects (numpy.ndarray): grid of GridObjects
         """
-        # TODO: improve __init__ interface;  we basically never want to
-        # implicitly default to creating a grid of Floor tiles
-        if objects is None:
-            objects = np.array(
-                [[Floor() for _ in range(width)] for _ in range(height)]
-            )
+        # TODO this also supports Sequence[Sequence[GridObject]];  reflect this
+        # in docstring and typing;  change typing to ArrayLike?
+        objects = np.asarray(objects)
 
-        self.shape = Shape(height, width)
-        self._grid = objects
+        self._objects = objects
+        self._shape = Shape(*objects.shape)
+        self._area = Area((0, self.shape.height - 1), (0, self.shape.width - 1))
 
-    @property
-    def height(self):
-        return self.shape.height
-
-    @property
-    def width(self):
-        return self.shape.width
-
+    # TODO add optional ojectfactory
     @staticmethod
-    def from_objects(objects: Sequence[Sequence[GridObject]]) -> Grid:
-        """constructor from matrix of GridObjects
+    def from_shape(shape: ShapeOrTuple) -> Grid:
+        height, width = (
+            (shape.height, shape.width) if isinstance(shape, Shape) else shape
+        )
+        objects = [[Floor() for _ in range(width)] for _ in range(height)]
+        return Grid(objects)
 
-        Args:
-            objects (Sequence[Sequence[GridObject]]): initialized grid objects
-        Returns:
-            Grid: Grid containing those objects
-        """
-        # verifies input is shaped as a matrix
-        objects_array = np.asarray(objects)
-        return Grid(*objects_array.shape, objects=objects_array)
-
-    def to_objects(self) -> List[List[GridObject]]:
-        return self._grid.tolist()
+    def to_list(self) -> List[List[GridObject]]:
+        return self._objects.tolist()
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Grid):
@@ -76,8 +59,12 @@ class Grid:
         return True
 
     @property
+    def shape(self):
+        return self._shape
+
+    @property
     def area(self) -> Area:
-        return Area((0, self.height - 1), (0, self.width - 1))
+        return self._area
 
     def get_position(self, x: GridObject) -> Position:
         for position in self.area.positions():
@@ -98,7 +85,7 @@ class Grid:
         )
 
         try:
-            return self._grid[y, x]
+            return self._objects[y, x]
         except IndexError as e:
             # TODO: test
             raise IndexError(f'position {position} not in grid') from e
@@ -114,7 +101,7 @@ class Grid:
         )
 
         try:
-            self._grid[y, x] = obj
+            self._objects[y, x] = obj
         except IndexError as e:
             # TODO: test
             raise IndexError(f'position {position} not in grid') from e
@@ -143,7 +130,7 @@ class Grid:
         def get_obj(position: Position) -> GridObject:
             return self[position] if self.area.contains(position) else Hidden()
 
-        return Grid.from_objects(
+        return Grid(
             [
                 [get_obj(Position(y, x)) for x in area.x_coordinates()]
                 for y in area.y_coordinates()
@@ -174,11 +161,11 @@ class Grid:
             Orientation.E: 1,
             Orientation.W: 3,
         }
-        objects = np.rot90(self._grid, times[orientation])
-        return Grid.from_objects(objects)
+        objects = np.rot90(self._objects, times[orientation])
+        return Grid(objects)
 
     def __hash__(self):
-        return hash(tuple(map(tuple, self._grid.tolist())))
+        return hash(tuple(map(tuple, self._objects.tolist())))
 
     def __repr__(self):
-        return f'<{self.__class__.__name__} {self.height}x{self.width} objects={self.to_objects()!r}>'
+        return f'<{self.__class__.__name__} {self.shape.height}x{self.shape.width} objects={self.to_list()!r}>'

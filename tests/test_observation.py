@@ -23,8 +23,8 @@ def _change_agent_position(observation: Observation):
     """changes agent position"""
     observation.agent.position = dataclasses.replace(
         observation.agent.position,
-        y=(observation.agent.position.y + 1) % observation.grid.height,
-        x=(observation.agent.position.x + 1) % observation.grid.width,
+        y=(observation.agent.position.y + 1) % observation.grid.shape.height,
+        x=(observation.agent.position.x + 1) % observation.grid.shape.width,
     )
 
 
@@ -45,9 +45,13 @@ def _change_agent_object(observation: Observation):
 @pytest.mark.parametrize(
     'observation',
     [
-        Observation(Grid(2, 3), Agent(Position(0, 0), Orientation.N)),
         Observation(
-            Grid(3, 2), Agent(Position(1, 1), Orientation.S, Key(Color.RED))
+            Grid.from_shape((2, 3)),
+            Agent(Position(0, 0), Orientation.N),
+        ),
+        Observation(
+            Grid.from_shape((3, 2)),
+            Agent(Position(1, 1), Orientation.S, Key(Color.RED)),
         ),
     ],
 )
@@ -82,7 +86,7 @@ def test_observation_hash():
     agent_orientation = Orientation.N
     agent_object = None
 
-    grid = Grid(2, 2)
+    grid = Grid.from_shape((2, 2))
     grid[wall_position] = Wall()
     agent = Agent(agent_position, agent_orientation, agent_object)
     observation = Observation(grid, agent)

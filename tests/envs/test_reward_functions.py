@@ -31,7 +31,7 @@ from gym_gridverse.state import State
 
 def make_5x5_exit_state() -> State:
     """makes a simple 5x5 state with exit object in the middle"""
-    grid = Grid(5, 5)
+    grid = Grid.from_shape((5, 5))
     grid[2, 2] = Exit()
     agent = Agent(Position(0, 0), Orientation.N)
     return State(grid, agent)
@@ -39,7 +39,7 @@ def make_5x5_exit_state() -> State:
 
 def make_exit_state(agent_on_exit: bool) -> State:
     """makes a simple state with a wall in front of the agent"""
-    grid = Grid(2, 1)
+    grid = Grid.from_shape((2, 1))
     grid[0, 0] = Exit()
     agent_position = Position(0, 0) if agent_on_exit else Position(1, 0)
     agent = Agent(agent_position, Orientation.N)
@@ -48,7 +48,7 @@ def make_exit_state(agent_on_exit: bool) -> State:
 
 def make_wall_state(orientation: Orientation = Orientation.N) -> State:
     """makes a simple state with exit object and agent on or off the exit"""
-    grid = Grid(2, 1)
+    grid = Grid.from_shape((2, 1))
     grid[0, 0] = Wall()
     agent = Agent(Position(1, 0), orientation)
     return State(grid, agent)
@@ -56,7 +56,7 @@ def make_wall_state(orientation: Orientation = Orientation.N) -> State:
 
 def make_door_state(door_status: Optional[Door.Status]) -> State:
     """makes a simple state with a door"""
-    grid = Grid(2, 1)
+    grid = Grid.from_shape((2, 1))
 
     if door_status:
         grid[0, 0] = Door(door_status, Color.RED)
@@ -67,7 +67,7 @@ def make_door_state(door_status: Optional[Door.Status]) -> State:
 
 def make_key_state(has_key: bool) -> State:
     """makes a simple state with a door"""
-    grid = Grid(1, 1)
+    grid = Grid.from_shape((1, 1))
     obj = Key(Color.RED) if has_key else None
     agent = Agent(Position(0, 0), Orientation.N, obj)
     return State(grid, agent)
@@ -75,7 +75,7 @@ def make_key_state(has_key: bool) -> State:
 
 def make_moving_obstacle_state(agent_on_obstacle: bool) -> State:
     """makes a simple state with exit object and agent on or off the exit"""
-    grid = Grid(2, 1)
+    grid = Grid.from_shape((2, 1))
     grid[0, 0] = MovingObstacle()
     agent_position = Position(0, 0) if agent_on_obstacle else Position(1, 0)
     agent = Agent(agent_position, Orientation.N)

@@ -111,7 +111,7 @@ def empty(
 
     # TODO: test creation (e.g. count number of walls, exits, check held item)
 
-    grid = Grid(shape.height, shape.width)
+    grid = Grid.from_shape((shape.height, shape.width))
     draw_wall_boundary(grid)
 
     if random_exit:
@@ -178,7 +178,7 @@ def rooms(
             f'insufficient width ({shape.width}) for layout ({layout})'
         )
 
-    grid = Grid(shape.height, shape.width)
+    grid = Grid.from_shape((shape.height, shape.width))
     draw_room_grid(grid, y_splits, x_splits, Wall)
 
     # passages in horizontal walls
@@ -474,7 +474,7 @@ def memory(
 
     rng = get_gv_rng_if_none(rng)
 
-    grid = Grid(shape.height, shape.width)
+    grid = Grid.from_shape((shape.height, shape.width))
     draw_area(grid, grid.area, Wall, fill=True)
     draw_line_horizontal(grid, 1, range(2, shape.width - 2), Floor)
     draw_line_horizontal(
@@ -548,7 +548,7 @@ def memory_rooms(
             f'insufficient shape.width ({shape.width}) for layout ({layout})'
         )
 
-    grid = Grid(shape.height, shape.width)
+    grid = Grid.from_shape((shape.height, shape.width))
     draw_room_grid(grid, y_splits, x_splits, Wall)
 
     # passages in horizontal walls

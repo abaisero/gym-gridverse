@@ -19,32 +19,32 @@ from gym_gridverse.grid_object import Floor, Wall
 @pytest.mark.parametrize(
     'grid',
     [
-        Grid(2, 3),
-        Grid(4, 5),
-        Grid(5, 6),
+        Grid.from_shape((2, 3)),
+        Grid.from_shape((4, 5)),
+        Grid.from_shape((5, 6)),
     ],
 )
 def test_draw_wall_boundary(grid: Grid):
     draw_wall_boundary(grid)
 
-    for y in range(grid.height):
+    for y in range(grid.shape.height):
         assert isinstance(grid[y, 0], Wall)
-        assert isinstance(grid[y, grid.width - 1], Wall)
+        assert isinstance(grid[y, grid.shape.width - 1], Wall)
 
-    for x in range(grid.width):
+    for x in range(grid.shape.width):
         assert isinstance(grid[0, x], Wall)
-        assert isinstance(grid[grid.height - 1, x], Wall)
+        assert isinstance(grid[grid.shape.height - 1, x], Wall)
 
-    for y in range(1, grid.height - 1):
-        for x in range(1, grid.width - 1):
+    for y in range(1, grid.shape.height - 1):
+        for x in range(1, grid.shape.width - 1):
             assert isinstance(grid[y, x], Floor)
 
 
 @pytest.mark.parametrize(
     'grid,area,expected_num_walls',
     [
-        (Grid(4, 5), Area((0, 3), (0, 4)), 14),
-        (Grid(4, 5), Area((1, 2), (1, 3)), 6),
+        (Grid.from_shape((4, 5)), Area((0, 3), (0, 4)), 14),
+        (Grid.from_shape((4, 5)), Area((1, 2), (1, 3)), 6),
     ],
 )
 def test_draw_room(grid: Grid, area: Area, expected_num_walls: int):
@@ -60,8 +60,8 @@ def test_draw_room(grid: Grid, area: Area, expected_num_walls: int):
 @pytest.mark.parametrize(
     'grid,ys,xs,expected_num_walls',
     [
-        (Grid(3, 5), [0, 2], [0, 2, 4], 13),
-        (Grid(5, 7), [0, 2, 4], [0, 2, 4, 6], 29),
+        (Grid.from_shape((3, 5)), [0, 2], [0, 2, 4], 13),
+        (Grid.from_shape((5, 7)), [0, 2, 4], [0, 2, 4, 6], 29),
     ],
 )
 def test_draw_room_grid(
@@ -79,10 +79,10 @@ def test_draw_room_grid(
 @pytest.mark.parametrize(
     'grid,area,fill,expected_num_walls',
     [
-        (Grid(4, 5), Area((0, 3), (0, 4)), True, 20),
-        (Grid(4, 5), Area((0, 3), (0, 4)), False, 14),
-        (Grid(4, 5), Area((1, 2), (1, 3)), True, 6),
-        (Grid(4, 5), Area((1, 2), (1, 3)), False, 6),
+        (Grid.from_shape((4, 5)), Area((0, 3), (0, 4)), True, 20),
+        (Grid.from_shape((4, 5)), Area((0, 3), (0, 4)), False, 14),
+        (Grid.from_shape((4, 5)), Area((1, 2), (1, 3)), True, 6),
+        (Grid.from_shape((4, 5)), Area((1, 2), (1, 3)), False, 6),
     ],
 )
 def test_draw_area(grid: Grid, area: Area, fill: bool, expected_num_walls: int):
@@ -98,8 +98,8 @@ def test_draw_area(grid: Grid, area: Area, fill: bool, expected_num_walls: int):
 @pytest.mark.parametrize(
     'grid,y,xs,expected_num_walls',
     [
-        (Grid(4, 5), 1, range(0, 5), 5),
-        (Grid(4, 5), 1, range(1, 4), 3),
+        (Grid.from_shape((4, 5)), 1, range(0, 5), 5),
+        (Grid.from_shape((4, 5)), 1, range(1, 4), 3),
     ],
 )
 def test_draw_line_horizontal(
@@ -117,8 +117,8 @@ def test_draw_line_horizontal(
 @pytest.mark.parametrize(
     'grid,ys,x,expected_num_walls',
     [
-        (Grid(4, 5), range(0, 4), 1, 4),
-        (Grid(4, 5), range(1, 3), 1, 2),
+        (Grid.from_shape((4, 5)), range(0, 4), 1, 4),
+        (Grid.from_shape((4, 5)), range(1, 3), 1, 2),
     ],
 )
 def test_draw_line_vertical(
@@ -136,8 +136,8 @@ def test_draw_line_vertical(
 @pytest.mark.parametrize(
     'grid,ys,xs,expected_num_walls',
     [
-        (Grid(4, 5), range(0, 4), range(0, 5), 20),
-        (Grid(4, 5), range(1, 3), range(1, 4), 6),
+        (Grid.from_shape((4, 5)), range(0, 4), range(0, 5), 20),
+        (Grid.from_shape((4, 5)), range(1, 3), range(1, 4), 6),
     ],
 )
 def test_draw_cross_product(

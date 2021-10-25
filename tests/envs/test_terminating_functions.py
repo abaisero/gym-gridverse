@@ -18,7 +18,7 @@ from gym_gridverse.state import State
 # TODO: turn into fixture
 def make_exit_state(agent_on_exit: bool) -> State:
     """makes a simple state with exit object and agent on or off the exit"""
-    grid = Grid(2, 1)
+    grid = Grid.from_shape((2, 1))
     grid[0, 0] = Exit()
     agent_position = Position(0, 0) if agent_on_exit else Position(1, 0)
     agent = Agent(agent_position, Orientation.N)
@@ -28,7 +28,7 @@ def make_exit_state(agent_on_exit: bool) -> State:
 # TODO: turn into fixture
 def make_wall_state() -> State:
     """makes a simple state with Wall object and agent in front of it"""
-    grid = Grid(2, 1)
+    grid = Grid.from_shape((2, 1))
     grid[0, 0] = Wall()
     agent = Agent(Position(1, 0), Orientation.N)
     return State(grid, agent)

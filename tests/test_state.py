@@ -21,8 +21,8 @@ def _change_agent_position(state: State):
     """changes agent position"""
     state.agent.position = dataclasses.replace(
         state.agent.position,
-        y=(state.agent.position.y + 1) % state.grid.height,
-        x=(state.agent.position.x + 1) % state.grid.width,
+        y=(state.agent.position.y + 1) % state.grid.shape.height,
+        x=(state.agent.position.x + 1) % state.grid.shape.width,
     )
 
 
@@ -43,8 +43,14 @@ def _change_agent_object(state: State):
 @pytest.mark.parametrize(
     'state',
     [
-        State(Grid(2, 3), Agent(Position(0, 0), Orientation.N)),
-        State(Grid(3, 2), Agent(Position(1, 1), Orientation.S, Key(Color.RED))),
+        State(
+            Grid.from_shape((2, 3)),
+            Agent(Position(0, 0), Orientation.N),
+        ),
+        State(
+            Grid.from_shape((3, 2)),
+            Agent(Position(1, 1), Orientation.S, Key(Color.RED)),
+        ),
     ],
 )
 def test_state_eq(state: State):
@@ -78,7 +84,7 @@ def test_state_hash():
     agent_orientation = Orientation.N
     agent_object = None
 
-    grid = Grid(2, 2)
+    grid = Grid.from_shape((2, 2))
     grid[wall_position] = Wall()
     agent = Agent(agent_position, agent_orientation, agent_object)
     state = State(grid, agent)

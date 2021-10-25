@@ -163,7 +163,7 @@ def space_contains_observation(
     space_shape: Shape = Shape(2, 5),
     space_objs: Sequence[Type[GridObject]] = [Floor],
     space_colors: Sequence[Color] = [],
-    grid: Grid = Grid(2, 5),
+    grid: Grid = Grid.from_shape((2, 5)),
     agent_obj: GridObject = None,
     agent_pos: Position = Position(0, 0),
     orientation: Orientation = Orientation.N,
@@ -195,7 +195,7 @@ def test_observation_space_contains__shape(
 ):
     observation_space = ObservationSpace(space_shape, [Floor], [Color.NONE])
     observation = Observation(
-        Grid(observation_shape.height, observation_shape.width),
+        Grid.from_shape(observation_shape),
         Agent(agent_position, Orientation.N),
     )
 
@@ -225,7 +225,7 @@ def test_observation_space_contains__object_types(
         Shape(1, 3), space_object_types, [Color.NONE]
     )
     observation = Observation(
-        Grid.from_objects(observation_objects),
+        Grid(observation_objects),
         Agent(Position(0, 1), Orientation.N, agent_object),
     )
 
@@ -267,7 +267,7 @@ def test_observation_space_contains__colors(
     # NOTE:  observation_objects should have shape (2, 1)
     observation_space = ObservationSpace(Shape(2, 1), [Key], space_colors)
     observation = Observation(
-        Grid.from_objects(observation_objects),
+        Grid(observation_objects),
         Agent(Position(1, 0), Orientation.N, agent_object),
     )
 
@@ -305,7 +305,7 @@ def test_observation_space_contains__agent_pose(
 ):
     observation_space = ObservationSpace(shape, [Floor], [Color.NONE])
     observation = Observation(
-        Grid(shape.height, shape.width), Agent(position, orientation)
+        Grid.from_shape(shape), Agent(position, orientation)
     )
 
     expected = position_ok and orientation_ok
@@ -355,8 +355,7 @@ def test_observation_space_contains(
 ):
     observation_space = ObservationSpace(shape, object_types, colors)
     observation = Observation(
-        Grid(shape.height, shape.width),
-        Agent(position, orientation),
+        Grid.from_shape(shape), Agent(position, orientation)
     )
 
     assert observation_space.contains(observation)

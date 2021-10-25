@@ -129,7 +129,7 @@ def fully_transparent(
     grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
 ) -> np.ndarray:
 
-    return np.ones((grid.height, grid.width), dtype=bool)
+    return np.ones((grid.shape.height, grid.shape.width), dtype=bool)
 
 
 @visibility_function_registry.register
@@ -137,12 +137,12 @@ def partially_occluded(
     grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
 ) -> np.ndarray:
 
-    if position.y != grid.height - 1:
+    if position.y != grid.shape.height - 1:
         #  gym-minigrid does not handle this case, and we are not currently
         #  generalizing it
         raise NotImplementedError
 
-    visibility = np.zeros((grid.height, grid.width), dtype=bool)
+    visibility = np.zeros((grid.shape.height, grid.shape.width), dtype=bool)
     visibility[position.y, position.x] = True  # agent
 
     # front
@@ -152,7 +152,7 @@ def partially_occluded(
 
     # right
     y = position.y
-    for x in range(position.x + 1, grid.width):
+    for x in range(position.x + 1, grid.shape.width):
         visibility[y, x] = visibility[y, x - 1] and grid[y, x - 1].transparent
 
     # left
@@ -182,7 +182,7 @@ def partially_occluded(
     positions = diagonal_strides(
         Area(
             (0, position.y - 1),
-            (position.x + 1, grid.width - 1),
+            (position.x + 1, grid.shape.width - 1),
         ),
         StrideDirection.NE,
     )
@@ -204,23 +204,23 @@ def minigrid(
     grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
 ) -> np.ndarray:
 
-    if position.y != grid.height - 1:
+    if position.y != grid.shape.height - 1:
         #  gym-minigrid does not handle this case, and we are not currently
         #  generalizing it
         raise NotImplementedError
 
-    visibility = np.zeros((grid.height, grid.width), dtype=bool)
+    visibility = np.zeros((grid.shape.height, grid.shape.width), dtype=bool)
     visibility[position.y, position.x] = True  # agent
 
-    for y in range(grid.height - 1, -1, -1):
-        for x in range(grid.width - 1):
+    for y in range(grid.shape.height - 1, -1, -1):
+        for x in range(grid.shape.width - 1):
             if visibility[y, x] and grid[y, x].transparent:
                 visibility[y, x + 1] = True
                 if y > 0:
                     visibility[y - 1, x] = True
                     visibility[y - 1, x + 1] = True
 
-        for x in range(grid.width - 1, 0, -1):
+        for x in range(grid.shape.width - 1, 0, -1):
             if visibility[y, x] and grid[y, x].transparent:
                 visibility[y, x - 1] = True
                 if y > 0:
@@ -240,7 +240,7 @@ def raytracing(
     rng: Optional[rnd.Generator] = None,
 ) -> np.ndarray:
 
-    area = Area((0, grid.height - 1), (0, grid.width - 1))
+    area = Area((0, grid.shape.height - 1), (0, grid.shape.width - 1))
     rays = cached_compute_rays_fancy(position, area)
 
     counts_num = np.zeros((area.height, area.width), dtype=int)
@@ -271,7 +271,7 @@ def stochastic_raytracing(  # TODO: add test
 
     rng = get_gv_rng_if_none(rng)
 
-    area = Area((0, grid.height - 1), (0, grid.width - 1))
+    area = Area((0, grid.shape.height - 1), (0, grid.shape.width - 1))
     rays = cached_compute_rays_fancy(position, area)
 
     counts_num = np.zeros((area.height, area.width), dtype=int)

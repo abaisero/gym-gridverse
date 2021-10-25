@@ -30,7 +30,7 @@ from gym_gridverse.grid_object import Floor, GridObject, Wall
     ],
 )
 def test_full_visibility(objects: Sequence[Sequence[GridObject]]):
-    grid = Grid.from_objects(objects)
+    grid = Grid(objects)
     for position in grid.area.positions():
         visibility = fully_transparent(grid, position)
 
@@ -100,7 +100,7 @@ def test_partial_visibility(
     position: Position,
     expected_int: Sequence[Sequence[int]],
 ):
-    grid = Grid.from_objects(objects)
+    grid = Grid(objects)
     visibility = partially_occluded(grid, position)
     assert visibility.dtype == bool
     assert (visibility == expected_int).all()
@@ -168,7 +168,7 @@ def test_minigrid_visibility(
     position: Position,
     expected_int: Sequence[Sequence[int]],
 ):
-    grid = Grid.from_objects(objects)
+    grid = Grid(objects)
     visibility = minigrid(grid, position)
     assert visibility.dtype == bool
     assert (visibility == expected_int).all()
@@ -236,7 +236,7 @@ def test_raytracing_visibility(
     position: Position,
     expected_int: Sequence[Sequence[int]],
 ):
-    grid = Grid.from_objects(objects)
+    grid = Grid(objects)
     visibility = raytracing(grid, position)
     assert visibility.dtype == bool
     assert (visibility == expected_int).all()

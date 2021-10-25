@@ -423,8 +423,11 @@ def getting_closer_shortest_path(
         )
 
         layout = tuple(
-            tuple(not state.grid[y, x].blocks for x in range(state.grid.width))
-            for y in range(state.grid.height)
+            tuple(
+                not state.grid[y, x].blocks
+                for x in range(state.grid.shape.width)
+            )
+            for y in range(state.grid.shape.height)
         )
         distance_array = dijkstra(
             layout, (object_position.y, object_position.x)

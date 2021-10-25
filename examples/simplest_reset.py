@@ -15,7 +15,7 @@ def simplest(*, rng: Optional[rnd.Generator] = None) -> State:
     """smallest possible room with exit right in front of agent"""
 
     # constructed the grid directly from objects
-    grid = Grid.from_objects(
+    grid = Grid(
         [
             [Wall(), Wall(), Wall()],
             [Wall(), Exit(), Wall()],

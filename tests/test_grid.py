@@ -19,9 +19,9 @@ from gym_gridverse.grid_object import (
 @pytest.mark.parametrize(
     'grid,expected',
     [
-        (Grid(3, 4), Shape(3, 4)),
-        (Grid(4, 3), Shape(4, 3)),
-        (Grid(5, 5), Shape(5, 5)),
+        (Grid.from_shape((3, 4)), Shape(3, 4)),
+        (Grid.from_shape((4, 3)), Shape(4, 3)),
+        (Grid.from_shape((5, 5)), Shape(5, 5)),
     ],
 )
 def test_grid_shape(grid: Grid, expected: Shape):
@@ -31,12 +31,12 @@ def test_grid_shape(grid: Grid, expected: Shape):
 @pytest.mark.parametrize(
     'grid,position,expected',
     [
-        (Grid(3, 4), Position(0, 0), True),
-        (Grid(3, 4), Position(2, 3), True),
-        (Grid(3, 4), Position(-1, 0), False),
-        (Grid(3, 4), Position(0, -1), False),
-        (Grid(3, 4), Position(3, 3), False),
-        (Grid(3, 4), Position(2, 4), False),
+        (Grid.from_shape((3, 4)), Position(0, 0), True),
+        (Grid.from_shape((3, 4)), Position(2, 3), True),
+        (Grid.from_shape((3, 4)), Position(-1, 0), False),
+        (Grid.from_shape((3, 4)), Position(0, -1), False),
+        (Grid.from_shape((3, 4)), Position(3, 3), False),
+        (Grid.from_shape((3, 4)), Position(2, 4), False),
     ],
 )
 def test_grid_contains(grid: Grid, position: Position, expected: bool):
@@ -46,8 +46,8 @@ def test_grid_contains(grid: Grid, position: Position, expected: bool):
 @pytest.mark.parametrize(
     'grid,expected',
     [
-        (Grid(3, 4), 12),
-        (Grid(4, 5), 20),
+        (Grid.from_shape((3, 4)), 12),
+        (Grid.from_shape((4, 5)), 20),
     ],
 )
 def test_grid_positions(grid: Grid, expected: int):
@@ -61,8 +61,8 @@ def test_grid_positions(grid: Grid, expected: int):
 @pytest.mark.parametrize(
     'grid,expected',
     [
-        (Grid(3, 4), 10),
-        (Grid(4, 5), 14),
+        (Grid.from_shape((3, 4)), 10),
+        (Grid.from_shape((4, 5)), 14),
     ],
 )
 def test_grid_positions_border(grid: Grid, expected: int):
@@ -76,8 +76,8 @@ def test_grid_positions_border(grid: Grid, expected: int):
 @pytest.mark.parametrize(
     'grid,expected',
     [
-        (Grid(3, 4), 2),
-        (Grid(4, 5), 6),
+        (Grid.from_shape((3, 4)), 2),
+        (Grid.from_shape((4, 5)), 6),
     ],
 )
 def test_grid_positions_inside(grid: Grid, expected: int):
@@ -89,7 +89,7 @@ def test_grid_positions_inside(grid: Grid, expected: int):
 
 
 def test_grid_get_position():
-    grid = Grid(3, 4)
+    grid = Grid.from_shape((3, 4))
 
     # testing position -> grid_object -> position roundtrip
     for position in grid.area.positions():
@@ -102,7 +102,7 @@ def test_grid_get_position():
 
 
 def test_grid_object_types():
-    grid = Grid(3, 4)
+    grid = Grid.from_shape((3, 4))
 
     assert grid.object_types() == set([Floor])
 
@@ -117,7 +117,7 @@ def test_grid_object_types():
 
 
 def test_grid_get_item():
-    grid = Grid(3, 4)
+    grid = Grid.from_shape((3, 4))
 
     pos = Position(0, 0)
     assert isinstance(grid[pos], Floor)
@@ -125,7 +125,7 @@ def test_grid_get_item():
 
 
 def test_grid_set_item():
-    grid = Grid(3, 4)
+    grid = Grid.from_shape((3, 4))
 
     pos = Position(0, 0)
     obj = Floor()
@@ -136,7 +136,7 @@ def test_grid_set_item():
 
 
 def test_grid_swap():
-    grid = Grid(3, 4)
+    grid = Grid.from_shape((3, 4))
 
     # caching positions and objects before swap
     objects_before = {
@@ -198,7 +198,7 @@ def test_grid_subgrid(
     area: Area, expected_objects: Sequence[Sequence[GridObject]]
 ):
     # checkerboard pattern
-    grid = Grid.from_objects(
+    grid = Grid(
         [
             [Wall(), Floor(), Wall(), Floor()],
             [Floor(), Wall(), Floor(), Wall()],
@@ -206,14 +206,14 @@ def test_grid_subgrid(
         ]
     )
 
-    expected = Grid.from_objects(expected_objects)
+    expected = Grid(expected_objects)
     assert grid.subgrid(area) == expected
 
 
 def test_grid_equality():
     """A simple test that equality is not limited to just checking (first) objects"""
 
-    grid_1 = Grid.from_objects(
+    grid_1 = Grid(
         [
             [Wall(), Floor(), Wall(), Floor()],
             [Floor(), Wall(), Floor(), Wall()],
@@ -221,7 +221,7 @@ def test_grid_equality():
         ]
     )
 
-    grid_2 = Grid.from_objects(
+    grid_2 = Grid(
         [
             [Wall(), Floor(), Wall(), Floor()],
             [Floor(), Wall(), Floor(), Wall()],
@@ -230,7 +230,7 @@ def test_grid_equality():
         ]
     )
 
-    grid_3 = Grid.from_objects(
+    grid_3 = Grid(
         [
             [Wall(), Floor(), Wall(), Floor(), Floor()],
             [Floor(), Wall(), Floor(), Wall(), Floor()],
@@ -269,8 +269,8 @@ def test_grid_equality():
         ],
     ],
 )
-def test_grid_to_objects(object_list):
-    assert object_list == Grid.from_objects(object_list).to_objects()
+def test_grid_to_list(object_list):
+    assert object_list == Grid(object_list).to_list()
 
 
 def test_grid_subgrid_references():
@@ -279,7 +279,7 @@ def test_grid_subgrid_references():
 
     # weird scenario where the key is both in the box and outside the box,
     # only created to test references
-    grid = Grid.from_objects([[key, box]])
+    grid = Grid([[key, box]])
 
     subgrid = grid.subgrid(Area((0, 0), (0, 1)))
     key = subgrid[0, 0]
@@ -330,7 +330,7 @@ def test_grid_change_orientation(
     orientation: Orientation, expected_objects: Sequence[Sequence[GridObject]]
 ):
     # checkerboard pattern
-    grid = Grid.from_objects(
+    grid = Grid(
         [
             [Wall(), Floor(), Wall(), Floor()],
             [Floor(), Wall(), Floor(), Wall()],
@@ -338,5 +338,5 @@ def test_grid_change_orientation(
         ]
     )
 
-    expected = Grid.from_objects(expected_objects)
+    expected = Grid(expected_objects)
     assert grid.change_orientation(orientation) == expected

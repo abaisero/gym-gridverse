@@ -40,7 +40,7 @@ from gym_gridverse.state import State
 
 
 def make_moving_obstacle_state():
-    grid = Grid(3, 3)
+    grid = Grid.from_shape((3, 3))
     grid[1, 1] = MovingObstacle()
     agent = MagicMock()
     return State(grid, agent)
@@ -157,7 +157,7 @@ def test_move_action(
     actions: Sequence[Action],
     expected: Position,
 ):
-    grid = Grid(height=3, width=2)
+    grid = Grid.from_shape((3, 2))
     agent = Agent(position, orientation)
 
     for action in actions:
@@ -169,7 +169,7 @@ def test_move_action(
 # TODO: integrate with previous test
 def test_move_action_blocked_by_grid_object():
     """Puts an object on (2,0) and try to move there"""
-    grid = Grid(height=3, width=2)
+    grid = Grid.from_shape((3, 2))
     agent = Agent(Position(2, 1), Orientation.N)
 
     grid[2, 0] = Door(Door.Status.CLOSED, Color.YELLOW)
@@ -180,7 +180,7 @@ def test_move_action_blocked_by_grid_object():
 
 # TODO: integrate with previous test
 def test_move_action_can_go_on_non_block_objects():
-    grid = Grid(height=3, width=2)
+    grid = Grid.from_shape((3, 2))
     agent = Agent(Position(2, 1), Orientation.N)
 
     grid[2, 0] = Door(Door.Status.OPEN, Color.YELLOW)
@@ -199,7 +199,7 @@ def step_with_copy(state: State, action: Action) -> State:
 
 
 def test_pickup_mechanics_nothing_to_pickup():
-    grid = Grid(height=3, width=4)
+    grid = Grid.from_shape((3, 4))
     agent = Agent(Position(1, 2), Orientation.S)
     item_pos = (2, 2)
 
@@ -218,7 +218,7 @@ def test_pickup_mechanics_nothing_to_pickup():
 
 
 def test_pickup_mechanics_pickup():
-    grid = Grid(height=3, width=4)
+    grid = Grid.from_shape((3, 4))
     agent = Agent(Position(1, 2), Orientation.S)
     item_pos = (2, 2)
 
@@ -237,7 +237,7 @@ def test_pickup_mechanics_pickup():
 
 
 def test_pickup_mechanics_drop():
-    grid = Grid(height=3, width=4)
+    grid = Grid.from_shape((3, 4))
     agent = Agent(Position(1, 2), Orientation.S)
     item_pos = (2, 2)
 
@@ -258,7 +258,7 @@ def test_pickup_mechanics_drop():
 
 
 def test_pickup_mechanics_swap():
-    grid = Grid(height=3, width=4)
+    grid = Grid.from_shape((3, 4))
     agent = Agent(Position(1, 2), Orientation.S)
     item_pos = (2, 2)
 
@@ -326,8 +326,8 @@ def test_step_moving_obstacles(
     objects: Sequence[Sequence[GridObject]],
     expected_objects: Sequence[Sequence[GridObject]],
 ):
-    state = State(Grid.from_objects(objects), MagicMock())
-    expected_state = State(Grid.from_objects(expected_objects), MagicMock())
+    state = State(Grid(objects), MagicMock())
+    expected_state = State(Grid(expected_objects), MagicMock())
 
     action = MagicMock()
     step_moving_obstacles(state, action)
@@ -407,7 +407,7 @@ def test_actuate_door(
     expected_state: Door.Status,
 ):
     # agent facing door
-    grid = Grid(2, 1)
+    grid = Grid.from_shape((2, 1))
     grid[0, 0] = door = Door(door_state, door_color)
     agent = Agent(Position(1, 0), Orientation.N, Key(key_color))
     state = State(grid, agent)
@@ -416,7 +416,7 @@ def test_actuate_door(
     assert door.state == expected_state
 
     # agent facing away
-    grid = Grid(2, 1)
+    grid = Grid.from_shape((2, 1))
     grid[0, 0] = door = Door(door_state, door_color)
     agent = Agent(Position(1, 0), Orientation.S, Key(key_color))
     state = State(grid, agent)
@@ -446,7 +446,7 @@ def test_actuate_box(
     action: Action,
     expected: bool,
 ):
-    grid = Grid(2, 1)
+    grid = Grid.from_shape((2, 1))
     grid[0, 0] = box = Box(content)
     agent = Agent(Position(1, 0), orientation)
     state = State(grid, agent)
@@ -475,7 +475,7 @@ def test_actuate_no_box(
     orientation: Orientation,
     action: Action,
 ):
-    grid = Grid(2, 1)
+    grid = Grid.from_shape((2, 1))
     agent = Agent(Position(1, 0), orientation)
     state = State(grid, agent)
 
@@ -503,7 +503,7 @@ def test_teleport(
     position_agent: Position,
     expected: Position,
 ):
-    grid = Grid(2, 2)
+    grid = Grid.from_shape((2, 2))
     grid[position_telepod1] = Telepod(Color.RED)
     grid[position_telepod2] = Telepod(Color.RED)
 
