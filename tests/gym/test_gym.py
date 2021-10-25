@@ -10,23 +10,27 @@ from gym_gridverse.gym import GymStateWrapper
 @pytest.mark.parametrize(
     'env_id',
     [
-        'GridVerse-Empty-5x5-v0',
-        'GridVerse-Empty-Random-5x5-v0',
-        'GridVerse-Empty-6x6-v0',
-        'GridVerse-Empty-Random-6x6-v0',
-        'GridVerse-Empty-8x8-v0',
-        'GridVerse-Empty-16x16-v0',
-        'GridVerse-FourRooms-v0',
-        'GridVerse-Dynamic-Obstacles-5x5-v0',
-        'GridVerse-Dynamic-Obstacles-Random-5x5-v0',
-        'GridVerse-Dynamic-Obstacles-6x6-v0',
-        'GridVerse-Dynamic-Obstacles-Random-6x6-v0',
-        'GridVerse-Dynamic-Obstacles-8x8-v0',
-        'GridVerse-Dynamic-Obstacles-16x16-v0',
-        'GridVerse-KeyDoor-5x5-v0',
-        'GridVerse-KeyDoor-6x6-v0',
-        'GridVerse-KeyDoor-8x8-v0',
-        'GridVerse-KeyDoor-16x16-v0',
+        "GV-Crossing-5x5-v0",
+        "GV-Crossing-7x7-v0",
+        "GV-Dynamic-obstacles-5x5-v0",
+        "GV-Dynamic-obstacles-7x7-v0",
+        "GV-Empty-4x4-v0",
+        "GV-Empty-8x8-v0",
+        "GV-Four-rooms-7x7-v0",
+        "GV-Four-rooms-9x9-v0",
+        "GV-Keydoor-5x5-v0",
+        "GV-Keydoor-7x7-v0",
+        "GV-Keydoor-9x9-v0",
+        "GV-Memory-5x5-v0",
+        "GV-Memory-9x9-v0",
+        "GV-Memory-four-rooms-7x7-v0",
+        "GV-Memory-four-rooms-9x9-v0",
+        "GV-Memory-nine-rooms-10x10-v0",
+        "GV-Memory-nine-rooms-13x13-v0",
+        "GV-Nine-rooms-10x10-v0",
+        "GV-Nine-rooms-13x13-v0",
+        "GV-Teleport-5x5-v0",
+        "GV-Teleport-7x7-v0",
     ],
 )
 def test_gym_registration(env_id: str):
@@ -36,10 +40,10 @@ def test_gym_registration(env_id: str):
 @pytest.mark.parametrize(
     'env_id',
     [
-        'GridVerse-Empty-Random-5x5-v0',
-        'GridVerse-Empty-Random-6x6-v0',
-        'GridVerse-Dynamic-Obstacles-Random-5x5-v0',
-        'GridVerse-Dynamic-Obstacles-Random-6x6-v0',
+        "GV-Empty-4x4-v0",
+        "GV-Empty-8x8-v0",
+        "GV-Dynamic-obstacles-5x5-v0",
+        "GV-Dynamic-obstacles-7x7-v0",
     ],
 )
 @pytest.mark.parametrize('seed', [1, 10, 1337, 0xDEADBEEF])
@@ -56,7 +60,7 @@ def test_gym_seed(env_id: str, seed: Optional[int]):
 
 
 def test_gym_control_loop():
-    env = gym.make('GridVerse-Empty-5x5-v0')
+    env = gym.make('GV-Empty-4x4-v0')
 
     env.reset()
     for _ in range(10):
@@ -67,9 +71,7 @@ def test_gym_control_loop():
             env.reset()
 
 
-@pytest.mark.parametrize(
-    'env_id', ['GridVerse-Empty-5x5-v0', 'GridVerse-KeyDoor-16x16-v0']
-)
+@pytest.mark.parametrize('env_id', ['GV-Empty-4x4-v0', 'GV-Keydoor-9x9-v0'])
 @pytest.mark.parametrize('representation', ['default', 'no_overlap'])
 def test_gym_state_wrapper(env_id: str, representation: str):
     env = gym.make(env_id)
