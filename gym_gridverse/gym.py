@@ -6,7 +6,7 @@ import gym
 import numpy as np
 from gym.utils import seeding
 
-from gym_gridverse.envs import InnerEnv, factory
+from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 from gym_gridverse.outer_env import OuterEnv
 from gym_gridverse.representations.observation_representations import (
     create_observation_representation,
@@ -215,12 +215,36 @@ class GymStateWrapper(gym.Wrapper):
         return self.observation, reward, done, info
 
 
+STRING_TO_YAML_FILE: Dict[str, str] = {
+    "GV-Crossing-5x5-v0": "gv_crossing.5x5.yaml",
+    "GV-Crossing-7x7-v0": "gv_crossing.7x7.yaml",
+    "GV-Dynamic-obstacles-5x5-v0": "gv_dynamic_obstacles.5x5.yaml",
+    "GV-Dynamic-obstacles-7x7-v0": "gv_dynamic_obstacles.7x7.yaml",
+    "GV-Empty-4x4-v0": "gv_empty.4x4.yaml",
+    "GV-Empty-8x8-v0": "gv_empty.8x8.yaml",
+    "GV-Four-rooms-7x7-v0": "gv_four_rooms.7x7.yaml",
+    "GV-Four-rooms-9x9-v0": "gv_four_rooms.9x9.yaml",
+    "GV-Keydoor-5x5-v0": "gv_keydoor.5x5.yaml",
+    "GV-Keydoor-7x7-v0": "gv_keydoor.7x7.yaml",
+    "GV-Keydoor-9x9-v0": "gv_keydoor.9x9.yaml",
+    "GV-Memory-5x5-v0": "gv_memory.5x5.yaml",
+    "GV-Memory-9x9-v0": "gv_memory.9x9.yaml",
+    "GV-Memory-four-rooms-7x7-v0": "gv_memory_four_rooms.7x7.yaml",
+    "GV-Memory-four-rooms-9x9-v0": "gv_memory_four_rooms.9x9.yaml",
+    "GV-Memory-nine-rooms-10x10-v0": "gv_memory_nine_rooms.10x10.yaml",
+    "GV-Memory-nine-rooms-13x13-v0": "gv_memory_nine_rooms.13x13.yaml",
+    "GV-Nine-rooms-10x10-v0": "gv_nine_rooms.10x10.yaml",
+    "GV-Nine-rooms-13x13-v0": "gv_nine_rooms.13x13.yaml",
+    "GV-Teleport-5x5-v0": "gv_teleport.5x5.yaml",
+    "GV-Teleport-7x7-v0": "gv_teleport.7x7.yaml",
+}
+
 env_ids = []
 
-for key, constructor_ in factory.STRING_TO_GYM_CONSTRUCTOR.items():
+for key, yaml_file_name_ in STRING_TO_YAML_FILE.items():
 
-    def outer_env_constructor(constructor: Callable[[], InnerEnv]) -> OuterEnv:
-        env = constructor()
+    def outer_env_constructor(yaml_file_name: str) -> OuterEnv:
+        env = factory_env_from_yaml(yaml_file_name)
         state_repr = None
         observation_repr = create_observation_representation(
             'default', env.observation_space
@@ -229,10 +253,14 @@ for key, constructor_ in factory.STRING_TO_GYM_CONSTRUCTOR.items():
             env, state_rep=state_repr, observation_rep=observation_repr
         )
 
-    env_id = f'GridVerse-{key}'
     gym.register(
-        env_id,
+        key,
         entry_point='gym_gridverse.gym:GymEnvironment',
-        kwargs={'constructor': partial(outer_env_constructor, constructor_)},
+        kwargs={
+            'constructor': partial(
+                outer_env_constructor,
+                ".registered_environments/" + yaml_file_name_,
+            )
+        },
     )
-    env_ids.append(env_id)
+    env_ids.append(key)
