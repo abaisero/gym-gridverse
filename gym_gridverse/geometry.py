@@ -74,21 +74,22 @@ class Area:
     def bottom_right(self) -> Position:
         return Position(self.ymax, self.xmax)
 
-    def positions_ys(self) -> Iterable[int]:
-        """iterator over y positions"""
+    def y_coordinates(self) -> Iterable[int]:
+        """iterator over y coordinates"""
         return range(self.ymin, self.ymax + 1)
 
-    def positions_xs(self) -> Iterable[int]:
-        """iterator over x positions"""
+    def x_coordinates(self) -> Iterable[int]:
+        """iterator over x coordinates"""
         return range(self.xmin, self.xmax + 1)
 
+    # TODO unify in a single positions(type_='all'/'border'/'inside')
     def positions(self) -> Iterable[Position]:
         """iterator over positions"""
 
         return (
             Position(y, x)
-            for y in self.positions_ys()
-            for x in self.positions_xs()
+            for y in self.y_coordinates()
+            for x in self.x_coordinates()
         )
 
     def positions_border(self) -> Iterable[Position]:
@@ -151,41 +152,38 @@ class Position:
     y: int
     x: int
 
+    def __eq__(self, other):
+        try:
+            return self.y == other.y and self.x == other.x
+        except AttributeError:
+            return NotImplemented
+
     def __add__(self, other) -> Position:
         try:
-            y, x = other
-        except TypeError:
+            return Position(self.y + other.y, self.x + other.x)
+        except AttributeError:
             return NotImplemented
-        else:
-            return Position(self.y + y, self.x + x)
 
     def __sub__(self, other) -> Position:
         try:
-            y, x = other
-        except TypeError:
+            return Position(self.y - other.y, self.x - other.x)
+        except AttributeError:
             return NotImplemented
-        else:
-            return Position(self.y - y, self.x - x)
 
     def __radd__(self, other) -> Position:
-        return self + other
+        try:
+            return Position(other.y + self.y, other.x + self.x)
+        except AttributeError:
+            return NotImplemented
 
     def __rsub__(self, other) -> Position:
-        return self - other
+        try:
+            return Position(other.y - self.y, other.x - self.x)
+        except AttributeError:
+            return NotImplemented
 
     def __neg__(self):
         return Position(-self.y, -self.x)
-
-    def __iter__(self) -> Iterator[int]:
-        return iter((self.y, self.x))
-
-    def __eq__(self, other):
-        try:
-            y, x = other
-        except TypeError:
-            return NotImplemented
-        else:
-            return self.y == y and self.x == x
 
     def rotate(self, orientation: Orientation) -> Position:
         if orientation is Orientation.N:

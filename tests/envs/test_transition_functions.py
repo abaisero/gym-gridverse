@@ -158,7 +158,7 @@ def test_move_action(
     expected: Position,
 ):
     grid = Grid(height=3, width=2)
-    agent = Agent(position=position, orientation=orientation)
+    agent = Agent(position, orientation)
 
     for action in actions:
         move_agent(agent, grid, action=action)
@@ -170,26 +170,26 @@ def test_move_action(
 def test_move_action_blocked_by_grid_object():
     """Puts an object on (2,0) and try to move there"""
     grid = Grid(height=3, width=2)
-    agent = Agent(position=(2, 1), orientation=Orientation.N)
+    agent = Agent(Position(2, 1), Orientation.N)
 
     grid[2, 0] = Door(Door.Status.CLOSED, Color.YELLOW)
     move_agent(agent, grid, action=Action.MOVE_LEFT)
 
-    assert agent.position == (2, 1)
+    assert agent.position == Position(2, 1)
 
 
 # TODO: integrate with previous test
 def test_move_action_can_go_on_non_block_objects():
     grid = Grid(height=3, width=2)
-    agent = Agent(position=(2, 1), orientation=Orientation.N)
+    agent = Agent(Position(2, 1), Orientation.N)
 
     grid[2, 0] = Door(Door.Status.OPEN, Color.YELLOW)
     move_agent(agent, grid, action=Action.MOVE_LEFT)
-    assert agent.position == (2, 0)
+    assert agent.position == Position(2, 0)
 
     grid[2, 1] = Key(Color.BLUE)
     move_agent(agent, grid, action=Action.MOVE_RIGHT)
-    assert agent.position == (2, 1)
+    assert agent.position == Position(2, 1)
 
 
 def step_with_copy(state: State, action: Action) -> State:
@@ -200,7 +200,7 @@ def step_with_copy(state: State, action: Action) -> State:
 
 def test_pickup_mechanics_nothing_to_pickup():
     grid = Grid(height=3, width=4)
-    agent = Agent(position=(1, 2), orientation=Orientation.S)
+    agent = Agent(Position(1, 2), Orientation.S)
     item_pos = (2, 2)
 
     state = State(grid, agent)
@@ -219,7 +219,7 @@ def test_pickup_mechanics_nothing_to_pickup():
 
 def test_pickup_mechanics_pickup():
     grid = Grid(height=3, width=4)
-    agent = Agent(position=(1, 2), orientation=Orientation.S)
+    agent = Agent(Position(1, 2), Orientation.S)
     item_pos = (2, 2)
 
     grid[item_pos] = Key(Color.GREEN)
@@ -238,7 +238,7 @@ def test_pickup_mechanics_pickup():
 
 def test_pickup_mechanics_drop():
     grid = Grid(height=3, width=4)
-    agent = Agent(position=(1, 2), orientation=Orientation.S)
+    agent = Agent(Position(1, 2), Orientation.S)
     item_pos = (2, 2)
 
     agent.obj = Key(Color.BLUE)
@@ -259,7 +259,7 @@ def test_pickup_mechanics_drop():
 
 def test_pickup_mechanics_swap():
     grid = Grid(height=3, width=4)
-    agent = Agent(position=(1, 2), orientation=Orientation.S)
+    agent = Agent(Position(1, 2), Orientation.S)
     item_pos = (2, 2)
 
     agent.obj = Key(Color.BLUE)

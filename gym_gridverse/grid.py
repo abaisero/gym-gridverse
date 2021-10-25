@@ -82,9 +82,9 @@ class Grid:
     # TODO: remove;  Grid is not a collection of positions
     def __contains__(self, position: Position) -> bool:
         """checks if position is in the grid"""
-        y, x = position
-        return 0 <= y < self.height and 0 <= x < self.width
+        return self.area.contains(position)
 
+    # TODO don't have these.. have the caller reference the area directly..
     def positions(self) -> Iterable[Position]:
         """iterator over positions"""
         return self.area.positions()
@@ -163,8 +163,8 @@ class Grid:
 
         return Grid.from_objects(
             [
-                [get_obj(Position(y, x)) for x in area.positions_xs()]
-                for y in area.positions_ys()
+                [get_obj(Position(y, x)) for x in area.x_coordinates()]
+                for y in area.y_coordinates()
             ]
         )
 

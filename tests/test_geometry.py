@@ -30,7 +30,10 @@ def test_area_width(area: Area, expected: int):
 
 @pytest.mark.parametrize(
     'area,expected',
-    [(Area((0, 1), (0, 2)), (0, 0)), (Area((-1, 1), (-2, 2)), (-1, -2))],
+    [
+        (Area((0, 1), (0, 2)), Position(0, 0)),
+        (Area((-1, 1), (-2, 2)), Position(-1, -2)),
+    ],
 )
 def test_area_top_left(area: Area, expected: Position):
     assert area.top_left == expected
@@ -38,7 +41,10 @@ def test_area_top_left(area: Area, expected: Position):
 
 @pytest.mark.parametrize(
     'area,expected',
-    [(Area((0, 1), (0, 2)), (0, 2)), (Area((-1, 1), (-2, 2)), (-1, 2))],
+    [
+        (Area((0, 1), (0, 2)), Position(0, 2)),
+        (Area((-1, 1), (-2, 2)), Position(-1, 2)),
+    ],
 )
 def test_area_top_right(area: Area, expected: Position):
     assert area.top_right == expected
@@ -46,7 +52,10 @@ def test_area_top_right(area: Area, expected: Position):
 
 @pytest.mark.parametrize(
     'area,expected',
-    [(Area((0, 1), (0, 2)), (1, 0)), (Area((-1, 1), (-2, 2)), (1, -2))],
+    [
+        (Area((0, 1), (0, 2)), Position(1, 0)),
+        (Area((-1, 1), (-2, 2)), Position(1, -2)),
+    ],
 )
 def test_area_bottom_left(area: Area, expected: Position):
     assert area.bottom_left == expected
@@ -54,7 +63,10 @@ def test_area_bottom_left(area: Area, expected: Position):
 
 @pytest.mark.parametrize(
     'area,expected',
-    [(Area((0, 1), (0, 2)), (1, 2)), (Area((-1, 1), (-2, 2)), (1, 2))],
+    [
+        (Area((0, 1), (0, 2)), Position(1, 2)),
+        (Area((-1, 1), (-2, 2)), Position(1, 2)),
+    ],
 )
 def test_area_bottom_right(area: Area, expected: Position):
     assert area.bottom_right == expected
