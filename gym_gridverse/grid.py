@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import List, Set, Tuple, Type, Union
+from typing import List, Optional, Set, Tuple, Type, Union
 
 import numpy as np
+from numpy.typing import ArrayLike
 
 from .geometry import Area, Orientation, Position, Shape
-from .grid_object import Floor, GridObject, Hidden
+from .grid_object import Floor, GridObject, GridObjectFactory, Hidden
 
 PositionOrTuple = Union[Position, Tuple[int, int]]
 ShapeOrTuple = Union[Shape, Tuple[int, int]]
@@ -19,28 +20,32 @@ class Grid:
     simplify interacting with the objects, such as getting areas
     """
 
-    def __init__(self, objects: np.ndarray):
+    def __init__(self, objects: ArrayLike):
         """Constructs a `height` x `width` grid of :py:class:`~gym_gridverse.grid_object.Floor`
 
         Args:
-            objects (numpy.ndarray): grid of GridObjects
+            objects (numpy.typing.ArrayLike): grid of GridObjects
         """
-        # TODO this also supports Sequence[Sequence[GridObject]];  reflect this
-        # in docstring and typing;  change typing to ArrayLike?
         objects = np.asarray(objects)
 
         self._objects = objects
         self._shape = Shape(*objects.shape)
         self._area = Area((0, self.shape.height - 1), (0, self.shape.width - 1))
 
-    # TODO add optional ojectfactory
     @staticmethod
-    def from_shape(shape: ShapeOrTuple) -> Grid:
+    def from_shape(
+        shape: ShapeOrTuple,
+        *,
+        factory: Optional[GridObjectFactory] = None,
+    ) -> Grid:
+        if factory is None:
+            factory = Floor
+
         height, width = (
             (shape.height, shape.width) if isinstance(shape, Shape) else shape
         )
-        objects = [[Floor() for _ in range(width)] for _ in range(height)]
-        return Grid(objects)
+        objects = [[factory() for _ in range(width)] for _ in range(height)]
+        return Grid(np.asarray(objects))
 
     def to_list(self) -> List[List[GridObject]]:
         return self._objects.tolist()

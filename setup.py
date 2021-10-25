@@ -16,7 +16,7 @@ requirements = [
     'imageio',
     'imageio-ffmpeg',
     'more_itertools',
-    'numpy',
+    'numpy>=1.20.0',
     'pyyaml',
     'schema',
     'typing-extensions',
