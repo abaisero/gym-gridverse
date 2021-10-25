@@ -3,10 +3,12 @@ import itertools as itt
 import warnings
 from collections import deque
 from functools import lru_cache, partial
-from typing import Callable, Iterator, List, Sequence, Tuple, Type
+from typing import Callable, Iterator, List, Optional, Sequence, Tuple, Type
 
 import more_itertools as mitt
 import numpy as np
+import numpy.random as rnd
+from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.action import Action
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
@@ -28,8 +30,20 @@ from gym_gridverse.utils.functions import (
 )
 from gym_gridverse.utils.registry import FunctionRegistry
 
-RewardFunction = Callable[[State, Action, State], float]
-"""Signature that all reward functions must follow"""
+
+class RewardFunction(Protocol):
+    """Signature that all reward functions must follow"""
+
+    def __call__(
+        self,
+        state: State,
+        action: Action,
+        next_state: State,
+        *,
+        rng: Optional[rnd.Generator] = None,
+    ) -> float:
+        ...
+
 
 RewardReductionFunction = Callable[[Iterator[float]], float]
 """Signature for a float reduction function"""
@@ -40,11 +54,12 @@ class RewardFunctionRegistry(FunctionRegistry):
         self, signature: inspect.Signature
     ) -> List[inspect.Parameter]:
         state, action, next_state = itt.islice(signature.parameters.values(), 3)
-        return [state, action, next_state]
+        rng = signature.parameters['rng']
+        return [state, action, next_state, rng]
 
     def check_signature(self, function: RewardFunction):
         signature = inspect.signature(function)
-        state, action, next_state = self.get_protocol_parameters(signature)
+        state, action, next_state, rng = self.get_protocol_parameters(signature)
 
         # checks first 3 arguments are positional
         if state.kind not in [
@@ -77,6 +92,17 @@ class RewardFunctionRegistry(FunctionRegistry):
                 'should be allowed to be a positional argument.'
             )
 
+        # and `rng` is keyword
+        if rng.kind not in [
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.KEYWORD_ONLY,
+        ]:
+            raise ValueError(
+                f'The `rng` argument ({rng.name}) '
+                f'of a registered reward function ({function}) '
+                'should be allowed to be a keyword argument.'
+            )
+
         # checks if annotations, if given, are consistent
         if state.annotation not in [inspect.Parameter.empty, State]:
             warnings.warn(
@@ -102,6 +128,17 @@ class RewardFunctionRegistry(FunctionRegistry):
                 'which is not `State`.'
             )
 
+        if rng.annotation not in [
+            inspect.Parameter.empty,
+            Optional[rnd.Generator],
+        ]:
+            warnings.warn(
+                f'The `rng` argument ({rng.name}) '
+                f'of a registered reward function ({function}) '
+                f'has an annotation ({rng.annotation}) '
+                'which is not `Optional[rnd.Generator]`.'
+            )
+
         if signature.return_annotation not in [inspect.Parameter.empty, float]:
             warnings.warn(
                 f'The return type of a registered reward function ({function}) '
@@ -122,6 +159,7 @@ def reduce(
     *,
     reward_functions: Sequence[RewardFunction],
     reduction: RewardReductionFunction,
+    rng: Optional[rnd.Generator] = None,
 ) -> float:
     """reduction of multiple reward functions into a single boolean value
 
@@ -131,6 +169,7 @@ def reduce(
         next_state (`State`):
         reward_functions (`Sequence[RewardFunction]`):
         reduction (`RewardReductionFunction`):
+        rng (`Generator, optional`)
 
     Returns:
         bool: reduction operator over the input reward functions
@@ -138,7 +177,7 @@ def reduce(
     # TODO: test
 
     return reduction(
-        reward_function(state, action, next_state)
+        reward_function(state, action, next_state, rng=rng)
         for reward_function in reward_functions
     )
 
@@ -150,6 +189,7 @@ def reduce_sum(
     next_state: State,
     *,
     reward_functions: Sequence[RewardFunction],
+    rng: Optional[rnd.Generator] = None,
 ) -> float:
     """utility reward function which sums other reward functions
 
@@ -158,6 +198,7 @@ def reduce_sum(
         action (`Action`):
         next_state (`State`):
         reward_functions (`Sequence[RewardFunction]`):
+        rng (`Generator, optional`)
 
     Returns:
         float: sum of the evaluated input reward functions
@@ -169,6 +210,7 @@ def reduce_sum(
         next_state,
         reward_functions=reward_functions,
         reduction=sum,
+        rng=rng,
     )
 
 
@@ -181,6 +223,7 @@ def overlap(
     object_type: Type[GridObject],
     reward_on: float = 1.0,
     reward_off: float = 0.0,
+    rng: Optional[rnd.Generator] = None,
 ) -> float:
     """reward for the agent occupying the same position as another object
 
@@ -191,6 +234,7 @@ def overlap(
         object_type (`Type[GridObject]`):
         reward_on (`float`): reward for when agent is on the object
         reward_off (`float`): reward for when agent is not on the object
+        rng (`Generator, optional`)
 
     Returns:
         float: one of the two input rewards
@@ -209,6 +253,7 @@ def living_reward(
     next_state: State,
     *,
     reward: float = -1.0,
+    rng: Optional[rnd.Generator] = None,
 ) -> float:
     """a living reward which does not depend on states or actions
 
@@ -217,6 +262,7 @@ def living_reward(
         action (`Action`):
         next_state (`State`):
         reward (`float`): reward for when agent is on exit
+        rng (`Generator, optional`)
 
     Returns:
         float: the input reward
@@ -232,6 +278,7 @@ def reach_exit(
     *,
     reward_on: float = 1.0,
     reward_off: float = 0.0,
+    rng: Optional[rnd.Generator] = None,
 ) -> float:
     """reward for the Agent being on a Exit
 
@@ -241,6 +288,7 @@ def reach_exit(
         next_state (`State`):
         reward_on (`float`): reward for when agent is on exit
         reward_off (`float`): reward for when agent is not on exit
+        rng (`Generator, optional`)
 
     Returns:
         float: one of the two input rewards
@@ -252,12 +300,18 @@ def reach_exit(
         object_type=Exit,
         reward_on=reward_on,
         reward_off=reward_off,
+        rng=rng,
     )
 
 
 @reward_function_registry.register
 def bump_moving_obstacle(
-    state: State, action: Action, next_state: State, *, reward: float = -1.0
+    state: State,
+    action: Action,
+    next_state: State,
+    *,
+    reward: float = -1.0,
+    rng: Optional[rnd.Generator] = None,
 ) -> float:
     """reward for the Agent bumping into on a MovingObstacle
 
@@ -266,6 +320,7 @@ def bump_moving_obstacle(
         action (`Action`):
         next_state (`State`):
         reward (`float`): reward for when Agent bumps a MovingObstacle
+        rng (`Generator, optional`)
 
     Returns:
         float: the input reward or 0.0
@@ -277,6 +332,7 @@ def bump_moving_obstacle(
         object_type=MovingObstacle,
         reward_on=reward,
         reward_off=0.0,
+        rng=rng,
     )
 
 
@@ -289,6 +345,7 @@ def proportional_to_distance(
     distance_function: DistanceFunction = Position.manhattan_distance,
     object_type: Type[GridObject],
     reward_per_unit_distance: float = -1.0,
+    rng: Optional[rnd.Generator] = None,
 ) -> float:
     """reward proportional to distance to object
 
@@ -299,6 +356,7 @@ def proportional_to_distance(
         distance_function (`DistanceFunction`):
         object_type: (`Type[GridObject]`): type of unique object in grid
         reward (`float`): reward per unit distance
+        rng (`Generator, optional`)
 
     Returns:
         float: input reward times distance to object
@@ -323,6 +381,7 @@ def getting_closer(
     object_type: Type[GridObject],
     reward_closer: float = 1.0,
     reward_further: float = -1.0,
+    rng: Optional[rnd.Generator] = None,
 ) -> float:
     """reward for getting closer or further to object
 
@@ -334,6 +393,7 @@ def getting_closer(
         object_type: (`Type[GridObject]`): type of unique object in grid
         reward_closer (`float`): reward for when agent gets closer to object
         reward_further (`float`): reward for when agent gets further to object
+        rng (`Generator, optional`)
 
     Returns:
         float: one of the input rewards, or 0.0 if distance has not changed
@@ -400,6 +460,7 @@ def getting_closer_shortest_path(
     object_type: Type[GridObject],
     reward_closer: float = 1.0,
     reward_further: float = -1.0,
+    rng: Optional[rnd.Generator] = None,
 ) -> float:
     """reward for getting closer or further to object, *assuming normal navigation dynamics*
 
@@ -410,6 +471,7 @@ def getting_closer_shortest_path(
         object_type: (`Type[GridObject]`): type of unique object in grid
         reward_closer (`float`): reward for when agent gets closer to object
         reward_further (`float`): reward for when agent gets further to object
+        rng (`Generator, optional`)
 
     Returns:
         float: one of the input rewards, or 0.0 if distance has not changed
@@ -453,6 +515,7 @@ def bump_into_wall(
     next_state: State,
     *,
     reward: float = -1.0,
+    rng: Optional[rnd.Generator] = None,
 ):
     """Returns `reward` when bumping into wall, otherwise 0
 
@@ -464,6 +527,7 @@ def bump_into_wall(
         action (Action):
         next_state (State):
         reward (float): (optional) The reward to provide if bumping into wall
+        rng (`Generator, optional`)
     """
 
     attempted_next_position = updated_agent_position_if_unobstructed(
@@ -486,6 +550,7 @@ def actuate_door(
     *,
     reward_open: float = 1.0,
     reward_close: float = -1.0,
+    rng: Optional[rnd.Generator] = None,
 ):
     """Returns `reward_open` when opening and `reward_close` when closing door.
 
@@ -498,6 +563,7 @@ def actuate_door(
         next_state (State):
         reward_open (float): (optional) The reward to provide if opening a door
         reward_close (float): (optional) The reward to provide if closing a door
+        rng (`Generator, optional`)
     """
 
     if action is not Action.ACTUATE:
@@ -532,6 +598,7 @@ def pickndrop(
     object_type: Type[GridObject],
     reward_pick: float = 1.0,
     reward_drop: float = -1.0,
+    rng: Optional[rnd.Generator] = None,
 ):
     """Returns `reward_pick` / `reward_drop` when an object is picked / dropped.
 
@@ -543,6 +610,7 @@ def pickndrop(
         next_state (State):
         reward_pick (float): (optional) The reward to provide if picking a key
         reward_drop (float): (optional) The reward to provide if dropping a key
+        rng (`Generator, optional`)
     """
 
     has_key = isinstance(state.agent.obj, object_type)
@@ -565,6 +633,7 @@ def reach_exit_memory(
     *,
     reward_good: float = 1.0,
     reward_bad: float = -1.0,
+    rng: Optional[rnd.Generator] = None,
 ) -> float:
     """reward for the Agent being on a Exit
 
@@ -574,6 +643,7 @@ def reach_exit_memory(
         next_state (`State`):
         reward_good (`float`): reward for when agent is on the good exit
         reward_bad (`float`): reward for when agent is on the bad exit
+        rng (`Generator, optional`)
 
     Returns:
         float: one of the two input rewards

@@ -21,7 +21,7 @@ def multi_update_agent(
     rng: Optional[rnd.Generator] = None,
 ):
     for _ in range(n):
-        update_agent(state, action)
+        update_agent(state, action, rng=rng)
 
 
 #  custom reward function
@@ -33,6 +33,7 @@ def checkerboard(
     *,
     reward_even: float,
     reward_odd: float,
+    rng: Optional[rnd.Generator] = None,
 ):
     return (
         reward_even
