@@ -1,5 +1,4 @@
 import inspect
-import itertools as itt
 import warnings
 from functools import partial
 from typing import List, Optional
@@ -22,6 +21,10 @@ from gym_gridverse.utils.functions import (
     is_custom_function,
     select_kwargs,
 )
+from gym_gridverse.utils.protocols import (
+    get_keyword_parameter,
+    get_positional_parameters,
+)
 from gym_gridverse.utils.registry import FunctionRegistry
 
 
@@ -36,17 +39,8 @@ class ObservationFunctionRegistry(FunctionRegistry):
     def get_protocol_parameters(
         self, signature: inspect.Signature
     ) -> List[inspect.Parameter]:
-
-        try:
-            (state,) = itt.islice(signature.parameters.values(), 1)
-        except ValueError as error:
-            raise TypeError('signature needs 1 positional argument') from error
-
-        try:
-            rng = signature.parameters['rng']
-        except KeyError as error:
-            raise TypeError('signature needs `rng` keyword argument') from error
-
+        (state,) = get_positional_parameters(signature, 1)
+        rng = get_keyword_parameter(signature, 'rng')
         return [state, rng]
 
     def check_signature(self, function: ObservationFunction):

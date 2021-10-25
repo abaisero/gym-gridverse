@@ -1,5 +1,4 @@
 import inspect
-import itertools as itt
 import warnings
 from functools import partial
 from typing import Callable, Iterator, List, Optional, Sequence, Type
@@ -16,6 +15,10 @@ from gym_gridverse.utils.functions import (
     import_custom_function,
     is_custom_function,
     select_kwargs,
+)
+from gym_gridverse.utils.protocols import (
+    get_keyword_parameter,
+    get_positional_parameters,
 )
 from gym_gridverse.utils.registry import FunctionRegistry
 
@@ -42,19 +45,8 @@ class TerminatingFunctionRegistry(FunctionRegistry):
     def get_protocol_parameters(
         self, signature: inspect.Signature
     ) -> List[inspect.Parameter]:
-
-        try:
-            state, action, next_state = itt.islice(
-                signature.parameters.values(), 3
-            )
-        except ValueError as error:
-            raise TypeError('signature needs 3 positional argument') from error
-
-        try:
-            rng = signature.parameters['rng']
-        except KeyError as error:
-            raise TypeError('signature needs `rng` keyword argument') from error
-
+        state, action, next_state = get_positional_parameters(signature, 3)
+        rng = get_keyword_parameter(signature, 'rng')
         return [state, action, next_state, rng]
 
     def check_signature(self, function: TerminatingFunction):

@@ -39,6 +39,7 @@ from gym_gridverse.utils.functions import (
     is_custom_function,
     select_kwargs,
 )
+from gym_gridverse.utils.protocols import get_keyword_parameter
 from gym_gridverse.utils.registry import FunctionRegistry
 
 
@@ -51,12 +52,7 @@ class ResetFunctionRegistry(FunctionRegistry):
     def get_protocol_parameters(
         self, signature: inspect.Signature
     ) -> List[inspect.Parameter]:
-
-        try:
-            rng = signature.parameters['rng']
-        except KeyError as error:
-            raise TypeError('signature needs `rng` keyword argument') from error
-
+        rng = get_keyword_parameter(signature, 'rng')
         return [rng]
 
     def check_signature(self, function: ResetFunction):

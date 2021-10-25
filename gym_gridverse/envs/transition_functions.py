@@ -1,6 +1,5 @@
 """ Functions to model dynamics """
 import inspect
-import itertools as itt
 import warnings
 from functools import partial
 from typing import Iterator, List, Optional, Sequence, Tuple, Type
@@ -31,6 +30,10 @@ from gym_gridverse.utils.functions import (
     is_custom_function,
     select_kwargs,
 )
+from gym_gridverse.utils.protocols import (
+    get_keyword_parameter,
+    get_positional_parameters,
+)
 from gym_gridverse.utils.registry import FunctionRegistry
 
 
@@ -49,17 +52,8 @@ class TransitionFunctionRegistry(FunctionRegistry):
     def get_protocol_parameters(
         self, signature: inspect.Signature
     ) -> List[inspect.Parameter]:
-
-        try:
-            state, action = itt.islice(signature.parameters.values(), 2)
-        except ValueError as error:
-            raise TypeError('signature needs 2 positional argument') from error
-
-        try:
-            rng = signature.parameters['rng']
-        except KeyError as error:
-            raise TypeError('signature needs `rng` keyword argument') from error
-
+        state, action = get_positional_parameters(signature, 2)
+        rng = get_keyword_parameter(signature, 'rng')
         return [state, action, rng]
 
     def check_signature(self, function: TransitionFunction):
