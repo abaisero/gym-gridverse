@@ -31,7 +31,7 @@ from gym_gridverse.grid_object import Floor, GridObject, Wall
 )
 def test_full_visibility(objects: Sequence[Sequence[GridObject]]):
     grid = Grid.from_objects(objects)
-    for position in grid.positions():
+    for position in grid.area.positions():
         visibility = fully_transparent(grid, position)
 
         assert visibility.dtype == bool

@@ -124,7 +124,7 @@ def from_visibility(
             'incorrect visibility shape ({visibility.shape}), should be {(area.height, area.width)}'
         )
 
-    for pos in observation_grid.positions():
+    for pos in observation_grid.area.positions():
         if not visibility[pos.y, pos.x]:
             observation_grid[pos] = Hidden()
 

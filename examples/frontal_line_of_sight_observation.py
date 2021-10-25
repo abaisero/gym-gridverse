@@ -25,7 +25,7 @@ def frontal_line_of_sight(
     )
 
     # hiding all tiles which are not directly in front of agent
-    for position in observation_grid.positions():
+    for position in observation_grid.area.positions():
         if (
             # the tile is not in the same column as the agent
             position.x == observation_space.agent_position.x

@@ -79,7 +79,7 @@ def test_reset_keydoor_key(size: int):
 
     key_pos = [
         pos
-        for pos in state.grid.positions()
+        for pos in state.grid.area.positions()
         if isinstance(state.grid[pos], Key)
     ]
 
@@ -104,7 +104,7 @@ def test_reset_dynamic_obstacles(height: int, width: int, num_obstacles: int):
 
     state_num_obstacles = sum(
         isinstance(state.grid[position], MovingObstacle)
-        for position in state.grid.positions()
+        for position in state.grid.area.positions()
     )
     assert state_num_obstacles == num_obstacles
 
@@ -124,7 +124,8 @@ def test_reset_teleport(height: int, width: int):
     assert state.grid.shape == Shape(height, width)
 
     num_telepods = sum(
-        isinstance(state.grid[pos], Telepod) for pos in state.grid.positions()
+        isinstance(state.grid[pos], Telepod)
+        for pos in state.grid.area.positions()
     )
     assert num_telepods == 2
 

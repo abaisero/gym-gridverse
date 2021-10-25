@@ -23,5 +23,5 @@ def concealed_terminating(
     observation = observation_function(state)
     return any(
         isinstance(observation.grid[position], object_type)
-        for position in observation.grid.positions()
+        for position in observation.grid.area.positions()
     )

@@ -51,7 +51,9 @@ def test_draw_room(grid: Grid, area: Area, expected_num_walls: int):
     positions = draw_room(grid, area, Wall)
     assert len(positions) == len(set(positions))
 
-    num_walls = sum(isinstance(grid[pos], Wall) for pos in grid.positions())
+    num_walls = sum(
+        isinstance(grid[pos], Wall) for pos in grid.area.positions()
+    )
     assert len(positions) == num_walls == expected_num_walls
 
 
@@ -68,7 +70,9 @@ def test_draw_room_grid(
     positions = draw_room_grid(grid, ys, xs, Wall)
     assert len(positions) == len(set(positions))
 
-    num_walls = sum(isinstance(grid[pos], Wall) for pos in grid.positions())
+    num_walls = sum(
+        isinstance(grid[pos], Wall) for pos in grid.area.positions()
+    )
     assert len(positions) == num_walls == expected_num_walls
 
 
@@ -85,7 +89,9 @@ def test_draw_area(grid: Grid, area: Area, fill: bool, expected_num_walls: int):
     positions = draw_area(grid, area, Wall, fill=fill)
     assert len(positions) == len(set(positions))
 
-    num_walls = sum(isinstance(grid[pos], Wall) for pos in grid.positions())
+    num_walls = sum(
+        isinstance(grid[pos], Wall) for pos in grid.area.positions()
+    )
     assert len(positions) == num_walls == expected_num_walls
 
 
@@ -102,7 +108,9 @@ def test_draw_line_horizontal(
     positions = draw_line_horizontal(grid, y, xs, Wall)
     assert len(positions) == len(set(positions))
 
-    num_walls = sum(isinstance(grid[pos], Wall) for pos in grid.positions())
+    num_walls = sum(
+        isinstance(grid[pos], Wall) for pos in grid.area.positions()
+    )
     assert len(positions) == num_walls == expected_num_walls
 
 
@@ -119,7 +127,9 @@ def test_draw_line_vertical(
     positions = draw_line_vertical(grid, ys, x, Wall)
     assert len(positions) == len(set(positions))
 
-    num_walls = sum(isinstance(grid[pos], Wall) for pos in grid.positions())
+    num_walls = sum(
+        isinstance(grid[pos], Wall) for pos in grid.area.positions()
+    )
     assert len(positions) == num_walls == expected_num_walls
 
 
@@ -136,5 +146,7 @@ def test_draw_cross_product(
     positions = draw_cartesian_product(grid, ys, xs, Wall)
     assert len(positions) == len(set(positions))
 
-    num_walls = sum(isinstance(grid[pos], Wall) for pos in grid.positions())
+    num_walls = sum(
+        isinstance(grid[pos], Wall) for pos in grid.area.positions()
+    )
     assert len(positions) == num_walls == expected_num_walls

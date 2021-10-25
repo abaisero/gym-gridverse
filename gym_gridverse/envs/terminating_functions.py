@@ -265,8 +265,8 @@ def bump_into_wall(
         state.agent.position, state.agent.orientation, action
     )
 
-    return attempted_next_position in state.grid and (
-        isinstance(state.grid[attempted_next_position], Wall)
+    return state.grid.area.contains(attempted_next_position) and isinstance(
+        state.grid[attempted_next_position], Wall
     )
 
 

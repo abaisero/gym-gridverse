@@ -40,7 +40,7 @@ def test_grid_shape(grid: Grid, expected: Shape):
     ],
 )
 def test_grid_contains(grid: Grid, position: Position, expected: bool):
-    assert (position in grid) == expected
+    assert grid.area.contains(position) == expected
 
 
 @pytest.mark.parametrize(
@@ -51,11 +51,11 @@ def test_grid_contains(grid: Grid, position: Position, expected: bool):
     ],
 )
 def test_grid_positions(grid: Grid, expected: int):
-    positions = set(grid.positions())
+    positions = set(grid.area.positions())
     assert len(positions) == expected
 
     for position in positions:
-        assert position in grid
+        assert grid.area.contains(position)
 
 
 @pytest.mark.parametrize(
@@ -66,11 +66,11 @@ def test_grid_positions(grid: Grid, expected: int):
     ],
 )
 def test_grid_positions_border(grid: Grid, expected: int):
-    positions = set(grid.positions_border())
+    positions = set(grid.area.positions_border())
     assert len(positions) == expected
 
     for position in positions:
-        assert position in grid
+        assert grid.area.contains(position)
 
 
 @pytest.mark.parametrize(
@@ -81,18 +81,18 @@ def test_grid_positions_border(grid: Grid, expected: int):
     ],
 )
 def test_grid_positions_inside(grid: Grid, expected: int):
-    positions = set(grid.positions_inside())
+    positions = set(grid.area.positions_inside())
     assert len(positions) == expected
 
     for position in positions:
-        assert position in grid
+        assert grid.area.contains(position)
 
 
 def test_grid_get_position():
     grid = Grid(3, 4)
 
     # testing position -> grid_object -> position roundtrip
-    for position in grid.positions():
+    for position in grid.area.positions():
         obj = grid[position]
         assert grid.get_position(obj) == position
 
@@ -139,21 +139,25 @@ def test_grid_swap():
     grid = Grid(3, 4)
 
     # caching positions and objects before swap
-    objects_before = {position: grid[position] for position in grid.positions()}
+    objects_before = {
+        position: grid[position] for position in grid.area.positions()
+    }
 
     pos1 = Position(0, 0)
     pos2 = Position(1, 1)
     grid.swap(pos1, pos2)
 
     # caching positions and objects after swap
-    objects_after = {position: grid[position] for position in grid.positions()}
+    objects_after = {
+        position: grid[position] for position in grid.area.positions()
+    }
 
     # testing swapped objects
     assert objects_before[pos1] is objects_after[pos2]
     assert objects_before[pos2] is objects_after[pos1]
 
     # testing all other objects are the same
-    for position in grid.positions():
+    for position in grid.area.positions():
         if position not in (pos1, pos2):
             assert objects_before[position] is objects_after[position]
 

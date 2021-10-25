@@ -306,7 +306,7 @@ def proportional_to_distance(
 
     object_position = mitt.one(
         position
-        for position in next_state.grid.positions()
+        for position in next_state.grid.area.positions()
         if isinstance(next_state.grid[position], object_type)
     )
     distance = distance_function(next_state.agent.position, object_position)
@@ -342,7 +342,7 @@ def getting_closer(
     def _distance_agent_object(state):
         object_position = mitt.one(
             position
-            for position in state.grid.positions()
+            for position in state.grid.area.positions()
             if isinstance(state.grid[position], object_type)
         )
         return distance_function(state.agent.position, object_position)
@@ -418,7 +418,7 @@ def getting_closer_shortest_path(
     def _distance_agent_object(state):
         object_position = mitt.one(
             position
-            for position in state.grid.positions()
+            for position in state.grid.area.positions()
             if isinstance(state.grid[position], object_type)
         )
 
@@ -469,7 +469,7 @@ def bump_into_wall(
 
     return (
         reward
-        if attempted_next_position in state.grid
+        if state.grid.area.contains(attempted_next_position)
         and isinstance(state.grid[attempted_next_position], Wall)
         else 0.0
     )
@@ -579,7 +579,8 @@ def reach_exit_memory(
 
     agent_grid_object = next_state.grid[next_state.agent.position]
     grid_objects = (
-        next_state.grid[position] for position in next_state.grid.positions()
+        next_state.grid[position]
+        for position in next_state.grid.area.positions()
     )
     beacon_color = next(
         grid_object.color

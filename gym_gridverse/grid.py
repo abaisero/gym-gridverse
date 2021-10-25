@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, Sequence, Set, Tuple, Type, Union
+from typing import List, Optional, Sequence, Set, Tuple, Type, Union
 
 import numpy as np
 
@@ -69,7 +69,7 @@ class Grid:
         if self.shape != other.shape:
             return False
 
-        for pos in self.positions():
+        for pos in self.area.positions():
             if self[pos] != other[pos]:
                 return False
 
@@ -79,26 +79,8 @@ class Grid:
     def area(self) -> Area:
         return Area((0, self.height - 1), (0, self.width - 1))
 
-    # TODO: remove;  Grid is not a collection of positions
-    def __contains__(self, position: Position) -> bool:
-        """checks if position is in the grid"""
-        return self.area.contains(position)
-
-    # TODO don't have these.. have the caller reference the area directly..
-    def positions(self) -> Iterable[Position]:
-        """iterator over positions"""
-        return self.area.positions()
-
-    def positions_border(self) -> Iterable[Position]:
-        """iterator over border positions"""
-        return self.area.positions_border()
-
-    def positions_inside(self) -> Iterable[Position]:
-        """iterator over inside positions"""
-        return self.area.positions_inside()
-
     def get_position(self, x: GridObject) -> Position:
-        for position in self.positions():
+        for position in self.area.positions():
             if self[position] is x:
                 return position
 
@@ -106,7 +88,7 @@ class Grid:
 
     def object_types(self) -> Set[Type[GridObject]]:
         """returns object types currently in the grid"""
-        return set(type(self[position]) for position in self.positions())
+        return set(type(self[position]) for position in self.area.positions())
 
     def __getitem__(self, position: PositionOrTuple) -> GridObject:
         y, x = (
@@ -139,10 +121,10 @@ class Grid:
 
     def swap(self, p: Position, q: Position):
         """swap the objects at two positions"""
-        if p not in self:
-            raise ValueError(f'Position {p} not in grid')
-        if q not in self:
-            raise ValueError(f'Position {q} not in grid')
+        if not self.area.contains(p):
+            raise ValueError(f'Position {p} not in grid area')
+        if not self.area.contains(p):
+            raise ValueError(f'Position {q} not in grid area')
 
         self[p], self[q] = self[q], self[p]
 
@@ -159,7 +141,7 @@ class Grid:
         """
 
         def get_obj(position: Position) -> GridObject:
-            return self[position] if position in self else Hidden()
+            return self[position] if self.area.contains(position) else Hidden()
 
         return Grid.from_objects(
             [

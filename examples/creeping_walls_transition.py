@@ -23,7 +23,7 @@ def creeping_walls(
     # all Floor positions
     floor_positions = [
         position
-        for position in state.grid.positions()
+        for position in state.grid.area.positions()
         if isinstance(state.grid[position], Floor)
     ]
 

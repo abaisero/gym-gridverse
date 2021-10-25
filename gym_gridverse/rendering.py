@@ -564,7 +564,7 @@ class GridVerseViewer:
     ):
         self._update_hud(action=action, reward=reward, ret=ret, done=done)
 
-        for position in state_or_observation.grid.positions():
+        for position in state_or_observation.grid.area.positions():
             obj = state_or_observation.grid[position]
             if isinstance(obj, Floor):
                 pass

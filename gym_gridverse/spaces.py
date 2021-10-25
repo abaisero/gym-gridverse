@@ -63,7 +63,7 @@ class StateSpace:
         return (
             state.grid.shape == self.grid_shape
             and state.grid.object_types().issubset(self.object_types)
-            and state.agent.position in state.grid
+            and state.grid.area.contains(state.agent.position)
             and isinstance(state.agent.orientation, Orientation)
             and type(state.agent.obj) in self._agent_object_types
         )
@@ -187,7 +187,8 @@ class ObservationSpace:
             self._grid_object_types
         )
         grid_objs_colors_in_space = set(
-            observation.grid[pos].color for pos in observation.grid.positions()
+            observation.grid[pos].color
+            for pos in observation.grid.area.positions()
         ).issubset(self.colors)
         agent_obj_color_in_space = observation.agent.obj.color in self.colors
 

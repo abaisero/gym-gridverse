@@ -177,7 +177,7 @@ def move_agent(agent: Agent, grid: Grid, action: Action) -> None:
     )
 
     # exit if next position is not legal
-    if next_pos not in grid or grid[next_pos].blocks:
+    if not grid.area.contains(next_pos) or grid[next_pos].blocks:
         return
 
     agent.position = next_pos
@@ -298,7 +298,7 @@ def _unique_object_type_positions(
     """
 
     objects: List[GridObject] = []
-    for position in grid.positions():
+    for position in grid.area.positions():
         obj = grid[position]
 
         if isinstance(obj, object_type) and not any(obj is x for x in objects):
@@ -317,7 +317,8 @@ def _step_moving_obstacle(
     next_positions = [
         next_position
         for next_position in get_manhattan_boundary(position, distance=1)
-        if next_position in grid and isinstance(grid[next_position], Floor)
+        if grid.area.contains(next_position)
+        and isinstance(grid[next_position], Floor)
     ]
 
     try:
@@ -377,7 +378,7 @@ def actuate_door(
 
     position = state.agent.position_in_front()
 
-    if position not in state.grid:
+    if not state.grid.area.contains(position):
         return
 
     door = state.grid[position]
@@ -422,7 +423,7 @@ def actuate_box(
 
     position = state.agent.position_in_front()
 
-    if position not in state.grid:
+    if not state.grid.area.contains(position):
         return
 
     box = state.grid[position]
@@ -449,7 +450,7 @@ def step_telepod(
     if isinstance(telepod, Telepod):
         positions = [
             position
-            for position in state.grid.positions()
+            for position in state.grid.area.positions()
             if position != state.agent.position
             and isinstance(state.grid[position], Telepod)
             and state.grid[position].color == telepod.color

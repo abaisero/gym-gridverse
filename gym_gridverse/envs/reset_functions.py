@@ -127,7 +127,7 @@ def empty(
         agent_position = rng.choice(
             [
                 position
-                for position in grid.positions()
+                for position in grid.area.positions()
                 if isinstance(grid[position], Floor)
             ]
         )
@@ -197,7 +197,7 @@ def rooms(
     agent_position, exit_position = rng.choice(
         [
             position
-            for position in grid.positions()
+            for position in grid.area.positions()
             if isinstance(grid[position], Floor)
         ],
         size=2,
@@ -235,7 +235,7 @@ def dynamic_obstacles(
     state = empty(shape, random_agent, rng=rng)
     vacant_positions = [
         position
-        for position in state.grid.positions()
+        for position in state.grid.area.positions()
         if isinstance(state.grid[position], Floor)
         and position != state.agent.position
     ]
@@ -438,7 +438,7 @@ def teleport(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
     positions = rng.choice(
         [
             position
-            for position in state.grid.positions()
+            for position in state.grid.area.positions()
             if isinstance(state.grid[position], Floor)
             and position != state.agent.position
         ],
@@ -567,7 +567,7 @@ def memory_rooms(
     positions = rng.choice(
         [
             position
-            for position in grid.positions()
+            for position in grid.area.positions()
             if isinstance(grid[position], Floor)
         ],
         size=1 + num_beacons + num_exits,
