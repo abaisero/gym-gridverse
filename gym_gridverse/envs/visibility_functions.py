@@ -141,8 +141,7 @@ def partially_occluded(
 ) -> np.ndarray:
 
     if position.y != grid.shape.height - 1:
-        #  gym-minigrid does not handle this case, and we are not currently
-        #  generalizing it
+        # TODO generalize for this case
         raise NotImplementedError
 
     visibility = np.zeros((grid.shape.height, grid.shape.width), dtype=bool)
@@ -198,37 +197,6 @@ def partially_occluded(
                 and visibility[p.y + 1, p.x - 1]
             )
         )
-
-    return visibility
-
-
-@visibility_function_registry.register
-def minigrid(
-    grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
-) -> np.ndarray:
-
-    if position.y != grid.shape.height - 1:
-        #  gym-minigrid does not handle this case, and we are not currently
-        #  generalizing it
-        raise NotImplementedError
-
-    visibility = np.zeros((grid.shape.height, grid.shape.width), dtype=bool)
-    visibility[position.y, position.x] = True  # agent
-
-    for y in range(grid.shape.height - 1, -1, -1):
-        for x in range(grid.shape.width - 1):
-            if visibility[y, x] and grid[y, x].transparent:
-                visibility[y, x + 1] = True
-                if y > 0:
-                    visibility[y - 1, x] = True
-                    visibility[y - 1, x + 1] = True
-
-        for x in range(grid.shape.width - 1, 0, -1):
-            if visibility[y, x] and grid[y, x].transparent:
-                visibility[y, x - 1] = True
-                if y > 0:
-                    visibility[y - 1, x] = True
-                    visibility[y - 1, x - 1] = True
 
     return visibility
 

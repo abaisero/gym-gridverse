@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from gym_gridverse.agent import Agent
-from gym_gridverse.envs.observation_functions import factory, minigrid
+from gym_gridverse.envs.observation_functions import factory, partially_occluded
 from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Floor, GridObject, Hidden, Wall
@@ -21,13 +21,13 @@ from gym_gridverse.state import State
         Agent(Position(3, 7), Orientation.W),
     ],
 )
-def test_minigrid(agent: Agent):
+def test_partially_occluded_1(agent: Agent):
     grid = Grid.from_shape((10, 10))
     grid[5, 5] = Wall()
 
     state = State(grid, agent)
     observation_space = ObservationSpace(Shape(6, 5), [], [])
-    observation = minigrid(state, area=observation_space.area)
+    observation = partially_occluded(state, area=observation_space.area)
     assert observation.agent.position == Position(5, 2)
     assert observation.agent.orientation == Orientation.N
     assert observation.agent.obj == state.agent.obj
@@ -84,7 +84,7 @@ def test_minigrid(agent: Agent):
         ),
     ],
 )
-def test_minigrid_partially_occluded(
+def test_artially_occluded_2(
     agent: Agent, expected_objects: Sequence[Sequence[GridObject]]
 ):
     grid = Grid(
@@ -96,7 +96,7 @@ def test_minigrid_partially_occluded(
     )
     state = State(grid, agent)
     observation_space = ObservationSpace(Shape(6, 5), [], [])
-    observation = minigrid(state, area=observation_space.area)
+    observation = partially_occluded(state, area=observation_space.area)
     expected = Grid(expected_objects)
     assert observation.grid == expected
 
@@ -107,7 +107,6 @@ def test_minigrid_partially_occluded(
         ('from_visibility', {'visibility_function': MagicMock()}),
         ('fully_transparent', {}),
         ('partially_occluded', {}),
-        ('minigrid', {}),
         ('raytracing', {}),
         ('stochastic_raytracing', {}),
     ],
@@ -124,7 +123,6 @@ def test_factory_valid(name: str, kwargs):
         ('from_visibility', {}, ValueError),
         ('fully_transparent', {}, ValueError),
         ('partially_occluded', {}, ValueError),
-        ('minigrid', {}, ValueError),
         ('raytracing', {}, ValueError),
         ('stochastic_raytracing', {}, ValueError),
     ],

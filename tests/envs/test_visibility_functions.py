@@ -5,7 +5,6 @@ import pytest
 from gym_gridverse.envs.visibility_functions import (
     factory,
     fully_transparent,
-    minigrid,
     partially_occluded,
     raytracing,
 )
@@ -143,74 +142,6 @@ def test_partial_visibility(
             ],
             Position(2, 2),
             [
-                [1, 1, 1, 1, 1],
-                [0, 1, 1, 1, 0],
-                [0, 1, 1, 1, 0],
-            ],
-        ),
-        (
-            [
-                [Floor(), Floor(), Floor(), Floor(), Floor()],
-                [Floor(), Wall(), Wall(), Wall(), Floor()],
-                [Floor(), Floor(), Floor(), Wall(), Floor()],
-            ],
-            Position(2, 2),
-            [
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 0],
-                [1, 1, 1, 1, 0],
-            ],
-        ),
-    ],
-)
-def test_minigrid_visibility(
-    objects: Sequence[Sequence[GridObject]],
-    position: Position,
-    expected_int: Sequence[Sequence[int]],
-):
-    grid = Grid(objects)
-    visibility = minigrid(grid, position)
-    assert visibility.dtype == bool
-    assert (visibility == expected_int).all()
-
-
-@pytest.mark.parametrize(
-    'objects,position,expected_int',
-    [
-        (
-            [
-                [Floor(), Floor(), Floor(), Floor(), Floor()],
-                [Floor(), Floor(), Floor(), Floor(), Floor()],
-                [Floor(), Floor(), Floor(), Floor(), Floor()],
-            ],
-            Position(2, 2),
-            [
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1],
-            ],
-        ),
-        (
-            [
-                [Floor(), Floor(), Floor(), Floor(), Floor()],
-                [Floor(), Wall(), Wall(), Wall(), Floor()],
-                [Floor(), Wall(), Floor(), Wall(), Floor()],
-            ],
-            Position(2, 2),
-            [
-                [0, 0, 0, 0, 0],
-                [0, 1, 1, 1, 0],
-                [0, 1, 1, 1, 0],
-            ],
-        ),
-        (
-            [
-                [Floor(), Floor(), Floor(), Floor(), Floor()],
-                [Floor(), Wall(), Floor(), Wall(), Floor()],
-                [Floor(), Wall(), Floor(), Wall(), Floor()],
-            ],
-            Position(2, 2),
-            [
                 [0, 1, 1, 1, 0],
                 [0, 1, 1, 1, 0],
                 [0, 1, 1, 1, 0],
@@ -247,7 +178,6 @@ def test_raytracing_visibility(
     [
         'fully_transparent',
         'partially_occluded',
-        'minigrid',
         'raytracing',
         'stochastic_raytracing',
     ],

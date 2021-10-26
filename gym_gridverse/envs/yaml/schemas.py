@@ -120,7 +120,6 @@ schemas.update(
         'visibility_function': Schema(
             Or(
                 'full_visibility',
-                'minigrid_visibility',
                 'raytracing_visibility',
                 'stochastic_raytracing_visibility',
             ),

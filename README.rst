@@ -70,7 +70,6 @@ The following observation functions are provided:
 * :code:`from_visibility` -- Observability determined by custom visibility functions.
 * :code:`full_observation` -- Observability which is unblocked by Walls.
 * :code:`partial_observation` -- Observability which is blocked by Walls.
-* :code:`minigrid_observation` -- Observability which matches MiniGrid_.
 * :code:`raytracing observation` -- Observability determined by direct line of sight.
 
 The following terminating functions are provided:
