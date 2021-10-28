@@ -312,38 +312,20 @@ def test_custom_object():
     class ColoredFloor(GridObject):
         """Most basic _colored_ object in the grid, represents empty cell"""
 
-        type_index: int
-
         def __init__(self, color: Color = Color.NONE):
-            self._color = color
+            self.state_idnex = 0
+            self.color = color
+            self.transparent = True
+            self.can_be_picked_up = False
+            self.blocks = False
 
         @classmethod
         def can_be_represented_in_state(cls) -> bool:
             return True
 
-        @property
-        def state_index(self) -> int:
-            return 0
-
-        @property
-        def color(self) -> Color:
-            return self._color
-
         @classmethod
         def num_states(cls) -> int:
             return 1
-
-        @property
-        def transparent(self) -> bool:
-            return True
-
-        @property
-        def can_be_picked_up(self) -> bool:
-            return False
-
-        @property
-        def blocks(self) -> bool:
-            return False
 
         def __repr__(self):
             return f'{self.__class__.__name__}({self.color})'

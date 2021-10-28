@@ -16,12 +16,40 @@ class Color(enum.Enum):
     YELLOW = enum.auto()
 
 
-class GridObject(metaclass=abc.ABCMeta):
+class GridObjectMeta(abc.ABCMeta):
+    def __call__(self, *args, **kwargs):
+        obj = super().__call__(*args, **kwargs)
+        # checks attribute existence at object instantiation
+        obj.state_index
+        obj.color
+        obj.transparent
+        obj.can_be_picked_up
+        obj.blocks
+        return obj
+
+
+class GridObject(metaclass=GridObjectMeta):
     """A cell in the grid"""
 
     # registry as list/mapping int -> GridObject
     object_types: List[GridObject] = []
     type_index: int
+
+    def __init__(self):
+        self.state_index: int
+        """State index of the object"""
+
+        self.color: Color
+        """Color of the object"""
+
+        self.transparent: bool
+        """Whether the agent can see _through_ the object"""
+
+        self.can_be_picked_up: bool
+        """Whether the agent can see pick up the object"""
+
+        self.blocks: bool
+        """Whether the object blocks the agent from moving on it"""
 
     def __init_subclass__(cls, *, register=True, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -34,35 +62,10 @@ class GridObject(metaclass=abc.ABCMeta):
     def can_be_represented_in_state(cls) -> bool:
         """Returns whether the state_index fully represents the object state"""
 
-    @property
-    @abc.abstractmethod
-    def state_index(self) -> int:
-        """Returns the state index of the object"""
-
     @classmethod
     @abc.abstractmethod
     def num_states(cls) -> int:
         """Number of states this class can take on"""
-
-    @property
-    @abc.abstractmethod
-    def color(self) -> Color:
-        """returns the color of the object"""
-
-    @property
-    @abc.abstractmethod
-    def transparent(self) -> bool:
-        """Whether the agent can see _through_ the object"""
-
-    @property
-    @abc.abstractmethod
-    def can_be_picked_up(self) -> bool:
-        """Whether the agent can see pick up the object"""
-
-    @property
-    @abc.abstractmethod
-    def blocks(self) -> bool:
-        """Whether the object blocks the agent"""
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, GridObject):
@@ -83,33 +86,21 @@ class NoneGridObject(GridObject):
 
     type_index: int
 
+    def __init__(self):
+        super().__init__()
+        self.state_index = 0
+        self.color = Color.NONE
+        self.transparent = False
+        self.can_be_picked_up = False
+        self.blocks = False
+
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
 
-    @property
-    def state_index(self) -> int:
-        return 0
-
-    @property
-    def color(self) -> Color:
-        return Color.NONE
-
     @classmethod
     def num_states(cls) -> int:
         return 1
-
-    @property
-    def transparent(self) -> bool:
-        assert False
-
-    @property
-    def can_be_picked_up(self) -> bool:
-        assert False
-
-    @property
-    def blocks(self) -> bool:
-        assert False
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
@@ -120,33 +111,21 @@ class Hidden(GridObject):
 
     type_index: int
 
+    def __init__(self):
+        super().__init__()
+        self.state_index = 0
+        self.color = Color.NONE
+        self.transparent = False
+        self.can_be_picked_up = False
+        self.blocks = False
+
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return False
 
-    @property
-    def state_index(self) -> int:
-        return 0
-
-    @property
-    def color(self) -> Color:
-        return Color.NONE
-
     @classmethod
     def num_states(cls) -> int:
         return 1
-
-    @property
-    def transparent(self) -> bool:
-        return False
-
-    @property
-    def can_be_picked_up(self) -> bool:
-        assert False
-
-    @property
-    def blocks(self) -> bool:
-        assert False
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
@@ -157,33 +136,21 @@ class Floor(GridObject):
 
     type_index: int
 
+    def __init__(self):
+        super().__init__()
+        self.state_index = 0
+        self.color = Color.NONE
+        self.transparent = True
+        self.can_be_picked_up = False
+        self.blocks = False
+
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
 
-    @property
-    def state_index(self) -> int:
-        return 0
-
-    @property
-    def color(self) -> Color:
-        return Color.NONE
-
     @classmethod
     def num_states(cls) -> int:
         return 1
-
-    @property
-    def transparent(self) -> bool:
-        return True
-
-    @property
-    def can_be_picked_up(self) -> bool:
-        return False
-
-    @property
-    def blocks(self) -> bool:
-        return False
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
@@ -194,33 +161,21 @@ class Wall(GridObject):
 
     type_index: int
 
+    def __init__(self):
+        super().__init__()
+        self.state_index = 0
+        self.color = Color.NONE
+        self.transparent = False
+        self.can_be_picked_up = False
+        self.blocks = True
+
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
 
-    @property
-    def state_index(self) -> int:
-        return 0
-
-    @property
-    def color(self) -> Color:
-        return Color.NONE
-
     @classmethod
     def num_states(cls) -> int:
         return 1
-
-    @property
-    def transparent(self) -> bool:
-        return False
-
-    @property
-    def can_be_picked_up(self) -> bool:
-        return False
-
-    @property
-    def blocks(self) -> bool:
-        return True
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
@@ -232,35 +187,20 @@ class Exit(GridObject):
     type_index: int
 
     def __init__(self, color: Color = Color.NONE):
-        self._color = color
+        super().__init__()
+        self.state_index = 0
+        self.color = color
+        self.transparent = True
+        self.can_be_picked_up = False
+        self.blocks = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
 
-    @property
-    def state_index(self) -> int:
-        return 0
-
-    @property
-    def color(self) -> Color:
-        return self._color
-
     @classmethod
     def num_states(cls) -> int:
         return 1
-
-    @property
-    def transparent(self) -> bool:
-        return True
-
-    @property
-    def can_be_picked_up(self) -> bool:
-        return False
-
-    @property
-    def blocks(self) -> bool:
-        return False
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
@@ -292,57 +232,40 @@ class Door(GridObject):
         LOCKED = enum.auto()
 
     def __init__(self, state: Door.Status, color: Color):
-        self._color = color
-        self._state = state
-
-    @property
-    def state(self) -> Door.Status:
-        return self._state
-
-    @state.setter
-    def state(self, value: Door.Status):
-        if not isinstance(value, Door.Status):
-            raise TypeError('value ({value}) must be of type Door.Status')
-
-        self._state = value
+        super().__init__()
+        self.state = state
+        self.color = color
+        self.can_be_picked_up = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
-
-    @property
-    def state_index(self) -> int:
-        return self._state.value
 
     @classmethod
     def num_states(cls) -> int:
         return len(Door.Status)
 
     @property
-    def color(self) -> Color:
-        return self._color
+    def state_index(self) -> int:
+        return self.state.value
 
     @property
     def transparent(self) -> bool:
-        return self._state == self.Status.OPEN
-
-    @property
-    def can_be_picked_up(self) -> bool:
-        return False
+        return self.state is Door.Status.OPEN
 
     @property
     def blocks(self) -> bool:
-        return self._state != self.Status.OPEN
+        return self.state is not Door.Status.OPEN
 
     @property
     def is_open(self) -> bool:
         """returns whether the door is opened"""
-        return self._state == self.Status.OPEN
+        return self.state is Door.Status.OPEN
 
     @property
     def locked(self) -> bool:
         """returns whether the door is locked"""
-        return self._state == self.Status.LOCKED
+        return self.state is Door.Status.LOCKED
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.state!s}, {self.color!s})'
@@ -353,37 +276,21 @@ class Key(GridObject):
 
     type_index: int
 
-    def __init__(self, c: Color):
-        """Creates a key of color `c`"""
-        self._color = c
+    def __init__(self, color: Color):
+        super().__init__()
+        self.state_index = 0
+        self.color = color
+        self.transparent = True
+        self.can_be_picked_up = True
+        self.blocks = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
 
-    @property
-    def state_index(self) -> int:
-        return 0
-
-    @property
-    def color(self) -> Color:
-        return self._color
-
     @classmethod
     def num_states(cls) -> int:
         return 1
-
-    @property
-    def transparent(self) -> bool:
-        return True
-
-    @property
-    def can_be_picked_up(self) -> bool:
-        return True
-
-    @property
-    def blocks(self) -> bool:
-        return False
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.color!s})'
@@ -395,35 +302,20 @@ class MovingObstacle(GridObject):
     type_index: int
 
     def __init__(self):
-        """Moving obstacles have no special status or color"""
+        super().__init__()
+        self.state_index = 0
+        self.color = Color.NONE
+        self.transparent = True
+        self.can_be_picked_up = False
+        self.blocks = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
 
-    @property
-    def state_index(self) -> int:
-        return 0
-
-    @property
-    def color(self) -> Color:
-        return Color.NONE
-
     @classmethod
     def num_states(cls) -> int:
         return 1
-
-    @property
-    def transparent(self) -> bool:
-        return True
-
-    @property
-    def can_be_picked_up(self) -> bool:
-        return False
-
-    @property
-    def blocks(self) -> bool:
-        return False
 
     def __repr__(self):
         return f'{self.__class__.__name__}()'
@@ -435,39 +327,27 @@ class Box(GridObject):
     type_index: int
 
     def __init__(self, content: GridObject):
+        super().__init__()
+
         """Boxes have no special status or color"""
         if isinstance(content, (NoneGridObject, Hidden)):
             raise ValueError('Box cannot contain NoneGridObject or Hidden')
 
         self.content = content
 
+        self.state_index = 0
+        self.color = Color.NONE
+        self.transparent = True
+        self.can_be_picked_up = False
+        self.blocks = True
+
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return False
 
-    @property
-    def state_index(self) -> int:
-        return 0
-
-    @property
-    def color(self) -> Color:
-        return Color.NONE
-
     @classmethod
     def num_states(cls) -> int:
         return 1
-
-    @property
-    def transparent(self) -> bool:
-        return True
-
-    @property
-    def can_be_picked_up(self) -> bool:
-        return False
-
-    @property
-    def blocks(self) -> bool:
-        return True
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.content!r})'
@@ -479,35 +359,20 @@ class Telepod(GridObject):
     type_index: int
 
     def __init__(self, color: Color):
-        self._color = color
+        super().__init__()
+        self.state_index = 0
+        self.color = color
+        self.transparent = True
+        self.can_be_picked_up = False
+        self.blocks = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
 
-    @property
-    def state_index(self) -> int:
-        return 0
-
-    @property
-    def color(self) -> Color:
-        return self._color
-
     @classmethod
     def num_states(cls) -> int:
         return 1
-
-    @property
-    def transparent(self) -> bool:
-        return True
-
-    @property
-    def can_be_picked_up(self) -> bool:
-        return False
-
-    @property
-    def blocks(self) -> bool:
-        return False
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.color!s})'
@@ -519,35 +384,19 @@ class Beacon(GridObject):
     type_index: int
 
     def __init__(self, color: Color):
-        self._color = color
+        self.state_index = 0
+        self.color = color
+        self.transparent = True
+        self.can_be_picked_up = False
+        self.blocks = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
         return True
 
-    @property
-    def state_index(self) -> int:
-        return 0
-
-    @property
-    def color(self) -> Color:
-        return self._color
-
     @classmethod
     def num_states(cls) -> int:
         return 1
-
-    @property
-    def transparent(self) -> bool:
-        return True
-
-    @property
-    def can_be_picked_up(self) -> bool:
-        return False
-
-    @property
-    def blocks(self) -> bool:
-        return False
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.color!s})'
