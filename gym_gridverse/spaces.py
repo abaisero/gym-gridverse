@@ -17,7 +17,7 @@ def _max_object_type(object_types: Iterable[Type[GridObject]]) -> int:
     Returns:
         int:
     """
-    return max(obj_type.type_index for obj_type in object_types)
+    return max(obj_type.type_index() for obj_type in object_types)
 
 
 def _max_object_status(object_types: Iterable[Type[GridObject]]) -> int:

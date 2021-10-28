@@ -66,8 +66,8 @@ def test_max_object_status(
 @pytest.mark.parametrize(
     'object_types,expected',
     [
-        ([Floor, Exit], Exit.type_index),
-        ([Floor, Exit, Door], Door.type_index),
+        ([Floor, Exit], Exit.type_index()),
+        ([Floor, Exit, Door], Door.type_index()),
     ],
 )
 def test_max_object_type(

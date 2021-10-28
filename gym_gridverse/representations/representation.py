@@ -170,13 +170,13 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
     """
 
     item_representation = np.array(
-        [agent.obj.type_index, agent.obj.state_index, agent.obj.color.value]
+        [agent.obj.type_index(), agent.obj.state_index, agent.obj.color.value]
     )
 
     # need this to improve efficiency, because python3.7 does not have assignment operators
     def get_obj_array(y: int, x: int) -> Tuple[int, int, int]:
         obj = grid[y, x]
-        return obj.type_index, obj.state_index, obj.color.value
+        return obj.type_index(), obj.state_index, obj.color.value
 
     grid_array_object_channels = np.array(
         [

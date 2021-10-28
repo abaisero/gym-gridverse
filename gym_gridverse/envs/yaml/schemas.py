@@ -4,7 +4,7 @@ from functools import lru_cache
 from schema import And, Optional, Or, Schema
 
 from gym_gridverse.action import Action
-from gym_gridverse.grid_object import Color
+from gym_gridverse.grid_object import Color, grid_object_registry
 
 # general purpose schemas
 
@@ -52,34 +52,15 @@ def _unique_schema():
     )
 
 
+# TODO this should be evaluated at runtime so that it is up-to-date with
+# registered GridObjects
+
 # base schemas
 schemas = {
     'shape': _positive_int_pair(),
     'layout': _positive_int_pair(),
     'area': _pair(_pair(int)),
-    'object_type': Schema(
-        Or(
-            'floor',
-            'wall',
-            'exit',
-            'door',
-            'key',
-            'moving_obstacle',
-            'box',
-            'telepod',
-            'beacon',
-            # XXX remove these
-            'Floor',
-            'Wall',
-            'Exit',
-            'Door',
-            'Key',
-            'MovingObstacle',
-            'Box',
-            'Telepod',
-            'Beacon',
-        )
-    ),
+    'object_type': Schema(Or(*grid_object_registry.names())),
     'action': Schema(Or(*(action.name for action in Action))),
     'color': Schema(Or(*(color.name for color in Color))),
 }

@@ -45,16 +45,6 @@ def test_layout_schema(data, expected: bool):
 @pytest.mark.parametrize(
     'data,expected',
     [
-        ('floor', True),
-        ('wall', True),
-        ('exit', True),
-        ('door', True),
-        ('key', True),
-        ('moving_obstacle', True),
-        ('box', True),
-        ('telepod', True),
-        ('beacon', True),
-        # TODO: remove these
         ('Floor', True),
         ('Wall', True),
         ('Exit', True),

@@ -27,7 +27,7 @@ def default_representation_fixture():
     """Creates an observation representation of 3 by 3"""
     height, width = 3, 3
 
-    max_obj_type = Key.type_index
+    max_obj_type = Key.type_index()
     max_obj_state = Door.num_states()
     max_color_value = Color.BLUE.value
 
@@ -79,7 +79,7 @@ def test_default_representation_convert(default_representation_fixture):
     grid = Grid.from_shape((height, width))
     grid[1, 1] = Door(Door.Status.CLOSED, Color.BLUE)
 
-    floor_index = Floor.type_index
+    floor_index = Floor.type_index()
 
     # y, x, one-hot encoding with North (== 0)
     expected_agent_representation = [
@@ -91,7 +91,7 @@ def test_default_representation_convert(default_representation_fixture):
         0.0,
     ]
     expected_item_representation = [
-        agent.obj.type_index,
+        agent.obj.type_index(),
         agent.obj.state_index,
         agent.obj.color.value,
     ]
@@ -110,7 +110,7 @@ def test_default_representation_convert(default_representation_fixture):
             [
                 [floor_index, 0, 0],
                 [
-                    Door.type_index,
+                    Door.type_index(),
                     Door.Status.CLOSED.value,
                     Color.BLUE.value,
                 ],
@@ -140,7 +140,7 @@ def no_overlap_fixture():
     height, width = 4, 5
 
     # hard coded from above
-    max_object_type = Exit.type_index
+    max_object_type = Exit.type_index()
     max_object_status = 0
     max_color_value = Color.GREEN.value
 
@@ -200,7 +200,7 @@ def test_no_overlap_convert(no_overlap_fixture):
 
     expected_agent_state = np.array(
         [
-            NoneGridObject.type_index,
+            NoneGridObject.type_index(),
             first_item_status,
             first_item_color,
         ]
@@ -210,7 +210,7 @@ def test_no_overlap_convert(no_overlap_fixture):
         [
             [
                 [
-                    Floor.type_index,
+                    Floor.type_index(),
                     first_item_status,
                     first_item_color,
                 ]
@@ -222,29 +222,29 @@ def test_no_overlap_convert(no_overlap_fixture):
 
     # we expect walls to be around
     expected_grid_state[0, :] = [
-        Wall.type_index,
+        Wall.type_index(),
         first_item_status,
         first_item_color,
     ]
     expected_grid_state[height - 1, :] = [
-        Wall.type_index,
+        Wall.type_index(),
         first_item_status,
         first_item_color,
     ]
     expected_grid_state[:, 0] = [
-        Wall.type_index,
+        Wall.type_index(),
         first_item_status,
         first_item_color,
     ]
     expected_grid_state[:, width - 1] = [
-        Wall.type_index,
+        Wall.type_index(),
         first_item_status,
         first_item_color,
     ]
 
     # we expect exit to be in corner
     expected_grid_state[height - 2, width - 2, :] = [
-        Exit.type_index,
+        Exit.type_index(),
         first_item_status,
         first_item_color,
     ]

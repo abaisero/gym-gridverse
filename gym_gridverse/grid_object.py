@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import abc
 import enum
+from collections import UserList
 from typing import Callable, List, Type
 
 
@@ -14,6 +15,24 @@ class Color(enum.Enum):
     GREEN = enum.auto()
     BLUE = enum.auto()
     YELLOW = enum.auto()
+
+
+class GridObjectRegistry(UserList):
+    def register(self, object_type: Type[GridObject]):
+        self.data.append(object_type)
+
+    def index_from_name(self, name: str) -> int:
+        return next(
+            i
+            for i, object_type in enumerate(self.data)
+            if object_type.__name__ == name
+        )
+
+    def names(self) -> List[str]:
+        return [object_type.__name__ for object_type in self.data]
+
+
+grid_object_registry = GridObjectRegistry()
 
 
 class GridObjectMeta(abc.ABCMeta):
@@ -30,10 +49,6 @@ class GridObjectMeta(abc.ABCMeta):
 
 class GridObject(metaclass=GridObjectMeta):
     """A cell in the grid"""
-
-    # registry as list/mapping int -> GridObject
-    object_types: List[GridObject] = []
-    type_index: int
 
     def __init__(self):
         self.state_index: int
@@ -54,8 +69,11 @@ class GridObject(metaclass=GridObjectMeta):
     def __init_subclass__(cls, *, register=True, **kwargs):
         super().__init_subclass__(**kwargs)
         if register:
-            cls.type_index = len(GridObject.object_types)
-            GridObject.object_types.append(cls)
+            grid_object_registry.register(cls)
+
+    @classmethod
+    def type_index(cls) -> int:
+        return grid_object_registry.index(cls)
 
     @classmethod
     @abc.abstractmethod
@@ -72,19 +90,17 @@ class GridObject(metaclass=GridObjectMeta):
             return NotImplemented
 
         return (
-            self.type_index == other.type_index
+            self.type_index() == other.type_index()
             and self.state_index == other.state_index
             and self.color == other.color
         )
 
     def __hash__(self):
-        return hash((self.type_index, self.state_index, self.color))
+        return hash((self.type_index(), self.state_index, self.color))
 
 
 class NoneGridObject(GridObject):
     """object representing the absence of an object"""
-
-    type_index: int
 
     def __init__(self):
         super().__init__()
@@ -109,8 +125,6 @@ class NoneGridObject(GridObject):
 class Hidden(GridObject):
     """object representing an unobservable cell"""
 
-    type_index: int
-
     def __init__(self):
         super().__init__()
         self.state_index = 0
@@ -133,8 +147,6 @@ class Hidden(GridObject):
 
 class Floor(GridObject):
     """Most basic object in the grid, represents empty cell"""
-
-    type_index: int
 
     def __init__(self):
         super().__init__()
@@ -159,8 +171,6 @@ class Floor(GridObject):
 class Wall(GridObject):
     """The (second) most basic object in the grid: blocking cell"""
 
-    type_index: int
-
     def __init__(self):
         super().__init__()
         self.state_index = 0
@@ -183,8 +193,6 @@ class Wall(GridObject):
 
 class Exit(GridObject):
     """The (second) most basic object in the grid: blocking cell"""
-
-    type_index: int
 
     def __init__(self, color: Color = Color.NONE):
         super().__init__()
@@ -221,8 +229,6 @@ class Door(GridObject):
         any state -> `open`
 
     """
-
-    type_index: int
 
     class Status(enum.Enum):
         """open, closed or locked"""
@@ -274,8 +280,6 @@ class Door(GridObject):
 class Key(GridObject):
     """A key opens a door with the same color"""
 
-    type_index: int
-
     def __init__(self, color: Color):
         super().__init__()
         self.state_index = 0
@@ -299,8 +303,6 @@ class Key(GridObject):
 class MovingObstacle(GridObject):
     """An obstacle to be avoided that moves in the grid"""
 
-    type_index: int
-
     def __init__(self):
         super().__init__()
         self.state_index = 0
@@ -323,8 +325,6 @@ class MovingObstacle(GridObject):
 
 class Box(GridObject):
     """A box which can be broken and may contain another object"""
-
-    type_index: int
 
     def __init__(self, content: GridObject):
         super().__init__()
@@ -356,8 +356,6 @@ class Box(GridObject):
 class Telepod(GridObject):
     """A teleportation pod"""
 
-    type_index: int
-
     def __init__(self, color: Color):
         super().__init__()
         self.state_index = 0
@@ -380,8 +378,6 @@ class Telepod(GridObject):
 
 class Beacon(GridObject):
     """A beacon to attract attention"""
-
-    type_index: int
 
     def __init__(self, color: Color):
         self.state_index = 0

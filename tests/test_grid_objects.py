@@ -22,6 +22,7 @@ from gym_gridverse.grid_object import (
     Telepod,
     Wall,
     factory,
+    grid_object_registry,
 )
 from gym_gridverse.state import State
 
@@ -48,38 +49,38 @@ class DummyNonRegisteredObject(GridObject, register=False):
     ],
 )
 def test_registration(object_type: Type[GridObject], expected: bool):
-    assert (object_type in GridObject.object_types) == expected
+    assert (object_type in grid_object_registry) == expected
 
 
 def test_none_grid_object_registration():
     """Tests the registration as a Grid Object"""
-    assert NoneGridObject in GridObject.object_types
+    assert NoneGridObject in grid_object_registry
 
 
 def test_hidden_registration():
     """Tests the registration as a Grid Object"""
-    assert Hidden in GridObject.object_types
+    assert Hidden in grid_object_registry
 
 
 def test_grid_object_registration():
     """Test registration of type indices"""
 
-    assert len(GridObject.object_types) == 11
+    assert len(grid_object_registry) == 11
     unittest.TestCase().assertCountEqual(
         [
-            NoneGridObject.type_index,
-            Hidden.type_index,
-            Floor.type_index,
-            Wall.type_index,
-            Exit.type_index,
-            Door.type_index,
-            Key.type_index,
-            MovingObstacle.type_index,
-            Box.type_index,
-            Telepod.type_index,
-            Beacon.type_index,
+            NoneGridObject.type_index(),
+            Hidden.type_index(),
+            Floor.type_index(),
+            Wall.type_index(),
+            Exit.type_index(),
+            Door.type_index(),
+            Key.type_index(),
+            MovingObstacle.type_index(),
+            Box.type_index(),
+            Telepod.type_index(),
+            Beacon.type_index(),
         ],
-        range(len(GridObject.object_types)),
+        range(len(grid_object_registry)),
     )
 
     for obj_cls in [
@@ -95,11 +96,12 @@ def test_grid_object_registration():
         Telepod,
         Beacon,
     ]:
-        assert GridObject.object_types[obj_cls.type_index] is obj_cls
+        assert grid_object_registry[obj_cls.type_index()] is obj_cls
 
 
 def simple_state_without_object() -> State:
     """Returns a 2x2 (empty) grid with an agent without an item"""
+    # TODO this should raise error, which means it is not being used anywhere
     return State(
         Grid(height=2, width=2),
         Agent(Position(0, 0), Orientation.N, Floor()),
@@ -313,7 +315,7 @@ def test_custom_object():
         """Most basic _colored_ object in the grid, represents empty cell"""
 
         def __init__(self, color: Color = Color.NONE):
-            self.state_idnex = 0
+            self.state_index = 0
             self.color = color
             self.transparent = True
             self.can_be_picked_up = False
@@ -330,21 +332,20 @@ def test_custom_object():
         def __repr__(self):
             return f'{self.__class__.__name__}({self.color})'
 
-    color = Color.YELLOW
-    floor = ColoredFloor(color)
+    colored_floor = ColoredFloor(Color.YELLOW)
 
-    assert floor.transparent
-    assert not floor.blocks
-    assert floor.color == color
-    assert not floor.can_be_picked_up
-    assert floor.state_index == 0
+    assert colored_floor.transparent
+    assert not colored_floor.blocks
+    assert colored_floor.color == Color.YELLOW
+    assert not colored_floor.can_be_picked_up
+    assert colored_floor.state_index == 0
 
-    assert floor.can_be_represented_in_state()
-    assert floor.num_states() == 1
+    assert colored_floor.can_be_represented_in_state()
+    assert colored_floor.num_states() == 1
 
-    assert floor.type_index == len(GridObject.object_types) - 1
-    assert ColoredFloor.type_index == len(GridObject.object_types) - 1
-    assert type(floor) in GridObject.object_types
+    assert colored_floor.type_index() == len(grid_object_registry) - 1
+    assert ColoredFloor.type_index() == len(grid_object_registry) - 1
+    assert type(colored_floor) in grid_object_registry
 
 
 @pytest.mark.parametrize(
