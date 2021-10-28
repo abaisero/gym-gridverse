@@ -4,7 +4,7 @@ from functools import lru_cache
 from schema import And, Optional, Or, Schema
 
 from gym_gridverse.action import Action
-from gym_gridverse.grid_object import Color, grid_object_registry
+from gym_gridverse.grid_object import Color
 
 # general purpose schemas
 
@@ -98,24 +98,6 @@ schemas.update(
 # add function schemas
 schemas.update(
     {
-        'visibility_function': Schema(
-            Or(
-                'full_visibility',
-                'raytracing_visibility',
-                'stochastic_raytracing_visibility',
-            ),
-            description='A visibility functions',
-        ),
-        'distance_function': Schema(
-            Or('manhattan', 'euclidean'),
-            description='A distance function',
-        ),
-    }
-)
-
-# add more function schemas
-schemas.update(
-    {
         'reset_function': Schema(
             {'name': str, Optional(object): object},
             description='A reset function',
@@ -140,11 +122,22 @@ schemas.update(
             name='observation_function',
             as_reference=True,
         ),
+        'visibility_function': Schema(
+            {'name': str, Optional(object): object},
+            description='A visibility function',
+            name='visibility_function',
+            as_reference=True,
+        ),
         'terminating_function': Schema(
             {'name': str, Optional(object): object},
             description='A terminating function',
             name='terminating_function',
             as_reference=True,
+        ),
+        #
+        'distance_function': Schema(
+            Or('manhattan', 'euclidean'),
+            description='A distance function',
         ),
     }
 )
@@ -187,6 +180,8 @@ schema_keys = [
     'reset_function',
     'transition_function',
     'reward_function',
+    'observation_function',
+    'visibility_function',
     'terminating_function',
 ]
 reserved_keys = [

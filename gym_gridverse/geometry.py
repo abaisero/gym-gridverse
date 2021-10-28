@@ -161,6 +161,9 @@ class Position:
     y: int
     x: int
 
+    def to_tuple(self) -> Tuple[int, int]:
+        return self.y, self.x
+
     def __add__(self, other) -> Position:
         try:
             return Position(self.y + other.y, self.x + other.x)

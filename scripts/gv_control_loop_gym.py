@@ -25,10 +25,14 @@ def make_env(id_or_path: str) -> GymEnvironment:
         print(f'Environment with id {id_or_path} not found.')
         print('Loading using YAML')
         inner_env = factory_env_from_yaml(id_or_path)
-        obs_rep = DefaultObservationRepresentation(inner_env.observation_space)
-        state_rep = DefaultStateRepresentation(inner_env.state_space)
+        state_representation = DefaultStateRepresentation(inner_env.state_space)
+        observation_representation = DefaultObservationRepresentation(
+            inner_env.observation_space
+        )
         outer_env = OuterEnv(
-            inner_env, observation_rep=obs_rep, state_rep=state_rep
+            inner_env,
+            state_representation=state_representation,
+            observation_representation=observation_representation,
         )
         env = GymEnvironment.from_environment(outer_env)
 

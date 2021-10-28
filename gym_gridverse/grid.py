@@ -29,8 +29,8 @@ class Grid:
         objects = np.asarray(objects)
 
         self._objects = objects
-        self._shape = Shape(*objects.shape)
-        self._area = Area((0, self.shape.height - 1), (0, self.shape.width - 1))
+        self.shape = Shape(*objects.shape)
+        self.area = Area((0, self.shape.height - 1), (0, self.shape.width - 1))
 
     @staticmethod
     def from_shape(
@@ -54,22 +54,10 @@ class Grid:
         if not isinstance(other, Grid):
             return NotImplemented
 
-        if self.shape != other.shape:
-            return False
-
-        for pos in self.area.positions():
-            if self[pos] != other[pos]:
-                return False
-
-        return True
-
-    @property
-    def shape(self):
-        return self._shape
-
-    @property
-    def area(self) -> Area:
-        return self._area
+        return self.shape == other.shape and all(
+            self[position] == other[position]
+            for position in self.area.positions()
+        )
 
     def object_types(self) -> Set[Type[GridObject]]:
         """returns object types currently in the grid"""
@@ -82,41 +70,29 @@ class Grid:
             return factory()
 
     def __getitem__(self, position: PositionOrTuple) -> GridObject:
-        y, x = (
-            (position.y, position.x)
-            if isinstance(position, Position)
-            else position
-        )
-
-        try:
-            return self._objects[y, x]
-        except IndexError as e:
-            # TODO: test
-            raise IndexError(f'position {position} not in grid') from e
+        y, x = self._validate_position(position)
+        return self._objects[y, x]
 
     def __setitem__(self, position: PositionOrTuple, obj: GridObject):
+        y, x = self._validate_position(position)
+
         if not isinstance(obj, GridObject):
             raise TypeError('grid can only contain grid objects')
 
-        y, x = (
-            (position.y, position.x)
-            if isinstance(position, Position)
-            else position
-        )
+        self._objects[y, x] = obj
 
+    def _validate_position(self, position: PositionOrTuple) -> Tuple[int, int]:
         try:
-            self._objects[y, x] = obj
-        except IndexError as e:
-            # TODO: test
-            raise IndexError(f'position {position} not in grid') from e
+            y, x = position.to_tuple()
+        except AttributeError:
+            y, x = position
+
+        if not (0 <= y < self.shape.height and 0 <= x < self.shape.width):
+            raise IndexError(f'position {(y,x)} not in grid')
+
+        return y, x
 
     def swap(self, p: Position, q: Position):
-        """swap the objects at two positions"""
-        if not self.area.contains(p):
-            raise ValueError(f'Position {p} not in grid area')
-        if not self.area.contains(p):
-            raise ValueError(f'Position {q} not in grid area')
-
         self[p], self[q] = self[q], self[p]
 
     def subgrid(self, area: Area) -> Grid:
@@ -166,7 +142,7 @@ class Grid:
         return Grid(objects)
 
     def __hash__(self):
-        return hash(tuple(map(tuple, self._objects.tolist())))
+        return hash(tuple(map(tuple, self.to_list())))
 
     def __repr__(self):
         return f'<{self.__class__.__name__} {self.shape.height}x{self.shape.width} objects={self.to_list()!r}>'

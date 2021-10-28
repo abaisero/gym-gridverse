@@ -41,7 +41,7 @@ setup(
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    description="Gridworld domains for fully and partially observable reinforcement learning",
+    description="Customizable gridworld domains for fully and partially observable reinforcement learning and planning",
     install_requires=requirements,
     license="MIT license",
     long_description=readme + '\n\n' + history,

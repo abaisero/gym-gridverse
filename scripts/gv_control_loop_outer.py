@@ -16,9 +16,15 @@ from gym_gridverse.representations.state_representations import (
 
 def make_env(path: str) -> OuterEnv:
     inner_env = factory_env_from_yaml(path)
-    obs_rep = DefaultObservationRepresentation(inner_env.observation_space)
-    state_rep = DefaultStateRepresentation(inner_env.state_space)
-    return OuterEnv(inner_env, observation_rep=obs_rep, state_rep=state_rep)
+    state_representation = DefaultStateRepresentation(inner_env.state_space)
+    observation_representation = DefaultObservationRepresentation(
+        inner_env.observation_space
+    )
+    return OuterEnv(
+        inner_env,
+        state_representation=state_representation,
+        observation_representation=observation_representation,
+    )
 
 
 def print_observation(observation):

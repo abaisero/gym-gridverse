@@ -43,21 +43,21 @@ class GymEnvironment(gym.Env):
         self.outer_env = constructor()
 
         self.state_space = (
-            outer_space_to_gym_space(self.outer_env.state_rep.space)
-            if self.outer_env.state_rep is not None
+            outer_space_to_gym_space(self.outer_env.state_representation.space)
+            if self.outer_env.state_representation is not None
             else None
         )
         self.action_space = gym.spaces.Discrete(
             self.outer_env.action_space.num_actions
         )
         self.observation_space = (
-            outer_space_to_gym_space(self.outer_env.observation_rep.space)
-            if self.outer_env.observation_rep is not None
+            outer_space_to_gym_space(
+                self.outer_env.observation_representation.space
+            )
+            if self.outer_env.observation_representation is not None
             else None
         )
 
-        # self._state_viewer: Optional[GridVerseViewer] = None
-        # self._observation_viewer: Optional[GridVerseViewer] = None
         self._state_viewer = None
         self._observation_viewer = None
 
@@ -69,21 +69,23 @@ class GymEnvironment(gym.Env):
     def set_state_representation(self, name: str):
         """Change underlying state representation"""
         # TODO: test
-        self.outer_env.state_rep = create_state_representation(
+        self.outer_env.state_representation = create_state_representation(
             name, self.outer_env.inner_env.state_space
         )
         self.state_space = outer_space_to_gym_space(
-            self.outer_env.state_rep.space
+            self.outer_env.state_representation.space
         )
 
     def set_observation_representation(self, name: str):
         """Change underlying observation representation"""
         # TODO: test
-        self.outer_env.observation_rep = create_observation_representation(
-            name, self.outer_env.inner_env.observation_space
+        self.outer_env.observation_representation = (
+            create_observation_representation(
+                name, self.outer_env.inner_env.observation_space
+            )
         )
         self.observation_space = outer_space_to_gym_space(
-            self.outer_env.observation_rep.space
+            self.outer_env.observation_representation.space
         )
 
     @classmethod
@@ -245,12 +247,12 @@ for key, yaml_file_name_ in STRING_TO_YAML_FILE.items():
 
     def outer_env_constructor(yaml_file_name: str) -> OuterEnv:
         env = factory_env_from_yaml(yaml_file_name)
-        state_repr = None
-        observation_repr = create_observation_representation(
+        observation_representation = create_observation_representation(
             'default', env.observation_space
         )
         return OuterEnv(
-            env, state_rep=state_repr, observation_rep=observation_repr
+            env,
+            observation_representation=observation_representation,
         )
 
     gym.register(

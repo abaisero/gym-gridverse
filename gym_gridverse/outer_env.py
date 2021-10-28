@@ -14,15 +14,13 @@ class OuterEnv:
     def __init__(
         self,
         env: InnerEnv,
-        state_rep: Optional[StateRepresentation] = None,
-        observation_rep: Optional[ObservationRepresentation] = None,
+        *,
+        state_representation: Optional[StateRepresentation] = None,
+        observation_representation: Optional[ObservationRepresentation] = None,
     ):
         self.inner_env = env
-        self.state_rep = state_rep
-        self.observation_rep = observation_rep
-
-        # XXX: rename observation_rep -> observation_repr
-        # XXX: rename state_rep -> state_repr
+        self.state_representation = state_representation
+        self.observation_representation = observation_representation
 
     @property
     def action_space(self) -> ActionSpace:
@@ -55,10 +53,10 @@ class OuterEnv:
         Returns:
             Dict[str, numpy.ndarray]:
         """
-        if self.state_rep is None:
+        if self.state_representation is None:
             raise RuntimeError('State representation not available')
 
-        return self.state_rep.convert(self.inner_env.state)
+        return self.state_representation.convert(self.inner_env.state)
 
     @property
     def observation(self) -> Dict[str, np.ndarray]:
@@ -67,7 +65,9 @@ class OuterEnv:
         Returns:
             Dict[str, numpy.ndarray]:
         """
-        if self.observation_rep is None:
+        if self.observation_representation is None:
             raise RuntimeError('Observation representation not available')
 
-        return self.observation_rep.convert(self.inner_env.observation)
+        return self.observation_representation.convert(
+            self.inner_env.observation
+        )

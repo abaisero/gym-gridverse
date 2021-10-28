@@ -18,8 +18,9 @@ class Color(enum.Enum):
 
 
 class GridObjectRegistry(UserList):
-    def register(self, object_type: Type[GridObject]):
+    def register(self, object_type: Type[GridObject]) -> Type[GridObject]:
         self.data.append(object_type)
+        return object_type
 
     def names(self) -> List[str]:
         return [object_type.__name__ for object_type in self.data]
@@ -69,7 +70,7 @@ class GridObject(metaclass=GridObjectMeta):
         self.blocks: bool
         """Whether the object blocks the agent from moving on it"""
 
-    def __init_subclass__(cls, *, register=True, **kwargs):
+    def __init_subclass__(cls, *, register: bool = True, **kwargs):
         super().__init_subclass__(**kwargs)
         if register:
             grid_object_registry.register(cls)
