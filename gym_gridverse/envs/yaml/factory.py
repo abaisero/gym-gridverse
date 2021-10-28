@@ -19,7 +19,7 @@ from gym_gridverse.geometry import (
     Shape,
     distance_function_factory,
 )
-from gym_gridverse.grid_object import Color, GridObject, factory_type
+from gym_gridverse.grid_object import Color, GridObject, grid_object_registry
 from gym_gridverse.spaces import ActionSpace, DomainSpace
 from gym_gridverse.utils.space_builders import (
     ObservationSpaceBuilder,
@@ -70,7 +70,9 @@ def process_reserved_keys(data):
         data['area'] = Area(*data['area'])
 
     if 'object_type' in data:
-        data['object_type'] = factory_type(data['object_type'])
+        data['object_type'] = grid_object_registry.from_name(
+            data['object_type']
+        )
 
     if 'colors' in data:
         data['colors'] = set(factory_colors(data['colors']))
@@ -89,7 +91,7 @@ def factory_layout(data) -> Tuple[int, int]:
 
 def factory_object_types(data) -> List[Type[GridObject]]:
     data = schemas['object_types'].validate(data)
-    return [factory_type(d) for d in data]
+    return [grid_object_registry.from_name(d) for d in data]
 
 
 def factory_colors(data) -> List[Color]:

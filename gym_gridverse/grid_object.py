@@ -21,15 +21,18 @@ class GridObjectRegistry(UserList):
     def register(self, object_type: Type[GridObject]):
         self.data.append(object_type)
 
-    def index_from_name(self, name: str) -> int:
-        return next(
-            i
-            for i, object_type in enumerate(self.data)
-            if object_type.__name__ == name
-        )
-
     def names(self) -> List[str]:
         return [object_type.__name__ for object_type in self.data]
+
+    def from_name(self, name: str) -> Type[GridObject]:
+        try:
+            return next(
+                object_type
+                for object_type in self.data
+                if object_type.__name__ == name
+            )
+        except StopIteration as error:
+            raise ValueError(f'Unregistered GridObject `{name}`') from error
 
 
 grid_object_registry = GridObjectRegistry()
@@ -396,114 +399,6 @@ class Beacon(GridObject):
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.color!s})'
-
-
-def factory(name: str, **kwargs) -> GridObject:
-
-    if name in ['none_grid_object', 'NoneGridObject']:
-        return NoneGridObject()
-
-    if name in ['hidden', 'Hidden']:
-        return Hidden()
-
-    if name in ['floor', 'Floor']:
-        return Floor()
-
-    if name in ['wall', 'Wall']:
-        return Wall()
-
-    if name in ['exit', 'Exit']:
-        return Exit()
-
-    if name in ['door', 'Door']:
-        status = kwargs.get('status')
-        color = kwargs.get('color')
-
-        if status is None or color is None:
-            raise ValueError(f'invalid inputs for {name}')
-
-        status = Door.Status[status]
-        color = Color[color]
-        return Door(status, color)
-
-    if name in ['key', 'Key']:
-        color = kwargs.get('color')
-
-        if color is None:
-            raise ValueError(f'invalid inputs for {name}')
-
-        color = Color[color]
-        return Key(color)
-
-    if name in ['moving_obstacle', 'MovingObstacle']:
-        return MovingObstacle()
-
-    if name in ['box', 'Box']:
-        obj = kwargs.get('obj')
-
-        if obj is None:
-            raise ValueError(f'invalid inputs for {name}')
-
-        return Box(obj)
-
-    if name in ['telepod', 'Telepod']:
-        color = kwargs.get('color')
-
-        if color is None:
-            raise ValueError(f'invalid inputs for {name}')
-
-        color = Color[color]
-        return Telepod(color)
-
-    if name in ['beacon', 'Beacon']:
-        color = kwargs.get('color')
-
-        if color is None:
-            raise ValueError(f'invalid inputs for {name}')
-
-        color = Color[color]
-        return Beacon(color)
-
-    raise ValueError(f'invalid grid-object name {name}')
-
-
-def factory_type(name: str) -> Type[GridObject]:
-    # TODO: test
-
-    if name in ['none_grid_object', 'NoneGridObject']:
-        return NoneGridObject
-
-    if name in ['hidden', 'Hidden']:
-        return Hidden
-
-    if name in ['floor', 'Floor']:
-        return Floor
-
-    if name in ['wall', 'Wall']:
-        return Wall
-
-    if name in ['exit', 'Exit']:
-        return Exit
-
-    if name in ['door', 'Door']:
-        return Door
-
-    if name in ['key', 'Key']:
-        return Key
-
-    if name in ['moving_obstacle', 'MovingObstacle']:
-        return MovingObstacle
-
-    if name in ['box', 'Box']:
-        return Box
-
-    if name in ['telepod', 'Telepod']:
-        return Telepod
-
-    if name in ['beacon', 'Beacon']:
-        return Beacon
-
-    raise ValueError(f'invalid grid-object type name {name}')
 
 
 GridObjectFactory = Callable[[], GridObject]

@@ -21,7 +21,6 @@ from gym_gridverse.grid_object import (
     NoneGridObject,
     Telepod,
     Wall,
-    factory,
     grid_object_registry,
 )
 from gym_gridverse.state import State
@@ -346,51 +345,3 @@ def test_custom_object():
     assert colored_floor.type_index() == len(grid_object_registry) - 1
     assert ColoredFloor.type_index() == len(grid_object_registry) - 1
     assert type(colored_floor) in grid_object_registry
-
-
-@pytest.mark.parametrize(
-    'name,kwargs',
-    [
-        ('NoneGridObject', {}),
-        ('none_grid_object', {}),
-        ('Hidden', {}),
-        ('hidden', {}),
-        ('Floor', {}),
-        ('floor', {}),
-        ('Wall', {}),
-        ('wall', {}),
-        ('Exit', {}),
-        ('exit', {}),
-        ('Door', {'status': 'LOCKED', 'color': 'RED'}),
-        ('door', {'status': 'LOCKED', 'color': 'RED'}),
-        ('Key', {'color': 'RED'}),
-        ('key', {'color': 'RED'}),
-        ('MovingObstacle', {}),
-        ('moving_obstacle', {}),
-        ('Box', {'obj': Floor()}),
-        ('box', {'obj': Floor()}),
-        ('Telepod', {'color': 'RED'}),
-        ('telepod', {'color': 'RED'}),
-        ('Beacon', {'color': 'RED'}),
-        ('beacon', {'color': 'RED'}),
-    ],
-)
-def test_factory_valid(name: str, kwargs):
-    factory(name, **kwargs)
-
-
-@pytest.mark.parametrize(
-    'name,kwargs,exception',
-    [
-        ('invalid', {}, ValueError),
-        ('Door', {}, ValueError),
-        ('door', {}, ValueError),
-        ('Key', {}, ValueError),
-        ('key', {}, ValueError),
-        ('Box', {}, ValueError),
-        ('box', {}, ValueError),
-    ],
-)
-def test_factory_invalid(name: str, kwargs, exception: Type[Exception]):
-    with pytest.raises(exception):
-        factory(name, **kwargs)
