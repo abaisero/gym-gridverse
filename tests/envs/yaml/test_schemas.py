@@ -45,25 +45,6 @@ def test_layout_schema(data, expected: bool):
 @pytest.mark.parametrize(
     'data,expected',
     [
-        ('Floor', True),
-        ('Wall', True),
-        ('Exit', True),
-        ('Door', True),
-        ('Key', True),
-        ('MovingObstacle', True),
-        ('Box', True),
-        ('Telepod', True),
-        ('Beacon', True),
-        ('invalid', False),
-    ],
-)
-def test_object_type_schema(data, expected: bool):
-    assert schemas['object_type'].is_valid(data) == expected
-
-
-@pytest.mark.parametrize(
-    'data,expected',
-    [
         ({'objects': ['Floor'], 'colors': ['NONE']}, True),
         # invalid (missing fields)
         ({'colors': ['NONE']}, False),

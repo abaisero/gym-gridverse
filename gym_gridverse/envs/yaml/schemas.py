@@ -60,7 +60,7 @@ schemas = {
     'shape': _positive_int_pair(),
     'layout': _positive_int_pair(),
     'area': _pair(_pair(int)),
-    'object_type': Schema(Or(*grid_object_registry.names())),
+    'object_type': Schema(str),
     'action': Schema(Or(*(action.name for action in Action))),
     'color': Schema(Or(*(color.name for color in Color))),
 }
@@ -74,7 +74,7 @@ schemas.update(
                 _non_empty_schema(),
                 _unique_schema(),
             ),
-            description='A non-empty list of unique grid-object names',
+            description='A non-empty list of unique grid-object type names',
         ),
         'actions': Schema(
             And(

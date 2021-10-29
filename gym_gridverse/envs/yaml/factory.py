@@ -21,6 +21,7 @@ from gym_gridverse.geometry import (
 )
 from gym_gridverse.grid_object import Color, GridObject, grid_object_registry
 from gym_gridverse.spaces import ActionSpace, DomainSpace
+from gym_gridverse.utils.custom import import_if_custom
 from gym_gridverse.utils.space_builders import (
     ObservationSpaceBuilder,
     StateSpaceBuilder,
@@ -89,9 +90,15 @@ def factory_layout(data) -> Tuple[int, int]:
     return (layout_y, layout_x)
 
 
+def factory_object_type(data) -> Type[GridObject]:
+    data = schemas['object_type'].validate(data)
+    name = import_if_custom(data)
+    return grid_object_registry.from_name(name)
+
+
 def factory_object_types(data) -> List[Type[GridObject]]:
     data = schemas['object_types'].validate(data)
-    return [grid_object_registry.from_name(d) for d in data]
+    return [factory_object_type(d) for d in data]
 
 
 def factory_colors(data) -> List[Color]:
