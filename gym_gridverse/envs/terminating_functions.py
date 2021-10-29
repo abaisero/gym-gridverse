@@ -10,12 +10,8 @@ from gym_gridverse.action import Action
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.grid_object import Exit, GridObject, MovingObstacle, Wall
 from gym_gridverse.state import State
-from gym_gridverse.utils.functions import (
-    checkraise_kwargs,
-    import_custom_function,
-    is_custom_function,
-    select_kwargs,
-)
+from gym_gridverse.utils.custom import import_if_custom
+from gym_gridverse.utils.functions import checkraise_kwargs, select_kwargs
 from gym_gridverse.utils.protocols import (
     get_keyword_parameter,
     get_positional_parameters,
@@ -332,9 +328,7 @@ def bump_into_wall(
 
 
 def factory(name: str, **kwargs) -> TerminatingFunction:
-
-    if is_custom_function(name):
-        name = import_custom_function(name)
+    name = import_if_custom(name)
 
     try:
         function = terminating_function_registry[name]

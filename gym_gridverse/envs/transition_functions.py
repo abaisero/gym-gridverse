@@ -24,12 +24,8 @@ from gym_gridverse.grid_object import (
 )
 from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
-from gym_gridverse.utils.functions import (
-    checkraise_kwargs,
-    import_custom_function,
-    is_custom_function,
-    select_kwargs,
-)
+from gym_gridverse.utils.custom import import_if_custom
+from gym_gridverse.utils.functions import checkraise_kwargs, select_kwargs
 from gym_gridverse.utils.protocols import (
     get_keyword_parameter,
     get_positional_parameters,
@@ -462,9 +458,7 @@ def step_telepod(
 
 
 def factory(name: str, **kwargs) -> TransitionFunction:
-
-    if is_custom_function(name):
-        name = import_custom_function(name)
+    name = import_if_custom(name)
 
     try:
         function = transition_function_registry[name]

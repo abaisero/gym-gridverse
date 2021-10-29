@@ -21,12 +21,8 @@ from gym_gridverse.grid_object import (
     Wall,
 )
 from gym_gridverse.state import State
-from gym_gridverse.utils.functions import (
-    checkraise_kwargs,
-    import_custom_function,
-    is_custom_function,
-    select_kwargs,
-)
+from gym_gridverse.utils.custom import import_if_custom
+from gym_gridverse.utils.functions import checkraise_kwargs, select_kwargs
 from gym_gridverse.utils.protocols import (
     get_keyword_parameter,
     get_positional_parameters,
@@ -672,9 +668,7 @@ def reach_exit_memory(
 
 
 def factory(name: str, **kwargs) -> RewardFunction:
-
-    if is_custom_function(name):
-        name = import_custom_function(name)
+    name = import_if_custom(name)
 
     try:
         function = reward_function_registry[name]
