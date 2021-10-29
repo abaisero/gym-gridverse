@@ -1,5 +1,5 @@
 state_space:
-  objects: [ Wall, Floor, Exit ]
+  objects: [ Wall, Floor, custom:Coin ]
   colors: [ NONE ]
 
 action_space:
@@ -11,12 +11,11 @@ action_space:
   - TURN_RIGHT
 
 observation_space:
-  objects: [ Wall, Floor, Exit ]
+  objects: [ Wall, Floor, custom:Coin ]
   colors: [ NONE ]
 
 reset_function:
-  name: empty
-  shape: [ 8, 8 ]
+  name: custom:coin_maze
 
 transition_functions:
   - name: custom:multi_update_agent
