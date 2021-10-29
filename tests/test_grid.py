@@ -50,8 +50,8 @@ def test_grid_contains(grid: Grid, position: Position, expected: bool):
         (Grid.from_shape((4, 5)), 20),
     ],
 )
-def test_grid_positions(grid: Grid, expected: int):
-    positions = set(grid.area.positions())
+def test_grid_positions_all(grid: Grid, expected: int):
+    positions = set(grid.area.positions('all'))
     assert len(positions) == expected
 
     for position in positions:
@@ -66,7 +66,7 @@ def test_grid_positions(grid: Grid, expected: int):
     ],
 )
 def test_grid_positions_border(grid: Grid, expected: int):
-    positions = set(grid.area.positions_border())
+    positions = set(grid.area.positions('border'))
     assert len(positions) == expected
 
     for position in positions:
@@ -81,7 +81,7 @@ def test_grid_positions_border(grid: Grid, expected: int):
     ],
 )
 def test_grid_positions_inside(grid: Grid, expected: int):
-    positions = set(grid.area.positions_inside())
+    positions = set(grid.area.positions('inside'))
     assert len(positions) == expected
 
     for position in positions:

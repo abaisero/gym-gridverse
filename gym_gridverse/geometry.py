@@ -82,40 +82,49 @@ class Area:
         """iterator over x coordinates"""
         return range(self.xmin, self.xmax + 1)
 
-    # TODO unify in a single positions(type_='all'/'border'/'inside')
-    def positions(self) -> Iterable[Position]:
-        """iterator over positions"""
+    def positions(self, selection: str = 'all') -> Iterable[Position]:
+        """iterator over all/border/inside positions
 
-        return (
-            Position(y, x)
-            for y in self.y_coordinates()
-            for x in self.x_coordinates()
-        )
+        Args:
+            selection (str): 'all', 'border', or 'inside'
+        Returns:
+                Iterable[Position]: selected positions
+        """
 
-    def positions_border(self) -> Iterable[Position]:
-        """iterator over border positions"""
+        if selection not in ['all', 'border', 'inside']:
+            raise ValueError(f'invalid selection `{selection}`')
 
-        return itt.chain(
-            (
+        positions: Iterable[Position]
+
+        if selection == 'all':
+            positions = (
                 Position(y, x)
-                for y in [self.ymin, self.ymax]
-                for x in range(self.xmin, self.xmax + 1)
-            ),
-            (
+                for y in self.y_coordinates()
+                for x in self.x_coordinates()
+            )
+
+        elif selection == 'border':
+            positions = itt.chain(
+                (
+                    Position(y, x)
+                    for y in [self.ymin, self.ymax]
+                    for x in range(self.xmin, self.xmax + 1)
+                ),
+                (
+                    Position(y, x)
+                    for y in range(self.ymin + 1, self.ymax)
+                    for x in [self.xmin, self.xmax]
+                ),
+            )
+
+        elif selection == 'inside':
+            positions = (
                 Position(y, x)
                 for y in range(self.ymin + 1, self.ymax)
-                for x in [self.xmin, self.xmax]
-            ),
-        )
+                for x in range(self.xmin + 1, self.xmax)
+            )
 
-    def positions_inside(self) -> Iterable[Position]:
-        """iterator over inside positions"""
-
-        return (
-            Position(y, x)
-            for y in range(self.ymin + 1, self.ymax)
-            for x in range(self.xmin + 1, self.xmax)
-        )
+        return positions
 
     def contains(self, position: Position) -> bool:
         return (

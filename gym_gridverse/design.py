@@ -38,7 +38,7 @@ def draw_area(
     grid: Grid, area: Area, factory: GridObjectFactory, *, fill: bool
 ) -> List[Position]:
     """use factory-created grid-objects to draw area on grid"""
-    positions = list(area.positions() if fill else area.positions_border())
+    positions = list(area.positions('all' if fill else 'border'))
     for pos in positions:
         grid[pos] = factory()
 
