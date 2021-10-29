@@ -7,10 +7,10 @@ from gym_gridverse.agent import Agent
 from gym_gridverse.design import draw_room, draw_wall_boundary
 from gym_gridverse.envs.reset_functions import reset_function_registry
 from gym_gridverse.envs.reward_functions import reward_function_registry
-from gym_gridverse.envs.transition_functions import (
-    transition_function_registry,
-    update_agent,
+from gym_gridverse.envs.terminating_functions import (
+    terminating_function_registry,
 )
+from gym_gridverse.envs.transition_functions import transition_function_registry
 from gym_gridverse.geometry import Area, Orientation
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Color, Floor, GridObject, Wall
@@ -39,10 +39,8 @@ class Coin(GridObject):
         return f'{self.__class__.__name__}()'
 
 
-#  custom reset function
 @reset_function_registry.register
 def coin_maze(*, rng: Optional[rnd.Generator] = None) -> State:
-
     # must call this to include reproduceable stochasticity
     rng = get_gv_rng_if_none(rng)
 
@@ -83,32 +81,42 @@ def coin_maze(*, rng: Optional[rnd.Generator] = None) -> State:
     return State(grid, agent)
 
 
-#  custom transition function
 @transition_function_registry.register
-def multi_update_agent(
+def collect_coin_transition(
     state: State,
     action: Action,
     *,
-    n: int,
     rng: Optional[rnd.Generator] = None,
 ):
-    for _ in range(n):
-        update_agent(state, action, rng=rng)
+    if isinstance(state.grid[state.agent.position], Coin):
+        state.grid[state.agent.position] = Floor()
 
 
-#  custom reward function
 @reward_function_registry.register
-def checkerboard(
+def collect_coin_reward(
     state: State,
     action: Action,
     next_state: State,
     *,
-    reward_even: float,
-    reward_odd: float,
+    reward: float = 1.0,
     rng: Optional[rnd.Generator] = None,
 ):
     return (
-        reward_even
-        if (next_state.agent.position.y + next_state.agent.position.x) % 2 == 0
-        else reward_odd
+        reward
+        if isinstance(state.grid[next_state.agent.position], Coin)
+        else 0.0
+    )
+
+
+@terminating_function_registry.register
+def no_more_coins(
+    state: State,
+    action: Action,
+    next_state: State,
+    *,
+    rng: Optional[rnd.Generator] = None,
+):
+    return not any(
+        isinstance(next_state.grid[position], Coin)
+        for position in next_state.grid.area.positions()
     )

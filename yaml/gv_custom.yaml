@@ -18,17 +18,17 @@ reset_function:
   name: custom:coin_maze
 
 transition_functions:
-  - name: custom:multi_update_agent
-    n: 2
+  - name: update_agent
+  - name: custom:collect_coin_transition
 
 reward_functions:
-  - name: custom:checkerboard
-    reward_even: 2.0
-    reward_odd: -2.0
+  - name: living_reward
+    reward: -0.1
+  - name: custom:collect_coin_reward
 
 observation_function:
   name: partially_occluded
   area: [ [ -6, 0 ], [-3, 3 ] ]
 
 terminating_function:
-  name: reach_exit
+  name: custom:no_more_coins
