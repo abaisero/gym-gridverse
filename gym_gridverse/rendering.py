@@ -17,6 +17,7 @@ from gym_gridverse.grid_object import (
     Door,
     Exit,
     Floor,
+    GridObject,
     Hidden,
     Key,
     MovingObstacle,
@@ -410,6 +411,24 @@ def make_beacon(beacon: Beacon) -> rendering.Geom:
     return Group([geom_circle, geom_boundary, geom_diag_1, geom_diag_2])
 
 
+def make_unknown(obj: GridObject) -> rendering.Geom:
+    res = 100
+    geom_circle = rendering.make_circle(0.8, res=res, filled=True)
+    geom_circle.set_color(*colormap[obj.color])
+    geom_boundary = rendering.make_circle(0.8, res=res, filled=False)
+    geom_boundary.set_linewidth(2)
+    geom_diag_1 = rendering.make_polygon(
+        [(0.4, -0.4), (-0.4, 0.4)], filled=False
+    )
+    geom_diag_1.set_linewidth(2)
+    geom_diag_2 = rendering.make_polygon(
+        [(0.4, 0.4), (-0.4, -0.4)], filled=False
+    )
+    geom_diag_2.set_linewidth(2)
+
+    return Group([geom_circle, geom_boundary, geom_diag_1, geom_diag_2])
+
+
 def convert_pos(position: Position, *, num_rows: int) -> Tuple[float, float]:
     return 2 * position.x, 2 * (num_rows - 1 - position.y)
 
@@ -566,39 +585,45 @@ class GridVerseViewer:
 
         for position in state_or_observation.grid.area.positions():
             obj = state_or_observation.grid[position]
+
             if isinstance(obj, Floor):
                 pass
 
-            if isinstance(obj, Hidden):
+            elif isinstance(obj, Hidden):
                 geom = make_hidden(obj)
                 self._draw_geom_onetime(geom, position)
 
-            if isinstance(obj, Wall):
+            elif isinstance(obj, Wall):
                 geom = make_wall(obj)
                 self._draw_geom_onetime(geom, position)
 
-            if isinstance(obj, Key):
+            elif isinstance(obj, Key):
                 geom = make_key(obj)
                 self._draw_geom_onetime(geom, position)
 
-            if isinstance(obj, Door):
+            elif isinstance(obj, Door):
                 geom = make_door(obj)
                 self._draw_geom_onetime(geom, position)
 
-            if isinstance(obj, Exit):
+            elif isinstance(obj, Exit):
                 geom = make_exit(obj)
                 self._draw_geom_onetime(geom, position)
 
-            if isinstance(obj, MovingObstacle):
+            elif isinstance(obj, MovingObstacle):
                 geom = make_moving_obstacle(obj)
                 self._draw_geom_onetime(geom, position)
 
-            if isinstance(obj, Telepod):
+            elif isinstance(obj, Telepod):
                 geom = make_telepod(obj)
                 self._draw_geom_onetime(geom, position)
 
-            if isinstance(obj, Beacon):
+            elif isinstance(obj, Beacon):
                 geom = make_beacon(obj)
+                self._draw_geom_onetime(geom, position)
+
+            else:
+                # unknown grid object
+                geom = make_unknown(obj)
                 self._draw_geom_onetime(geom, position)
 
         geom = make_agent()
