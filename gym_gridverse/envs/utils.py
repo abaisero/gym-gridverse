@@ -1,4 +1,4 @@
-from gym_gridverse.action import TRANSLATION_ACTIONS, Action
+from gym_gridverse.action import Action
 from gym_gridverse.geometry import Orientation, Position
 
 
@@ -17,7 +17,7 @@ def updated_agent_position_if_unobstructed(
         Position: next position
     """
 
-    if action not in TRANSLATION_ACTIONS:
+    if not action.is_move():
         return agent_pos
 
     # Map directions to relative orientation

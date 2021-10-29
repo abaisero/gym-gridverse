@@ -7,7 +7,7 @@ from typing import Iterator, List, Optional, Sequence, Tuple, Type
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
-from gym_gridverse.action import ROTATION_ACTIONS, TRANSLATION_ACTIONS, Action
+from gym_gridverse.action import Action
 from gym_gridverse.agent import Agent
 from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
 from gym_gridverse.geometry import Position, get_manhattan_boundary
@@ -168,7 +168,7 @@ def move_agent(agent: Agent, grid: Grid, action: Action) -> None:
         None:
     """
 
-    if action not in TRANSLATION_ACTIONS:
+    if not action.is_move():
         return
 
     next_pos = updated_agent_position_if_unobstructed(
@@ -195,13 +195,10 @@ def rotate_agent(agent: Agent, action: Action) -> None:
         None:
     """
 
-    if action not in ROTATION_ACTIONS:
-        return
-
-    if action == Action.TURN_LEFT:
+    if action is Action.TURN_LEFT:
         agent.orientation = agent.orientation.rotate_left()
 
-    if action == Action.TURN_RIGHT:
+    if action is Action.TURN_RIGHT:
         agent.orientation = agent.orientation.rotate_right()
 
 
@@ -225,13 +222,10 @@ def update_agent(
     Returns:
         None
     """
-    if action not in TRANSLATION_ACTIONS and action not in ROTATION_ACTIONS:
-        return
-
-    if action in ROTATION_ACTIONS:
+    if action.is_turn():
         rotate_agent(state.agent, action)
 
-    if action in TRANSLATION_ACTIONS:
+    if action.is_move():
         move_agent(state.agent, state.grid, action)
 
 

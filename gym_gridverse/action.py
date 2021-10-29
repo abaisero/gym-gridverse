@@ -4,17 +4,13 @@ import enum
 
 
 class Action(enum.Enum):
-    """An action is a glorified integer.
+    """Actions potentially available to the agent.
 
-    In particular, there are 8 actions, each is assigned an integer:
-
-    - 4 translations (forward, backwards, left & right)
-    - 2 rotations (left & right)
-    - ``actuate``
-    - ``pick and drop``
-
-    The effects of ``actuate`` depends on the object in front of the agent, but could
-    open doors for example. ``pick and drop`` attempts to pick up the object.
+    There are 8 actions:
+    - 4 ``movement`` actions (forward, backwards, left & right)
+    - 2 ``turn`` actions (left & right)
+    - 1 ``actuate`` action, which can actuate objects (e.g., the one in front)
+    - 1 ``pick and drop`` action, to pick up objects (e.g., the one in front)
     """
 
     MOVE_FORWARD = 0
@@ -28,14 +24,20 @@ class Action(enum.Enum):
     ACTUATE = enum.auto()
     PICK_N_DROP = enum.auto()
 
+    def is_move(self) -> bool:
+        """True if the action is a ``movement`` action"""
+        return self in _MOVE_ACTIONS
 
-TRANSLATION_ACTIONS = [
+    def is_turn(self) -> bool:
+        """True if the action is a ``turn`` action"""
+        return self in _TURN_ACTIONS
+
+
+_MOVE_ACTIONS = {
     Action.MOVE_FORWARD,
     Action.MOVE_BACKWARD,
     Action.MOVE_LEFT,
     Action.MOVE_RIGHT,
-]
-"""A list of all the actions that moves the agent"""
+}
 
-ROTATION_ACTIONS = [Action.TURN_LEFT, Action.TURN_RIGHT]
-"""A list of all the actions that rotates the agent"""
+_TURN_ACTIONS = {Action.TURN_LEFT, Action.TURN_RIGHT}
