@@ -82,6 +82,12 @@ class Grid:
         """returns object types currently in the grid"""
         return set(type(self[position]) for position in self.area.positions())
 
+    def get(self, position: PositionOrTuple, factory: GridObjectFactory):
+        try:
+            return self[position]
+        except IndexError:
+            return factory()
+
     def __getitem__(self, position: PositionOrTuple) -> GridObject:
         y, x = (
             (position.y, position.x)
@@ -132,12 +138,9 @@ class Grid:
             Grid: New instance, sliced appropriately
         """
 
-        def get_obj(position: Position) -> GridObject:
-            return self[position] if self.area.contains(position) else Hidden()
-
         return Grid(
             [
-                [get_obj(Position(y, x)) for x in area.x_coordinates()]
+                [self.get((y, x), Hidden) for x in area.x_coordinates()]
                 for y in area.y_coordinates()
             ]
         )
