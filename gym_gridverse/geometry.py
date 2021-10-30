@@ -161,12 +161,6 @@ class Position:
     y: int
     x: int
 
-    def __eq__(self, other):
-        try:
-            return self.y == other.y and self.x == other.x
-        except AttributeError:
-            return NotImplemented
-
     def __add__(self, other) -> Position:
         try:
             return Position(self.y + other.y, self.x + other.x)
