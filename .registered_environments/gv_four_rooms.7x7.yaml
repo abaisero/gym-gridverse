@@ -20,7 +20,8 @@ reset_function:
   layout: [ 2, 2 ]
 
 transition_functions:
-  - name: update_agent
+  - name: move_agent
+  - name: turn_agent
 
 reward_functions:
   - name: reach_exit

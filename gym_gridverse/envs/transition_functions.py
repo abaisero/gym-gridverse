@@ -1,22 +1,20 @@
 """ Functions to model dynamics """
+import copy
 import inspect
 import warnings
 from functools import partial
-from typing import Iterator, List, Optional, Sequence, Tuple, Type
+from typing import List, Optional, Sequence
 
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.action import Action
-from gym_gridverse.agent import Agent
-from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
-from gym_gridverse.geometry import Position, get_manhattan_boundary
-from gym_gridverse.grid import Grid
+from gym_gridverse.envs.utils import get_next_position
+from gym_gridverse.geometry import get_manhattan_boundary
 from gym_gridverse.grid_object import (
     Box,
     Door,
     Floor,
-    GridObject,
     Key,
     MovingObstacle,
     NoneGridObject,
@@ -151,17 +149,19 @@ def chain(
         transition_function(state, action, rng=rng)
 
 
-# TODO: move these non-transition functions elsewhere; they are confusing
-
-
-def move_agent(agent: Agent, grid: Grid, action: Action) -> None:
+@transition_function_registry.register
+def move_agent(
+    state: State,
+    action: Action,
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> None:
     """Applies translation to agent (e.g. up/down/left/right)
 
     Leaves the state unaffected if any other action was taken instead
 
     Args:
-        agent (`Agent`):
-        grid (`Grid`):
+        state (`State`):
         action (`Action`):
 
     Returns:
@@ -171,24 +171,34 @@ def move_agent(agent: Agent, grid: Grid, action: Action) -> None:
     if not action.is_move():
         return
 
-    next_pos = updated_agent_position_if_unobstructed(
-        agent.position, agent.orientation, action
+    next_position = get_next_position(
+        state.agent.position,
+        state.agent.orientation,
+        action,
     )
 
-    # exit if next position is not legal
-    if not grid.area.contains(next_pos) or grid[next_pos].blocks:
-        return
+    try:
+        obj = state.grid[next_position]
+    except IndexError:
+        pass
+    else:
+        if not obj.blocks:
+            state.agent.position = next_position
 
-    agent.position = next_pos
 
-
-def rotate_agent(agent: Agent, action: Action) -> None:
-    """Rotates agent according to action (e.g. turn left/right)
+@transition_function_registry.register
+def turn_agent(
+    state: State,
+    action: Action,
+    *,
+    rng: Optional[rnd.Generator] = None,
+) -> None:
+    """Turns agent according to action (e.g. turn left/right)
 
     Leaves the state unaffected if any other action was taken instead
 
     Args:
-        agent (`Agent`):
+        state (`State`):
         action (`Action`):
 
     Returns:
@@ -196,41 +206,14 @@ def rotate_agent(agent: Agent, action: Action) -> None:
     """
 
     if action is Action.TURN_LEFT:
-        agent.orientation = agent.orientation.rotate_left()
+        state.agent.orientation = state.agent.orientation.rotate_left()
 
-    if action is Action.TURN_RIGHT:
-        agent.orientation = agent.orientation.rotate_right()
-
-
-@transition_function_registry.register
-def update_agent(
-    state: State,
-    action: Action,
-    *,
-    rng: Optional[rnd.Generator] = None,
-) -> None:
-    """Simply updates the agents location and orientation based on action
-
-    If action does not affect this (e.g. not turning not moving), then leaves
-    the state untouched
-
-    Args:
-        state (`State`):
-        action (`Action`):
-        rng (`Generator, optional`)
-
-    Returns:
-        None
-    """
-    if action.is_turn():
-        rotate_agent(state.agent, action)
-
-    if action.is_move():
-        move_agent(state.agent, state.grid, action)
+    elif action is Action.TURN_RIGHT:
+        state.agent.orientation = state.agent.orientation.rotate_right()
 
 
 @transition_function_registry.register
-def pickup_mechanics(
+def pickndrop(
     state: State,
     action: Action,
     *,
@@ -259,7 +242,7 @@ def pickup_mechanics(
         None:
     """
 
-    if action != Action.PICK_N_DROP:
+    if action is not Action.PICK_N_DROP:
         return
 
     obj_in_front_of_agent = state.grid[state.agent.position_in_front()]
@@ -281,49 +264,8 @@ def pickup_mechanics(
     state.agent.obj = obj_in_front_of_agent if can_pickup else NoneGridObject()
 
 
-def _unique_object_type_positions(
-    grid: Grid, object_type: Type[GridObject]
-) -> Iterator[Tuple[Position, GridObject]]:
-    """Utility for iterating *once* over position/objects.
-
-    Every object is only yielded once, even if the objects move during the
-    interleaved iteration.
-    """
-
-    objects: List[GridObject] = []
-    for position in grid.area.positions():
-        obj = grid[position]
-
-        if isinstance(obj, object_type) and not any(obj is x for x in objects):
-            objects.append(obj)
-            yield position, obj
-
-
-def _step_moving_obstacle(
-    grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
-):
-    """Utility for moving a single MovingObstacle randomly"""
-    assert isinstance(grid[position], MovingObstacle)
-
-    rng = get_gv_rng_if_none(rng)
-
-    next_positions = [
-        next_position
-        for next_position in get_manhattan_boundary(position, distance=1)
-        if grid.area.contains(next_position)
-        and isinstance(grid[next_position], Floor)
-    ]
-
-    try:
-        next_position = rng.choice(next_positions)
-    except ValueError:
-        pass
-    else:
-        grid.swap(position, next_position)
-
-
 @transition_function_registry.register
-def step_moving_obstacles(
+def move_obstacles(
     state: State,
     action: Action,
     *,
@@ -331,10 +273,7 @@ def step_moving_obstacles(
 ) -> None:
     """Moves moving obstacles randomly
 
-    Moves each MovingObstacle only to cells containing _Floor_ objects, and
-    will do so with random walk. In current implementation can only move 1 cell
-    non-diagonally. If (and only if) no open cells are available will it stay
-    put
+    Randomly moves each MovingObstacle to a neighbouring Floor cell, if possible.
 
     Args:
         state (`State`): current state
@@ -342,10 +281,27 @@ def step_moving_obstacles(
     """
     rng = get_gv_rng_if_none(rng)
 
-    for position, _ in _unique_object_type_positions(
-        state.grid, MovingObstacle
-    ):
-        _step_moving_obstacle(state.grid, position, rng=rng)
+    # get all positions before performing any movement
+    positions = [
+        position
+        for position in state.grid.area.positions()
+        if isinstance(state.grid[position], MovingObstacle)
+    ]
+
+    for position in positions:
+        next_positions = [
+            next_position
+            for next_position in get_manhattan_boundary(position, distance=1)
+            if state.grid.area.contains(next_position)
+            and isinstance(state.grid[next_position], Floor)
+        ]
+
+        try:
+            next_position = rng.choice(next_positions)
+        except ValueError:
+            pass
+        else:
+            state.grid.swap(position, next_position)
 
 
 @transition_function_registry.register
@@ -428,7 +384,7 @@ def actuate_box(
 
 
 @transition_function_registry.register
-def step_telepod(
+def teleport(
     state: State,
     action: Action,
     *,
@@ -478,3 +434,26 @@ def factory(name: str, **kwargs) -> TransitionFunction:
     checkraise_kwargs(kwargs, required_keys)
     kwargs = select_kwargs(kwargs, required_keys + optional_keys)
     return partial(function, **kwargs)
+
+
+def transition_with_copy(
+    transition_function: TransitionFunction,
+    state: State,
+    action: Action,
+) -> State:
+    """Utility to perform a non-in-place version of a transition function.
+
+    NOTE:  This is *not* a transition function (transition functions are
+    in-place by definition).
+
+    Args:
+        transition_function (`TransitionFunction`):
+        state (`State`):
+        action (`action`):
+
+    Returns:
+        State:
+    """
+    next_state = copy.deepcopy(state)
+    transition_function(next_state, action)
+    return next_state

@@ -23,7 +23,8 @@ reset_function:
   num_exits: 2
 
 transition_functions:
-  - name: update_agent
+  - name: move_agent
+  - name: turn_agent
 
 reward_functions:
   - name: reach_exit_memory

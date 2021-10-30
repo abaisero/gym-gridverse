@@ -21,8 +21,9 @@ reset_function:
   random_agent: False
 
 transition_functions:
-  - name: update_agent
-  - name: step_moving_obstacles
+  - name: move_agent
+  - name: turn_agent
+  - name: move_obstacles
 
 reward_functions:
   - name: reach_exit

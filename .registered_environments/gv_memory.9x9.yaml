@@ -20,7 +20,8 @@ reset_function:
   colors: [ RED, GREEN, BLUE, YELLOW ]
 
 transition_functions:
-  - name: update_agent
+  - name: move_agent
+  - name: turn_agent
 
 reward_functions:
   - name: reach_exit_memory

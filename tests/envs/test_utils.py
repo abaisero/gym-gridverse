@@ -1,7 +1,7 @@
 import pytest
 
 from gym_gridverse.action import Action
-from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
+from gym_gridverse.envs.utils import get_next_position
 from gym_gridverse.geometry import Orientation, Position
 
 
@@ -33,10 +33,7 @@ def test_non_movement_actions(
     position: Position, orientation: Orientation, action: Action
 ):
     """Any action that does not 'move' should not affect next position"""
-    assert (
-        updated_agent_position_if_unobstructed(position, orientation, action)
-        == position
-    )
+    assert get_next_position(position, orientation, action) == position
 
 
 @pytest.mark.parametrize(
@@ -57,7 +54,4 @@ def test_basic_moves(
     action: Action,
     expected: Position,
 ):
-    assert (
-        updated_agent_position_if_unobstructed(position, orientation, action)
-        == expected
-    )
+    assert get_next_position(position, orientation, action) == expected

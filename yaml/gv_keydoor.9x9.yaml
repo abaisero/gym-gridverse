@@ -11,9 +11,10 @@ reset_function:
   shape: [ 9, 9 ]
 
 transition_functions:
-  - name: update_agent
+  - name: move_agent
+  - name: turn_agent
   - name: actuate_door
-  - name: pickup_mechanics
+  - name: pickndrop
 
 reward_functions:
   - name: reach_exit

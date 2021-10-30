@@ -1,26 +1,24 @@
 """ Tests state dynamics """
 
 import copy
-import random
-from typing import Optional, Sequence
-from unittest.mock import MagicMock, patch
+from typing import Sequence
+from unittest.mock import MagicMock, Mock, patch
 
-import numpy.random as rnd
 import pytest
 
 from gym_gridverse.action import Action
 from gym_gridverse.agent import Agent
 from gym_gridverse.envs.reset_functions import dynamic_obstacles
 from gym_gridverse.envs.transition_functions import (
-    _step_moving_obstacle,
     actuate_box,
     actuate_door,
     factory,
     move_agent,
-    pickup_mechanics,
-    rotate_agent,
-    step_moving_obstacles,
-    step_telepod,
+    move_obstacles,
+    pickndrop,
+    teleport,
+    transition_with_copy,
+    turn_agent,
 )
 from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid import Grid
@@ -47,55 +45,35 @@ def make_moving_obstacle_state():
 
 
 @pytest.mark.parametrize(
-    'agent,actions,expected',
+    'orientation,actions,expected',
     [
         # Facing north, rotate to WEST
         (
-            Agent(
-                Position(random.randint(0, 10), random.randint(0, 10)),
-                Orientation.N,
-                NoneGridObject(),
-            ),
+            Orientation.N,
             [Action.TURN_LEFT],
             Orientation.W,
         ),
         # Not rotating
         (
-            Agent(
-                Position(random.randint(0, 10), random.randint(0, 10)),
-                Orientation.W,
-                NoneGridObject(),
-            ),
+            Orientation.W,
             [Action.MOVE_LEFT, Action.ACTUATE, Action.PICK_N_DROP],
             Orientation.W,
         ),
         # Two rotation to EAST
         (
-            Agent(
-                Position(random.randint(0, 10), random.randint(0, 10)),
-                Orientation.W,
-                NoneGridObject(),
-            ),
+            Orientation.W,
             [Action.TURN_LEFT, Action.TURN_LEFT],
             Orientation.E,
         ),
         # One back to SOUTH
         (
-            Agent(
-                Position(random.randint(0, 10), random.randint(0, 10)),
-                Orientation.E,
-                NoneGridObject(),
-            ),
+            Orientation.E,
             [Action.TURN_RIGHT],
             Orientation.S,
         ),
         # Full circle for fun to SOUTH
         (
-            Agent(
-                Position(random.randint(0, 10), random.randint(0, 10)),
-                Orientation.S,
-                NoneGridObject(),
-            ),
+            Orientation.S,
             [
                 Action.TURN_RIGHT,
                 Action.TURN_RIGHT,
@@ -106,15 +84,17 @@ def make_moving_obstacle_state():
         ),
     ],
 )
-def test_rotate_agent(
-    agent: Agent,
+def test_turn_agent(
+    orientation: Orientation,
     actions: Sequence[Action],
     expected: Orientation,
 ):
-    for action in actions:
-        rotate_agent(agent, action)
 
-    assert agent.orientation == expected
+    state = Mock(agent=Mock(orientation=orientation))
+    for action in actions:
+        turn_agent(state, action)
+
+    assert state.agent.orientation == expected
 
 
 @pytest.mark.parametrize(
@@ -151,158 +131,150 @@ def test_rotate_agent(
         (Position(0, 1), Orientation.E, [Action.MOVE_RIGHT], Position(1, 1)),
     ],
 )
-def test_move_action(
+def test_move_agent(
     position: Position,
     orientation: Orientation,
     actions: Sequence[Action],
     expected: Position,
 ):
-    grid = Grid.from_shape((3, 2))
-    agent = Agent(position, orientation)
+    state = State(
+        Grid.from_shape((3, 2)),
+        Agent(position, orientation),
+    )
 
     for action in actions:
-        move_agent(agent, grid, action=action)
+        move_agent(state, action)
 
-    assert agent.position == expected
+    assert state.agent.position == expected
 
 
 # TODO: integrate with previous test
-def test_move_action_blocked_by_grid_object():
+def test_move_agent_blocked_by_grid_object():
     """Puts an object on (2,0) and try to move there"""
-    grid = Grid.from_shape((3, 2))
-    agent = Agent(Position(2, 1), Orientation.N)
+    state = State(
+        Grid.from_shape((3, 2)),
+        Agent(Position(2, 1), Orientation.N),
+    )
 
-    grid[2, 0] = Door(Door.Status.CLOSED, Color.YELLOW)
-    move_agent(agent, grid, action=Action.MOVE_LEFT)
+    state.grid[2, 0] = Door(Door.Status.CLOSED, Color.YELLOW)
+    move_agent(state, Action.MOVE_LEFT)
 
-    assert agent.position == Position(2, 1)
+    assert state.agent.position == Position(2, 1)
 
 
 # TODO: integrate with previous test
-def test_move_action_can_go_on_non_block_objects():
-    grid = Grid.from_shape((3, 2))
-    agent = Agent(Position(2, 1), Orientation.N)
+def test_move_agent_can_go_on_non_block_objects():
+    state = State(
+        Grid.from_shape((3, 2)),
+        Agent(Position(2, 1), Orientation.N),
+    )
 
-    grid[2, 0] = Door(Door.Status.OPEN, Color.YELLOW)
-    move_agent(agent, grid, action=Action.MOVE_LEFT)
-    assert agent.position == Position(2, 0)
+    state.grid[2, 0] = Door(Door.Status.OPEN, Color.YELLOW)
+    move_agent(state, Action.MOVE_LEFT)
+    assert state.agent.position == Position(2, 0)
 
-    grid[2, 1] = Key(Color.BLUE)
-    move_agent(agent, grid, action=Action.MOVE_RIGHT)
-    assert agent.position == Position(2, 1)
-
-
-def step_with_copy(state: State, action: Action) -> State:
-    next_state = copy.deepcopy(state)
-    pickup_mechanics(next_state, action)
-    return next_state
+    state.grid[2, 1] = Key(Color.BLUE)
+    move_agent(state, Action.MOVE_RIGHT)
+    assert state.agent.position == Position(2, 1)
 
 
 def test_pickup_mechanics_nothing_to_pickup():
     grid = Grid.from_shape((3, 4))
     agent = Agent(Position(1, 2), Orientation.S)
-    item_pos = (2, 2)
+    item_position = Position(2, 2)
 
     state = State(grid, agent)
 
     # Cannot pickup floor
-    next_state = step_with_copy(state, Action.PICK_N_DROP)
+    next_state = transition_with_copy(pickndrop, state, Action.PICK_N_DROP)
     assert state == next_state
 
     # Cannot pickup door
-    grid[item_pos] = Door(Door.Status.CLOSED, Color.GREEN)
-    next_state = step_with_copy(state, Action.PICK_N_DROP)
+    grid[item_position] = Door(Door.Status.CLOSED, Color.GREEN)
+    next_state = transition_with_copy(pickndrop, state, Action.PICK_N_DROP)
     assert state == next_state
 
-    assert isinstance(next_state.grid[item_pos], Door)
+    assert isinstance(next_state.grid[item_position], Door)
 
 
 def test_pickup_mechanics_pickup():
     grid = Grid.from_shape((3, 4))
     agent = Agent(Position(1, 2), Orientation.S)
-    item_pos = (2, 2)
+    item_position = Position(2, 2)
 
-    grid[item_pos] = Key(Color.GREEN)
+    grid[item_position] = Key(Color.GREEN)
     state = State(grid, agent)
 
     # Pick up works
-    next_state = step_with_copy(state, Action.PICK_N_DROP)
-    assert grid[item_pos] == next_state.agent.obj
-    assert isinstance(next_state.grid[item_pos], Floor)
+    next_state = transition_with_copy(pickndrop, state, Action.PICK_N_DROP)
+    assert grid[item_position] == next_state.agent.obj
+    assert isinstance(next_state.grid[item_position], Floor)
 
     # Pick up only works with correct action
-    next_state = step_with_copy(state, Action.MOVE_LEFT)
-    assert grid[item_pos] != next_state.agent.obj
-    assert next_state.grid[item_pos] == grid[item_pos]
+    next_state = transition_with_copy(pickndrop, state, Action.MOVE_LEFT)
+    assert grid[item_position] != next_state.agent.obj
+    assert next_state.grid[item_position] == grid[item_position]
 
 
 def test_pickup_mechanics_drop():
     grid = Grid.from_shape((3, 4))
     agent = Agent(Position(1, 2), Orientation.S)
-    item_pos = (2, 2)
+    item_position = Position(2, 2)
 
     agent.obj = Key(Color.BLUE)
     state = State(grid, agent)
 
     # Can drop:
-    next_state = step_with_copy(state, Action.PICK_N_DROP)
+    next_state = transition_with_copy(pickndrop, state, Action.PICK_N_DROP)
     assert isinstance(next_state.agent.obj, NoneGridObject)
-    assert agent.obj == next_state.grid[item_pos]
+    assert agent.obj == next_state.grid[item_position]
 
     # Cannot drop:
-    state.grid[item_pos] = Wall()
+    state.grid[item_position] = Wall()
 
-    next_state = step_with_copy(state, Action.PICK_N_DROP)
-    assert isinstance(next_state.grid[item_pos], Wall)
+    next_state = transition_with_copy(pickndrop, state, Action.PICK_N_DROP)
+    assert isinstance(next_state.grid[item_position], Wall)
     assert agent.obj == next_state.agent.obj
 
 
 def test_pickup_mechanics_swap():
     grid = Grid.from_shape((3, 4))
     agent = Agent(Position(1, 2), Orientation.S)
-    item_pos = (2, 2)
+    item_position = Position(2, 2)
 
     agent.obj = Key(Color.BLUE)
-    grid[item_pos] = Key(Color.GREEN)
+    grid[item_position] = Key(Color.GREEN)
     state = State(grid, agent)
 
-    next_state = step_with_copy(state, Action.PICK_N_DROP)
-    assert state.grid[item_pos] == next_state.agent.obj
-    assert state.agent.obj == next_state.grid[item_pos]
+    next_state = transition_with_copy(pickndrop, state, Action.PICK_N_DROP)
+    assert state.grid[item_position] == next_state.agent.obj
+    assert state.agent.obj == next_state.grid[item_position]
 
 
-def test_step_moving_obstacles_once_per_obstacle():
-    """Tests step is called exactly once on all moving obstacles
-
-    There was this naive implementation that looped over all positions, and
-    called `.step()` on it. Unfortunately, when `step` caused the object to
-    _move_, then there was a possibility that the object moved to a later
-    position, hence being called twice. This test is here to make sure that
-    does not happen again.
-    """
+# Tests each moving obstacle is moved exactly once.  A previous naive
+# implementation simply iterated over all positions and moved the
+# encountered MovingObstacle objects.  If the obstacle were moved to a
+# later position, it would eventually be moved again at least once.  This
+# test is here to make sure that does not happen again.
+def test_move_obstacles_once_per_obstacle():
     state = dynamic_obstacles(Shape(6, 6), num_obstacles=4)
 
-    counts = {}
+    moved_obstacles = []
 
-    def patched_step_moving_obstacle(
-        grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
-    ):
-        key = id(grid[position])
-        try:
-            counts[key] += 1
-        except KeyError:
-            counts[key] = 1
+    # wrapper swap method to collect swapped GridObjects
+    def swap_patch(p: Position, q: Position):
+        assert isinstance(state.grid[p], MovingObstacle)
+        moved_obstacles.append(state.grid[p])
 
-        _step_moving_obstacle(grid, position, rng=rng)
+        # perform real swap
+        Grid.swap(state.grid, p, q)
 
-    with patch(
-        'gym_gridverse.envs.transition_functions._step_moving_obstacle',
-        new=patched_step_moving_obstacle,
-    ):
-        step_moving_obstacles(state, Action.PICK_N_DROP)
+    with patch.object(state.grid, 'swap', swap_patch):
+        move_obstacles(state, Action.PICK_N_DROP)
 
-    assert len(counts) == 4
-    assert all(count == 1 for count in counts.values())
+    # four unique and distinct moving-objects
+    moved_obstacle_ids = [id(obj) for obj in moved_obstacles]
+    assert len(moved_obstacle_ids) == len(set(moved_obstacle_ids)) == 4
 
 
 @pytest.mark.parametrize(
@@ -322,7 +294,7 @@ def test_step_moving_obstacles_once_per_obstacle():
         ),
     ],
 )
-def test_step_moving_obstacles(
+def test_move_obstacles(
     objects: Sequence[Sequence[GridObject]],
     expected_objects: Sequence[Sequence[GridObject]],
 ):
@@ -330,7 +302,7 @@ def test_step_moving_obstacles(
     expected_state = State(Grid(expected_objects), MagicMock())
 
     action = MagicMock()
-    step_moving_obstacles(state, action)
+    move_obstacles(state, action)
     assert state.grid == expected_state.grid
 
 
@@ -510,7 +482,7 @@ def test_teleport(
     agent = Agent(position_agent, Orientation.N)
     state = State(grid, agent)
 
-    step_telepod(state, Action.ACTUATE)
+    teleport(state, Action.ACTUATE)
     assert state.agent.position == expected
 
 
@@ -518,12 +490,11 @@ def test_teleport(
     'name,kwargs',
     [
         ('chain', {'transition_functions': []}),
-        ('update_agent', {}),
-        ('pickup_mechanics', {}),
-        ('step_moving_obstacles', {}),
+        ('pickndrop', {}),
+        ('move_obstacles', {}),
         ('actuate_door', {}),
         ('actuate_box', {}),
-        ('step_telepod', {}),
+        ('teleport', {}),
     ],
 )
 def test_factory_valid(name: str, kwargs):

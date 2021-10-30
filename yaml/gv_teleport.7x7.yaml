@@ -20,8 +20,9 @@ reset_function:
   random_agent: True
 
 transition_functions:
-  - name: update_agent
-  - name: step_telepod
+  - name: move_agent
+  - name: turn_agent
+  - name: teleport
 
 reward_functions:
   - name: reach_exit

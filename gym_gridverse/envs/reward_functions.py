@@ -10,7 +10,7 @@ import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.action import Action
-from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
+from gym_gridverse.envs.utils import get_next_position
 from gym_gridverse.geometry import DistanceFunction, Position
 from gym_gridverse.grid_object import (
     Beacon,
@@ -529,14 +529,14 @@ def bump_into_wall(
         rng (`Generator, optional`)
     """
 
-    attempted_next_position = updated_agent_position_if_unobstructed(
+    next_position = get_next_position(
         state.agent.position, state.agent.orientation, action
     )
 
     return (
         reward
-        if state.grid.area.contains(attempted_next_position)
-        and isinstance(state.grid[attempted_next_position], Wall)
+        if state.grid.area.contains(next_position)
+        and isinstance(state.grid[next_position], Wall)
         else 0.0
     )
 

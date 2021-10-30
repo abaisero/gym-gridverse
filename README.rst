@@ -47,12 +47,13 @@ The following `GridObjects` are provided:
 
 The following transition functions are provided:
 
-* :code:`update_agent` -- Moves the agent.
-* :code:`pickup_mechanics` -- Lets agent pick and/or drop a GridObject.
+* :code:`move_agent` -- Moves the agent.
+* :code:`turn_agent` -- Turns the agent.
+* :code:`pickndrop` -- Lets agent pick and/or drop an object.
 * :code:`actuate_door` -- Opens/closes a Door.
 * :code:`actuate_box` -- Opens a Box.
-* :code:`step_moving_obstacles` -- Lets MovingObstacle objects move.
-* :code:`step_telepod` -- Lets MovingObstacle objects move.
+* :code:`move_obstacles` -- Lets MovingObstacle objects move.
+* :code:`teleport` -- Teleports the agent across the Telepods.
 
 The following reward functions are provided:
 

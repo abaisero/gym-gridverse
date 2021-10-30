@@ -1,32 +1,47 @@
 from gym_gridverse.action import Action
 from gym_gridverse.geometry import Orientation, Position
 
+# maps orientation and action to position delta
+_delta_dict = {
+    **{
+        (orientation, Action.MOVE_FORWARD): orientation.as_position()
+        for orientation in Orientation
+    },
+    **{
+        (orientation, Action.MOVE_LEFT): orientation.rotate_left().as_position()
+        for orientation in Orientation
+    },
+    **{
+        (
+            orientation,
+            Action.MOVE_RIGHT,
+        ): orientation.rotate_right().as_position()
+        for orientation in Orientation
+    },
+    **{
+        (
+            orientation,
+            Action.MOVE_BACKWARD,
+        ): orientation.rotate_back().as_position()
+        for orientation in Orientation
+    },
+}
 
-def updated_agent_position_if_unobstructed(
-    agent_pos: Position, agent_orientation: Orientation, action: Action
+
+def get_next_position(
+    position: Position, orientation: Orientation, action: Action
 ) -> Position:
-    """Returns the desired/intended position according to `action`
+    """Returns the tentative next position according to `action`
 
-    NOTE: Assumes action is successful and next position is not blocking agent
+    NOTE: Assumes successful action and free unobstructed movement.
 
     Args:
-        agent_pos (`Position`): current agent position
+        position (`Position`): current agent position
+        orientation (`Orientation`): current agent orientation
         action (`Action`): action taken by agent
 
     Returns:
-        Position: next position
+        Position: tentative next position
     """
 
-    if not action.is_move():
-        return agent_pos
-
-    # Map directions to relative orientation
-    direction_to_relative_orientation = {
-        Action.MOVE_FORWARD: agent_orientation,
-        Action.MOVE_LEFT: agent_orientation.rotate_left(),
-        Action.MOVE_RIGHT: agent_orientation.rotate_right(),
-        Action.MOVE_BACKWARD: agent_orientation.rotate_back(),
-    }
-
-    delta = direction_to_relative_orientation[action].as_position()
-    return agent_pos + delta
+    return position + _delta_dict.get((orientation, action), Position(0, 0))

@@ -18,7 +18,8 @@ reset_function:
   name: custom:coin_maze
 
 transition_functions:
-  - name: update_agent
+  - name: move_agent
+  - name: turn_agent
   - name: custom:collect_coin_transition
 
 reward_functions:

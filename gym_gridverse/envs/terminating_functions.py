@@ -7,7 +7,7 @@ import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.action import Action
-from gym_gridverse.envs.utils import updated_agent_position_if_unobstructed
+from gym_gridverse.envs.utils import get_next_position
 from gym_gridverse.grid_object import Exit, GridObject, MovingObstacle, Wall
 from gym_gridverse.state import State
 from gym_gridverse.utils.custom import import_if_custom
@@ -318,12 +318,12 @@ def bump_into_wall(
     Returns:
         bool: True if next_state agent attempted to move onto a wall cell
     """
-    attempted_next_position = updated_agent_position_if_unobstructed(
+    next_position = get_next_position(
         state.agent.position, state.agent.orientation, action
     )
 
-    return state.grid.area.contains(attempted_next_position) and isinstance(
-        state.grid[attempted_next_position], Wall
+    return state.grid.area.contains(next_position) and isinstance(
+        state.grid[next_position], Wall
     )
 
 
