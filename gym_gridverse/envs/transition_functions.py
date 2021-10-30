@@ -245,7 +245,7 @@ def pickndrop(
     if action is not Action.PICK_N_DROP:
         return
 
-    obj_in_front_of_agent = state.grid[state.agent.position_in_front()]
+    obj_in_front_of_agent = state.grid[state.agent.pose.front_position()]
     obj_holding = state.agent.obj
 
     can_pickup = obj_in_front_of_agent.can_be_picked_up
@@ -254,7 +254,7 @@ def pickndrop(
     if not can_pickup and not can_drop:
         return
 
-    state.grid[state.agent.position_in_front()] = (
+    state.grid[state.agent.pose.front_position()] = (
         obj_holding
         if can_drop and not isinstance(obj_holding, NoneGridObject)
         else Floor()  # We know we are picking up if not dropping
@@ -325,7 +325,7 @@ def actuate_door(
     if action is not Action.ACTUATE:
         return
 
-    position = state.agent.position_in_front()
+    position = state.agent.pose.front_position()
 
     if not state.grid.area.contains(position):
         return
@@ -370,7 +370,7 @@ def actuate_box(
     if action is not Action.ACTUATE:
         return
 
-    position = state.agent.position_in_front()
+    position = state.agent.pose.front_position()
 
     if not state.grid.area.contains(position):
         return

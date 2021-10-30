@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from .geometry import Area, Orientation, Pose, Position
+from .geometry import Orientation, Pose, Position
 from .grid_object import GridObject, NoneGridObject
 
 
@@ -13,8 +13,6 @@ class Agent:
         - :py:class:`~gym_gridverse.geometry.Position` of the agent
         - :py:class:`~gym_gridverse.geometry.Orientation` of the agent
         - :py:class:`~gym_gridverse.grid_object.GridObject` of the agent
-
-    Adds some API functionality
     """
 
     def __init__(
@@ -55,24 +53,6 @@ class Agent:
             return self.pose == other.pose and self.obj == other.obj
 
         return NotImplemented
-
-    def position_relative(self, dpos: Position) -> Position:
-        """get the absolute position from a delta position relative to the agent"""
-        return self.pose.absolute_position(dpos)
-
-    def position_in_front(self) -> Position:
-        """get the position in front of the agent"""
-        return self.pose.front_position()
-
-    def get_pov_area(self, relative_area: Area) -> Area:
-        """gets absolute area corresponding to given relative area
-
-        The relative ares is relative to the agent's POV, with position (0, 0)
-        representing the agent's position.  The absolute area is the relative
-        ares translated and rotated such as to indicate the agent's POV in
-        absolute state coordinates.
-        """
-        return self.pose.absolute_area(relative_area)
 
     def __hash__(self):
         return hash((self.pose, self.obj))
