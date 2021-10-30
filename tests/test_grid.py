@@ -88,19 +88,6 @@ def test_grid_positions_inside(grid: Grid, expected: int):
         assert grid.area.contains(position)
 
 
-def test_grid_get_position():
-    grid = Grid.from_shape((3, 4))
-
-    # testing position -> grid_object -> position roundtrip
-    for position in grid.area.positions():
-        obj = grid[position]
-        assert grid.get_position(obj) == position
-
-    # testing exception when object is not in grid
-    with pytest.raises(ValueError):
-        grid.get_position(Floor())
-
-
 def test_grid_object_types():
     grid = Grid.from_shape((3, 4))
 

@@ -71,13 +71,6 @@ class Grid:
     def area(self) -> Area:
         return self._area
 
-    def get_position(self, x: GridObject) -> Position:
-        for position in self.area.positions():
-            if self[position] is x:
-                return position
-
-        raise ValueError(f'GridObject {x} not found')
-
     def object_types(self) -> Set[Type[GridObject]]:
         """returns object types currently in the grid"""
         return set(type(self[position]) for position in self.area.positions())
