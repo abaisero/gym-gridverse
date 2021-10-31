@@ -164,31 +164,19 @@ class Position:
     def to_tuple(self) -> Tuple[int, int]:
         return self.y, self.x
 
-    def __add__(self, other) -> Position:
+    def __add__(self, other: Position) -> Position:
         try:
             return Position(self.y + other.y, self.x + other.x)
         except AttributeError:
             return NotImplemented
 
-    def __sub__(self, other) -> Position:
+    def __sub__(self, other: Position) -> Position:
         try:
             return Position(self.y - other.y, self.x - other.x)
         except AttributeError:
             return NotImplemented
 
-    def __radd__(self, other) -> Position:
-        try:
-            return Position(other.y + self.y, other.x + self.x)
-        except AttributeError:
-            return NotImplemented
-
-    def __rsub__(self, other) -> Position:
-        try:
-            return Position(other.y - self.y, other.x - self.x)
-        except AttributeError:
-            return NotImplemented
-
-    def __neg__(self):
+    def __neg__(self) -> Position:
         return Position(-self.y, -self.x)
 
     def rotate(self, orientation: Orientation) -> Position:
