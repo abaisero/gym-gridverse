@@ -269,36 +269,6 @@ class Orientation(enum.Enum):
 
         return radians[self]
 
-    def rotate_left(self) -> Orientation:
-        rotations = {
-            Orientation.N: Orientation.W,
-            Orientation.W: Orientation.S,
-            Orientation.S: Orientation.E,
-            Orientation.E: Orientation.N,
-        }
-
-        return rotations[self]
-
-    def rotate_right(self) -> Orientation:
-        rotations = {
-            Orientation.N: Orientation.E,
-            Orientation.E: Orientation.S,
-            Orientation.S: Orientation.W,
-            Orientation.W: Orientation.N,
-        }
-
-        return rotations[self]
-
-    def rotate_back(self) -> Orientation:
-        rotations = {
-            Orientation.N: Orientation.S,
-            Orientation.E: Orientation.W,
-            Orientation.S: Orientation.N,
-            Orientation.W: Orientation.E,
-        }
-
-        return rotations[self]
-
 
 @dataclass(unsafe_hash=True)
 class Transform:

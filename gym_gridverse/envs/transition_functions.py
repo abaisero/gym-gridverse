@@ -10,7 +10,7 @@ from typing_extensions import Protocol  # python3.7 compatibility
 
 from gym_gridverse.action import Action
 from gym_gridverse.envs.utils import get_next_position
-from gym_gridverse.geometry import get_manhattan_boundary
+from gym_gridverse.geometry import Orientation, get_manhattan_boundary
 from gym_gridverse.grid_object import (
     Box,
     Door,
@@ -206,10 +206,10 @@ def turn_agent(
     """
 
     if action is Action.TURN_LEFT:
-        state.agent.orientation = state.agent.orientation.rotate_left()
+        state.agent.orientation = state.agent.orientation + Orientation.W
 
     elif action is Action.TURN_RIGHT:
-        state.agent.orientation = state.agent.orientation.rotate_right()
+        state.agent.orientation = state.agent.orientation + Orientation.E
 
 
 @transition_function_registry.register

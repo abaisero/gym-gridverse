@@ -1,30 +1,12 @@
 from gym_gridverse.action import Action
 from gym_gridverse.geometry import Orientation, Position
 
-# maps orientation and action to position delta
-_delta_dict = {
-    **{
-        (orientation, Action.MOVE_FORWARD): orientation.as_position()
-        for orientation in Orientation
-    },
-    **{
-        (orientation, Action.MOVE_LEFT): orientation.rotate_left().as_position()
-        for orientation in Orientation
-    },
-    **{
-        (
-            orientation,
-            Action.MOVE_RIGHT,
-        ): orientation.rotate_right().as_position()
-        for orientation in Orientation
-    },
-    **{
-        (
-            orientation,
-            Action.MOVE_BACKWARD,
-        ): orientation.rotate_back().as_position()
-        for orientation in Orientation
-    },
+# maps orientation and action to movement orientation
+_move_action_to_orientation = {
+    Action.MOVE_FORWARD: Orientation.N,
+    Action.MOVE_LEFT: Orientation.W,
+    Action.MOVE_RIGHT: Orientation.E,
+    Action.MOVE_BACKWARD: Orientation.S,
 }
 
 
@@ -44,4 +26,9 @@ def get_next_position(
         Position: tentative next position
     """
 
-    return position + _delta_dict.get((orientation, action), Position(0, 0))
+    try:
+        move_orientation = _move_action_to_orientation[action]
+    except KeyError:
+        return position
+
+    return position + (orientation + move_orientation).as_position()
