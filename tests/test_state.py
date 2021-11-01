@@ -28,7 +28,7 @@ def _change_agent_position(state: State):
 
 def _change_agent_orientation(state: State):
     """changes agent orientation"""
-    state.agent.orientation += Orientation.S
+    state.agent.orientation *= Orientation.S
 
 
 def _change_agent_object(state: State):

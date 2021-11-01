@@ -30,7 +30,7 @@ def _change_agent_position(observation: Observation):
 
 def _change_agent_orientation(observation: Observation):
     """changes agent orientation"""
-    observation.agent.orientation += Orientation.S
+    observation.agent.orientation *= Orientation.S
 
 
 def _change_agent_object(observation: Observation):

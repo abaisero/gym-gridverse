@@ -211,7 +211,7 @@ class Orientation(enum.Enum):
     E = enum.auto()
     W = enum.auto()
 
-    def __add__(self, other: Orientation) -> Orientation:
+    def __mul__(self, other: Orientation) -> Orientation:
         # dynamic allocation os static data
         try:
             _rotations = Orientation._rotations
@@ -290,14 +290,14 @@ class Transform:
         if isinstance(other, Transform):
             return Transform(
                 self.position + other.position.rotate(self.orientation),
-                self.orientation + other.orientation,
+                self.orientation * other.orientation,
             )
 
         if isinstance(other, Position):
             return self.position + other.rotate(self.orientation)
 
         if isinstance(other, Orientation):
-            return self.orientation + other
+            return self.orientation * other
 
         if isinstance(other, Area):
             return other.rotate(self.orientation).translate(self.position)
