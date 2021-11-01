@@ -4,7 +4,7 @@ import enum
 import itertools as itt
 import math
 from dataclasses import dataclass
-from typing import Callable, Iterable, Iterator, List, Tuple
+from typing import Callable, Iterable, Iterator, List, Sequence, Tuple, TypeVar
 
 from cached_property import cached_property
 
@@ -211,6 +211,38 @@ class Orientation(enum.Enum):
     E = enum.auto()
     W = enum.auto()
 
+    def __add__(self, other: Orientation) -> Orientation:
+        # dynamic allocation os static data
+        try:
+            _rotations = Orientation._rotations
+        except AttributeError:
+            _rotations = Orientation._rotations = {
+                (Orientation.N, Orientation.N): Orientation.N,
+                (Orientation.N, Orientation.E): Orientation.E,
+                (Orientation.N, Orientation.S): Orientation.S,
+                (Orientation.N, Orientation.W): Orientation.W,
+                #
+                (Orientation.E, Orientation.N): Orientation.E,
+                (Orientation.E, Orientation.E): Orientation.S,
+                (Orientation.E, Orientation.S): Orientation.W,
+                (Orientation.E, Orientation.W): Orientation.N,
+                #
+                (Orientation.S, Orientation.N): Orientation.S,
+                (Orientation.S, Orientation.E): Orientation.W,
+                (Orientation.S, Orientation.S): Orientation.N,
+                (Orientation.S, Orientation.W): Orientation.E,
+                #
+                (Orientation.W, Orientation.N): Orientation.W,
+                (Orientation.W, Orientation.E): Orientation.N,
+                (Orientation.W, Orientation.S): Orientation.E,
+                (Orientation.W, Orientation.W): Orientation.S,
+            }
+
+        try:
+            return _rotations[self, other]
+        except KeyError:
+            return NotImplemented
+
     def as_position(self, dist: int = 1) -> Position:
         if self is Orientation.N:
             return Position(-dist, 0)
@@ -269,29 +301,41 @@ class Orientation(enum.Enum):
 
 
 @dataclass(unsafe_hash=True)
-class Pose:
-    """Pair of position and orientation"""
+class Transform:
+    """A grid-based rigid body transformation, also a ``pose`` (position and orientation)"""
 
     position: Position
     orientation: Orientation
 
-    def absolute_position(self, relative_position: Position) -> Position:
-        """get the absolute position from a delta position relative to the pose"""
-        return self.position + relative_position.rotate(self.orientation)
+    def __mul__(self, other: T) -> T:
+        """Returns rigid body transformation of other geometric objects
 
-    def front_position(self) -> Position:
-        """get the position in front of the pose"""
-        return self.absolute_position(Orientation.N.as_position())
-
-    def absolute_area(self, relative_area: Area) -> Area:
-        """gets absolute area corresponding to given relative area
-
-        The relative ares is relative to the agent's POV, with position (0, 0)
-        representing the agent's position.  The absolute area is the relative
-        ares translated and rotated such as to indicate the agent's POV in
-        absolute state coordinates.
+        Implements the following behaviors:
+        1. transform * transform -> transformed transform
+        2. transform * position -> transformed position
+        3. transform * orientation -> transformed orientation
+        4. transform * area -> transformed area
         """
-        return relative_area.rotate(self.orientation).translate(self.position)
+
+        if isinstance(other, Transform):
+            return Transform(
+                self.position + other.position.rotate(self.orientation),
+                self.orientation + other.orientation,
+            )
+
+        if isinstance(other, Position):
+            return self.position + other.rotate(self.orientation)
+
+        if isinstance(other, Orientation):
+            return self.orientation + other
+
+        if isinstance(other, Area):
+            return other.rotate(self.orientation).translate(self.position)
+
+        return NotImplemented
+
+
+T = TypeVar('T', Transform, Position, Orientation, Area)
 
 
 def get_manhattan_boundary(position: Position, distance: int) -> List[Position]:

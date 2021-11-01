@@ -568,7 +568,7 @@ def actuate_door(
     if action is not Action.ACTUATE:
         return 0.0
 
-    position = state.agent.pose.front_position()
+    position = state.agent.front()
 
     door = state.grid[position]
     if not isinstance(door, Door):

@@ -296,7 +296,7 @@ def test_observation_space_contains__colors(
         (Orientation.W, True),
     ],
 )
-def test_observation_space_contains__agent_pose(
+def test_observation_space_contains__agent_transform(
     shape: Shape,
     position: Position,
     position_ok: bool,

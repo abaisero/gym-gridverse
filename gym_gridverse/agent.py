@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from .geometry import Orientation, Pose, Position
+from .geometry import Orientation, Position, Transform
 from .grid_object import GridObject, NoneGridObject
 
 
@@ -29,33 +29,36 @@ class Agent:
             obj (Optional[GridObject]):
         """
 
-        self.pose = Pose(position, orientation)
+        self.transform = Transform(position, orientation)
         self.obj: GridObject = NoneGridObject() if obj is None else obj
+
+    def front(self) -> Position:
+        return self.transform * Orientation.N.as_position()
 
     @property
     def position(self) -> Position:
-        return self.pose.position
+        return self.transform.position
 
     @position.setter
     def position(self, position: Position):
-        self.pose.position = position
+        self.transform.position = position
 
     @property
     def orientation(self) -> Orientation:
-        return self.pose.orientation
+        return self.transform.orientation
 
     @orientation.setter
     def orientation(self, orientation: Orientation):
-        self.pose.orientation = orientation
+        self.transform.orientation = orientation
 
     def __eq__(self, other):
         if isinstance(other, Agent):
-            return self.pose == other.pose and self.obj == other.obj
+            return self.transform == other.transform and self.obj == other.obj
 
         return NotImplemented
 
     def __hash__(self):
-        return hash((self.pose, self.obj))
+        return hash((self.transform, self.obj))
 
     def __repr__(self):
         # TODO: test

@@ -6,16 +6,16 @@ import pytest
 from gym_gridverse.geometry import (
     Area,
     Orientation,
-    Pose,
     Position,
     StrideDirection,
+    Transform,
     diagonal_strides,
     get_manhattan_boundary,
 )
 
 
-def T(y: int, x: int, orientation: Orientation) -> Pose:
-    return Pose(Position(y, x), orientation)
+def T(y: int, x: int, orientation: Orientation) -> Transform:
+    return Transform(Position(y, x), orientation)
 
 
 P = Position
@@ -322,72 +322,91 @@ def test_delta_position_rotate_basis(
 
 
 @pytest.mark.parametrize(
-    'pose,relative_position,expected',
+    'transform,position,expected',
     [
-        # zero pose position and zero relative position
-        (T(0, 0, O_.N), P(0, 0), P(0, 0)),
-        (T(0, 0, O_.S), P(0, 0), P(0, 0)),
-        (T(0, 0, O_.E), P(0, 0), P(0, 0)),
-        (T(0, 0, O_.W), P(0, 0), P(0, 0)),
-        # zero pose position and non-zero relative position
-        (T(0, 0, O_.N), P(1, 1), P(1, 1)),
-        (T(0, 0, O_.S), P(1, 1), P(-1, -1)),
-        (T(0, 0, O_.E), P(1, 1), P(1, -1)),
-        (T(0, 0, O_.W), P(1, 1), P(-1, 1)),
-        # non-zero pose position and non-zero relative position
-        (T(1, 2, O_.N), P(1, 1), P(2, 3)),
-        (T(1, 2, O_.S), P(1, 1), P(0, 1)),
-        (T(1, 2, O_.E), P(1, 1), P(2, 1)),
-        (T(1, 2, O_.W), P(1, 1), P(0, 3)),
+        (T(1, 1, O_.E), P(1, 1), P(2, 0)),
+        (T(1, 1, O_.E), P(1, -1), P(0, 0)),
+        (T(1, 1, O_.E), P(-1, 1), P(2, 2)),
+        (T(1, 1, O_.E), P(-1, -1), P(0, 2)),
     ],
 )
-def test_pose_absolute_position(
-    pose: Pose, relative_position: Position, expected: Position
+def test_transform_mul_position(
+    transform: Transform, position: Position, expected: Position
 ):
-    assert pose.absolute_position(relative_position) == expected
+    assert transform * position == expected
 
 
 @pytest.mark.parametrize(
-    'pose,expected',
+    'transform,orientation,expected',
     [
-        # zero pose position
-        (T(0, 0, O_.N), P(-1, 0)),
-        (T(0, 0, O_.S), P(1, 0)),
-        (T(0, 0, O_.E), P(0, 1)),
-        (T(0, 0, O_.W), P(0, -1)),
-        # non-zero pose position
-        (T(1, 2, O_.N), P(0, 2)),
-        (T(1, 2, O_.S), P(2, 2)),
-        (T(1, 2, O_.E), P(1, 3)),
-        (T(1, 2, O_.W), P(1, 1)),
+        (T(1, 1, O_.E), O_.N, O_.E),
+        (T(1, 1, O_.E), O_.E, O_.S),
+        (T(1, 1, O_.E), O_.S, O_.W),
+        (T(1, 1, O_.E), O_.W, O_.N),
     ],
 )
-def test_pose_front(pose: Pose, expected: Position):
-    assert pose.front() == expected
+def test_transform_mul_orientation(
+    transform: Transform, orientation: Orientation, expected: Orientation
+):
+    assert transform * orientation == expected
 
 
 @pytest.mark.parametrize(
-    'pose,relative_area,expected',
+    't1,t2,expected',
     [
-        # zero pose position and zero area
-        (T(0, 0, O_.N), A((0, 0), (0, 0)), A((0, 0), (0, 0))),
-        (T(0, 0, O_.S), A((0, 0), (0, 0)), A((0, 0), (0, 0))),
-        (T(0, 0, O_.E), A((0, 0), (0, 0)), A((0, 0), (0, 0))),
-        (T(0, 0, O_.W), A((0, 0), (0, 0)), A((0, 0), (0, 0))),
-        # zero pose position and non-zero area
-        (T(0, 0, O_.N), A((1, 2), (3, 4)), A((1, 2), (3, 4))),
-        (T(0, 0, O_.S), A((1, 2), (3, 4)), A((-2, -1), (-4, -3))),
-        (T(0, 0, O_.E), A((1, 2), (3, 4)), A((3, 4), (-2, -1))),
-        (T(0, 0, O_.W), A((1, 2), (3, 4)), A((-4, -3), (1, 2))),
-        # non-zero pose position and non-zero area
-        (T(1, 2, O_.N), A((1, 2), (3, 4)), A((2, 3), (5, 6))),
-        (T(1, 2, O_.S), A((1, 2), (3, 4)), A((-1, 0), (-2, -1))),
-        (T(1, 2, O_.E), A((1, 2), (3, 4)), A((4, 5), (0, 1))),
-        (T(1, 2, O_.W), A((1, 2), (3, 4)), A((-3, -2), (3, 4))),
+        (T(0, 0, O_.N), T(0, 0, O_.N), T(0, 0, O_.N)),
+        (T(0, 0, O_.N), T(-1, 1, O_.E), T(-1, 1, O_.E)),
+        (T(0, 0, O_.N), T(-2, 2, O_.S), T(-2, 2, O_.S)),
+        (T(0, 0, O_.N), T(-3, 3, O_.W), T(-3, 3, O_.W)),
+        #
+        (T(-1, 1, O_.E), T(0, 0, O_.N), T(-1, 1, O_.E)),
+        (T(-1, 1, O_.E), T(-1, 1, O_.E), T(0, 2, O_.S)),
+        (T(-1, 1, O_.E), T(-2, 2, O_.S), T(1, 3, O_.W)),
+        (T(-1, 1, O_.E), T(-3, 3, O_.W), T(2, 4, O_.N)),
+        #
+        (T(-2, 2, O_.S), T(0, 0, O_.N), T(-2, 2, O_.S)),
+        (T(-2, 2, O_.S), T(-1, 1, O_.E), T(-1, 1, O_.W)),
+        (T(-2, 2, O_.S), T(-2, 2, O_.S), T(0, 0, O_.N)),
+        (T(-2, 2, O_.S), T(-3, 3, O_.W), T(1, -1, O_.E)),
+        #
+        (T(-3, 3, O_.W), T(0, 0, O_.N), T(-3, 3, O_.W)),
+        (T(-3, 3, O_.W), T(-1, 1, O_.E), T(-4, 2, O_.N)),
+        (T(-3, 3, O_.W), T(-2, 2, O_.S), T(-5, 1, O_.E)),
+        (T(-3, 3, O_.W), T(-3, 3, O_.W), T(-6, 0, O_.S)),
     ],
 )
-def test_pose_absolute_area(pose: Pose, relative_area: Area, expected: Area):
-    assert pose.absolute_area(relative_area) == expected
+def test_transform_mul_transform(
+    t1: Transform, t2: Transform, expected: Transform
+):
+    assert t1 * t2 == expected
+
+
+@pytest.mark.parametrize(
+    'transform,area,expected',
+    [
+        (T(0, 0, O_.N), Area((1, 2), (1, 2)), Area((1, 2), (1, 2))),
+        (T(0, 0, O_.N), Area((1, 2), (2, 4)), Area((1, 2), (2, 4))),
+        (T(0, 0, O_.N), Area((2, 4), (1, 2)), Area((2, 4), (1, 2))),
+        (T(0, 0, O_.N), Area((2, 4), (2, 4)), Area((2, 4), (2, 4))),
+        #
+        (T(-1, 1, O_.E), Area((1, 2), (1, 2)), Area((0, 1), (-1, 0))),
+        (T(-1, 1, O_.E), Area((1, 2), (2, 4)), Area((1, 3), (-1, 0))),
+        (T(-1, 1, O_.E), Area((2, 4), (1, 2)), Area((0, 1), (-3, -1))),
+        (T(-1, 1, O_.E), Area((2, 4), (2, 4)), Area((1, 3), (-3, -1))),
+        #
+        (T(-2, 2, O_.S), Area((1, 2), (1, 2)), Area((-4, -3), (0, 1))),
+        (T(-2, 2, O_.S), Area((1, 2), (2, 4)), Area((-4, -3), (-2, 0))),
+        (T(-2, 2, O_.S), Area((2, 4), (1, 2)), Area((-6, -4), (0, 1))),
+        (T(-2, 2, O_.S), Area((2, 4), (2, 4)), Area((-6, -4), (-2, 0))),
+        #
+        (T(-3, 3, O_.W), Area((1, 2), (1, 2)), Area((-5, -4), (4, 5))),
+        (T(-3, 3, O_.W), Area((1, 2), (2, 4)), Area((-7, -5), (4, 5))),
+        (T(-3, 3, O_.W), Area((2, 4), (1, 2)), Area((-5, -4), (5, 7))),
+        (T(-3, 3, O_.W), Area((2, 4), (2, 4)), Area((-7, -5), (5, 7))),
+    ],
+)
+def test_transform_mul_area(transform: Transform, area: Area, expected: Area):
+    assert transform * area == expected
 
 
 @pytest.mark.parametrize(

@@ -19,7 +19,7 @@ def frontal_line_of_sight(
     """only tiles in front of the agent can be seen"""
 
     # get agent's POV grid
-    area = state.agent.pose.absolute_area(observation_space.area)
+    area = state.agent.transform * observation_space.area
     observation_grid = state.grid.subgrid(area).change_orientation(
         state.agent.orientation
     )
