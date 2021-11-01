@@ -14,15 +14,32 @@ from gym_gridverse.geometry import (
 )
 
 
+def T(y: int, x: int, orientation: Orientation) -> Pose:
+    return Pose(Position(y, x), orientation)
+
+
+P = Position
+O_ = Orientation
+A = Area
+
+
 @pytest.mark.parametrize(
-    'area,expected', [(Area((0, 1), (0, 2)), 2), (Area((-1, 1), (-2, 2)), 3)]
+    'area,expected',
+    [
+        (A((0, 1), (0, 2)), 2),
+        (A((-1, 1), (-2, 2)), 3),
+    ],
 )
 def test_area_height(area: Area, expected: int):
     assert area.height == expected
 
 
 @pytest.mark.parametrize(
-    'area,expected', [(Area((0, 1), (0, 2)), 3), (Area((-1, 1), (-2, 2)), 5)]
+    'area,expected',
+    [
+        (A((0, 1), (0, 2)), 3),
+        (A((-1, 1), (-2, 2)), 5),
+    ],
 )
 def test_area_width(area: Area, expected: int):
     assert area.width == expected
@@ -31,8 +48,8 @@ def test_area_width(area: Area, expected: int):
 @pytest.mark.parametrize(
     'area,expected',
     [
-        (Area((0, 1), (0, 2)), Position(0, 0)),
-        (Area((-1, 1), (-2, 2)), Position(-1, -2)),
+        (A((0, 1), (0, 2)), P(0, 0)),
+        (A((-1, 1), (-2, 2)), P(-1, -2)),
     ],
 )
 def test_area_top_left(area: Area, expected: Position):
@@ -42,8 +59,8 @@ def test_area_top_left(area: Area, expected: Position):
 @pytest.mark.parametrize(
     'area,expected',
     [
-        (Area((0, 1), (0, 2)), Position(0, 2)),
-        (Area((-1, 1), (-2, 2)), Position(-1, 2)),
+        (A((0, 1), (0, 2)), P(0, 2)),
+        (A((-1, 1), (-2, 2)), P(-1, 2)),
     ],
 )
 def test_area_top_right(area: Area, expected: Position):
@@ -53,8 +70,8 @@ def test_area_top_right(area: Area, expected: Position):
 @pytest.mark.parametrize(
     'area,expected',
     [
-        (Area((0, 1), (0, 2)), Position(1, 0)),
-        (Area((-1, 1), (-2, 2)), Position(1, -2)),
+        (A((0, 1), (0, 2)), P(1, 0)),
+        (A((-1, 1), (-2, 2)), P(1, -2)),
     ],
 )
 def test_area_bottom_left(area: Area, expected: Position):
@@ -64,8 +81,8 @@ def test_area_bottom_left(area: Area, expected: Position):
 @pytest.mark.parametrize(
     'area,expected',
     [
-        (Area((0, 1), (0, 2)), Position(1, 2)),
-        (Area((-1, 1), (-2, 2)), Position(1, 2)),
+        (A((0, 1), (0, 2)), P(1, 2)),
+        (A((-1, 1), (-2, 2)), P(1, 2)),
     ],
 )
 def test_area_bottom_right(area: Area, expected: Position):
@@ -75,21 +92,21 @@ def test_area_bottom_right(area: Area, expected: Position):
 @pytest.mark.parametrize(
     'area,position,expected',
     [
-        (Area((0, 1), (0, 2)), Position(0, 0), True),
-        (Area((0, 1), (0, 2)), Position(-1, 0), False),
-        (Area((0, 1), (0, 2)), Position(0, -1), False),
+        (A((0, 1), (0, 2)), P(0, 0), True),
+        (A((0, 1), (0, 2)), P(-1, 0), False),
+        (A((0, 1), (0, 2)), P(0, -1), False),
         #
-        (Area((0, 1), (0, 2)), Position(1, 2), True),
-        (Area((0, 1), (0, 2)), Position(2, 2), False),
-        (Area((0, 1), (0, 2)), Position(1, 3), False),
+        (A((0, 1), (0, 2)), P(1, 2), True),
+        (A((0, 1), (0, 2)), P(2, 2), False),
+        (A((0, 1), (0, 2)), P(1, 3), False),
         #
-        (Area((-1, 1), (-2, 2)), Position(-1, -2), True),
-        (Area((-1, 1), (-2, 2)), Position(-2, -2), False),
-        (Area((-1, 1), (-2, 2)), Position(-1, -3), False),
+        (A((-1, 1), (-2, 2)), P(-1, -2), True),
+        (A((-1, 1), (-2, 2)), P(-2, -2), False),
+        (A((-1, 1), (-2, 2)), P(-1, -3), False),
         #
-        (Area((-1, 1), (-2, 2)), Position(1, 2), True),
-        (Area((-1, 1), (-2, 2)), Position(2, 2), False),
-        (Area((-1, 1), (-2, 2)), Position(1, 3), False),
+        (A((-1, 1), (-2, 2)), P(1, 2), True),
+        (A((-1, 1), (-2, 2)), P(2, 2), False),
+        (A((-1, 1), (-2, 2)), P(1, 3), False),
     ],
 )
 def test_area_contains(area: Area, position: Position, expected: bool):
@@ -99,11 +116,11 @@ def test_area_contains(area: Area, position: Position, expected: bool):
 @pytest.mark.parametrize(
     'area,position,expected',
     [
-        (Area((0, 1), (0, 2)), Position(1, -1), Area((1, 2), (-1, 1))),
-        (Area((0, 1), (0, 2)), Position(-1, 1), Area((-1, 0), (1, 3))),
+        (A((0, 1), (0, 2)), P(1, -1), A((1, 2), (-1, 1))),
+        (A((0, 1), (0, 2)), P(-1, 1), A((-1, 0), (1, 3))),
         #
-        (Area((-1, 1), (-2, 2)), Position(1, -1), Area((0, 2), (-3, 1))),
-        (Area((-1, 1), (-2, 2)), Position(-1, 1), Area((-2, 0), (-1, 3))),
+        (A((-1, 1), (-2, 2)), P(1, -1), A((0, 2), (-3, 1))),
+        (A((-1, 1), (-2, 2)), P(-1, 1), A((-2, 0), (-1, 3))),
     ],
 )
 def test_area_translate(area: Area, position: Position, expected: Area):
@@ -113,15 +130,15 @@ def test_area_translate(area: Area, position: Position, expected: Area):
 @pytest.mark.parametrize(
     'area,orientation,expected',
     [
-        (Area((0, 1), (0, 2)), Orientation.N, Area((0, 1), (0, 2))),
-        (Area((0, 1), (0, 2)), Orientation.S, Area((-1, 0), (-2, 0))),
-        (Area((0, 1), (0, 2)), Orientation.E, Area((0, 2), (-1, 0))),
-        (Area((0, 1), (0, 2)), Orientation.W, Area((-2, 0), (0, 1))),
+        (A((0, 1), (0, 2)), O_.N, A((0, 1), (0, 2))),
+        (A((0, 1), (0, 2)), O_.S, A((-1, 0), (-2, 0))),
+        (A((0, 1), (0, 2)), O_.E, A((0, 2), (-1, 0))),
+        (A((0, 1), (0, 2)), O_.W, A((-2, 0), (0, 1))),
         #
-        (Area((-1, 1), (-2, 2)), Orientation.N, Area((-1, 1), (-2, 2))),
-        (Area((-1, 1), (-2, 2)), Orientation.S, Area((-1, 1), (-2, 2))),
-        (Area((-1, 1), (-2, 2)), Orientation.E, Area((-2, 2), (-1, 1))),
-        (Area((-1, 1), (-2, 2)), Orientation.W, Area((-2, 2), (-1, 1))),
+        (A((-1, 1), (-2, 2)), O_.N, A((-1, 1), (-2, 2))),
+        (A((-1, 1), (-2, 2)), O_.S, A((-1, 1), (-2, 2))),
+        (A((-1, 1), (-2, 2)), O_.E, A((-2, 2), (-1, 1))),
+        (A((-1, 1), (-2, 2)), O_.W, A((-2, 2), (-1, 1))),
     ],
 )
 def test_area_rotate(area: Area, orientation: Orientation, expected: Area):
@@ -131,11 +148,11 @@ def test_area_rotate(area: Area, orientation: Orientation, expected: Area):
 @pytest.mark.parametrize(
     'area1,area2,expected',
     [
-        (Area((0, 1), (0, 2)), Area((0, 1), (0, 2)), True),
-        (Area((0, 1), (0, 2)), Area((-1, 1), (-2, 2)), False),
+        (A((0, 1), (0, 2)), A((0, 1), (0, 2)), True),
+        (A((0, 1), (0, 2)), A((-1, 1), (-2, 2)), False),
         #
-        (Area((-1, 1), (-2, 2)), Area((0, 1), (0, 2)), False),
-        (Area((-1, 1), (-2, 2)), Area((-1, 1), (-2, 2)), True),
+        (A((-1, 1), (-2, 2)), A((0, 1), (0, 2)), False),
+        (A((-1, 1), (-2, 2)), A((-1, 1), (-2, 2)), True),
     ],
 )
 def test_area_eq(area1: Area, area2: Area, expected: bool):
@@ -145,17 +162,17 @@ def test_area_eq(area1: Area, area2: Area, expected: bool):
 @pytest.mark.parametrize(
     'orientation,dist,delta_position',
     [
-        (Orientation.N, 1, Position(-1, 0)),
-        (Orientation.N, 2, Position(-2, 0)),
+        (O_.N, 1, P(-1, 0)),
+        (O_.N, 2, P(-2, 0)),
         #
-        (Orientation.S, 1, Position(1, 0)),
-        (Orientation.S, 2, Position(2, 0)),
+        (O_.S, 1, P(1, 0)),
+        (O_.S, 2, P(2, 0)),
         #
-        (Orientation.E, 1, Position(0, 1)),
-        (Orientation.E, 2, Position(0, 2)),
+        (O_.E, 1, P(0, 1)),
+        (O_.E, 2, P(0, 2)),
         #
-        (Orientation.W, 1, Position(0, -1)),
-        (Orientation.W, 2, Position(0, -2)),
+        (O_.W, 1, P(0, -1)),
+        (O_.W, 2, P(0, -2)),
     ],
 )
 def test_orientation_as_position(
@@ -168,22 +185,22 @@ def test_orientation_as_position(
     'position,distance,expected',
     [
         (
-            Position(2, 2),
+            P(2, 2),
             1,
-            [Position(1, 2), Position(2, 3), Position(3, 2), Position(2, 1)],
+            [P(1, 2), P(2, 3), P(3, 2), P(2, 1)],
         ),
         (
-            Position(4, 3),
+            P(4, 3),
             2,
             [
-                Position(2, 3),
-                Position(3, 4),
-                Position(4, 5),
-                Position(5, 4),
-                Position(6, 3),
-                Position(5, 2),
-                Position(4, 1),
-                Position(3, 2),
+                P(2, 3),
+                P(3, 4),
+                P(4, 5),
+                P(5, 4),
+                P(6, 3),
+                P(5, 2),
+                P(4, 1),
+                P(3, 2),
             ],
         ),
     ],
@@ -201,7 +218,7 @@ def test_manhattan_boundary(
 @pytest.mark.parametrize(
     'pos1,pos2,expected',
     [
-        (Position(y1, x1), Position(y2, x2), Position(y1 + y2, x1 + x2))
+        (P(y1, x1), P(y2, x2), P(y1 + y2, x1 + x2))
         for x1 in range(2)
         for y1 in range(2)
         for x2 in range(2)
@@ -215,7 +232,7 @@ def test_position_add(pos1: Position, pos2: Position, expected: Position):
 @pytest.mark.parametrize(
     'pos1,pos2,expected',
     [
-        (Position(y1, x1), Position(y2, x2), Position(y1 - y2, x1 - x2))
+        (P(y1, x1), P(y2, x2), P(y1 - y2, x1 - x2))
         for x1 in range(2)
         for y1 in range(2)
         for x2 in range(2)
@@ -228,7 +245,7 @@ def test_position_subtract(pos1: Position, pos2: Position, expected: Position):
 
 @pytest.mark.parametrize(
     'pos,expected',
-    [(Position(y, x), Position(-y, -x)) for x in range(2) for y in range(2)],
+    [(P(y, x), P(-y, -x)) for x in range(2) for y in range(2)],
 )
 def test_position_negative(pos: Position, expected: Position):
     assert -pos == expected
@@ -237,16 +254,16 @@ def test_position_negative(pos: Position, expected: Position):
 @pytest.mark.parametrize(
     'pos1,pos2,expected',
     [
-        (Position(0, 0), Position(0, 0), 0.0),
-        (Position(0, 0), Position(0, 1), 1.0),
-        (Position(0, 0), Position(1, 1), 2.0),
-        (Position(0, 1), Position(1, 1), 1.0),
-        (Position(1, 1), Position(1, 1), 0.0),
+        (P(0, 0), P(0, 0), 0.0),
+        (P(0, 0), P(0, 1), 1.0),
+        (P(0, 0), P(1, 1), 2.0),
+        (P(0, 1), P(1, 1), 1.0),
+        (P(1, 1), P(1, 1), 0.0),
         # diagonal
-        (Position(0, 0), Position(0, 0), 0.0),
-        (Position(0, 0), Position(1, 1), 2.0),
-        (Position(0, 0), Position(2, 2), 4.0),
-        (Position(0, 0), Position(3, 3), 6.0),
+        (P(0, 0), P(0, 0), 0.0),
+        (P(0, 0), P(1, 1), 2.0),
+        (P(0, 0), P(2, 2), 4.0),
+        (P(0, 0), P(3, 3), 6.0),
     ],
 )
 def test_position_manhattan_distance(
@@ -258,16 +275,16 @@ def test_position_manhattan_distance(
 @pytest.mark.parametrize(
     'pos1,pos2,expected',
     [
-        (Position(0, 0), Position(0, 0), 0.0),
-        (Position(0, 0), Position(0, 1), 1.0),
-        (Position(0, 0), Position(1, 1), math.sqrt(2.0)),
-        (Position(0, 1), Position(1, 1), 1.0),
-        (Position(1, 1), Position(1, 1), 0.0),
+        (P(0, 0), P(0, 0), 0.0),
+        (P(0, 0), P(0, 1), 1.0),
+        (P(0, 0), P(1, 1), math.sqrt(2.0)),
+        (P(0, 1), P(1, 1), 1.0),
+        (P(1, 1), P(1, 1), 0.0),
         # diagonal
-        (Position(0, 0), Position(0, 0), 0.0),
-        (Position(0, 0), Position(1, 1), math.sqrt(2.0)),
-        (Position(0, 0), Position(2, 2), math.sqrt(8.0)),
-        (Position(0, 0), Position(3, 3), math.sqrt(18.0)),
+        (P(0, 0), P(0, 0), 0.0),
+        (P(0, 0), P(1, 1), math.sqrt(2.0)),
+        (P(0, 0), P(2, 2), math.sqrt(8.0)),
+        (P(0, 0), P(3, 3), math.sqrt(18.0)),
     ],
 )
 def test_position_euclidean_distance(
@@ -280,20 +297,20 @@ def test_position_euclidean_distance(
     'delta_position,orientation,expected',
     [
         # y basis
-        (Position(1, 0), Orientation.N, Position(1, 0)),
-        (Position(1, 0), Orientation.S, Position(-1, 0)),
-        (Position(1, 0), Orientation.E, Position(0, -1)),
-        (Position(1, 0), Orientation.W, Position(0, 1)),
+        (P(1, 0), O_.N, P(1, 0)),
+        (P(1, 0), O_.S, P(-1, 0)),
+        (P(1, 0), O_.E, P(0, -1)),
+        (P(1, 0), O_.W, P(0, 1)),
         # x basis
-        (Position(0, 1), Orientation.N, Position(0, 1)),
-        (Position(0, 1), Orientation.S, Position(0, -1)),
-        (Position(0, 1), Orientation.E, Position(1, 0)),
-        (Position(0, 1), Orientation.W, Position(-1, 0)),
+        (P(0, 1), O_.N, P(0, 1)),
+        (P(0, 1), O_.S, P(0, -1)),
+        (P(0, 1), O_.E, P(1, 0)),
+        (P(0, 1), O_.W, P(-1, 0)),
         # others
-        (Position(1, 2), Orientation.N, Position(1, 2)),
-        (Position(1, 2), Orientation.S, Position(-1, -2)),
-        (Position(1, 2), Orientation.E, Position(2, -1)),
-        (Position(1, 2), Orientation.W, Position(-2, 1)),
+        (P(1, 2), O_.N, P(1, 2)),
+        (P(1, 2), O_.S, P(-1, -2)),
+        (P(1, 2), O_.E, P(2, -1)),
+        (P(1, 2), O_.W, P(-2, 1)),
     ],
 )
 def test_delta_position_rotate_basis(
@@ -308,20 +325,20 @@ def test_delta_position_rotate_basis(
     'pose,relative_position,expected',
     [
         # zero pose position and zero relative position
-        (Pose(Position(0, 0), Orientation.N), Position(0, 0), Position(0, 0)),
-        (Pose(Position(0, 0), Orientation.S), Position(0, 0), Position(0, 0)),
-        (Pose(Position(0, 0), Orientation.E), Position(0, 0), Position(0, 0)),
-        (Pose(Position(0, 0), Orientation.W), Position(0, 0), Position(0, 0)),
+        (T(0, 0, O_.N), P(0, 0), P(0, 0)),
+        (T(0, 0, O_.S), P(0, 0), P(0, 0)),
+        (T(0, 0, O_.E), P(0, 0), P(0, 0)),
+        (T(0, 0, O_.W), P(0, 0), P(0, 0)),
         # zero pose position and non-zero relative position
-        (Pose(Position(0, 0), Orientation.N), Position(1, 1), Position(1, 1)),
-        (Pose(Position(0, 0), Orientation.S), Position(1, 1), Position(-1, -1)),
-        (Pose(Position(0, 0), Orientation.E), Position(1, 1), Position(1, -1)),
-        (Pose(Position(0, 0), Orientation.W), Position(1, 1), Position(-1, 1)),
+        (T(0, 0, O_.N), P(1, 1), P(1, 1)),
+        (T(0, 0, O_.S), P(1, 1), P(-1, -1)),
+        (T(0, 0, O_.E), P(1, 1), P(1, -1)),
+        (T(0, 0, O_.W), P(1, 1), P(-1, 1)),
         # non-zero pose position and non-zero relative position
-        (Pose(Position(1, 2), Orientation.N), Position(1, 1), Position(2, 3)),
-        (Pose(Position(1, 2), Orientation.S), Position(1, 1), Position(0, 1)),
-        (Pose(Position(1, 2), Orientation.E), Position(1, 1), Position(2, 1)),
-        (Pose(Position(1, 2), Orientation.W), Position(1, 1), Position(0, 3)),
+        (T(1, 2, O_.N), P(1, 1), P(2, 3)),
+        (T(1, 2, O_.S), P(1, 1), P(0, 1)),
+        (T(1, 2, O_.E), P(1, 1), P(2, 1)),
+        (T(1, 2, O_.W), P(1, 1), P(0, 3)),
     ],
 )
 def test_pose_absolute_position(
@@ -334,87 +351,39 @@ def test_pose_absolute_position(
     'pose,expected',
     [
         # zero pose position
-        (Pose(Position(0, 0), Orientation.N), Position(-1, 0)),
-        (Pose(Position(0, 0), Orientation.S), Position(1, 0)),
-        (Pose(Position(0, 0), Orientation.E), Position(0, 1)),
-        (Pose(Position(0, 0), Orientation.W), Position(0, -1)),
+        (T(0, 0, O_.N), P(-1, 0)),
+        (T(0, 0, O_.S), P(1, 0)),
+        (T(0, 0, O_.E), P(0, 1)),
+        (T(0, 0, O_.W), P(0, -1)),
         # non-zero pose position
-        (Pose(Position(1, 2), Orientation.N), Position(0, 2)),
-        (Pose(Position(1, 2), Orientation.S), Position(2, 2)),
-        (Pose(Position(1, 2), Orientation.E), Position(1, 3)),
-        (Pose(Position(1, 2), Orientation.W), Position(1, 1)),
+        (T(1, 2, O_.N), P(0, 2)),
+        (T(1, 2, O_.S), P(2, 2)),
+        (T(1, 2, O_.E), P(1, 3)),
+        (T(1, 2, O_.W), P(1, 1)),
     ],
 )
-def test_pose_front_position(pose: Pose, expected: Position):
-    assert pose.front_position() == expected
+def test_pose_front(pose: Pose, expected: Position):
+    assert pose.front() == expected
 
 
 @pytest.mark.parametrize(
     'pose,relative_area,expected',
     [
         # zero pose position and zero area
-        (
-            Pose(Position(0, 0), Orientation.N),
-            Area((0, 0), (0, 0)),
-            Area((0, 0), (0, 0)),
-        ),
-        (
-            Pose(Position(0, 0), Orientation.S),
-            Area((0, 0), (0, 0)),
-            Area((0, 0), (0, 0)),
-        ),
-        (
-            Pose(Position(0, 0), Orientation.E),
-            Area((0, 0), (0, 0)),
-            Area((0, 0), (0, 0)),
-        ),
-        (
-            Pose(Position(0, 0), Orientation.W),
-            Area((0, 0), (0, 0)),
-            Area((0, 0), (0, 0)),
-        ),
+        (T(0, 0, O_.N), A((0, 0), (0, 0)), A((0, 0), (0, 0))),
+        (T(0, 0, O_.S), A((0, 0), (0, 0)), A((0, 0), (0, 0))),
+        (T(0, 0, O_.E), A((0, 0), (0, 0)), A((0, 0), (0, 0))),
+        (T(0, 0, O_.W), A((0, 0), (0, 0)), A((0, 0), (0, 0))),
         # zero pose position and non-zero area
-        (
-            Pose(Position(0, 0), Orientation.N),
-            Area((1, 2), (3, 4)),
-            Area((1, 2), (3, 4)),
-        ),
-        (
-            Pose(Position(0, 0), Orientation.S),
-            Area((1, 2), (3, 4)),
-            Area((-2, -1), (-4, -3)),
-        ),
-        (
-            Pose(Position(0, 0), Orientation.E),
-            Area((1, 2), (3, 4)),
-            Area((3, 4), (-2, -1)),
-        ),
-        (
-            Pose(Position(0, 0), Orientation.W),
-            Area((1, 2), (3, 4)),
-            Area((-4, -3), (1, 2)),
-        ),
+        (T(0, 0, O_.N), A((1, 2), (3, 4)), A((1, 2), (3, 4))),
+        (T(0, 0, O_.S), A((1, 2), (3, 4)), A((-2, -1), (-4, -3))),
+        (T(0, 0, O_.E), A((1, 2), (3, 4)), A((3, 4), (-2, -1))),
+        (T(0, 0, O_.W), A((1, 2), (3, 4)), A((-4, -3), (1, 2))),
         # non-zero pose position and non-zero area
-        (
-            Pose(Position(1, 2), Orientation.N),
-            Area((1, 2), (3, 4)),
-            Area((2, 3), (5, 6)),
-        ),
-        (
-            Pose(Position(1, 2), Orientation.S),
-            Area((1, 2), (3, 4)),
-            Area((-1, 0), (-2, -1)),
-        ),
-        (
-            Pose(Position(1, 2), Orientation.E),
-            Area((1, 2), (3, 4)),
-            Area((4, 5), (0, 1)),
-        ),
-        (
-            Pose(Position(1, 2), Orientation.W),
-            Area((1, 2), (3, 4)),
-            Area((-3, -2), (3, 4)),
-        ),
+        (T(1, 2, O_.N), A((1, 2), (3, 4)), A((2, 3), (5, 6))),
+        (T(1, 2, O_.S), A((1, 2), (3, 4)), A((-1, 0), (-2, -1))),
+        (T(1, 2, O_.E), A((1, 2), (3, 4)), A((4, 5), (0, 1))),
+        (T(1, 2, O_.W), A((1, 2), (3, 4)), A((-3, -2), (3, 4))),
     ],
 )
 def test_pose_absolute_area(pose: Pose, relative_area: Area, expected: Area):
@@ -425,61 +394,61 @@ def test_pose_absolute_area(pose: Pose, relative_area: Area, expected: Area):
     'area,stride_direction,expected',
     [
         (
-            Area((-1, 1), (-1, 1)),
+            A((-1, 1), (-1, 1)),
             StrideDirection.NW,
             [
                 # stride 0
-                Position(1, 1),
+                P(1, 1),
                 # stride 1
-                Position(0, 1),
-                Position(1, 0),
+                P(0, 1),
+                P(1, 0),
                 # stride 2
-                Position(-1, 1),
-                Position(0, 0),
-                Position(1, -1),
+                P(-1, 1),
+                P(0, 0),
+                P(1, -1),
                 # stride 3
-                Position(-1, 0),
-                Position(0, -1),
+                P(-1, 0),
+                P(0, -1),
                 # stride 4
-                Position(-1, -1),
+                P(-1, -1),
             ],
         ),
         # (
-        #     Area((-1, 1), (-2, 2)),
+        #     A((-1, 1), (-2, 2)),
         #     'NW',
         #     [
         #     ],
         # ),
         (
-            Area((-1, 1), (-1, 1)),
+            A((-1, 1), (-1, 1)),
             StrideDirection.NE,
             [
                 # stride 0
-                Position(1, -1),
+                P(1, -1),
                 # stride 1
-                Position(0, -1),
-                Position(1, 0),
+                P(0, -1),
+                P(1, 0),
                 # stride 2
-                Position(-1, -1),
-                Position(0, 0),
-                Position(1, 1),
+                P(-1, -1),
+                P(0, 0),
+                P(1, 1),
                 # stride 3
-                Position(-1, 0),
-                Position(0, 1),
+                P(-1, 0),
+                P(0, 1),
                 # stride 4
-                Position(-1, 1),
+                P(-1, 1),
             ],
         ),
         # (
-        #     Area((-1, 1), (-2, 2)),
+        #     A((-1, 1), (-2, 2)),
         #     'NE',
         #     [
-        #         Position(0, 0),
-        #         Position(-1, 0),
-        #         Position(0, 1),
-        #         Position(-1, 1),
-        #         Position(0, 2),
-        #         Position(-1, 2),
+        #         P(0, 0),
+        #         P(-1, 0),
+        #         P(0, 1),
+        #         P(-1, 1),
+        #         P(0, 2),
+        #         P(-1, 2),
         #     ],
         # ),
     ],
