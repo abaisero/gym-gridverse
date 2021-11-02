@@ -8,6 +8,8 @@ from typing import Callable, Iterable, Iterator, List, Sequence, Tuple, TypeVar
 
 from cached_property import cached_property
 
+T = TypeVar('T')
+
 
 @dataclass(frozen=True)
 class Shape:
@@ -132,27 +134,6 @@ class Area:
             and self.xmin <= position.x <= self.xmax
         )
 
-    def translate(self, position: Position) -> Area:
-        return Area(
-            (self.ymin + position.y, self.ymax + position.y),
-            (self.xmin + position.x, self.xmax + position.x),
-        )
-
-    def rotate(self, orientation: Orientation) -> Area:
-        if orientation is Orientation.N:
-            return Area((self.ymin, self.ymax), (self.xmin, self.xmax))
-
-        if orientation is Orientation.S:
-            return Area((-self.ymax, -self.ymin), (-self.xmax, -self.xmin))
-
-        if orientation is Orientation.E:
-            return Area((self.xmin, self.xmax), (-self.ymax, -self.ymin))
-
-        if orientation is Orientation.W:
-            return Area((-self.xmax, -self.xmin), (self.ymin, self.ymax))
-
-        raise TypeError('orientation must be of type Orientation')
-
 
 @dataclass(frozen=True)
 class Position:
@@ -164,11 +145,28 @@ class Position:
     def to_tuple(self) -> Tuple[int, int]:
         return self.y, self.x
 
-    def __add__(self, other: Position) -> Position:
+    @staticmethod
+    def from_orientation(orientation: Orientation) -> Position:
         try:
+            return _position_from_orientation[orientation]
+        except KeyError as error:
+            raise TypeError(
+                'method expectes orientation {orientation}'
+            ) from error
+
+    def __add__(self, other: T) -> T:
+        if isinstance(other, Position):
             return Position(self.y + other.y, self.x + other.x)
-        except AttributeError:
-            return NotImplemented
+
+        if isinstance(other, Area):
+            return Area(
+                (self.y + other.ymin, self.y + other.ymax),
+                (self.x + other.xmin, self.x + other.xmax),
+            )
+
+        return NotImplemented
+
+    __radd__ = __add__
 
     def __sub__(self, other: Position) -> Position:
         try:
@@ -178,21 +176,6 @@ class Position:
 
     def __neg__(self) -> Position:
         return Position(-self.y, -self.x)
-
-    def rotate(self, orientation: Orientation) -> Position:
-        if orientation is Orientation.N:
-            return Position(self.y, self.x)
-
-        if orientation is Orientation.S:
-            return Position(-self.y, -self.x)
-
-        if orientation is Orientation.E:
-            return Position(self.x, -self.y)
-
-        if orientation is Orientation.W:
-            return Position(-self.x, self.y)
-
-        raise TypeError('orientation must be of type Orientation')
 
     @staticmethod
     def manhattan_distance(p: Position, q: Position) -> float:
@@ -211,37 +194,56 @@ class Orientation(enum.Enum):
     E = enum.auto()
     W = enum.auto()
 
-    def __mul__(self, other: Orientation) -> Orientation:
-        # dynamic allocation os static data
-        try:
-            _rotations = Orientation._rotations
-        except AttributeError:
-            _rotations = Orientation._rotations = {
-                (Orientation.N, Orientation.N): Orientation.N,
-                (Orientation.N, Orientation.E): Orientation.E,
-                (Orientation.N, Orientation.S): Orientation.S,
-                (Orientation.N, Orientation.W): Orientation.W,
-                #
-                (Orientation.E, Orientation.N): Orientation.E,
-                (Orientation.E, Orientation.E): Orientation.S,
-                (Orientation.E, Orientation.S): Orientation.W,
-                (Orientation.E, Orientation.W): Orientation.N,
-                #
-                (Orientation.S, Orientation.N): Orientation.S,
-                (Orientation.S, Orientation.E): Orientation.W,
-                (Orientation.S, Orientation.S): Orientation.N,
-                (Orientation.S, Orientation.W): Orientation.E,
-                #
-                (Orientation.W, Orientation.N): Orientation.W,
-                (Orientation.W, Orientation.E): Orientation.N,
-                (Orientation.W, Orientation.S): Orientation.E,
-                (Orientation.W, Orientation.W): Orientation.S,
-            }
+    def __mul__(self, other: T) -> T:
+        if isinstance(other, Orientation):
+            return _orientation_rotations[self, other]
 
-        try:
-            return _rotations[self, other]
-        except KeyError:
-            return NotImplemented
+        if isinstance(other, Position):
+            if self is Orientation.N:
+                return Position(other.y, other.x)
+
+            if self is Orientation.S:
+                return Position(-other.y, -other.x)
+
+            if self is Orientation.E:
+                return Position(other.x, -other.y)
+
+            if self is Orientation.W:
+                return Position(-other.x, other.y)
+
+            assert False
+
+        if isinstance(other, Area):
+            if self is Orientation.N:
+                return Area(
+                    (other.ymin, other.ymax),
+                    (other.xmin, other.xmax),
+                )
+
+            if self is Orientation.S:
+                return Area(
+                    (-other.ymax, -other.ymin),
+                    (-other.xmax, -other.xmin),
+                )
+
+            if self is Orientation.E:
+                return Area(
+                    (other.xmin, other.xmax),
+                    (-other.ymax, -other.ymin),
+                )
+
+            if self is Orientation.W:
+                return Area(
+                    (-other.xmax, -other.xmin),
+                    (other.ymin, other.ymax),
+                )
+
+        return NotImplemented
+
+    __rmul__ = __mul__
+
+    def __neg__(self) -> Orientation:
+        return _orientation_neg[self]
 
     def as_position(self, dist: int = 1) -> Position:
         if self is Orientation.N:
@@ -270,6 +272,40 @@ class Orientation(enum.Enum):
         return radians[self]
 
 
+OT = TypeVar('OT', Orientation, Position)
+
+# for Orientation.__mul__
+_orientation_rotations = {
+    (Orientation.N, Orientation.N): Orientation.N,
+    (Orientation.N, Orientation.E): Orientation.E,
+    (Orientation.N, Orientation.S): Orientation.S,
+    (Orientation.N, Orientation.W): Orientation.W,
+    #
+    (Orientation.E, Orientation.N): Orientation.E,
+    (Orientation.E, Orientation.E): Orientation.S,
+    (Orientation.E, Orientation.S): Orientation.W,
+    (Orientation.E, Orientation.W): Orientation.N,
+    #
+    (Orientation.S, Orientation.N): Orientation.S,
+    (Orientation.S, Orientation.E): Orientation.W,
+    (Orientation.S, Orientation.S): Orientation.N,
+    (Orientation.S, Orientation.W): Orientation.E,
+    #
+    (Orientation.W, Orientation.N): Orientation.W,
+    (Orientation.W, Orientation.E): Orientation.N,
+    (Orientation.W, Orientation.S): Orientation.E,
+    (Orientation.W, Orientation.W): Orientation.S,
+}
+
+# for Orientation.neg
+_orientation_neg = {
+    Orientation.N: Orientation.N,
+    Orientation.E: Orientation.W,
+    Orientation.S: Orientation.S,
+    Orientation.W: Orientation.E,
+}
+
+
 @dataclass(unsafe_hash=True)
 class Transform:
     """A grid-based rigid body transformation, also a ``pose`` (position and orientation)"""
@@ -289,23 +325,28 @@ class Transform:
 
         if isinstance(other, Transform):
             return Transform(
-                self.position + other.position.rotate(self.orientation),
+                self.position + self.orientation * other.position,
                 self.orientation * other.orientation,
             )
 
-        if isinstance(other, Position):
-            return self.position + other.rotate(self.orientation)
+        if isinstance(other, (Position, Area)):
+            return self.position + self.orientation * other
 
         if isinstance(other, Orientation):
             return self.orientation * other
 
-        if isinstance(other, Area):
-            return other.rotate(self.orientation).translate(self.position)
-
         return NotImplemented
 
+    __rmul__ = __mul__
 
-T = TypeVar('T', Transform, Position, Orientation, Area)
+    def __neg__(self) -> Transform:
+        return Transform(
+            -(-self.orientation * self.position),
+            -self.orientation,
+        )
+
+
+TT = TypeVar('TT', Transform, Position, Orientation, Area)
 
 
 def get_manhattan_boundary(position: Position, distance: int) -> List[Position]:
@@ -394,3 +435,46 @@ def diagonal_strides(
         raise NotImplementedError
 
     yield from filter(area.contains, positions)
+
+
+# cached values (used to avoid if-else chains)
+
+# for Position.from_orientation
+_position_from_orientation = {
+    Orientation.N: Position(-1, 0),
+    Orientation.E: Position(0, 1),
+    Orientation.S: Position(1, 0),
+    Orientation.W: Position(0, -1),
+}
+
+
+# for Orientation.__mul__
+_orientation_rotations = {
+    (Orientation.N, Orientation.N): Orientation.N,
+    (Orientation.N, Orientation.E): Orientation.E,
+    (Orientation.N, Orientation.S): Orientation.S,
+    (Orientation.N, Orientation.W): Orientation.W,
+    #
+    (Orientation.E, Orientation.N): Orientation.E,
+    (Orientation.E, Orientation.E): Orientation.S,
+    (Orientation.E, Orientation.S): Orientation.W,
+    (Orientation.E, Orientation.W): Orientation.N,
+    #
+    (Orientation.S, Orientation.N): Orientation.S,
+    (Orientation.S, Orientation.E): Orientation.W,
+    (Orientation.S, Orientation.S): Orientation.N,
+    (Orientation.S, Orientation.W): Orientation.E,
+    #
+    (Orientation.W, Orientation.N): Orientation.W,
+    (Orientation.W, Orientation.E): Orientation.N,
+    (Orientation.W, Orientation.S): Orientation.E,
+    (Orientation.W, Orientation.W): Orientation.S,
+}
+
+# for Orientation.neg
+_orientation_neg = {
+    Orientation.N: Orientation.N,
+    Orientation.E: Orientation.W,
+    Orientation.S: Orientation.S,
+    Orientation.W: Orientation.E,
+}

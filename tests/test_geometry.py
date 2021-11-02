@@ -123,8 +123,8 @@ def test_area_contains(area: Area, position: Position, expected: bool):
         (A((-1, 1), (-2, 2)), P(-1, 1), A((-2, 0), (-1, 3))),
     ],
 )
-def test_area_translate(area: Area, position: Position, expected: Area):
-    assert area.translate(position) == expected
+def test_area_add_position(area: Area, position: Position, expected: Area):
+    assert area + position == position + area == expected
 
 
 @pytest.mark.parametrize(
@@ -141,8 +141,10 @@ def test_area_translate(area: Area, position: Position, expected: Area):
         (A((-1, 1), (-2, 2)), O_.W, A((-2, 2), (-1, 1))),
     ],
 )
-def test_area_rotate(area: Area, orientation: Orientation, expected: Area):
-    assert area.rotate(orientation) == expected
+def test_area_mul_orientation(
+    area: Area, orientation: Orientation, expected: Area
+):
+    assert area * orientation == orientation * area == expected
 
 
 @pytest.mark.parametrize(
@@ -226,7 +228,7 @@ def test_manhattan_boundary(
     ],
 )
 def test_position_add(pos1: Position, pos2: Position, expected: Position):
-    assert pos1 + pos2 == expected
+    assert pos1 + pos2 == pos2 + pos1 == expected
 
 
 @pytest.mark.parametrize(
@@ -239,7 +241,7 @@ def test_position_add(pos1: Position, pos2: Position, expected: Position):
         for y2 in range(2)
     ],
 )
-def test_position_subtract(pos1: Position, pos2: Position, expected: Position):
+def test_position_sub(pos1: Position, pos2: Position, expected: Position):
     assert pos1 - pos2 == expected
 
 
@@ -247,7 +249,7 @@ def test_position_subtract(pos1: Position, pos2: Position, expected: Position):
     'pos,expected',
     [(P(y, x), P(-y, -x)) for x in range(2) for y in range(2)],
 )
-def test_position_negative(pos: Position, expected: Position):
+def test_position_neg(pos: Position, expected: Position):
     assert -pos == expected
 
 
@@ -294,31 +296,31 @@ def test_position_euclidean_distance(
 
 
 @pytest.mark.parametrize(
-    'delta_position,orientation,expected',
+    'orientation,position,expected',
     [
         # y basis
-        (P(1, 0), O_.N, P(1, 0)),
-        (P(1, 0), O_.S, P(-1, 0)),
-        (P(1, 0), O_.E, P(0, -1)),
-        (P(1, 0), O_.W, P(0, 1)),
-        # x basis
-        (P(0, 1), O_.N, P(0, 1)),
-        (P(0, 1), O_.S, P(0, -1)),
-        (P(0, 1), O_.E, P(1, 0)),
-        (P(0, 1), O_.W, P(-1, 0)),
-        # others
-        (P(1, 2), O_.N, P(1, 2)),
-        (P(1, 2), O_.S, P(-1, -2)),
-        (P(1, 2), O_.E, P(2, -1)),
-        (P(1, 2), O_.W, P(-2, 1)),
+        (O_.N, P(1, 0), P(1, 0)),
+        (O_.S, P(1, 0), P(-1, 0)),
+        (O_.E, P(1, 0), P(0, -1)),
+        (O_.W, P(1, 0), P(0, 1)),
+        #       x basis
+        (O_.N, P(0, 1), P(0, 1)),
+        (O_.S, P(0, 1), P(0, -1)),
+        (O_.E, P(0, 1), P(1, 0)),
+        (O_.W, P(0, 1), P(-1, 0)),
+        #       others
+        (O_.N, P(1, 2), P(1, 2)),
+        (O_.S, P(1, 2), P(-1, -2)),
+        (O_.E, P(1, 2), P(2, -1)),
+        (O_.W, P(1, 2), P(-2, 1)),
     ],
 )
-def test_delta_position_rotate_basis(
-    delta_position: Position,
+def test_orientation_mul_position(
     orientation: Orientation,
+    position: Position,
     expected: Position,
 ):
-    assert delta_position.rotate(orientation) == expected
+    assert orientation * position == position * orientation == expected
 
 
 @pytest.mark.parametrize(
@@ -333,7 +335,7 @@ def test_delta_position_rotate_basis(
 def test_transform_mul_position(
     transform: Transform, position: Position, expected: Position
 ):
-    assert transform * position == expected
+    assert transform * position == position * transform == expected
 
 
 @pytest.mark.parametrize(
@@ -348,11 +350,11 @@ def test_transform_mul_position(
 def test_transform_mul_orientation(
     transform: Transform, orientation: Orientation, expected: Orientation
 ):
-    assert transform * orientation == expected
+    assert transform * orientation == orientation * transform == expected
 
 
 @pytest.mark.parametrize(
-    't1,t2,expected',
+    't,s,expected',
     [
         (T(0, 0, O_.N), T(0, 0, O_.N), T(0, 0, O_.N)),
         (T(0, 0, O_.N), T(-1, 1, O_.E), T(-1, 1, O_.E)),
@@ -376,9 +378,35 @@ def test_transform_mul_orientation(
     ],
 )
 def test_transform_mul_transform(
-    t1: Transform, t2: Transform, expected: Transform
+    t: Transform, s: Transform, expected: Transform
 ):
-    assert t1 * t2 == expected
+    assert t * s == expected
+
+
+@pytest.mark.parametrize(
+    'transform,expected',
+    [
+        (T(0, 0, O_.N), T(0, 0, O_.N)),
+        (T(-1, 1, O_.E), T(1, 1, O_.W)),
+        (T(-2, 2, O_.S), T(-2, 2, O_.S)),
+        (T(-3, 3, O_.W), T(-3, -3, O_.E)),
+    ],
+)
+def test_transform_neg(transform: Transform, expected: Transform):
+    assert (-transform) == expected
+
+
+@pytest.mark.parametrize(
+    'transform',
+    [
+        T(0, 0, O_.N),
+        T(-1, 1, O_.E),
+        T(-2, 2, O_.S),
+        T(-3, 3, O_.W),
+    ],
+)
+def test_transform_neg_identity(transform: Transform):
+    assert transform * (-transform) == -transform * transform == T(0, 0, O_.N)
 
 
 @pytest.mark.parametrize(
