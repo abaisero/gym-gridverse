@@ -245,21 +245,6 @@ class Orientation(enum.Enum):
     def __neg__(self) -> Orientation:
         return _orientation_neg[self]
 
-    def as_position(self, dist: int = 1) -> Position:
-        if self is Orientation.N:
-            return Position(-dist, 0)
-
-        if self is Orientation.S:
-            return Position(dist, 0)
-
-        if self is Orientation.E:
-            return Position(0, dist)
-
-        if self is Orientation.W:
-            return Position(0, -dist)
-
-        assert False, 'self must be of type Orientation'
-
     def as_radians(self) -> float:
         # TODO: test
         radians = {
@@ -270,40 +255,6 @@ class Orientation(enum.Enum):
         }
 
         return radians[self]
-
-
-OT = TypeVar('OT', Orientation, Position)
-
-# for Orientation.__mul__
-_orientation_rotations = {
-    (Orientation.N, Orientation.N): Orientation.N,
-    (Orientation.N, Orientation.E): Orientation.E,
-    (Orientation.N, Orientation.S): Orientation.S,
-    (Orientation.N, Orientation.W): Orientation.W,
-    #
-    (Orientation.E, Orientation.N): Orientation.E,
-    (Orientation.E, Orientation.E): Orientation.S,
-    (Orientation.E, Orientation.S): Orientation.W,
-    (Orientation.E, Orientation.W): Orientation.N,
-    #
-    (Orientation.S, Orientation.N): Orientation.S,
-    (Orientation.S, Orientation.E): Orientation.W,
-    (Orientation.S, Orientation.S): Orientation.N,
-    (Orientation.S, Orientation.W): Orientation.E,
-    #
-    (Orientation.W, Orientation.N): Orientation.W,
-    (Orientation.W, Orientation.E): Orientation.N,
-    (Orientation.W, Orientation.S): Orientation.E,
-    (Orientation.W, Orientation.W): Orientation.S,
-}
-
-# for Orientation.neg
-_orientation_neg = {
-    Orientation.N: Orientation.N,
-    Orientation.E: Orientation.W,
-    Orientation.S: Orientation.S,
-    Orientation.W: Orientation.E,
-}
 
 
 @dataclass(unsafe_hash=True)
@@ -344,9 +295,6 @@ class Transform:
             -(-self.orientation * self.position),
             -self.orientation,
         )
-
-
-TT = TypeVar('TT', Transform, Position, Orientation, Area)
 
 
 def get_manhattan_boundary(position: Position, distance: int) -> List[Position]:

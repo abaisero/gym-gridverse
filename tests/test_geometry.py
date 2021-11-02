@@ -162,25 +162,18 @@ def test_area_eq(area1: Area, area2: Area, expected: bool):
 
 
 @pytest.mark.parametrize(
-    'orientation,dist,delta_position',
+    'orientation,expected',
     [
-        (O_.N, 1, P(-1, 0)),
-        (O_.N, 2, P(-2, 0)),
-        #
-        (O_.S, 1, P(1, 0)),
-        (O_.S, 2, P(2, 0)),
-        #
-        (O_.E, 1, P(0, 1)),
-        (O_.E, 2, P(0, 2)),
-        #
-        (O_.W, 1, P(0, -1)),
-        (O_.W, 2, P(0, -2)),
+        (O_.N, P(-1, 0)),
+        (O_.S, P(1, 0)),
+        (O_.E, P(0, 1)),
+        (O_.W, P(0, -1)),
     ],
 )
-def test_orientation_as_position(
-    orientation: Orientation, dist: int, delta_position: Position
+def test_position_from_orientation(
+    orientation: Orientation, expected: Position
 ):
-    assert orientation.as_position(dist) == delta_position
+    assert Position.from_orientation(orientation) == expected
 
 
 @pytest.mark.parametrize(

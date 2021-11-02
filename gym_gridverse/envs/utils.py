@@ -31,4 +31,4 @@ def get_next_position(
     except KeyError:
         return position
 
-    return position + (orientation * move_orientation).as_position()
+    return position + Position.from_orientation(orientation * move_orientation)

@@ -4,7 +4,7 @@ import numpy.random as rnd
 
 from gym_gridverse.action import Action
 from gym_gridverse.envs.transition_functions import transition_function_registry
-from gym_gridverse.geometry import Orientation
+from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.state import State
 
 
@@ -32,7 +32,7 @@ def chessrook_movement(
 
     # check positions until a blocking cell is found
     position = state.agent.position
-    position_delta = movement_orientation.as_position()
+    position_delta = Position.from_orientation(movement_orientation)
     while not state.grid[position + position_delta].blocks:
         position = position + position_delta
 
