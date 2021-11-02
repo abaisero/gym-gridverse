@@ -41,33 +41,33 @@ def test_non_movement_actions(
     [
         (
             Position(3, 6),
-            Orientation.FORWARD,
+            Orientation.F,
             Action.MOVE_FORWARD,
             Position(2, 6),
         ),
         (
             Position(5, 2),
-            Orientation.BACKWARD,
+            Orientation.B,
             Action.MOVE_FORWARD,
             Position(6, 2),
         ),
         (
             Position(1, 2),
-            Orientation.LEFT,
+            Orientation.L,
             Action.MOVE_BACKWARD,
             Position(1, 3),
         ),
-        (Position(4, 1), Orientation.RIGHT, Action.MOVE_LEFT, Position(3, 1)),
+        (Position(4, 1), Orientation.R, Action.MOVE_LEFT, Position(3, 1)),
         # off grid
         (
             Position(0, 1),
-            Orientation.BACKWARD,
+            Orientation.B,
             Action.MOVE_BACKWARD,
             Position(-1, 1),
         ),
         (
             Position(4, 0),
-            Orientation.FORWARD,
+            Orientation.F,
             Action.MOVE_LEFT,
             Position(4, -1),
         ),

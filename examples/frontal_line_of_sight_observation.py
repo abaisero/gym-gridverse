@@ -48,6 +48,6 @@ def frontal_line_of_sight(
         found_non_transparent |= not observation_grid[position].transparent
 
     observation_agent = Agent(
-        observation_space.agent_position, Orientation.FORWARD, state.agent.obj
+        observation_space.agent_position, Orientation.F, state.agent.obj
     )
     return Observation(observation_grid, observation_agent)

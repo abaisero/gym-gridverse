@@ -166,7 +166,7 @@ def space_contains_observation(
     grid: Grid = Grid.from_shape((2, 5)),
     agent_obj: GridObject = None,
     agent_pos: Position = Position(0, 0),
-    orientation: Orientation = Orientation.FORWARD,
+    orientation: Orientation = Orientation.F,
 ):
     """helper function to test whether space contains obs given inputs"""
     observation_space = ObservationSpace(space_shape, space_objs, space_colors)
@@ -196,7 +196,7 @@ def test_observation_space_contains__shape(
     observation_space = ObservationSpace(space_shape, [Floor], [Color.NONE])
     observation = Observation(
         Grid.from_shape(observation_shape),
-        Agent(agent_position, Orientation.FORWARD),
+        Agent(agent_position, Orientation.F),
     )
 
     assert observation_space.contains(observation) == expected
@@ -226,7 +226,7 @@ def test_observation_space_contains__object_types(
     )
     observation = Observation(
         Grid(observation_objects),
-        Agent(Position(0, 1), Orientation.FORWARD, agent_object),
+        Agent(Position(0, 1), Orientation.F, agent_object),
     )
 
     assert observation_space.contains(observation) == expected
@@ -268,7 +268,7 @@ def test_observation_space_contains__colors(
     observation_space = ObservationSpace(Shape(2, 1), [Key], space_colors)
     observation = Observation(
         Grid(observation_objects),
-        Agent(Position(1, 0), Orientation.FORWARD, agent_object),
+        Agent(Position(1, 0), Orientation.F, agent_object),
     )
 
     assert observation_space.contains(observation) == expected
@@ -289,11 +289,11 @@ def test_observation_space_contains__colors(
 @pytest.mark.parametrize(
     'orientation,orientation_ok',
     [
-        (Orientation.FORWARD, True),
+        (Orientation.F, True),
         # all orientations are valid now
-        (Orientation.BACKWARD, True),
-        (Orientation.RIGHT, True),
-        (Orientation.LEFT, True),
+        (Orientation.B, True),
+        (Orientation.R, True),
+        (Orientation.L, True),
     ],
 )
 def test_observation_space_contains__agent_transform(
@@ -344,7 +344,7 @@ def test_observation_space_contains__agent_transform(
 )
 @pytest.mark.parametrize(
     'orientation',
-    [Orientation.FORWARD],
+    [Orientation.F],
 )
 def test_observation_space_contains(
     shape: Shape,

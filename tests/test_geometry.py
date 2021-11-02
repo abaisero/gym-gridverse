@@ -130,15 +130,15 @@ def test_area_add_position(area: Area, position: Position, expected: Area):
 @pytest.mark.parametrize(
     'area,orientation,expected',
     [
-        (A((0, 1), (0, 2)), O_.FORWARD, A((0, 1), (0, 2))),
-        (A((0, 1), (0, 2)), O_.BACKWARD, A((-1, 0), (-2, 0))),
-        (A((0, 1), (0, 2)), O_.RIGHT, A((0, 2), (-1, 0))),
-        (A((0, 1), (0, 2)), O_.LEFT, A((-2, 0), (0, 1))),
+        (A((0, 1), (0, 2)), O_.F, A((0, 1), (0, 2))),
+        (A((0, 1), (0, 2)), O_.B, A((-1, 0), (-2, 0))),
+        (A((0, 1), (0, 2)), O_.R, A((0, 2), (-1, 0))),
+        (A((0, 1), (0, 2)), O_.L, A((-2, 0), (0, 1))),
         #
-        (A((-1, 1), (-2, 2)), O_.FORWARD, A((-1, 1), (-2, 2))),
-        (A((-1, 1), (-2, 2)), O_.BACKWARD, A((-1, 1), (-2, 2))),
-        (A((-1, 1), (-2, 2)), O_.RIGHT, A((-2, 2), (-1, 1))),
-        (A((-1, 1), (-2, 2)), O_.LEFT, A((-2, 2), (-1, 1))),
+        (A((-1, 1), (-2, 2)), O_.F, A((-1, 1), (-2, 2))),
+        (A((-1, 1), (-2, 2)), O_.B, A((-1, 1), (-2, 2))),
+        (A((-1, 1), (-2, 2)), O_.R, A((-2, 2), (-1, 1))),
+        (A((-1, 1), (-2, 2)), O_.L, A((-2, 2), (-1, 1))),
     ],
 )
 def test_area_mul_orientation(
@@ -164,10 +164,10 @@ def test_area_eq(area1: Area, area2: Area, expected: bool):
 @pytest.mark.parametrize(
     'orientation,expected',
     [
-        (O_.FORWARD, P(-1, 0)),
-        (O_.BACKWARD, P(1, 0)),
-        (O_.RIGHT, P(0, 1)),
-        (O_.LEFT, P(0, -1)),
+        (O_.F, P(-1, 0)),
+        (O_.B, P(1, 0)),
+        (O_.R, P(0, 1)),
+        (O_.L, P(0, -1)),
     ],
 )
 def test_position_from_orientation(
@@ -282,20 +282,20 @@ def test_position_euclidean_distance(p: Position, q: Position, expected: float):
     'orientation,position,expected',
     [
         # y basis
-        (O_.FORWARD, P(1, 0), P(1, 0)),
-        (O_.BACKWARD, P(1, 0), P(-1, 0)),
-        (O_.RIGHT, P(1, 0), P(0, -1)),
-        (O_.LEFT, P(1, 0), P(0, 1)),
+        (O_.F, P(1, 0), P(1, 0)),
+        (O_.B, P(1, 0), P(-1, 0)),
+        (O_.R, P(1, 0), P(0, -1)),
+        (O_.L, P(1, 0), P(0, 1)),
         #       x basis
-        (O_.FORWARD, P(0, 1), P(0, 1)),
-        (O_.BACKWARD, P(0, 1), P(0, -1)),
-        (O_.RIGHT, P(0, 1), P(1, 0)),
-        (O_.LEFT, P(0, 1), P(-1, 0)),
+        (O_.F, P(0, 1), P(0, 1)),
+        (O_.B, P(0, 1), P(0, -1)),
+        (O_.R, P(0, 1), P(1, 0)),
+        (O_.L, P(0, 1), P(-1, 0)),
         #       others
-        (O_.FORWARD, P(1, 2), P(1, 2)),
-        (O_.BACKWARD, P(1, 2), P(-1, -2)),
-        (O_.RIGHT, P(1, 2), P(2, -1)),
-        (O_.LEFT, P(1, 2), P(-2, 1)),
+        (O_.F, P(1, 2), P(1, 2)),
+        (O_.B, P(1, 2), P(-1, -2)),
+        (O_.R, P(1, 2), P(2, -1)),
+        (O_.L, P(1, 2), P(-2, 1)),
     ],
 )
 def test_orientation_mul_position(
@@ -309,10 +309,10 @@ def test_orientation_mul_position(
 @pytest.mark.parametrize(
     'transform,position,expected',
     [
-        (T(1, 1, O_.RIGHT), P(1, 1), P(2, 0)),
-        (T(1, 1, O_.RIGHT), P(1, -1), P(0, 0)),
-        (T(1, 1, O_.RIGHT), P(-1, 1), P(2, 2)),
-        (T(1, 1, O_.RIGHT), P(-1, -1), P(0, 2)),
+        (T(1, 1, O_.R), P(1, 1), P(2, 0)),
+        (T(1, 1, O_.R), P(1, -1), P(0, 0)),
+        (T(1, 1, O_.R), P(-1, 1), P(2, 2)),
+        (T(1, 1, O_.R), P(-1, -1), P(0, 2)),
     ],
 )
 def test_transform_mul_position(
@@ -324,10 +324,10 @@ def test_transform_mul_position(
 @pytest.mark.parametrize(
     'transform,orientation,expected',
     [
-        (T(1, 1, O_.RIGHT), O_.FORWARD, O_.RIGHT),
-        (T(1, 1, O_.RIGHT), O_.RIGHT, O_.BACKWARD),
-        (T(1, 1, O_.RIGHT), O_.BACKWARD, O_.LEFT),
-        (T(1, 1, O_.RIGHT), O_.LEFT, O_.FORWARD),
+        (T(1, 1, O_.R), O_.F, O_.R),
+        (T(1, 1, O_.R), O_.R, O_.B),
+        (T(1, 1, O_.R), O_.B, O_.L),
+        (T(1, 1, O_.R), O_.L, O_.F),
     ],
 )
 def test_transform_mul_orientation(
@@ -339,25 +339,25 @@ def test_transform_mul_orientation(
 @pytest.mark.parametrize(
     't,s,expected',
     [
-        (T(0, 0, O_.FORWARD), T(0, 0, O_.FORWARD), T(0, 0, O_.FORWARD)),
-        (T(0, 0, O_.FORWARD), T(-1, 1, O_.RIGHT), T(-1, 1, O_.RIGHT)),
-        (T(0, 0, O_.FORWARD), T(-2, 2, O_.BACKWARD), T(-2, 2, O_.BACKWARD)),
-        (T(0, 0, O_.FORWARD), T(-3, 3, O_.LEFT), T(-3, 3, O_.LEFT)),
+        (T(0, 0, O_.F), T(0, 0, O_.F), T(0, 0, O_.F)),
+        (T(0, 0, O_.F), T(-1, 1, O_.R), T(-1, 1, O_.R)),
+        (T(0, 0, O_.F), T(-2, 2, O_.B), T(-2, 2, O_.B)),
+        (T(0, 0, O_.F), T(-3, 3, O_.L), T(-3, 3, O_.L)),
         #
-        (T(-1, 1, O_.RIGHT), T(0, 0, O_.FORWARD), T(-1, 1, O_.RIGHT)),
-        (T(-1, 1, O_.RIGHT), T(-1, 1, O_.RIGHT), T(0, 2, O_.BACKWARD)),
-        (T(-1, 1, O_.RIGHT), T(-2, 2, O_.BACKWARD), T(1, 3, O_.LEFT)),
-        (T(-1, 1, O_.RIGHT), T(-3, 3, O_.LEFT), T(2, 4, O_.FORWARD)),
+        (T(-1, 1, O_.R), T(0, 0, O_.F), T(-1, 1, O_.R)),
+        (T(-1, 1, O_.R), T(-1, 1, O_.R), T(0, 2, O_.B)),
+        (T(-1, 1, O_.R), T(-2, 2, O_.B), T(1, 3, O_.L)),
+        (T(-1, 1, O_.R), T(-3, 3, O_.L), T(2, 4, O_.F)),
         #
-        (T(-2, 2, O_.BACKWARD), T(0, 0, O_.FORWARD), T(-2, 2, O_.BACKWARD)),
-        (T(-2, 2, O_.BACKWARD), T(-1, 1, O_.RIGHT), T(-1, 1, O_.LEFT)),
-        (T(-2, 2, O_.BACKWARD), T(-2, 2, O_.BACKWARD), T(0, 0, O_.FORWARD)),
-        (T(-2, 2, O_.BACKWARD), T(-3, 3, O_.LEFT), T(1, -1, O_.RIGHT)),
+        (T(-2, 2, O_.B), T(0, 0, O_.F), T(-2, 2, O_.B)),
+        (T(-2, 2, O_.B), T(-1, 1, O_.R), T(-1, 1, O_.L)),
+        (T(-2, 2, O_.B), T(-2, 2, O_.B), T(0, 0, O_.F)),
+        (T(-2, 2, O_.B), T(-3, 3, O_.L), T(1, -1, O_.R)),
         #
-        (T(-3, 3, O_.LEFT), T(0, 0, O_.FORWARD), T(-3, 3, O_.LEFT)),
-        (T(-3, 3, O_.LEFT), T(-1, 1, O_.RIGHT), T(-4, 2, O_.FORWARD)),
-        (T(-3, 3, O_.LEFT), T(-2, 2, O_.BACKWARD), T(-5, 1, O_.RIGHT)),
-        (T(-3, 3, O_.LEFT), T(-3, 3, O_.LEFT), T(-6, 0, O_.BACKWARD)),
+        (T(-3, 3, O_.L), T(0, 0, O_.F), T(-3, 3, O_.L)),
+        (T(-3, 3, O_.L), T(-1, 1, O_.R), T(-4, 2, O_.F)),
+        (T(-3, 3, O_.L), T(-2, 2, O_.B), T(-5, 1, O_.R)),
+        (T(-3, 3, O_.L), T(-3, 3, O_.L), T(-6, 0, O_.B)),
     ],
 )
 def test_transform_mul_transform(
@@ -369,10 +369,10 @@ def test_transform_mul_transform(
 @pytest.mark.parametrize(
     'transform,expected',
     [
-        (T(0, 0, O_.FORWARD), T(0, 0, O_.FORWARD)),
-        (T(-1, 1, O_.RIGHT), T(1, 1, O_.LEFT)),
-        (T(-2, 2, O_.BACKWARD), T(-2, 2, O_.BACKWARD)),
-        (T(-3, 3, O_.LEFT), T(-3, -3, O_.RIGHT)),
+        (T(0, 0, O_.F), T(0, 0, O_.F)),
+        (T(-1, 1, O_.R), T(1, 1, O_.L)),
+        (T(-2, 2, O_.B), T(-2, 2, O_.B)),
+        (T(-3, 3, O_.L), T(-3, -3, O_.R)),
     ],
 )
 def test_transform_neg(transform: Transform, expected: Transform):
@@ -382,42 +382,38 @@ def test_transform_neg(transform: Transform, expected: Transform):
 @pytest.mark.parametrize(
     'transform',
     [
-        T(0, 0, O_.FORWARD),
-        T(-1, 1, O_.RIGHT),
-        T(-2, 2, O_.BACKWARD),
-        T(-3, 3, O_.LEFT),
+        T(0, 0, O_.F),
+        T(-1, 1, O_.R),
+        T(-2, 2, O_.B),
+        T(-3, 3, O_.L),
     ],
 )
 def test_transform_neg_identity(transform: Transform):
-    assert (
-        transform * (-transform)
-        == -transform * transform
-        == T(0, 0, O_.FORWARD)
-    )
+    assert transform * (-transform) == -transform * transform == T(0, 0, O_.F)
 
 
 @pytest.mark.parametrize(
     'transform,area,expected',
     [
-        (T(0, 0, O_.FORWARD), Area((1, 2), (1, 2)), Area((1, 2), (1, 2))),
-        (T(0, 0, O_.FORWARD), Area((1, 2), (2, 4)), Area((1, 2), (2, 4))),
-        (T(0, 0, O_.FORWARD), Area((2, 4), (1, 2)), Area((2, 4), (1, 2))),
-        (T(0, 0, O_.FORWARD), Area((2, 4), (2, 4)), Area((2, 4), (2, 4))),
+        (T(0, 0, O_.F), Area((1, 2), (1, 2)), Area((1, 2), (1, 2))),
+        (T(0, 0, O_.F), Area((1, 2), (2, 4)), Area((1, 2), (2, 4))),
+        (T(0, 0, O_.F), Area((2, 4), (1, 2)), Area((2, 4), (1, 2))),
+        (T(0, 0, O_.F), Area((2, 4), (2, 4)), Area((2, 4), (2, 4))),
         #
-        (T(-1, 1, O_.RIGHT), Area((1, 2), (1, 2)), Area((0, 1), (-1, 0))),
-        (T(-1, 1, O_.RIGHT), Area((1, 2), (2, 4)), Area((1, 3), (-1, 0))),
-        (T(-1, 1, O_.RIGHT), Area((2, 4), (1, 2)), Area((0, 1), (-3, -1))),
-        (T(-1, 1, O_.RIGHT), Area((2, 4), (2, 4)), Area((1, 3), (-3, -1))),
+        (T(-1, 1, O_.R), Area((1, 2), (1, 2)), Area((0, 1), (-1, 0))),
+        (T(-1, 1, O_.R), Area((1, 2), (2, 4)), Area((1, 3), (-1, 0))),
+        (T(-1, 1, O_.R), Area((2, 4), (1, 2)), Area((0, 1), (-3, -1))),
+        (T(-1, 1, O_.R), Area((2, 4), (2, 4)), Area((1, 3), (-3, -1))),
         #
-        (T(-2, 2, O_.BACKWARD), Area((1, 2), (1, 2)), Area((-4, -3), (0, 1))),
-        (T(-2, 2, O_.BACKWARD), Area((1, 2), (2, 4)), Area((-4, -3), (-2, 0))),
-        (T(-2, 2, O_.BACKWARD), Area((2, 4), (1, 2)), Area((-6, -4), (0, 1))),
-        (T(-2, 2, O_.BACKWARD), Area((2, 4), (2, 4)), Area((-6, -4), (-2, 0))),
+        (T(-2, 2, O_.B), Area((1, 2), (1, 2)), Area((-4, -3), (0, 1))),
+        (T(-2, 2, O_.B), Area((1, 2), (2, 4)), Area((-4, -3), (-2, 0))),
+        (T(-2, 2, O_.B), Area((2, 4), (1, 2)), Area((-6, -4), (0, 1))),
+        (T(-2, 2, O_.B), Area((2, 4), (2, 4)), Area((-6, -4), (-2, 0))),
         #
-        (T(-3, 3, O_.LEFT), Area((1, 2), (1, 2)), Area((-5, -4), (4, 5))),
-        (T(-3, 3, O_.LEFT), Area((1, 2), (2, 4)), Area((-7, -5), (4, 5))),
-        (T(-3, 3, O_.LEFT), Area((2, 4), (1, 2)), Area((-5, -4), (5, 7))),
-        (T(-3, 3, O_.LEFT), Area((2, 4), (2, 4)), Area((-7, -5), (5, 7))),
+        (T(-3, 3, O_.L), Area((1, 2), (1, 2)), Area((-5, -4), (4, 5))),
+        (T(-3, 3, O_.L), Area((1, 2), (2, 4)), Area((-7, -5), (4, 5))),
+        (T(-3, 3, O_.L), Area((2, 4), (1, 2)), Area((-5, -4), (5, 7))),
+        (T(-3, 3, O_.L), Area((2, 4), (2, 4)), Area((-7, -5), (5, 7))),
     ],
 )
 def test_transform_mul_area(transform: Transform, area: Area, expected: Area):

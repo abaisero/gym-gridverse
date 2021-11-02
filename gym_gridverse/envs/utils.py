@@ -3,10 +3,10 @@ from gym_gridverse.geometry import Orientation, Position
 
 # maps orientation and action to movement orientation
 _move_action_to_orientation = {
-    Action.MOVE_FORWARD: Orientation.FORWARD,
-    Action.MOVE_LEFT: Orientation.LEFT,
-    Action.MOVE_RIGHT: Orientation.RIGHT,
-    Action.MOVE_BACKWARD: Orientation.BACKWARD,
+    Action.MOVE_FORWARD: Orientation.F,
+    Action.MOVE_LEFT: Orientation.L,
+    Action.MOVE_RIGHT: Orientation.R,
+    Action.MOVE_BACKWARD: Orientation.B,
 }
 
 

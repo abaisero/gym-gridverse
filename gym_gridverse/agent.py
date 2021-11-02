@@ -33,7 +33,7 @@ class Agent:
         self.obj: GridObject = NoneGridObject() if obj is None else obj
 
     def front(self) -> Position:
-        return self.transform * Position.from_orientation(Orientation.FORWARD)
+        return self.transform * Position.from_orientation(Orientation.F)
 
     @property
     def position(self) -> Position:

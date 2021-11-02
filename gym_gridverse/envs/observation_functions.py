@@ -126,7 +126,7 @@ def from_visibility(
             observation_grid[pos] = Hidden()
 
     observation_agent = Agent(
-        pov_agent_position, Orientation.FORWARD, state.agent.obj
+        pov_agent_position, Orientation.F, state.agent.obj
     )
     return Observation(observation_grid, observation_agent)
 

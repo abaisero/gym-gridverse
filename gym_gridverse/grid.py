@@ -155,8 +155,8 @@ class Grid:
 
 # for Grid.__mul__
 _grid_rotation_times = {
-    Orientation.FORWARD: 0,
-    Orientation.RIGHT: 1,
-    Orientation.BACKWARD: 2,
-    Orientation.LEFT: 3,
+    Orientation.F: 0,
+    Orientation.R: 1,
+    Orientation.B: 2,
+    Orientation.L: 3,
 }

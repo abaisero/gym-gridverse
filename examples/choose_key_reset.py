@@ -38,6 +38,6 @@ def choose_key(*, rng: Optional[rnd.Generator] = None) -> State:
     )
 
     # positioning the agent in the above grid
-    agent = Agent(Position(4, 2), Orientation.FORWARD)
+    agent = Agent(Position(4, 2), Orientation.F)
 
     return State(grid, agent)

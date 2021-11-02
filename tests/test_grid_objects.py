@@ -103,7 +103,7 @@ def simple_state_without_object() -> State:
     # TODO this should raise error, which means it is not being used anywhere
     return State(
         Grid(height=2, width=2),
-        Agent(Position(0, 0), Orientation.FORWARD, Floor()),
+        Agent(Position(0, 0), Orientation.F, Floor()),
     )
 
 

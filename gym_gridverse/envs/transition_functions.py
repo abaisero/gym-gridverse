@@ -215,8 +215,8 @@ def turn_agent(
 
 # for turn_agent
 _action_orientations = {
-    Action.TURN_LEFT: Orientation.LEFT,
-    Action.TURN_RIGHT: Orientation.RIGHT,
+    Action.TURN_LEFT: Orientation.L,
+    Action.TURN_RIGHT: Orientation.R,
 }
 
 

@@ -19,13 +19,13 @@ def chessrook_movement(
 
     # get agent's movement direction
     if action is Action.MOVE_FORWARD:
-        movement_orientation = state.agent.orientation * Orientation.FORWARD
+        movement_orientation = state.agent.orientation * Orientation.F
     elif action is Action.MOVE_LEFT:
-        movement_orientation = state.agent.orientation * Orientation.LEFT
+        movement_orientation = state.agent.orientation * Orientation.L
     elif action is Action.MOVE_RIGHT:
-        movement_orientation = state.agent.orientation * Orientation.RIGHT
+        movement_orientation = state.agent.orientation * Orientation.R
     elif action is Action.MOVE_BACKWARD:
-        movement_orientation = state.agent.orientation * Orientation.FORWARD
+        movement_orientation = state.agent.orientation * Orientation.F
     else:
         # not a movement action
         return

@@ -643,7 +643,7 @@ class GridVerseViewer:
         self,
         geom: rendering.Geom,
         position: Position,
-        orientation: Orientation = Orientation.FORWARD,
+        orientation: Orientation = Orientation.F,
     ):
         rotation = _orientation_as_radians[orientation]
         geom.add_attr(rendering.Transform(rotation=rotation))
@@ -656,8 +656,8 @@ class GridVerseViewer:
 
 
 _orientation_as_radians = {
-    Orientation.FORWARD: 0.0,
-    Orientation.LEFT: math.pi / 2,
-    Orientation.BACKWARD: math.pi,
-    Orientation.RIGHT: math.pi * 3 / 2,
+    Orientation.F: 0.0,
+    Orientation.L: math.pi / 2,
+    Orientation.B: math.pi,
+    Orientation.R: math.pi * 3 / 2,
 }

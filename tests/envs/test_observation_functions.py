@@ -15,10 +15,10 @@ from gym_gridverse.state import State
 @pytest.mark.parametrize(
     'agent',
     [
-        Agent(Position(7, 7), Orientation.FORWARD),
-        Agent(Position(3, 3), Orientation.BACKWARD),
-        Agent(Position(7, 3), Orientation.RIGHT),
-        Agent(Position(3, 7), Orientation.LEFT),
+        Agent(Position(7, 7), Orientation.F),
+        Agent(Position(3, 3), Orientation.B),
+        Agent(Position(7, 3), Orientation.R),
+        Agent(Position(3, 7), Orientation.L),
     ],
 )
 def test_partially_occluded_1(agent: Agent):
@@ -29,7 +29,7 @@ def test_partially_occluded_1(agent: Agent):
     observation_space = ObservationSpace(Shape(6, 5), [], [])
     observation = partially_occluded(state, area=observation_space.area)
     assert observation.agent.position == Position(5, 2)
-    assert observation.agent.orientation == Orientation.FORWARD
+    assert observation.agent.orientation == Orientation.F
     assert observation.agent.obj == state.agent.obj
     assert observation.grid.shape == Shape(6, 5)
     assert isinstance(observation.grid[3, 0], Wall)
@@ -39,7 +39,7 @@ def test_partially_occluded_1(agent: Agent):
     'agent,expected_objects',
     [
         (
-            Agent(Position(2, 1), Orientation.FORWARD),
+            Agent(Position(2, 1), Orientation.F),
             [
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
@@ -50,7 +50,7 @@ def test_partially_occluded_1(agent: Agent):
             ],
         ),
         (
-            Agent(Position(0, 1), Orientation.BACKWARD),
+            Agent(Position(0, 1), Orientation.B),
             [
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
@@ -61,7 +61,7 @@ def test_partially_occluded_1(agent: Agent):
             ],
         ),
         (
-            Agent(Position(2, 1), Orientation.RIGHT),
+            Agent(Position(2, 1), Orientation.R),
             [
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
@@ -72,7 +72,7 @@ def test_partially_occluded_1(agent: Agent):
             ],
         ),
         (
-            Agent(Position(2, 1), Orientation.LEFT),
+            Agent(Position(2, 1), Orientation.L),
             [
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
                 [Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],

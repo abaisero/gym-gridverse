@@ -30,7 +30,7 @@ def _change_agent_position(observation: Observation):
 
 def _change_agent_orientation(observation: Observation):
     """changes agent orientation"""
-    observation.agent.orientation *= Orientation.BACKWARD
+    observation.agent.orientation *= Orientation.B
 
 
 def _change_agent_object(observation: Observation):
@@ -47,11 +47,11 @@ def _change_agent_object(observation: Observation):
     [
         Observation(
             Grid.from_shape((2, 3)),
-            Agent(Position(0, 0), Orientation.FORWARD),
+            Agent(Position(0, 0), Orientation.F),
         ),
         Observation(
             Grid.from_shape((3, 2)),
-            Agent(Position(1, 1), Orientation.BACKWARD, Key(Color.RED)),
+            Agent(Position(1, 1), Orientation.B, Key(Color.RED)),
         ),
     ],
 )
@@ -83,7 +83,7 @@ def test_observation_eq(observation: Observation):
 def test_observation_hash():
     wall_position = Position(0, 0)
     agent_position = Position(0, 1)
-    agent_orientation = Orientation.FORWARD
+    agent_orientation = Orientation.F
     agent_object = None
 
     grid = Grid.from_shape((2, 2))

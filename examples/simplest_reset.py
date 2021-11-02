@@ -25,6 +25,6 @@ def simplest(*, rng: Optional[rnd.Generator] = None) -> State:
     )
 
     # positioning the agent in the above grid
-    agent = Agent(Position(2, 1), Orientation.FORWARD)
+    agent = Agent(Position(2, 1), Orientation.F)
 
     return State(grid, agent)

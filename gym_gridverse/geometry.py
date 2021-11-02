@@ -199,45 +199,51 @@ class Orientation(enum.Enum):
     LEFT = enum.auto()
     RIGHT = enum.auto()
 
+    # aliases
+    F = FORWARD
+    B = BACKWARD
+    L = LEFT
+    R = RIGHT
+
     def __mul__(self, other: T) -> T:
         if isinstance(other, Orientation):
             return _orientation_rotations[self, other]
 
         if isinstance(other, Position):
-            if self is Orientation.FORWARD:
+            if self is Orientation.F:
                 return Position(other.y, other.x)
 
-            if self is Orientation.BACKWARD:
+            if self is Orientation.B:
                 return Position(-other.y, -other.x)
 
-            if self is Orientation.RIGHT:
+            if self is Orientation.R:
                 return Position(other.x, -other.y)
 
-            if self is Orientation.LEFT:
+            if self is Orientation.L:
                 return Position(-other.x, other.y)
 
             assert False
 
         if isinstance(other, Area):
-            if self is Orientation.FORWARD:
+            if self is Orientation.F:
                 return Area(
                     (other.ymin, other.ymax),
                     (other.xmin, other.xmax),
                 )
 
-            if self is Orientation.BACKWARD:
+            if self is Orientation.B:
                 return Area(
                     (-other.ymax, -other.ymin),
                     (-other.xmax, -other.xmin),
                 )
 
-            if self is Orientation.RIGHT:
+            if self is Orientation.R:
                 return Area(
                     (other.xmin, other.xmax),
                     (-other.ymax, -other.ymin),
                 )
 
-            if self is Orientation.LEFT:
+            if self is Orientation.L:
                 return Area(
                     (-other.xmax, -other.xmin),
                     (other.ymin, other.ymax),
@@ -394,40 +400,40 @@ def diagonal_strides(
 
 # for Position.from_orientation
 _position_from_orientation = {
-    Orientation.FORWARD: Position(-1, 0),
-    Orientation.RIGHT: Position(0, 1),
-    Orientation.BACKWARD: Position(1, 0),
-    Orientation.LEFT: Position(0, -1),
+    Orientation.F: Position(-1, 0),
+    Orientation.R: Position(0, 1),
+    Orientation.B: Position(1, 0),
+    Orientation.L: Position(0, -1),
 }
 
 
 # for Orientation.__mul__
 _orientation_rotations = {
-    (Orientation.FORWARD, Orientation.FORWARD): Orientation.FORWARD,
-    (Orientation.FORWARD, Orientation.RIGHT): Orientation.RIGHT,
-    (Orientation.FORWARD, Orientation.BACKWARD): Orientation.BACKWARD,
-    (Orientation.FORWARD, Orientation.LEFT): Orientation.LEFT,
+    (Orientation.F, Orientation.F): Orientation.F,
+    (Orientation.F, Orientation.R): Orientation.R,
+    (Orientation.F, Orientation.B): Orientation.B,
+    (Orientation.F, Orientation.L): Orientation.L,
     #
-    (Orientation.RIGHT, Orientation.FORWARD): Orientation.RIGHT,
-    (Orientation.RIGHT, Orientation.RIGHT): Orientation.BACKWARD,
-    (Orientation.RIGHT, Orientation.BACKWARD): Orientation.LEFT,
-    (Orientation.RIGHT, Orientation.LEFT): Orientation.FORWARD,
+    (Orientation.R, Orientation.F): Orientation.R,
+    (Orientation.R, Orientation.R): Orientation.B,
+    (Orientation.R, Orientation.B): Orientation.L,
+    (Orientation.R, Orientation.L): Orientation.F,
     #
-    (Orientation.BACKWARD, Orientation.FORWARD): Orientation.BACKWARD,
-    (Orientation.BACKWARD, Orientation.RIGHT): Orientation.LEFT,
-    (Orientation.BACKWARD, Orientation.BACKWARD): Orientation.FORWARD,
-    (Orientation.BACKWARD, Orientation.LEFT): Orientation.RIGHT,
+    (Orientation.B, Orientation.F): Orientation.B,
+    (Orientation.B, Orientation.R): Orientation.L,
+    (Orientation.B, Orientation.B): Orientation.F,
+    (Orientation.B, Orientation.L): Orientation.R,
     #
-    (Orientation.LEFT, Orientation.FORWARD): Orientation.LEFT,
-    (Orientation.LEFT, Orientation.RIGHT): Orientation.FORWARD,
-    (Orientation.LEFT, Orientation.BACKWARD): Orientation.RIGHT,
-    (Orientation.LEFT, Orientation.LEFT): Orientation.BACKWARD,
+    (Orientation.L, Orientation.F): Orientation.L,
+    (Orientation.L, Orientation.R): Orientation.F,
+    (Orientation.L, Orientation.B): Orientation.R,
+    (Orientation.L, Orientation.L): Orientation.B,
 }
 
 # for Orientation.neg
 _orientation_neg = {
-    Orientation.FORWARD: Orientation.FORWARD,
-    Orientation.RIGHT: Orientation.LEFT,
-    Orientation.BACKWARD: Orientation.BACKWARD,
-    Orientation.LEFT: Orientation.RIGHT,
+    Orientation.F: Orientation.F,
+    Orientation.R: Orientation.L,
+    Orientation.B: Orientation.B,
+    Orientation.L: Orientation.R,
 }
