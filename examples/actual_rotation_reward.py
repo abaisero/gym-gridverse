@@ -5,18 +5,18 @@ from gym_gridverse.state import State
 
 # these are all the clockwise rotations (represented as tuples)
 _clockwise_rotations = {
-    (Orientation.N, Orientation.E),
-    (Orientation.E, Orientation.S),
-    (Orientation.S, Orientation.W),
-    (Orientation.W, Orientation.N),
+    (Orientation.FORWARD, Orientation.RIGHT),
+    (Orientation.RIGHT, Orientation.BACKWARD),
+    (Orientation.BACKWARD, Orientation.LEFT),
+    (Orientation.LEFT, Orientation.FORWARD),
 }
 
 # these are all the counterclockwise rotations (represented as tuples)
 _counterclockwise_rotations = {
-    (Orientation.N, Orientation.W),
-    (Orientation.W, Orientation.S),
-    (Orientation.S, Orientation.E),
-    (Orientation.E, Orientation.N),
+    (Orientation.FORWARD, Orientation.LEFT),
+    (Orientation.LEFT, Orientation.BACKWARD),
+    (Orientation.BACKWARD, Orientation.RIGHT),
+    (Orientation.RIGHT, Orientation.FORWARD),
 }
 
 

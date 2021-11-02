@@ -189,50 +189,50 @@ class Position:
 
 
 class Orientation(enum.Enum):
-    N = 0
-    S = enum.auto()
-    E = enum.auto()
-    W = enum.auto()
+    FORWARD = 0
+    BACKWARD = enum.auto()
+    LEFT = enum.auto()
+    RIGHT = enum.auto()
 
     def __mul__(self, other: T) -> T:
         if isinstance(other, Orientation):
             return _orientation_rotations[self, other]
 
         if isinstance(other, Position):
-            if self is Orientation.N:
+            if self is Orientation.FORWARD:
                 return Position(other.y, other.x)
 
-            if self is Orientation.S:
+            if self is Orientation.BACKWARD:
                 return Position(-other.y, -other.x)
 
-            if self is Orientation.E:
+            if self is Orientation.RIGHT:
                 return Position(other.x, -other.y)
 
-            if self is Orientation.W:
+            if self is Orientation.LEFT:
                 return Position(-other.x, other.y)
 
             assert False
 
         if isinstance(other, Area):
-            if self is Orientation.N:
+            if self is Orientation.FORWARD:
                 return Area(
                     (other.ymin, other.ymax),
                     (other.xmin, other.xmax),
                 )
 
-            if self is Orientation.S:
+            if self is Orientation.BACKWARD:
                 return Area(
                     (-other.ymax, -other.ymin),
                     (-other.xmax, -other.xmin),
                 )
 
-            if self is Orientation.E:
+            if self is Orientation.RIGHT:
                 return Area(
                     (other.xmin, other.xmax),
                     (-other.ymax, -other.ymin),
                 )
 
-            if self is Orientation.W:
+            if self is Orientation.LEFT:
                 return Area(
                     (-other.xmax, -other.xmin),
                     (other.ymin, other.ymax),
@@ -248,10 +248,10 @@ class Orientation(enum.Enum):
     def as_radians(self) -> float:
         # TODO: test
         radians = {
-            Orientation.N: 0.0,
-            Orientation.W: math.pi / 2,
-            Orientation.S: math.pi,
-            Orientation.E: math.pi * 3 / 2,
+            Orientation.FORWARD: 0.0,
+            Orientation.LEFT: math.pi / 2,
+            Orientation.BACKWARD: math.pi,
+            Orientation.RIGHT: math.pi * 3 / 2,
         }
 
         return radians[self]
@@ -389,40 +389,40 @@ def diagonal_strides(
 
 # for Position.from_orientation
 _position_from_orientation = {
-    Orientation.N: Position(-1, 0),
-    Orientation.E: Position(0, 1),
-    Orientation.S: Position(1, 0),
-    Orientation.W: Position(0, -1),
+    Orientation.FORWARD: Position(-1, 0),
+    Orientation.RIGHT: Position(0, 1),
+    Orientation.BACKWARD: Position(1, 0),
+    Orientation.LEFT: Position(0, -1),
 }
 
 
 # for Orientation.__mul__
 _orientation_rotations = {
-    (Orientation.N, Orientation.N): Orientation.N,
-    (Orientation.N, Orientation.E): Orientation.E,
-    (Orientation.N, Orientation.S): Orientation.S,
-    (Orientation.N, Orientation.W): Orientation.W,
+    (Orientation.FORWARD, Orientation.FORWARD): Orientation.FORWARD,
+    (Orientation.FORWARD, Orientation.RIGHT): Orientation.RIGHT,
+    (Orientation.FORWARD, Orientation.BACKWARD): Orientation.BACKWARD,
+    (Orientation.FORWARD, Orientation.LEFT): Orientation.LEFT,
     #
-    (Orientation.E, Orientation.N): Orientation.E,
-    (Orientation.E, Orientation.E): Orientation.S,
-    (Orientation.E, Orientation.S): Orientation.W,
-    (Orientation.E, Orientation.W): Orientation.N,
+    (Orientation.RIGHT, Orientation.FORWARD): Orientation.RIGHT,
+    (Orientation.RIGHT, Orientation.RIGHT): Orientation.BACKWARD,
+    (Orientation.RIGHT, Orientation.BACKWARD): Orientation.LEFT,
+    (Orientation.RIGHT, Orientation.LEFT): Orientation.FORWARD,
     #
-    (Orientation.S, Orientation.N): Orientation.S,
-    (Orientation.S, Orientation.E): Orientation.W,
-    (Orientation.S, Orientation.S): Orientation.N,
-    (Orientation.S, Orientation.W): Orientation.E,
+    (Orientation.BACKWARD, Orientation.FORWARD): Orientation.BACKWARD,
+    (Orientation.BACKWARD, Orientation.RIGHT): Orientation.LEFT,
+    (Orientation.BACKWARD, Orientation.BACKWARD): Orientation.FORWARD,
+    (Orientation.BACKWARD, Orientation.LEFT): Orientation.RIGHT,
     #
-    (Orientation.W, Orientation.N): Orientation.W,
-    (Orientation.W, Orientation.E): Orientation.N,
-    (Orientation.W, Orientation.S): Orientation.E,
-    (Orientation.W, Orientation.W): Orientation.S,
+    (Orientation.LEFT, Orientation.FORWARD): Orientation.LEFT,
+    (Orientation.LEFT, Orientation.RIGHT): Orientation.FORWARD,
+    (Orientation.LEFT, Orientation.BACKWARD): Orientation.RIGHT,
+    (Orientation.LEFT, Orientation.LEFT): Orientation.BACKWARD,
 }
 
 # for Orientation.neg
 _orientation_neg = {
-    Orientation.N: Orientation.N,
-    Orientation.E: Orientation.W,
-    Orientation.S: Orientation.S,
-    Orientation.W: Orientation.E,
+    Orientation.FORWARD: Orientation.FORWARD,
+    Orientation.RIGHT: Orientation.LEFT,
+    Orientation.BACKWARD: Orientation.BACKWARD,
+    Orientation.LEFT: Orientation.RIGHT,
 }

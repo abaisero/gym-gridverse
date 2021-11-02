@@ -75,7 +75,7 @@ def test_default_representation_space(default_representation_fixture):
 def test_default_representation_convert(default_representation_fixture):
     height, width, _, _, _ = default_representation_fixture
 
-    agent = Agent(Position(0, 2), Orientation.N, Key(Color.RED))
+    agent = Agent(Position(0, 2), Orientation.FORWARD, Key(Color.RED))
     grid = Grid.from_shape((height, width))
     grid[1, 1] = Door(Door.Status.CLOSED, Color.BLUE)
 

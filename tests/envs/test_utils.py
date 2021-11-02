@@ -39,13 +39,38 @@ def test_non_movement_actions(
 @pytest.mark.parametrize(
     'position,orientation,action,expected',
     [
-        (Position(3, 6), Orientation.N, Action.MOVE_FORWARD, Position(2, 6)),
-        (Position(5, 2), Orientation.S, Action.MOVE_FORWARD, Position(6, 2)),
-        (Position(1, 2), Orientation.W, Action.MOVE_BACKWARD, Position(1, 3)),
-        (Position(4, 1), Orientation.E, Action.MOVE_LEFT, Position(3, 1)),
+        (
+            Position(3, 6),
+            Orientation.FORWARD,
+            Action.MOVE_FORWARD,
+            Position(2, 6),
+        ),
+        (
+            Position(5, 2),
+            Orientation.BACKWARD,
+            Action.MOVE_FORWARD,
+            Position(6, 2),
+        ),
+        (
+            Position(1, 2),
+            Orientation.LEFT,
+            Action.MOVE_BACKWARD,
+            Position(1, 3),
+        ),
+        (Position(4, 1), Orientation.RIGHT, Action.MOVE_LEFT, Position(3, 1)),
         # off grid
-        (Position(0, 1), Orientation.S, Action.MOVE_BACKWARD, Position(-1, 1)),
-        (Position(4, 0), Orientation.N, Action.MOVE_LEFT, Position(4, -1)),
+        (
+            Position(0, 1),
+            Orientation.BACKWARD,
+            Action.MOVE_BACKWARD,
+            Position(-1, 1),
+        ),
+        (
+            Position(4, 0),
+            Orientation.FORWARD,
+            Action.MOVE_LEFT,
+            Position(4, -1),
+        ),
     ],
 )
 def test_basic_moves(

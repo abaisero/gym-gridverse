@@ -133,10 +133,10 @@ class Grid:
             Grid: New instance rotated appropriately
         """
         times = {
-            Orientation.N: 0,
-            Orientation.S: 2,
-            Orientation.E: 1,
-            Orientation.W: 3,
+            Orientation.FORWARD: 0,
+            Orientation.BACKWARD: 2,
+            Orientation.RIGHT: 1,
+            Orientation.LEFT: 3,
         }
         objects = np.rot90(self._objects, times[orientation])
         return Grid(objects)

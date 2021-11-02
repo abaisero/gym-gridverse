@@ -278,7 +278,7 @@ def test_grid_subgrid_references():
     'orientation,expected_objects',
     [
         (
-            Orientation.N,
+            Orientation.FORWARD,
             [
                 [Wall(), Floor(), Wall(), Floor()],
                 [Floor(), Wall(), Floor(), Wall()],
@@ -286,7 +286,7 @@ def test_grid_subgrid_references():
             ],
         ),
         (
-            Orientation.S,
+            Orientation.BACKWARD,
             [
                 [Floor(), Wall(), Floor(), Wall()],
                 [Wall(), Floor(), Wall(), Floor()],
@@ -294,7 +294,7 @@ def test_grid_subgrid_references():
             ],
         ),
         (
-            Orientation.E,
+            Orientation.RIGHT,
             [
                 [Floor(), Wall(), Floor()],
                 [Wall(), Floor(), Wall()],
@@ -303,7 +303,7 @@ def test_grid_subgrid_references():
             ],
         ),
         (
-            Orientation.W,
+            Orientation.LEFT,
             [
                 [Wall(), Floor(), Wall()],
                 [Floor(), Wall(), Floor()],

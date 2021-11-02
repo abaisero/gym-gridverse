@@ -131,7 +131,7 @@ def empty(
         agent_orientation = rng.choice(list(Orientation))
     else:
         agent_position = Position(1, 1)
-        agent_orientation = Orientation.E
+        agent_orientation = Orientation.RIGHT
 
     agent = Agent(agent_position, agent_orientation)
     return State(grid, agent)
@@ -413,7 +413,7 @@ def crossing(
 
     # Place agent on top left
     state.agent.position = Position(1, 1)
-    state.agent.orientation = Orientation.E
+    state.agent.orientation = Orientation.RIGHT
 
     return state
 
@@ -428,7 +428,9 @@ def teleport(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
 
     # Place agent on top left
     state.agent.position = Position(1, 1)
-    state.agent.orientation = rng.choice([Orientation.E, Orientation.S])
+    state.agent.orientation = rng.choice(
+        [Orientation.RIGHT, Orientation.BACKWARD]
+    )
 
     num_telepods = 2
     telepods = [Telepod(Color.RED) for _ in range(num_telepods)]
@@ -447,7 +449,9 @@ def teleport(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
 
     # Place agent on top left
     state.agent.position = Position(1, 1)
-    state.agent.orientation = rng.choice([Orientation.E, Orientation.S])
+    state.agent.orientation = rng.choice(
+        [Orientation.RIGHT, Orientation.BACKWARD]
+    )
 
     return state
 
@@ -491,7 +495,7 @@ def memory(
     grid[shape.height - 2, shape.width - 2] = Beacon(color_good)
 
     agent_position = Position(shape.height // 2, shape.width // 2)
-    agent_orientation = Orientation.N
+    agent_orientation = Orientation.FORWARD
     agent = Agent(agent_position, agent_orientation)
 
     return State(grid, agent)

@@ -49,38 +49,38 @@ def make_moving_obstacle_state():
     [
         # Facing north, rotate to WEST
         (
-            Orientation.N,
+            Orientation.FORWARD,
             [Action.TURN_LEFT],
-            Orientation.W,
+            Orientation.LEFT,
         ),
         # Not rotating
         (
-            Orientation.W,
+            Orientation.LEFT,
             [Action.MOVE_LEFT, Action.ACTUATE, Action.PICK_N_DROP],
-            Orientation.W,
+            Orientation.LEFT,
         ),
         # Two rotation to EAST
         (
-            Orientation.W,
+            Orientation.LEFT,
             [Action.TURN_LEFT, Action.TURN_LEFT],
-            Orientation.E,
+            Orientation.RIGHT,
         ),
         # One back to SOUTH
         (
-            Orientation.E,
+            Orientation.RIGHT,
             [Action.TURN_RIGHT],
-            Orientation.S,
+            Orientation.BACKWARD,
         ),
         # Full circle for fun to SOUTH
         (
-            Orientation.S,
+            Orientation.BACKWARD,
             [
                 Action.TURN_RIGHT,
                 Action.TURN_RIGHT,
                 Action.TURN_RIGHT,
                 Action.TURN_RIGHT,
             ],
-            Orientation.S,
+            Orientation.BACKWARD,
         ),
     ],
 )
@@ -101,34 +101,89 @@ def test_turn_agent(
     'position,orientation,actions,expected',
     [
         #  unblocked movement
-        (Position(2, 1), Orientation.N, [Action.MOVE_LEFT], Position(2, 0)),
-        (Position(2, 0), Orientation.N, [Action.MOVE_RIGHT], Position(2, 1)),
         (
             Position(2, 1),
-            Orientation.N,
+            Orientation.FORWARD,
+            [Action.MOVE_LEFT],
+            Position(2, 0),
+        ),
+        (
+            Position(2, 0),
+            Orientation.FORWARD,
+            [Action.MOVE_RIGHT],
+            Position(2, 1),
+        ),
+        (
+            Position(2, 1),
+            Orientation.FORWARD,
             [Action.MOVE_FORWARD, Action.MOVE_FORWARD],
             Position(0, 1),
         ),
-        (Position(0, 1), Orientation.N, [Action.MOVE_BACKWARD], Position(1, 1)),
+        (
+            Position(0, 1),
+            Orientation.FORWARD,
+            [Action.MOVE_BACKWARD],
+            Position(1, 1),
+        ),
         # blocked by grid object
         # blocked by edges
-        (Position(2, 1), Orientation.N, [Action.MOVE_RIGHT], Position(2, 1)),
+        (
+            Position(2, 1),
+            Orientation.FORWARD,
+            [Action.MOVE_RIGHT],
+            Position(2, 1),
+        ),
         # non-movements
-        (Position(2, 1), Orientation.N, [Action.TURN_RIGHT], Position(2, 1)),
-        (Position(2, 1), Orientation.N, [Action.TURN_LEFT], Position(2, 1)),
-        (Position(2, 1), Orientation.N, [Action.ACTUATE], Position(2, 1)),
-        (Position(2, 1), Orientation.N, [Action.PICK_N_DROP], Position(2, 1)),
+        (
+            Position(2, 1),
+            Orientation.FORWARD,
+            [Action.TURN_RIGHT],
+            Position(2, 1),
+        ),
+        (
+            Position(2, 1),
+            Orientation.FORWARD,
+            [Action.TURN_LEFT],
+            Position(2, 1),
+        ),
+        (Position(2, 1), Orientation.FORWARD, [Action.ACTUATE], Position(2, 1)),
+        (
+            Position(2, 1),
+            Orientation.FORWARD,
+            [Action.PICK_N_DROP],
+            Position(2, 1),
+        ),
         # facing east
         (
             Position(2, 1),
-            Orientation.E,
+            Orientation.RIGHT,
             [Action.MOVE_LEFT, Action.MOVE_LEFT],
             Position(0, 1),
         ),
-        (Position(0, 1), Orientation.E, [Action.MOVE_BACKWARD], Position(0, 0)),
-        (Position(0, 0), Orientation.E, [Action.MOVE_FORWARD], Position(0, 1)),
-        (Position(0, 1), Orientation.E, [Action.MOVE_FORWARD], Position(0, 1)),
-        (Position(0, 1), Orientation.E, [Action.MOVE_RIGHT], Position(1, 1)),
+        (
+            Position(0, 1),
+            Orientation.RIGHT,
+            [Action.MOVE_BACKWARD],
+            Position(0, 0),
+        ),
+        (
+            Position(0, 0),
+            Orientation.RIGHT,
+            [Action.MOVE_FORWARD],
+            Position(0, 1),
+        ),
+        (
+            Position(0, 1),
+            Orientation.RIGHT,
+            [Action.MOVE_FORWARD],
+            Position(0, 1),
+        ),
+        (
+            Position(0, 1),
+            Orientation.RIGHT,
+            [Action.MOVE_RIGHT],
+            Position(1, 1),
+        ),
     ],
 )
 def test_move_agent(
@@ -153,7 +208,7 @@ def test_move_agent_blocked_by_grid_object():
     """Puts an object on (2,0) and try to move there"""
     state = State(
         Grid.from_shape((3, 2)),
-        Agent(Position(2, 1), Orientation.N),
+        Agent(Position(2, 1), Orientation.FORWARD),
     )
 
     state.grid[2, 0] = Door(Door.Status.CLOSED, Color.YELLOW)
@@ -166,7 +221,7 @@ def test_move_agent_blocked_by_grid_object():
 def test_move_agent_can_go_on_non_block_objects():
     state = State(
         Grid.from_shape((3, 2)),
-        Agent(Position(2, 1), Orientation.N),
+        Agent(Position(2, 1), Orientation.FORWARD),
     )
 
     state.grid[2, 0] = Door(Door.Status.OPEN, Color.YELLOW)
@@ -180,7 +235,7 @@ def test_move_agent_can_go_on_non_block_objects():
 
 def test_pickup_mechanics_nothing_to_pickup():
     grid = Grid.from_shape((3, 4))
-    agent = Agent(Position(1, 2), Orientation.S)
+    agent = Agent(Position(1, 2), Orientation.BACKWARD)
     item_position = Position(2, 2)
 
     state = State(grid, agent)
@@ -199,7 +254,7 @@ def test_pickup_mechanics_nothing_to_pickup():
 
 def test_pickup_mechanics_pickup():
     grid = Grid.from_shape((3, 4))
-    agent = Agent(Position(1, 2), Orientation.S)
+    agent = Agent(Position(1, 2), Orientation.BACKWARD)
     item_position = Position(2, 2)
 
     grid[item_position] = Key(Color.GREEN)
@@ -218,7 +273,7 @@ def test_pickup_mechanics_pickup():
 
 def test_pickup_mechanics_drop():
     grid = Grid.from_shape((3, 4))
-    agent = Agent(Position(1, 2), Orientation.S)
+    agent = Agent(Position(1, 2), Orientation.BACKWARD)
     item_position = Position(2, 2)
 
     agent.obj = Key(Color.BLUE)
@@ -239,7 +294,7 @@ def test_pickup_mechanics_drop():
 
 def test_pickup_mechanics_swap():
     grid = Grid.from_shape((3, 4))
-    agent = Agent(Position(1, 2), Orientation.S)
+    agent = Agent(Position(1, 2), Orientation.BACKWARD)
     item_position = Position(2, 2)
 
     agent.obj = Key(Color.BLUE)
@@ -381,7 +436,7 @@ def test_actuate_door(
     # agent facing door
     grid = Grid.from_shape((2, 1))
     grid[0, 0] = door = Door(door_state, door_color)
-    agent = Agent(Position(1, 0), Orientation.N, Key(key_color))
+    agent = Agent(Position(1, 0), Orientation.FORWARD, Key(key_color))
     state = State(grid, agent)
 
     actuate_door(state, action)
@@ -390,7 +445,7 @@ def test_actuate_door(
     # agent facing away
     grid = Grid.from_shape((2, 1))
     grid[0, 0] = door = Door(door_state, door_color)
-    agent = Agent(Position(1, 0), Orientation.S, Key(key_color))
+    agent = Agent(Position(1, 0), Orientation.BACKWARD, Key(key_color))
     state = State(grid, agent)
 
     actuate_door(state, action)
@@ -401,15 +456,15 @@ def test_actuate_door(
     'content,orientation,action,expected',
     [
         # empty box
-        (Floor(), Orientation.N, Action.ACTUATE, True),
-        (Floor(), Orientation.S, Action.ACTUATE, False),
-        (Floor(), Orientation.N, Action.PICK_N_DROP, False),
-        (Floor(), Orientation.S, Action.PICK_N_DROP, False),
+        (Floor(), Orientation.FORWARD, Action.ACTUATE, True),
+        (Floor(), Orientation.BACKWARD, Action.ACTUATE, False),
+        (Floor(), Orientation.FORWARD, Action.PICK_N_DROP, False),
+        (Floor(), Orientation.BACKWARD, Action.PICK_N_DROP, False),
         # content is key
-        (Key(Color.RED), Orientation.N, Action.ACTUATE, True),
-        (Key(Color.RED), Orientation.S, Action.ACTUATE, False),
-        (Key(Color.RED), Orientation.N, Action.PICK_N_DROP, False),
-        (Key(Color.RED), Orientation.S, Action.PICK_N_DROP, False),
+        (Key(Color.RED), Orientation.FORWARD, Action.ACTUATE, True),
+        (Key(Color.RED), Orientation.BACKWARD, Action.ACTUATE, False),
+        (Key(Color.RED), Orientation.FORWARD, Action.PICK_N_DROP, False),
+        (Key(Color.RED), Orientation.BACKWARD, Action.PICK_N_DROP, False),
     ],
 )
 def test_actuate_box(
@@ -432,15 +487,15 @@ def test_actuate_box(
     'orientation,action',
     [
         # empty box
-        (Orientation.N, Action.ACTUATE),
-        (Orientation.S, Action.ACTUATE),
-        (Orientation.N, Action.PICK_N_DROP),
-        (Orientation.S, Action.PICK_N_DROP),
+        (Orientation.FORWARD, Action.ACTUATE),
+        (Orientation.BACKWARD, Action.ACTUATE),
+        (Orientation.FORWARD, Action.PICK_N_DROP),
+        (Orientation.BACKWARD, Action.PICK_N_DROP),
         # content is key
-        (Orientation.N, Action.ACTUATE),
-        (Orientation.S, Action.ACTUATE),
-        (Orientation.N, Action.PICK_N_DROP),
-        (Orientation.S, Action.PICK_N_DROP),
+        (Orientation.FORWARD, Action.ACTUATE),
+        (Orientation.BACKWARD, Action.ACTUATE),
+        (Orientation.FORWARD, Action.PICK_N_DROP),
+        (Orientation.BACKWARD, Action.PICK_N_DROP),
     ],
 )
 def test_actuate_no_box(
@@ -479,7 +534,7 @@ def test_teleport(
     grid[position_telepod1] = Telepod(Color.RED)
     grid[position_telepod2] = Telepod(Color.RED)
 
-    agent = Agent(position_agent, Orientation.N)
+    agent = Agent(position_agent, Orientation.FORWARD)
     state = State(grid, agent)
 
     teleport(state, Action.ACTUATE)

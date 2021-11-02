@@ -33,7 +33,7 @@ def make_5x5_exit_state() -> State:
     """makes a simple 5x5 state with exit object in the middle"""
     grid = Grid.from_shape((5, 5))
     grid[2, 2] = Exit()
-    agent = Agent(Position(0, 0), Orientation.N)
+    agent = Agent(Position(0, 0), Orientation.FORWARD)
     return State(grid, agent)
 
 
@@ -42,11 +42,11 @@ def make_exit_state(agent_on_exit: bool) -> State:
     grid = Grid.from_shape((2, 1))
     grid[0, 0] = Exit()
     agent_position = Position(0, 0) if agent_on_exit else Position(1, 0)
-    agent = Agent(agent_position, Orientation.N)
+    agent = Agent(agent_position, Orientation.FORWARD)
     return State(grid, agent)
 
 
-def make_wall_state(orientation: Orientation = Orientation.N) -> State:
+def make_wall_state(orientation: Orientation = Orientation.FORWARD) -> State:
     """makes a simple state with exit object and agent on or off the exit"""
     grid = Grid.from_shape((2, 1))
     grid[0, 0] = Wall()
@@ -61,7 +61,7 @@ def make_door_state(door_status: Optional[Door.Status]) -> State:
     if door_status:
         grid[0, 0] = Door(door_status, Color.RED)
 
-    agent = Agent(Position(1, 0), Orientation.N)
+    agent = Agent(Position(1, 0), Orientation.FORWARD)
     return State(grid, agent)
 
 
@@ -69,7 +69,7 @@ def make_key_state(has_key: bool) -> State:
     """makes a simple state with a door"""
     grid = Grid.from_shape((1, 1))
     obj = Key(Color.RED) if has_key else None
-    agent = Agent(Position(0, 0), Orientation.N, obj)
+    agent = Agent(Position(0, 0), Orientation.FORWARD, obj)
     return State(grid, agent)
 
 
@@ -78,7 +78,7 @@ def make_moving_obstacle_state(agent_on_obstacle: bool) -> State:
     grid = Grid.from_shape((2, 1))
     grid[0, 0] = MovingObstacle()
     agent_position = Position(0, 0) if agent_on_obstacle else Position(1, 0)
-    agent = Agent(agent_position, Orientation.N)
+    agent = Agent(agent_position, Orientation.FORWARD)
     return State(grid, agent)
 
 
@@ -259,10 +259,10 @@ def test_getting_closer_shortest_path(
         (make_wall_state(), Action.MOVE_LEFT, {}, 0.0),
         (make_wall_state(), Action.PICK_N_DROP, {}, 0.0),
         # bumping
-        (make_wall_state(Orientation.N), Action.MOVE_FORWARD, {}, -1.0),
-        (make_wall_state(Orientation.E), Action.MOVE_LEFT, {}, -1.0),
-        (make_wall_state(Orientation.S), Action.MOVE_BACKWARD, {}, -1.0),
-        (make_wall_state(Orientation.W), Action.MOVE_RIGHT, {}, -1.0),
+        (make_wall_state(Orientation.FORWARD), Action.MOVE_FORWARD, {}, -1.0),
+        (make_wall_state(Orientation.RIGHT), Action.MOVE_LEFT, {}, -1.0),
+        (make_wall_state(Orientation.BACKWARD), Action.MOVE_BACKWARD, {}, -1.0),
+        (make_wall_state(Orientation.LEFT), Action.MOVE_RIGHT, {}, -1.0),
         # reward value
         (make_wall_state(), Action.MOVE_FORWARD, {'reward': -4.78}, -4.78),
     ],

@@ -28,7 +28,7 @@ def _change_agent_position(state: State):
 
 def _change_agent_orientation(state: State):
     """changes agent orientation"""
-    state.agent.orientation *= Orientation.S
+    state.agent.orientation *= Orientation.BACKWARD
 
 
 def _change_agent_object(state: State):
@@ -45,11 +45,11 @@ def _change_agent_object(state: State):
     [
         State(
             Grid.from_shape((2, 3)),
-            Agent(Position(0, 0), Orientation.N),
+            Agent(Position(0, 0), Orientation.FORWARD),
         ),
         State(
             Grid.from_shape((3, 2)),
-            Agent(Position(1, 1), Orientation.S, Key(Color.RED)),
+            Agent(Position(1, 1), Orientation.BACKWARD, Key(Color.RED)),
         ),
     ],
 )
@@ -81,7 +81,7 @@ def test_state_eq(state: State):
 def test_state_hash():
     wall_position = Position(0, 0)
     agent_position = Position(0, 1)
-    agent_orientation = Orientation.N
+    agent_orientation = Orientation.FORWARD
     agent_object = None
 
     grid = Grid.from_shape((2, 2))

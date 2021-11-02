@@ -21,7 +21,7 @@ def make_exit_state(agent_on_exit: bool) -> State:
     grid = Grid.from_shape((2, 1))
     grid[0, 0] = Exit()
     agent_position = Position(0, 0) if agent_on_exit else Position(1, 0)
-    agent = Agent(agent_position, Orientation.N)
+    agent = Agent(agent_position, Orientation.FORWARD)
     return State(grid, agent)
 
 
@@ -30,7 +30,7 @@ def make_wall_state() -> State:
     """makes a simple state with Wall object and agent in front of it"""
     grid = Grid.from_shape((2, 1))
     grid[0, 0] = Wall()
-    agent = Agent(Position(1, 0), Orientation.N)
+    agent = Agent(Position(1, 0), Orientation.FORWARD)
     return State(grid, agent)
 
 
@@ -65,7 +65,7 @@ def test_bump_into_wall(state: State, action: Action, expected: bool):
 # TODO: incorporate this test with previous one
 def test_bump_into_wall_special_case():
     state = make_wall_state()
-    state.agent.orientation = Orientation.W
+    state.agent.orientation = Orientation.LEFT
     assert bump_into_wall(state, Action.MOVE_RIGHT, None)
 
 
