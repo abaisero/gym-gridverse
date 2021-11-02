@@ -243,18 +243,18 @@ class Orientation(enum.Enum):
     __rmul__ = __mul__
 
     def __neg__(self) -> Orientation:
+        """Negative orientation
+
+        NOTE:  This operator represents the algebraeic notion of negation, with
+        FORWARD being the identity element.  That is, -orientation is defined
+        such that orientation * -orientation == -orientation * orientation == FORWARD:
+
+            -FORWARD == FORWARD (*not* BACKWARD)
+            -BACKWARD == BACKWARD (*not* BACKWARD)
+            -LEFT == RIGHT
+            -RIGHT == LEFT
+        """
         return _orientation_neg[self]
-
-    def as_radians(self) -> float:
-        # TODO: test
-        radians = {
-            Orientation.FORWARD: 0.0,
-            Orientation.LEFT: math.pi / 2,
-            Orientation.BACKWARD: math.pi,
-            Orientation.RIGHT: math.pi * 3 / 2,
-        }
-
-        return radians[self]
 
 
 @dataclass(unsafe_hash=True)
