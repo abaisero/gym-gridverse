@@ -111,9 +111,7 @@ def from_visibility(
     pov_area = state.agent.transform * area
     pov_agent_position = -area.top_left
 
-    observation_grid = state.grid.subgrid(pov_area).change_orientation(
-        state.agent.orientation
-    )
+    observation_grid = state.grid.subgrid(pov_area) * state.agent.orientation
     visibility = visibility_function(
         observation_grid, pov_agent_position, rng=rng
     )

@@ -93,7 +93,7 @@ class Grid:
         self[p], self[q] = self[q], self[p]
 
     def subgrid(self, area: Area) -> Grid:
-        """returns grid sliced at a given area
+        """returns subgrid slice at given area
 
         Cells included in the area but outside of the grid are represented as
         Hidden objects.
@@ -111,13 +111,20 @@ class Grid:
             ]
         )
 
-    def change_orientation(self, orientation: Orientation) -> Grid:
-        """returns grid as seen from someone facing the given direction
+    def __mul__(self, other: Orientation) -> Grid:
+        """returns grid transformed according to given orientation.
 
-        E.g. for orientation E, the grid
+        NOTE:  this product follows rigid body transform conventions, whereby
+        the orientation represents a transform between frames to apply on the
+        grid, e.g.,
 
-        AB
-        CD
+        orientation * grid = expected
+        -----------   ----   --------
+
+                      ABC    CFI
+              RIGHT * DEF  = BEH
+                      GHI    ADG
+
 
         becomes
 
@@ -125,21 +132,31 @@ class Grid:
         AC
 
         Args:
-            orientation (Orientation): The orientation of the viewer
+            orientation (Orientation): The rotation orientation
         Returns:
             Grid: New instance rotated appropriately
         """
-        times = {
-            Orientation.FORWARD: 0,
-            Orientation.RIGHT: 1,
-            Orientation.BACKWARD: 2,
-            Orientation.LEFT: 3,
-        }
-        objects = np.rot90(self._objects, times[orientation])
-        return Grid(objects)
+        try:
+            times = _grid_rotation_times[other]
+        except KeyError:
+            return NotImplemented
+        else:
+            objects = np.rot90(self._objects, times)
+            return Grid(objects)
+
+    __rmul__ = __mul__
 
     def __hash__(self):
         return hash(tuple(map(tuple, self.to_list())))
 
     def __repr__(self):
         return f'<{self.__class__.__name__} {self.shape.height}x{self.shape.width} objects={self.to_list()!r}>'
+
+
+# for Grid.__mul__
+_grid_rotation_times = {
+    Orientation.FORWARD: 0,
+    Orientation.RIGHT: 1,
+    Orientation.BACKWARD: 2,
+    Orientation.LEFT: 3,
+}

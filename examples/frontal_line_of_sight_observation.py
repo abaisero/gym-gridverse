@@ -20,9 +20,7 @@ def frontal_line_of_sight(
 
     # get agent's POV grid
     area = state.agent.transform * observation_space.area
-    observation_grid = state.grid.subgrid(area).change_orientation(
-        state.agent.orientation
-    )
+    observation_grid = state.grid.subgrid(area) * state.agent.orientation
 
     # hiding all tiles which are not directly in front of agent
     for position in observation_grid.area.positions():

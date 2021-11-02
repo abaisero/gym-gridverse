@@ -313,7 +313,7 @@ def test_grid_subgrid_references():
         ),
     ],
 )
-def test_grid_change_orientation(
+def test_grid_mul(
     orientation: Orientation, expected_objects: Sequence[Sequence[GridObject]]
 ):
     # checkerboard pattern
@@ -326,4 +326,4 @@ def test_grid_change_orientation(
     )
 
     expected = Grid(expected_objects)
-    assert grid.change_orientation(orientation) == expected
+    assert grid * orientation == expected
