@@ -205,11 +205,19 @@ def turn_agent(
         None:
     """
 
-    if action is Action.TURN_LEFT:
-        state.agent.orientation = state.agent.orientation * Orientation.LEFT
+    try:
+        orientation = _action_orientations[action]
+    except KeyError:
+        pass
+    else:
+        state.agent.orientation *= orientation
 
-    elif action is Action.TURN_RIGHT:
-        state.agent.orientation = state.agent.orientation * Orientation.RIGHT
+
+# for turn_agent
+_action_orientations = {
+    Action.TURN_LEFT: Orientation.LEFT,
+    Action.TURN_RIGHT: Orientation.RIGHT,
+}
 
 
 @transition_function_registry.register
@@ -222,7 +230,7 @@ def pickndrop(
     """Implements the effect of the pickup and drop action
 
     Pickup applies to the item *in front* of the agent
-    There are multiple scenarii
+    There are multiple scenarios
 
     * There is no (pick-up-able) item to pickup under the agent:
         * The agent is not holding any object -> No effect
@@ -245,23 +253,22 @@ def pickndrop(
     if action is not Action.PICK_N_DROP:
         return
 
-    obj_in_front_of_agent = state.grid[state.agent.front()]
-    obj_holding = state.agent.obj
+    position_front = state.agent.front()
+    obj_front = state.grid[position_front]
+    can_be_dropped = isinstance(obj_front, Floor) or obj_front.can_be_picked_up
 
-    can_pickup = obj_in_front_of_agent.can_be_picked_up
-    can_drop = isinstance(obj_in_front_of_agent, Floor) or can_pickup
-
-    if not can_pickup and not can_drop:
+    if not can_be_dropped:
         return
 
-    state.grid[state.agent.front()] = (
-        obj_holding
-        if can_drop and not isinstance(obj_holding, NoneGridObject)
+    state.grid[position_front] = (
+        state.agent.obj
+        if not isinstance(state.agent.obj, NoneGridObject) and can_be_dropped
         else Floor()  # We know we are picking up if not dropping
     )
 
-    # Know for sure that if not can_pickup then we have dropped
-    state.agent.obj = obj_in_front_of_agent if can_pickup else NoneGridObject()
+    state.agent.obj = (
+        obj_front if obj_front.can_be_picked_up else NoneGridObject()
+    )
 
 
 @transition_function_registry.register
@@ -377,10 +384,8 @@ def actuate_box(
 
     box = state.grid[position]
 
-    if not isinstance(box, Box):
-        return
-
-    state.grid[position] = box.content
+    if isinstance(box, Box):
+        state.grid[position] = box.content
 
 
 @transition_function_registry.register

@@ -210,44 +210,38 @@ def test_manhattan_boundary(
     assert all(expected_position in boundary for expected_position in expected)
 
 
-@pytest.mark.parametrize(
-    'pos1,pos2,expected',
-    [
-        (P(y1, x1), P(y2, x2), P(y1 + y2, x1 + x2))
-        for x1 in range(2)
-        for y1 in range(2)
-        for x2 in range(2)
-        for y2 in range(2)
-    ],
-)
-def test_position_add(pos1: Position, pos2: Position, expected: Position):
-    assert pos1 + pos2 == pos2 + pos1 == expected
+@pytest.mark.parametrize('py', range(-1, 1))
+@pytest.mark.parametrize('px', range(-1, 1))
+@pytest.mark.parametrize('qy', range(-1, 1))
+@pytest.mark.parametrize('qx', range(-1, 1))
+def test_position_add(py: int, px: int, qy: int, qx: int):
+    p = Position(py, px)
+    q = Position(qy, qx)
+    expected = Position(py + qy, px + qx)
+    assert p + q == q + p == expected
+
+
+@pytest.mark.parametrize('py', [-1, 1])
+@pytest.mark.parametrize('px', [-1, 1])
+@pytest.mark.parametrize('qy', [-1, 1])
+@pytest.mark.parametrize('qx', [-1, 1])
+def test_position_sub(py: int, px: int, qy: int, qx: int):
+    p = Position(py, px)
+    q = Position(qy, qx)
+    expected = Position(py - qy, px - qx)
+    assert p - q == expected
+
+
+@pytest.mark.parametrize('y', [-1, 1])
+@pytest.mark.parametrize('x', [-1, 1])
+def test_position_neg(y: int, x: int):
+    position = Position(y, x)
+    expected = Position(-y, -x)
+    assert -position == expected
 
 
 @pytest.mark.parametrize(
-    'pos1,pos2,expected',
-    [
-        (P(y1, x1), P(y2, x2), P(y1 - y2, x1 - x2))
-        for x1 in range(2)
-        for y1 in range(2)
-        for x2 in range(2)
-        for y2 in range(2)
-    ],
-)
-def test_position_sub(pos1: Position, pos2: Position, expected: Position):
-    assert pos1 - pos2 == expected
-
-
-@pytest.mark.parametrize(
-    'pos,expected',
-    [(P(y, x), P(-y, -x)) for x in range(2) for y in range(2)],
-)
-def test_position_neg(pos: Position, expected: Position):
-    assert -pos == expected
-
-
-@pytest.mark.parametrize(
-    'pos1,pos2,expected',
+    'p,q,expected',
     [
         (P(0, 0), P(0, 0), 0.0),
         (P(0, 0), P(0, 1), 1.0),
@@ -261,14 +255,12 @@ def test_position_neg(pos: Position, expected: Position):
         (P(0, 0), P(3, 3), 6.0),
     ],
 )
-def test_position_manhattan_distance(
-    pos1: Position, pos2: Position, expected: float
-):
-    assert Position.manhattan_distance(pos1, pos2) == expected
+def test_position_manhattan_distance(p: Position, q: Position, expected: float):
+    assert Position.manhattan_distance(p, q) == expected
 
 
 @pytest.mark.parametrize(
-    'pos1,pos2,expected',
+    'p,q,expected',
     [
         (P(0, 0), P(0, 0), 0.0),
         (P(0, 0), P(0, 1), 1.0),
@@ -282,10 +274,8 @@ def test_position_manhattan_distance(
         (P(0, 0), P(3, 3), math.sqrt(18.0)),
     ],
 )
-def test_position_euclidean_distance(
-    pos1: Position, pos2: Position, expected: float
-):
-    assert Position.euclidean_distance(pos1, pos2) == expected
+def test_position_euclidean_distance(p: Position, q: Position, expected: float):
+    assert Position.euclidean_distance(p, q) == expected
 
 
 @pytest.mark.parametrize(

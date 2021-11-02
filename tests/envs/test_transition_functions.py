@@ -311,7 +311,8 @@ def test_pickup_mechanics_swap():
 # encountered MovingObstacle objects.  If the obstacle were moved to a
 # later position, it would eventually be moved again at least once.  This
 # test is here to make sure that does not happen again.
-def test_move_obstacles_once_per_obstacle():
+@pytest.mark.parametrize('_', range(100))  # repeating the stochastic test
+def test_move_obstacles_once_per_obstacle(_):
     state = dynamic_obstacles(Shape(6, 6), num_obstacles=4)
 
     moved_obstacles = []

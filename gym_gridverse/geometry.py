@@ -36,21 +36,26 @@ class Area:
         if self.xs[0] > self.xs[1]:
             raise ValueError('xs ({self.xs}) should be non-decreasing')
 
+    @staticmethod
+    def from_positions(positions: Sequence[Position]) -> Area:
+        ys, xs = zip(*(position.to_tuple() for position in positions))
+        return Area((min(ys), max(ys)), (min(xs), max(xs)))
+
     @cached_property
     def ymin(self) -> int:
-        return min(self.ys)
+        return self.ys[0]
 
     @cached_property
     def ymax(self) -> int:
-        return max(self.ys)
+        return self.ys[1]
 
     @cached_property
     def xmin(self) -> int:
-        return min(self.xs)
+        return self.xs[0]
 
     @cached_property
     def xmax(self) -> int:
-        return max(self.xs)
+        return self.xs[1]
 
     @cached_property
     def height(self) -> int:

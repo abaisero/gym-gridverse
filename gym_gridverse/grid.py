@@ -36,11 +36,8 @@ class Grid:
     def from_shape(
         shape: ShapeOrTuple,
         *,
-        factory: Optional[GridObjectFactory] = None,
+        factory: Optional[GridObjectFactory] = Floor,
     ) -> Grid:
-        if factory is None:
-            factory = Floor
-
         height, width = (
             (shape.height, shape.width) if isinstance(shape, Shape) else shape
         )
@@ -51,13 +48,13 @@ class Grid:
         return self._objects.tolist()
 
     def __eq__(self, other) -> bool:
-        if not isinstance(other, Grid):
+        try:
+            return self.shape == other.shape and all(
+                self[position] == other[position]
+                for position in self.area.positions()
+            )
+        except AttributeError:
             return NotImplemented
-
-        return self.shape == other.shape and all(
-            self[position] == other[position]
-            for position in self.area.positions()
-        )
 
     def object_types(self) -> Set[Type[GridObject]]:
         """returns object types currently in the grid"""
@@ -134,8 +131,8 @@ class Grid:
         """
         times = {
             Orientation.FORWARD: 0,
-            Orientation.BACKWARD: 2,
             Orientation.RIGHT: 1,
+            Orientation.BACKWARD: 2,
             Orientation.LEFT: 3,
         }
         objects = np.rot90(self._objects, times[orientation])
