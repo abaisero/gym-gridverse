@@ -328,9 +328,10 @@ def test_move_obstacles_once_per_obstacle(_):
     with patch.object(state.grid, 'swap', swap_patch):
         move_obstacles(state, Action.PICK_N_DROP)
 
-    # four unique and distinct moving-objects
+    # unique and distinct moving-objects (not necessarily 4, as they can get
+    # boxed in)
     moved_obstacle_ids = [id(obj) for obj in moved_obstacles]
-    assert len(moved_obstacle_ids) == len(set(moved_obstacle_ids)) == 4
+    assert len(moved_obstacle_ids) == len(set(moved_obstacle_ids))
 
 
 @pytest.mark.parametrize(
