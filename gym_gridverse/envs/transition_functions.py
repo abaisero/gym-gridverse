@@ -1,5 +1,4 @@
 """ Functions to model dynamics """
-import copy
 import inspect
 import warnings
 from functools import partial
@@ -23,6 +22,7 @@ from gym_gridverse.grid_object import (
 from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.state import State
 from gym_gridverse.utils.custom import import_if_custom
+from gym_gridverse.utils.fast_copy import fast_copy
 from gym_gridverse.utils.functions import checkraise_kwargs, select_kwargs
 from gym_gridverse.utils.protocols import (
     get_keyword_parameter,
@@ -445,6 +445,8 @@ def transition_with_copy(
     transition_function: TransitionFunction,
     state: State,
     action: Action,
+    *,
+    rng: Optional[rnd.Generator] = None,
 ) -> State:
     """Utility to perform a non-in-place version of a transition function.
 
@@ -455,10 +457,11 @@ def transition_with_copy(
         transition_function (`TransitionFunction`):
         state (`State`):
         action (`action`):
+        rng (`Generator, optional`)
 
     Returns:
         State:
     """
-    next_state = copy.deepcopy(state)
-    transition_function(next_state, action)
+    next_state = fast_copy(state)
+    transition_function(next_state, action, rng=rng)
     return next_state

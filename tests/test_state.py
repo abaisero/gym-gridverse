@@ -1,5 +1,4 @@
 import dataclasses
-from copy import deepcopy
 
 import pytest
 
@@ -8,6 +7,7 @@ from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Color, Floor, Key, NoneGridObject, Wall
 from gym_gridverse.state import State
+from gym_gridverse.utils.fast_copy import fast_copy
 
 
 def _change_grid(state: State):
@@ -54,26 +54,22 @@ def _change_agent_object(state: State):
     ],
 )
 def test_state_eq(state: State):
-    other_state = deepcopy(state)
+    other_state = fast_copy(state)
     assert state == other_state
 
-    other_state = deepcopy(state)
+    other_state = fast_copy(state)
     _change_grid(other_state)
     assert state != other_state
 
-    other_state = deepcopy(state)
+    other_state = fast_copy(state)
     _change_agent_position(other_state)
     assert state != other_state
 
-    other_state = deepcopy(state)
+    other_state = fast_copy(state)
     _change_agent_orientation(other_state)
     assert state != other_state
 
-    other_state = deepcopy(state)
-    _change_agent_object(other_state)
-    assert state != other_state
-
-    other_state = deepcopy(state)
+    other_state = fast_copy(state)
     _change_agent_object(other_state)
     assert state != other_state
 

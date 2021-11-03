@@ -1,4 +1,3 @@
-import copy
 from typing import Optional, Tuple
 
 import numpy.random as rnd
@@ -10,7 +9,10 @@ from gym_gridverse.envs.observation_functions import ObservationFunction
 from gym_gridverse.envs.reset_functions import ResetFunction
 from gym_gridverse.envs.reward_functions import RewardFunction
 from gym_gridverse.envs.terminating_functions import TerminatingFunction
-from gym_gridverse.envs.transition_functions import TransitionFunction
+from gym_gridverse.envs.transition_functions import (
+    TransitionFunction,
+    transition_with_copy,
+)
 from gym_gridverse.observation import Observation
 from gym_gridverse.rng import make_rng
 from gym_gridverse.spaces import DomainSpace
@@ -64,8 +66,12 @@ class GridWorld(InnerEnv):
         if not self.action_space.contains(action):
             raise ValueError('action {action} does not satisfy action-space')
 
-        next_state = copy.deepcopy(state)
-        self._functional_step(next_state, action, rng=self._rng)
+        next_state = transition_with_copy(
+            self._functional_step,
+            state,
+            action,
+            rng=self._rng,
+        )
 
         if gv_debug() and not self.state_space.contains(next_state):
             raise ValueError('next_state does not satisfy state_space')

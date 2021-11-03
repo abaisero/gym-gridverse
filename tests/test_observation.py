@@ -1,5 +1,4 @@
 import dataclasses
-from copy import deepcopy
 
 import pytest
 
@@ -8,6 +7,7 @@ from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Color, Floor, Key, NoneGridObject, Wall
 from gym_gridverse.observation import Observation
+from gym_gridverse.utils.fast_copy import fast_copy
 
 
 def _change_grid(observation: Observation):
@@ -56,26 +56,22 @@ def _change_agent_object(observation: Observation):
     ],
 )
 def test_observation_eq(observation: Observation):
-    other_observation = deepcopy(observation)
+    other_observation = fast_copy(observation)
     assert observation == other_observation
 
-    other_observation = deepcopy(observation)
+    other_observation = fast_copy(observation)
     _change_grid(other_observation)
     assert observation != other_observation
 
-    other_observation = deepcopy(observation)
+    other_observation = fast_copy(observation)
     _change_agent_position(other_observation)
     assert observation != other_observation
 
-    other_observation = deepcopy(observation)
+    other_observation = fast_copy(observation)
     _change_agent_orientation(other_observation)
     assert observation != other_observation
 
-    other_observation = deepcopy(observation)
-    _change_agent_object(other_observation)
-    assert observation != other_observation
-
-    other_observation = deepcopy(observation)
+    other_observation = fast_copy(observation)
     _change_agent_object(other_observation)
     assert observation != other_observation
 
