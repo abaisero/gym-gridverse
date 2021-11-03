@@ -54,6 +54,7 @@ setup(
     scripts=[
         'scripts/gv_control_loop_gym.py',
         'scripts/gv_control_loop_outer.py',
+        'scripts/gv_profile.py',
         'scripts/gv_record.py',
         'scripts/gv_viewer.py',
         'scripts/gv_yaml.py',
