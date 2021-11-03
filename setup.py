@@ -11,7 +11,6 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'cached_property',
     'gym',
     'imageio',
     'imageio-ffmpeg',

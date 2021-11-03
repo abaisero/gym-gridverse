@@ -11,7 +11,7 @@ from gym_gridverse.envs.visibility_functions import (
     VisibilityFunction,
     visibility_function_registry,
 )
-from gym_gridverse.geometry import Area, Orientation
+from gym_gridverse.geometry import Area, Orientation, Position
 from gym_gridverse.grid_object import Hidden
 from gym_gridverse.observation import Observation
 from gym_gridverse.state import State
@@ -109,7 +109,7 @@ def from_visibility(
     rng: Optional[rnd.Generator] = None,
 ) -> Observation:
     pov_area = state.agent.transform * area
-    pov_agent_position = -area.top_left
+    pov_agent_position = Position(-area.ymin, -area.xmin)
 
     observation_grid = state.grid.subgrid(pov_area) * state.agent.orientation
     visibility = visibility_function(

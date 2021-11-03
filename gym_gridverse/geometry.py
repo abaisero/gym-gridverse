@@ -6,8 +6,6 @@ import math
 from dataclasses import dataclass
 from typing import Callable, Iterable, Iterator, List, Sequence, Tuple, TypeVar
 
-from cached_property import cached_property
-
 T = TypeVar('T')
 
 
@@ -41,45 +39,29 @@ class Area:
         ys, xs = zip(*(position.to_tuple() for position in positions))
         return Area((min(ys), max(ys)), (min(xs), max(xs)))
 
-    @cached_property
+    @property
     def ymin(self) -> int:
         return self.ys[0]
 
-    @cached_property
+    @property
     def ymax(self) -> int:
         return self.ys[1]
 
-    @cached_property
+    @property
     def xmin(self) -> int:
         return self.xs[0]
 
-    @cached_property
+    @property
     def xmax(self) -> int:
         return self.xs[1]
 
-    @cached_property
+    @property
     def height(self) -> int:
         return self.ymax - self.ymin + 1
 
-    @cached_property
+    @property
     def width(self) -> int:
         return self.xmax - self.xmin + 1
-
-    @cached_property
-    def top_left(self) -> Position:
-        return Position(self.ymin, self.xmin)
-
-    @cached_property
-    def top_right(self) -> Position:
-        return Position(self.ymin, self.xmax)
-
-    @cached_property
-    def bottom_left(self) -> Position:
-        return Position(self.ymax, self.xmin)
-
-    @cached_property
-    def bottom_right(self) -> Position:
-        return Position(self.ymax, self.xmax)
 
     def y_coordinates(self) -> Iterable[int]:
         """iterator over y coordinates"""
