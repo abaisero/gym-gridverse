@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Optional, Set, Tuple, Type, Union
-
-import numpy as np
-from numpy.typing import ArrayLike
+from typing import List, Set, Tuple, Type, Union
 
 from .geometry import Area, Orientation, Position, Shape
 from .grid_object import Floor, GridObject, GridObjectFactory, Hidden
@@ -20,32 +17,30 @@ class Grid:
     simplify interacting with the objects, such as getting areas
     """
 
-    def __init__(self, objects: ArrayLike):
+    def __init__(self, objects: List[List[GridObject]]):
         """Constructs a `height` x `width` grid of :py:class:`~gym_gridverse.grid_object.Floor`
 
         Args:
-            objects (numpy.typing.ArrayLike): grid of GridObjects
+            objects (List[List[GridObject]]): grid of GridObjects
         """
-        objects = np.asarray(objects)
-
         self._objects = objects
-        self.shape = Shape(*objects.shape)
+        self.shape = Shape(len(objects), len(objects[0]))
         self.area = Area((0, self.shape.height - 1), (0, self.shape.width - 1))
 
     @staticmethod
     def from_shape(
         shape: ShapeOrTuple,
         *,
-        factory: Optional[GridObjectFactory] = Floor,
+        factory: GridObjectFactory = Floor,
     ) -> Grid:
         height, width = (
             (shape.height, shape.width) if isinstance(shape, Shape) else shape
         )
         objects = [[factory() for _ in range(width)] for _ in range(height)]
-        return Grid(np.asarray(objects))
+        return Grid(objects)
 
     def to_list(self) -> List[List[GridObject]]:
-        return self._objects.tolist()
+        return self._objects
 
     def __eq__(self, other) -> bool:
         try:
@@ -68,7 +63,7 @@ class Grid:
 
     def __getitem__(self, position: PositionOrTuple) -> GridObject:
         y, x = self._validate_position(position)
-        return self._objects[y, x]
+        return self._objects[y][x]
 
     def __setitem__(self, position: PositionOrTuple, obj: GridObject):
         y, x = self._validate_position(position)
@@ -76,7 +71,7 @@ class Grid:
         if not isinstance(obj, GridObject):
             raise TypeError('grid can only contain grid objects')
 
-        self._objects[y, x] = obj
+        self._objects[y][x] = obj
 
     def _validate_position(self, position: PositionOrTuple) -> Tuple[int, int]:
         try:
@@ -137,11 +132,11 @@ class Grid:
             Grid: New instance rotated appropriately
         """
         try:
-            times = _grid_rotation_times[other]
+            rotation_function = _grid_rotation_functions[other]
         except KeyError:
             return NotImplemented
         else:
-            objects = np.rot90(self._objects, times)
+            objects = rotation_function(self._objects)
             return Grid(objects)
 
     __rmul__ = __mul__
@@ -153,10 +148,26 @@ class Grid:
         return f'<{self.__class__.__name__} {self.shape.height}x{self.shape.width} objects={self.to_list()!r}>'
 
 
+def _rotate_matrix_forward(data):
+    return data
+
+
+def _rotate_matrix_right(data):
+    return [list(row) for row in zip(*data[::-1])]
+
+
+def _rotate_matrix_left(data):
+    return [list(row) for row in zip(*data)][::-1]
+
+
+def _rotate_matrix_backward(data):
+    return [d[::-1] for d in data[::-1]]
+
+
 # for Grid.__mul__
-_grid_rotation_times = {
-    Orientation.F: 0,
-    Orientation.R: 1,
-    Orientation.B: 2,
-    Orientation.L: 3,
+_grid_rotation_functions = {
+    Orientation.F: _rotate_matrix_forward,
+    Orientation.R: _rotate_matrix_left,
+    Orientation.B: _rotate_matrix_backward,
+    Orientation.L: _rotate_matrix_right,
 }
