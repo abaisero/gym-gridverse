@@ -118,7 +118,8 @@ def from_visibility(
 
     if visibility.shape != (area.height, area.width):
         raise ValueError(
-            'incorrect visibility shape ({visibility.shape}), should be {(area.height, area.width)}'
+            f'incorrect visibility shape ({visibility.shape}), '
+            f'should be {(area.height, area.width)}'
         )
 
     for pos in observation_grid.area.positions():

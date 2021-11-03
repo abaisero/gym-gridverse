@@ -131,6 +131,39 @@ def fully_transparent(
     return np.ones((grid.shape.height, grid.shape.width), dtype=bool)
 
 
+def _partially_occluded_make_visible(
+    visibility, grid, position, next_positions
+):
+    try:
+        obj = grid[position.y, position.x]
+    except IndexError:
+        pass
+    else:
+        if not visibility[position.y, position.x]:
+            visibility[position.y, position.x] = True
+            if obj.transparent:
+                for next_position in next_positions(position):
+                    _partially_occluded_make_visible(
+                        visibility, grid, next_position, next_positions
+                    )
+
+
+def _partially_occluded_next_positions_front_left(position):
+    return [
+        Position(position.y - 1, position.x),
+        Position(position.y, position.x - 1),
+        Position(position.y - 1, position.x - 1),
+    ]
+
+
+def _partially_occluded_next_positions_front_right(position):
+    return [
+        Position(position.y - 1, position.x),
+        Position(position.y, position.x + 1),
+        Position(position.y - 1, position.x + 1),
+    ]
+
+
 @visibility_function_registry.register
 def partially_occluded(
     grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
@@ -140,60 +173,27 @@ def partially_occluded(
         # TODO generalize for this case
         raise NotImplementedError
 
-    visibility = np.zeros((grid.shape.height, grid.shape.width), dtype=bool)
-    visibility[position.y, position.x] = True  # agent
-
-    # front
-    x = position.x
-    for y in range(position.y - 1, -1, -1):
-        visibility[y, x] = visibility[y + 1, x] and grid[y + 1, x].transparent
-
-    # right
-    y = position.y
-    for x in range(position.x + 1, grid.shape.width):
-        visibility[y, x] = visibility[y, x - 1] and grid[y, x - 1].transparent
-
-    # left
-    y = position.y
-    for x in range(position.x - 1, -1, -1):
-        visibility[y, x] = visibility[y, x + 1] and grid[y, x + 1].transparent
-
-    # top left
-    positions = diagonal_strides(
-        Area(
-            (0, position.y - 1),
-            (0, position.x - 1),
-        ),
-        StrideDirection.NW,
+    visibility_left = np.zeros(
+        (grid.shape.height, grid.shape.width), dtype=bool
     )
-    for p in positions:
-        visibility[p.y, p.x] = (
-            (grid[p.y + 1, p.x].transparent and visibility[p.y + 1, p.x])
-            or (grid[p.y, p.x + 1].transparent and visibility[p.y, p.x + 1])
-            or (
-                grid[p.y + 1, p.x + 1].transparent
-                and visibility[p.y + 1, p.x + 1]
-            )
-        )
-
-    # top right
-    positions = diagonal_strides(
-        Area(
-            (0, position.y - 1),
-            (position.x + 1, grid.shape.width - 1),
-        ),
-        StrideDirection.NE,
+    _partially_occluded_make_visible(
+        visibility_left,
+        grid,
+        position,
+        _partially_occluded_next_positions_front_left,
     )
-    for p in positions:
-        visibility[p.y, p.x] = (
-            (grid[p.y + 1, p.x].transparent and visibility[p.y + 1, p.x])
-            or (grid[p.y, p.x - 1].transparent and visibility[p.y, p.x - 1])
-            or (
-                grid[p.y + 1, p.x - 1].transparent
-                and visibility[p.y + 1, p.x - 1]
-            )
-        )
 
+    visibility_right = np.zeros(
+        (grid.shape.height, grid.shape.width), dtype=bool
+    )
+    _partially_occluded_make_visible(
+        visibility_right,
+        grid,
+        position,
+        _partially_occluded_next_positions_front_right,
+    )
+
+    visibility = visibility_left | visibility_right
     return visibility
 
 
