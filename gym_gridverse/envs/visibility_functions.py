@@ -7,12 +7,7 @@ import numpy as np
 import numpy.random as rnd
 from typing_extensions import Protocol  # python3.7 compatibility
 
-from gym_gridverse.geometry import (
-    Area,
-    Position,
-    StrideDirection,
-    diagonal_strides,
-)
+from gym_gridverse.geometry import Position
 from gym_gridverse.grid import Grid
 from gym_gridverse.rng import get_gv_rng_if_none
 from gym_gridverse.utils.custom import import_if_custom

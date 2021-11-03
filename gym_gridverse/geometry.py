@@ -4,7 +4,7 @@ import enum
 import itertools as itt
 import math
 from dataclasses import dataclass
-from typing import Callable, Iterable, Iterator, List, Sequence, Tuple, TypeVar
+from typing import Callable, Iterable, List, Sequence, Tuple, TypeVar
 
 T = TypeVar('T')
 
@@ -347,35 +347,6 @@ def distance_function_factory(name: str):
         return Position.euclidean_distance
 
     raise ValueError(f'invalid distance function name {name}')
-
-
-class StrideDirection(enum.Enum):
-    NW = enum.auto()
-    NE = enum.auto()
-
-
-def diagonal_strides(
-    area: Area, stride_direction: StrideDirection
-) -> Iterator[Position]:
-
-    if stride_direction == StrideDirection.NW:
-        positions = (
-            Position(area.ymax - stride + k, area.xmax - k)
-            for stride in range(area.height + area.width + 1)
-            for k in range(stride + 1)  # stride length
-        )
-
-    elif stride_direction == StrideDirection.NE:
-        positions = (
-            Position(area.ymax - stride + k, area.xmin + k)
-            for stride in range(area.height + area.width + 1)
-            for k in range(stride + 1)  # stride length
-        )
-
-    else:
-        raise NotImplementedError
-
-    yield from filter(area.contains, positions)
 
 
 # cached values (used to avoid if-else chains)

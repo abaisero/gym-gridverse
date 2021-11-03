@@ -7,9 +7,7 @@ from gym_gridverse.geometry import (
     Area,
     Orientation,
     Position,
-    StrideDirection,
     Transform,
-    diagonal_strides,
     get_manhattan_boundary,
 )
 
@@ -374,72 +372,3 @@ def test_transform_neg_identity(transform: Transform):
 )
 def test_transform_mul_area(transform: Transform, area: Area, expected: Area):
     assert transform * area == expected
-
-
-@pytest.mark.parametrize(
-    'area,stride_direction,expected',
-    [
-        (
-            A((-1, 1), (-1, 1)),
-            StrideDirection.NW,
-            [
-                # stride 0
-                P(1, 1),
-                # stride 1
-                P(0, 1),
-                P(1, 0),
-                # stride 2
-                P(-1, 1),
-                P(0, 0),
-                P(1, -1),
-                # stride 3
-                P(-1, 0),
-                P(0, -1),
-                # stride 4
-                P(-1, -1),
-            ],
-        ),
-        # (
-        #     A((-1, 1), (-2, 2)),
-        #     'NW',
-        #     [
-        #     ],
-        # ),
-        (
-            A((-1, 1), (-1, 1)),
-            StrideDirection.NE,
-            [
-                # stride 0
-                P(1, -1),
-                # stride 1
-                P(0, -1),
-                P(1, 0),
-                # stride 2
-                P(-1, -1),
-                P(0, 0),
-                P(1, 1),
-                # stride 3
-                P(-1, 0),
-                P(0, 1),
-                # stride 4
-                P(-1, 1),
-            ],
-        ),
-        # (
-        #     A((-1, 1), (-2, 2)),
-        #     'NE',
-        #     [
-        #         P(0, 0),
-        #         P(-1, 0),
-        #         P(0, 1),
-        #         P(-1, 1),
-        #         P(0, 2),
-        #         P(-1, 2),
-        #     ],
-        # ),
-    ],
-)
-def test_diagonal_strides(
-    area: Area, stride_direction: StrideDirection, expected: Sequence[Position]
-):
-    assert list(diagonal_strides(area, stride_direction)) == expected
