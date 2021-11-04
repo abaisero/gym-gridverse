@@ -234,7 +234,7 @@ def test_grid_equality():
 
 
 @pytest.mark.parametrize(
-    'object_list',
+    'objects',
     [
         [
             [Hidden(), Hidden(), Hidden(), Hidden(), Hidden(), Hidden()],
@@ -256,8 +256,8 @@ def test_grid_equality():
         ],
     ],
 )
-def test_grid_to_list(object_list):
-    assert object_list == Grid(object_list).to_list()
+def test_grid_objects(objects):
+    assert Grid(objects).objects == objects
 
 
 def test_grid_subgrid_references():

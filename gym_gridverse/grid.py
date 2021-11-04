@@ -23,7 +23,7 @@ class Grid:
         Args:
             objects (List[List[GridObject]]): grid of GridObjects
         """
-        self._objects = objects
+        self.objects = objects
         self.shape = Shape(len(objects), len(objects[0]))
         self.area = Area((0, self.shape.height - 1), (0, self.shape.width - 1))
 
@@ -38,9 +38,6 @@ class Grid:
         )
         objects = [[factory() for _ in range(width)] for _ in range(height)]
         return Grid(objects)
-
-    def to_list(self) -> List[List[GridObject]]:
-        return self._objects
 
     def __eq__(self, other) -> bool:
         try:
@@ -63,7 +60,7 @@ class Grid:
 
     def __getitem__(self, position: PositionOrTuple) -> GridObject:
         y, x = self._validate_position(position)
-        return self._objects[y][x]
+        return self.objects[y][x]
 
     def __setitem__(self, position: PositionOrTuple, obj: GridObject):
         y, x = self._validate_position(position)
@@ -71,7 +68,7 @@ class Grid:
         if not isinstance(obj, GridObject):
             raise TypeError('grid can only contain grid objects')
 
-        self._objects[y][x] = obj
+        self.objects[y][x] = obj
 
     def _validate_position(self, position: PositionOrTuple) -> Tuple[int, int]:
         try:
@@ -136,16 +133,16 @@ class Grid:
         except KeyError:
             return NotImplemented
         else:
-            objects = rotation_function(self._objects)
+            objects = rotation_function(self.objects)
             return Grid(objects)
 
     __rmul__ = __mul__
 
     def __hash__(self):
-        return hash(tuple(map(tuple, self.to_list())))
+        return hash(tuple(map(tuple, self.objects)))
 
     def __repr__(self):
-        return f'<{self.__class__.__name__} {self.shape.height}x{self.shape.width} objects={self.to_list()!r}>'
+        return f'<{self.__class__.__name__} {self.shape.height}x{self.shape.width} objects={self.objects}>'
 
 
 def _rotate_matrix_forward(data):
