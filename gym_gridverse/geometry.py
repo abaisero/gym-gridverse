@@ -36,7 +36,7 @@ class Area:
 
     @staticmethod
     def from_positions(positions: Sequence[Position]) -> Area:
-        ys, xs = zip(*(position.to_tuple() for position in positions))
+        ys, xs = zip(*(position.yx for position in positions))
         return Area((min(ys), max(ys)), (min(xs), max(xs)))
 
     @property
@@ -129,7 +129,8 @@ class Position:
     y: int
     x: int
 
-    def to_tuple(self) -> Tuple[int, int]:
+    @property
+    def yx(self) -> Tuple[int, int]:
         return self.y, self.x
 
     @staticmethod

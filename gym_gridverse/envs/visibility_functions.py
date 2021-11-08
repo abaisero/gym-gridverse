@@ -129,18 +129,14 @@ def fully_transparent(
 def _partially_occluded_make_visible(
     visibility, grid, position, next_positions
 ):
-    try:
-        obj = grid[position.y, position.x]
-    except IndexError:
-        pass
-    else:
-        if not visibility[position.y, position.x]:
-            visibility[position.y, position.x] = True
-            if obj.transparent:
-                for next_position in next_positions(position):
-                    _partially_occluded_make_visible(
-                        visibility, grid, next_position, next_positions
-                    )
+
+    if grid.area.contains(position) and not visibility[position.y, position.x]:
+        visibility[position.y, position.x] = True
+        if grid[position].transparent:
+            for next_position in next_positions(position):
+                _partially_occluded_make_visible(
+                    visibility, grid, next_position, next_positions
+                )
 
 
 def _partially_occluded_next_positions_front_left(position):

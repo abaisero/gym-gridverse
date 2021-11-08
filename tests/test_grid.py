@@ -193,8 +193,9 @@ def test_grid_subgrid(
         ]
     )
 
+    subgrid = grid.subgrid(area)
     expected = Grid(expected_objects)
-    assert grid.subgrid(area) == expected
+    assert subgrid == expected
 
 
 def test_grid_equality():

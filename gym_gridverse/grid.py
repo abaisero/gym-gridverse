@@ -52,34 +52,30 @@ class Grid:
         """returns object types currently in the grid"""
         return set(type(self[position]) for position in self.area.positions())
 
-    def get(self, position: PositionOrTuple, factory: GridObjectFactory):
+    def get(self, position: PositionOrTuple, *, factory: GridObjectFactory):
         try:
             return self[position]
         except IndexError:
             return factory()
 
     def __getitem__(self, position: PositionOrTuple) -> GridObject:
-        y, x = self._validate_position(position)
+        try:
+            y, x = position.yx
+        except AttributeError:
+            y, x = position
+
         return self.objects[y][x]
 
     def __setitem__(self, position: PositionOrTuple, obj: GridObject):
-        y, x = self._validate_position(position)
+        try:
+            y, x = position.yx
+        except AttributeError:
+            y, x = position
 
         if not isinstance(obj, GridObject):
             raise TypeError('grid can only contain grid objects')
 
         self.objects[y][x] = obj
-
-    def _validate_position(self, position: PositionOrTuple) -> Tuple[int, int]:
-        try:
-            y, x = position.to_tuple()
-        except AttributeError:
-            y, x = position
-
-        if not (0 <= y < self.shape.height and 0 <= x < self.shape.width):
-            raise IndexError(f'position {(y,x)} not in grid')
-
-        return y, x
 
     def swap(self, p: Position, q: Position):
         self[p], self[q] = self[q], self[p]
@@ -98,7 +94,12 @@ class Grid:
 
         return Grid(
             [
-                [self.get((y, x), Hidden) for x in area.x_coordinates()]
+                [
+                    self.objects[y][x]
+                    if 0 <= y < self.area.height and 0 <= x < self.area.width
+                    else Hidden()
+                    for x in area.x_coordinates()
+                ]
                 for y in area.y_coordinates()
             ]
         )
