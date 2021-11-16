@@ -52,6 +52,7 @@ setup(
     package_data={'gym_gridverse': ['py.typed']},
     scripts=[
         'scripts/gv_control_loop_gym.py',
+        'scripts/gv_control_loop_inner.py',
         'scripts/gv_control_loop_outer.py',
         'scripts/gv_profile.py',
         'scripts/gv_record.py',

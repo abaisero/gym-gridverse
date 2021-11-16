@@ -17,6 +17,7 @@ from gym_gridverse.representations.state_representations import (
 
 
 def make_env(id_or_path: str) -> GymEnvironment:
+    """Makes a GV gym environment."""
     try:
         print('Loading using gym.make')
         env = gym.make(id_or_path)

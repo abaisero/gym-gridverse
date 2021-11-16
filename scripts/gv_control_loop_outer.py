@@ -15,6 +15,7 @@ from gym_gridverse.representations.state_representations import (
 
 
 def make_env(path: str) -> OuterEnv:
+    """Makes a GV "outer" environment."""
     inner_env = factory_env_from_yaml(path)
     state_representation = DefaultStateRepresentation(inner_env.state_space)
     observation_representation = DefaultObservationRepresentation(
@@ -28,6 +29,7 @@ def make_env(path: str) -> OuterEnv:
 
 
 def print_observation(observation):
+    """Converts numpy arrays into lists before printing, for more compact output."""
     printable_observation = {k: v.tolist() for k, v in observation.items()}
     print('observation:')
     print(f'{printable_observation}')
