@@ -2,8 +2,10 @@
 import argparse
 import itertools as itt
 import time
+from typing import Dict
 
 import gym
+import numpy as np
 
 from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 from gym_gridverse.gym import GymEnvironment
@@ -46,10 +48,10 @@ def make_env(id_or_path: str) -> GymEnvironment:
     return env
 
 
-def print_observation(observation):
-    printable_observation = {k: v.tolist() for k, v in observation.items()}
-    print('observation:')
-    print(f'{printable_observation}')
+def print_compact(data: Dict[str, np.ndarray]):
+    """Converts numpy arrays into lists before printing, for more compact output."""
+    compact_data = {k: v.tolist() for k, v in data.items()}
+    print(compact_data)
 
 
 def main(args):
@@ -65,7 +67,8 @@ def main(args):
         observation = env.reset()
         env.render()
 
-        print_observation(observation)
+        print('observation:')
+        print_compact(observation)
         print()
 
         time.sleep(spf)
@@ -80,7 +83,8 @@ def main(args):
 
             print(f'action: {action}')
             print(f'reward: {reward}')
-            print_observation(observation)
+            print('observation:')
+            print_compact(observation)
             print(f'done: {done}')
             print()
 
@@ -92,7 +96,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('id_or_path', help='Gym env id or env YAML file')
+    parser.add_argument('id_or_path', help='Gym id or GV YAML file')
     parser.add_argument(
         '--fps', type=float, default=1.0, help='frames per second'
     )

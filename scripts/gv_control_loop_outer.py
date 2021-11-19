@@ -3,6 +3,9 @@ import argparse
 import itertools as itt
 import random
 import time
+from typing import Dict
+
+import numpy as np
 
 from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 from gym_gridverse.outer_env import OuterEnv
@@ -28,11 +31,10 @@ def make_env(path: str) -> OuterEnv:
     )
 
 
-def print_observation(observation):
+def print_compact(data: Dict[str, np.ndarray]):
     """Converts numpy arrays into lists before printing, for more compact output."""
-    printable_observation = {k: v.tolist() for k, v in observation.items()}
-    print('observation:')
-    print(f'{printable_observation}')
+    compact_data = {k: v.tolist() for k, v in data.items()}
+    print(compact_data)
 
 
 def main(args):
@@ -46,7 +48,10 @@ def main(args):
         print()
 
         env.reset()
-        print_observation(env.observation)
+        print('state:')
+        print_compact(env.state)
+        print('observation:')
+        print_compact(env.observation)
         time.sleep(spf)
 
         for ti in itt.count():
@@ -58,7 +63,10 @@ def main(args):
 
             print(f'action: {action}')
             print(f'reward: {reward}')
-            print_observation(env.observation)
+            print('state:')
+            print_compact(env.state)
+            print('observation:')
+            print_compact(env.observation)
             print(f'done: {done}')
             print()
 
