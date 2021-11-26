@@ -5,10 +5,11 @@ from typing import Iterable, List
 
 import more_itertools as mitt
 import numpy as np
+from typing_extensions import TypeAlias
 
 from gym_gridverse.geometry import Area, Position
 
-Ray = List[Position]
+Ray: TypeAlias = List[Position]
 """Ray, a list of positions"""
 
 

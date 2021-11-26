@@ -14,7 +14,7 @@ from gym_gridverse.envs.transition_functions import transition_function_registry
 from gym_gridverse.geometry import Area, Orientation
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Color, Floor, GridObject, Wall
-from gym_gridverse.rng import get_gv_rng_if_none
+from gym_gridverse.rng import choice, get_gv_rng_if_none
 from gym_gridverse.state import State
 
 
@@ -39,6 +39,8 @@ class Coin(GridObject):
 
 @reset_function_registry.register
 def coin_maze(*, rng: Optional[rnd.Generator] = None) -> State:
+    """creates a maze with collectible coins"""
+
     # must call this to include reproduceable stochasticity
     rng = get_gv_rng_if_none(rng)
 
@@ -63,14 +65,15 @@ def coin_maze(*, rng: Optional[rnd.Generator] = None) -> State:
     # #########
 
     # randomized agent position and orientation
-    agent_position = rng.choice(
+    agent_position = choice(
+        rng,
         [
             position
             for position in grid.area.positions()
             if isinstance(grid[position], Coin)
-        ]
+        ],
     )
-    agent_orientation = rng.choice(list(Orientation))
+    agent_orientation = choice(rng, list(Orientation))
     agent = Agent(agent_position, agent_orientation)
 
     # remove coin from agent initial position
@@ -86,6 +89,7 @@ def collect_coin_transition(
     *,
     rng: Optional[rnd.Generator] = None,
 ):
+    """collects and removes coins"""
     if isinstance(state.grid[state.agent.position], Coin):
         state.grid[state.agent.position] = Floor()
 
@@ -99,6 +103,7 @@ def collect_coin_reward(
     reward: float = 1.0,
     rng: Optional[rnd.Generator] = None,
 ):
+    """gives reward if a coin was collected"""
     return (
         reward
         if isinstance(state.grid[next_state.agent.position], Coin)
@@ -114,6 +119,7 @@ def no_more_coins(
     *,
     rng: Optional[rnd.Generator] = None,
 ):
+    """terminates episodes if all coins are collected"""
     return not any(
         isinstance(next_state.grid[position], Coin)
         for position in next_state.grid.area.positions()

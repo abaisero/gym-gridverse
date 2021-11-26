@@ -127,7 +127,7 @@ def set_observation_function(
     """
 
     # XXX: hack
-    env._functional_observation = observation_function
+    env._observation_function = observation_function
 
     # ensure a new observation is generated
     env._observation = None

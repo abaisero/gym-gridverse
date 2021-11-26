@@ -32,6 +32,8 @@ from gym_gridverse.utils.registry import FunctionRegistry
 
 
 class TransitionFunction(Protocol):
+    """Signature that all reset functions must follow"""
+
     def __call__(
         self,
         state: State,

@@ -12,14 +12,6 @@ Subpackages
 Submodules
 ----------
 
-gym\_gridverse.envs.factory module
-----------------------------------
-
-.. automodule:: gym_gridverse.envs.factory
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 gym\_gridverse.envs.gridworld module
 ------------------------------------
 

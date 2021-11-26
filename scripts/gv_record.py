@@ -25,7 +25,7 @@ def main():
     env = factory_env_from_yaml(args.yaml)
 
     if args.observation_function is not None:
-        env._functional_observation = observation_function_factory(
+        env._observation_function = observation_function_factory(
             args.observation_function, observation_space=env.observation_space
         )
         env._observation = None

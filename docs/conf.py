@@ -50,7 +50,8 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'sphinx_rtd_theme',
+    'sphinx_autodoc_typehints',
+    'sphinx_copybutton',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -92,7 +93,8 @@ language = None
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+# pygments_style = 'sphinx'
+pygments_style = 'dracula'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -100,22 +102,21 @@ todo_include_todos = False
 
 # -- Options for HTML output -------------------------------------------
 
-html_logo = '../images/logo.svg'
+# html_logo = '../images/logo.svg'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-import sphinx_rtd_theme  # isort:skip
-
-# html_theme = 'classic'
-# html_theme = 'alabaster'
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'furo'
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    "light_logo": "logo_black.svg",
+    "dark_logo": "logo_white.svg",
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -124,14 +125,7 @@ html_static_path = ['_static']
 
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
-html_css_files = [
-    'css/dark.css',
-]
-
-
-def setup(app):
-    app.add_css_file("css/dark.css")
-    app.add_css_file("css/custom.css")
+# html_css_files = [ ]
 
 
 # -- Options for HTMLHelp output ---------------------------------------
@@ -199,10 +193,15 @@ texinfo_documents = [
 
 # -- Configurations ----------------------------------------------------
 
+# enable numref
+numfig = True
+
 # prevents isues with repeated section labels
 autosectionlabel_prefix_document = True
 
 napoleon_include_init_with_doc = True
+
+typehints_use_rtype = False
 
 # dev options
 todo_emit_warnings = True
@@ -210,19 +209,35 @@ todo_include_todos = True
 
 nitpicky = True
 nitpick_ignore = [
+    ('py:class', 'ActType'),
+    ('py:class', 'ObsType'),
     ('py:class', 'Ray'),
+    ('py:class', 'gym.Env'),
     ('py:class', 'gym.core.Env'),
     ('py:class', 'gym.core.Wrapper'),
     ('py:class', 'gym.envs.classic_control.rendering.Geom'),
     ('py:class', 'gym.spaces.space.Space'),
+    ('py:class', 'gym_gridverse.grid_object.GridObjectFactory'),
+    ('py:class', 'gym_gridverse.rng.T'),
+    ('py:class', 'gym_gridverse.utils.fast_copy.T'),
     ('py:class', 'list<bigint>'),
     ('py:class', 'pyglet.window.BaseWindow'),
     ('py:func', 'gym.make'),
 ]
 
-# recognizes custom types
+# autoclass concatenates the docstring of the class and __init__ definitions
+autoclass_content = 'both'
+
+# removes module from shown typehints
+autodoc_typehints_format = 'short'
+
+# selects the order in which included members are shown
+autodoc_member_order = 'bysource'
+
+# recognizes custom type aliases
 autodoc_type_aliases = {
-    'RecordingElement': 'gym_gridverse.recording.RecordingElement',
+    'GridObjectFactory': 'gym_gridverse.grid_object.GridObjectFactory',
+    'Ray': 'gym_gridverse.utils.raytracing.Ray',
 }
 
 # intersphinx allows references to other documentations

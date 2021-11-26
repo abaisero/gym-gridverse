@@ -37,8 +37,8 @@ a dictionary-like object through which to register and retrieve transition
 functions.  Transition functions are registered using the
 :py:meth:`~gym_gridverse.utils.registry.FunctionRegistry.register` method,
 which can be used as a decorator (also see
-:ref:`guides/transition_functions:Custom Transition Functions`).  As a
-dictionary,
+:ref:`tutorial/customization/transition_functions:Custom Transition
+Functions`).  As a dictionary,
 :py:data:`~gym_gridverse.envs.transition_functions.transition_function_registry`
 has a :py:meth:`~dict.keys` method which returns the names of registered
 functions.

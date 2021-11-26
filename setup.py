@@ -12,7 +12,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'pyglet',
-    'gym',
+    'gym[classic_control]==0.21.0',
     'imageio',
     'imageio-ffmpeg',
     'more_itertools',

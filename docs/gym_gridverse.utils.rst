@@ -4,10 +4,34 @@ gym\_gridverse.utils package
 Submodules
 ----------
 
+gym\_gridverse.utils.custom module
+----------------------------------
+
+.. automodule:: gym_gridverse.utils.custom
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+gym\_gridverse.utils.fast\_copy module
+--------------------------------------
+
+.. automodule:: gym_gridverse.utils.fast_copy
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 gym\_gridverse.utils.functions module
 -------------------------------------
 
 .. automodule:: gym_gridverse.utils.functions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+gym\_gridverse.utils.protocols module
+-------------------------------------
+
+.. automodule:: gym_gridverse.utils.protocols
    :members:
    :undoc-members:
    :show-inheritance:

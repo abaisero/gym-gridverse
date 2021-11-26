@@ -20,26 +20,40 @@ from gym_gridverse.state import State
 
 
 class GridWorld(InnerEnv):
+    """Implementation of the InnerEnv interface."""
+
     def __init__(
         self,
         state_space: StateSpace,
         action_space: ActionSpace,
         observation_space: ObservationSpace,
         reset_function: ResetFunction,
-        step_function: TransitionFunction,
+        transition_function: TransitionFunction,
         observation_function: ObservationFunction,
         reward_function: RewardFunction,
         termination_function: TerminatingFunction,
     ):
+        """Initializes a GridWorld from the given components.
+
+        Args:
+            state_space (StateSpace):
+            action_space (ActionSpace):
+            observation_space (ObservationSpace):
+            reset_function: (ResetFunction):
+            transition_function: (TransitionFunction),:
+            observation_function (ObservationFunction):
+            reward_function (RewardFunction):
+            termination_function (TerminatingFunction):
+        """
 
         # TODO: maybe add a parameter to avoid calls to `contain` everywhere
         # (or maybe a global setting)
 
-        self._functional_reset = reset_function
-        self._functional_step = step_function
-        self._functional_observation = observation_function
-        self.reward_function = reward_function
-        self.termination_function = termination_function
+        self._reset_function = reset_function
+        self._transition_function = transition_function
+        self._observation_function = observation_function
+        self._reward_function = reward_function
+        self._termination_function = termination_function
 
         self._rng: Optional[rnd.Generator] = None
 
@@ -49,7 +63,7 @@ class GridWorld(InnerEnv):
         self._rng = make_rng(seed)
 
     def functional_reset(self) -> State:
-        state = self._functional_reset(rng=self._rng)
+        state = self._reset_function(rng=self._rng)
         if gv_debug() and not self.state_space.contains(state):
             raise ValueError('state does not satisfy state_space')
 
@@ -65,7 +79,7 @@ class GridWorld(InnerEnv):
             raise ValueError('action {action} does not satisfy action-space')
 
         next_state = transition_with_copy(
-            self._functional_step,
+            self._transition_function,
             state,
             action,
             rng=self._rng,
@@ -74,13 +88,13 @@ class GridWorld(InnerEnv):
         if gv_debug() and not self.state_space.contains(next_state):
             raise ValueError('next_state does not satisfy state_space')
 
-        reward = self.reward_function(state, action, next_state)
-        terminal = self.termination_function(state, action, next_state)
+        reward = self._reward_function(state, action, next_state)
+        terminal = self._termination_function(state, action, next_state)
 
         return (next_state, reward, terminal)
 
     def functional_observation(self, state: State) -> Observation:
-        observation = self._functional_observation(state, rng=self._rng)
+        observation = self._observation_function(state, rng=self._rng)
         if gv_debug() and not self.observation_space.contains(observation):
             raise ValueError('observation does not satisfy observation_space')
 

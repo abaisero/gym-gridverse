@@ -17,7 +17,7 @@ from typing import (
 import imageio
 import more_itertools as mitt
 import numpy as np
-from typing_extensions import TypedDict, TypeGuard
+from typing_extensions import TypedDict
 
 from gym_gridverse.action import Action
 from gym_gridverse.observation import Observation
@@ -46,22 +46,16 @@ class Data(Generic[FrameType]):
             raise ValueError('wrong lengths')
 
     @property
-    def is_state_data(self: Data[FrameType]) -> TypeGuard[Data[State]]:
+    def is_state_data(self) -> bool:
         return isinstance(self.frames[0], State)
 
     @property
-    def is_observation_data(
-        self: Data[FrameType],
-    ) -> TypeGuard[Data[Observation]]:
+    def is_observation_data(self) -> bool:
         return isinstance(self.frames[0], Observation)
 
     @property
-    def is_image_data(self: Data[FrameType]) -> TypeGuard[Data[Image]]:
+    def is_image_data(self) -> bool:
         return isinstance(self.frames[0], Image)
-
-
-def _is_image_data(data: Data) -> TypeGuard[Data[Image]]:
-    return isinstance(data.frames[0], Image)
 
 
 @dataclass(frozen=True)
@@ -103,7 +97,7 @@ def generate_images(
 ) -> Iterator[Image]:
     """Generate images associated with the input data"""
 
-    if _is_image_data(data):
+    if data.is_image_data:
         yield from data.frames
         return
 

@@ -7,7 +7,7 @@ Welcome to gym-gridverse's documentation!
 
    readme
    installation
-   usage
+   tutorial
    modules
    contributing
    authors

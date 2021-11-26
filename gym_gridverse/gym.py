@@ -57,14 +57,19 @@ class GymEnvironment(gym.Env):
             if outer_env.state_representation is not None
             else None
         )
+        """Environment state space, if any."""
+
         self.action_space = gym.spaces.Discrete(
             outer_env.action_space.num_actions
         )
+        """Environment action space."""
+
         self.observation_space = (
             outer_space_to_gym_space(outer_env.observation_representation.space)
             if outer_env.observation_representation is not None
             else None
         )
+        """Environment observation space, if any."""
 
         self._state_viewer = None
         self._observation_viewer = None
@@ -75,7 +80,7 @@ class GymEnvironment(gym.Env):
         return [actual_seed]
 
     def set_state_representation(self, name: str):
-        """Change underlying state representation"""
+        """Changes the state representation."""
         # TODO: test
         self.outer_env.state_representation = create_state_representation(
             name, self.outer_env.inner_env.state_space
@@ -85,7 +90,7 @@ class GymEnvironment(gym.Env):
         )
 
     def set_observation_representation(self, name: str):
-        """Change underlying observation representation"""
+        """Changes the observation representation."""
         # TODO: test
         self.outer_env.observation_representation = (
             create_observation_representation(
@@ -98,14 +103,16 @@ class GymEnvironment(gym.Env):
 
     @property
     def state(self) -> Dict[str, np.ndarray]:
+        """Returns the representation of the current state."""
         return self.outer_env.state
 
     @property
     def observation(self) -> Dict[str, np.ndarray]:
+        """Returns the representation of the current observation."""
         return self.outer_env.observation
 
     def reset(self) -> Dict[str, np.ndarray]:
-        """reset the environment state
+        """Resets the state of the environment.
 
         Returns:
             Dict[str, numpy.ndarray]: initial observation
@@ -114,7 +121,7 @@ class GymEnvironment(gym.Env):
         return self.observation
 
     def step(self, action: int):
-        """performs environment step
+        """Runs the environment dynamics for one timestep.
 
         Args:
             action (int): agent's action

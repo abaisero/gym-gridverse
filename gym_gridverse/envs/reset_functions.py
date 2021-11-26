@@ -40,6 +40,8 @@ from gym_gridverse.utils.registry import FunctionRegistry
 
 
 class ResetFunction(Protocol):
+    """Signature that all reset functions must follow"""
+
     def __call__(self, *, rng: Optional[rnd.Generator] = None) -> State:
         ...
 

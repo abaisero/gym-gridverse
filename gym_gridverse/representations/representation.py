@@ -12,29 +12,25 @@ from gym_gridverse.representations.spaces import (
     DiscreteSpace,
     Space,
 )
-from gym_gridverse.spaces import StateSpace
+from gym_gridverse.spaces import ObservationSpace, StateSpace
 from gym_gridverse.state import State
 
 
 class Representation(abc.ABC):
-    """Base interface for state, observation and object representation"""
+    """Base interface for state and observation representation
+
+    Representations convert :py:class:`~gym_gridverse.state.State` and
+    :py:class:`~gym_gridverse.observation.Observation` objects into
+    dictionaries of :py:class:`~numpy.ndarray` values.
+    """
 
     @property
     @abc.abstractmethod
     def space(self) -> Dict[str, Space]:
-        """space of values the representation can return
-
-        Representations convert objects to a dictionary of `str` to
-        `numpy.ndarray` items. The common functionality of these representations
-        is to provide space of values that are expected to be returned,
-        provided here as a `str` to
-        `gym_gridverse.representations.spaces.Space` property.
-        """
+        """dictionary of represented spaces"""
 
 
 class StateRepresentation(Representation):
-    """Base interface for state representations: enforces `convert`"""
-
     def __init__(self, state_space: StateSpace):
         if not state_space.can_be_represented:
             raise ValueError(
@@ -44,16 +40,17 @@ class StateRepresentation(Representation):
         self.state_space = state_space
 
     @abc.abstractmethod
-    def convert(self, s: State) -> Dict[str, np.ndarray]:
-        """returns state `s` representation as str -> array dict"""
+    def convert(self, state: State) -> Dict[str, np.ndarray]:
+        """returns state representation as dictionary of numpy arrays"""
 
 
 class ObservationRepresentation(Representation):
-    """Base interface for observation representations: enforces `convert`"""
+    def __init__(self, observation_space: ObservationSpace):
+        self.observation_space = observation_space
 
     @abc.abstractmethod
-    def convert(self, o: Observation) -> Dict[str, np.ndarray]:
-        """returns observation `o` representation as str -> array dict"""
+    def convert(self, observation: Observation) -> Dict[str, np.ndarray]:
+        """returns observation representation as dictionary of numpy arrays"""
 
 
 def default_representation_space(
@@ -80,12 +77,11 @@ def default_representation_space(
 
         - 'grid': (height x width x 3) categorical space of the grid of item
           type/status/color
+        - 'agent_id_grid': (height x width) one-hot encoding of the agent's location
         - 'agent': (y, x, 1, 1, 1, 1) continuous space, where the first 2
           represent the normalized position and the last 4 ones represent the
           one-hot encoding of the orientation
-        - 'agent_id_grid': (height x width) one-hot encoding of the agent's location
         - 'item': the categorical item type, status and color (three values)
-        - 'agent_id_grid':
 
     Args:
         max_type_index (int): highest value the type of the objects can take
@@ -95,7 +91,7 @@ def default_representation_space(
         height (int): height of the grid
 
     Returns:
-        Dict[str, Space]: keys {'grid', 'agent', 'item', 'agent_id_grid'}
+        Dict[str, Space]: keys {'grid', 'agent_id_grid', 'agent', 'item'}
     """
     if max_type_index < 0:
         raise ValueError(f'negative max_type_index ({max_type_index})')
@@ -132,9 +128,9 @@ def default_representation_space(
 
     return {
         'grid': grid_space,
+        'agent_id_grid': agent_id_space,
         'agent': agent_space,
         'item': item_space,
-        'agent_id_grid': agent_id_space,
     }
 
 
@@ -166,7 +162,7 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
         agent (Agent):
 
     Returns:
-        Dict[str, numpy.ndarray]: keys {'grid', 'agent', 'item', 'agent_id_grid'}
+        Dict[str, numpy.ndarray]: keys {'grid', 'agent_id_grid', 'agent', 'item'}
     """
 
     item_representation = np.array(
@@ -245,7 +241,7 @@ def no_overlap_representation_space(
         height (int): height of the grid
 
     Returns:
-        Dict[str, Space]: keys {'grid', 'item', 'agent_id_grid', 'agent'}
+        Dict[str, Space]: keys {'grid', 'agent_id_grid', 'item', 'agent'}
     """
 
     rep = default_representation_space(
@@ -297,7 +293,7 @@ def no_overlap_convert(
         height (int): height of the grid
 
     Returns:
-        Dict[str, numpy.ndarray]: keys {'grid', 'item', 'agent', 'agent_id_grid'}
+        Dict[str, numpy.ndarray]: keys {'grid', 'agent_id_grid', 'item', 'agent'}
     """
 
     rep = default_convert(grid, agent)
