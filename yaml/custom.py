@@ -25,7 +25,7 @@ class Coin(GridObject):
         self.color = Color.NONE
         self.blocks_movement = False
         self.blocks_vision = False
-        self.can_be_picked_up = False
+        self.holdable = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:

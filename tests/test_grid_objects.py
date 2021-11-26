@@ -140,7 +140,7 @@ def test_floor_properties():
     assert not floor.blocks_vision
     assert not floor.blocks_movement
     assert floor.color == Color.NONE
-    assert not floor.can_be_picked_up
+    assert not floor.holdable
     assert floor.state_index == 0
 
     assert floor.can_be_represented_in_state()
@@ -155,7 +155,7 @@ def test_wall_properties():
     assert wall.blocks_vision
     assert wall.blocks_movement
     assert wall.color == Color.NONE
-    assert not wall.can_be_picked_up
+    assert not wall.holdable
     assert wall.state_index == 0
 
     assert wall.can_be_represented_in_state()
@@ -170,7 +170,7 @@ def test_exit_properties():
     assert not exit_.blocks_vision
     assert not exit_.blocks_movement
     assert exit_.color == Color.NONE
-    assert not exit_.can_be_picked_up
+    assert not exit_.holdable
     assert exit_.state_index == 0
 
     assert exit_.can_be_represented_in_state()
@@ -185,7 +185,7 @@ def test_door_open_door_properties():
 
     assert not open_door.blocks_vision
     assert open_door.color == color
-    assert not open_door.can_be_picked_up
+    assert not open_door.holdable
     assert open_door.state_index == Door.Status.OPEN.value
     assert open_door.is_open
     assert not open_door.locked
@@ -203,7 +203,7 @@ def test_door_closed_door_properties():
 
     assert closed_door.blocks_vision
     assert closed_door.color == color
-    assert not closed_door.can_be_picked_up
+    assert not closed_door.holdable
     assert closed_door.state_index == Door.Status.CLOSED.value
     assert not closed_door.is_open
     assert not closed_door.locked
@@ -220,7 +220,7 @@ def test_door_locked_door_properties():
 
     assert locked_door.blocks_vision
     assert locked_door.color == color
-    assert not locked_door.can_be_picked_up
+    assert not locked_door.holdable
     assert locked_door.state_index == Door.Status.LOCKED.value
     assert not locked_door.is_open
     assert locked_door.locked
@@ -238,7 +238,7 @@ def test_key_properties():
     assert not key.blocks_vision
     assert not key.blocks_movement
     assert key.color == color
-    assert key.can_be_picked_up
+    assert key.holdable
     assert key.state_index == 0
 
     assert key.can_be_represented_in_state()
@@ -253,7 +253,7 @@ def test_moving_obstacle_basic_properties():
     assert not obstacle.blocks_vision
     assert not obstacle.blocks_movement
     assert obstacle.color == Color.NONE
-    assert not obstacle.can_be_picked_up
+    assert not obstacle.holdable
     assert obstacle.state_index == 0
 
     assert obstacle.can_be_represented_in_state()
@@ -268,7 +268,7 @@ def test_box_basic_properties():
     assert not box.blocks_vision
     assert box.blocks_movement
     assert box.color == Color.NONE
-    assert not box.can_be_picked_up
+    assert not box.holdable
     assert box.state_index == 0
 
     assert not box.can_be_represented_in_state()
@@ -284,7 +284,7 @@ def test_telepod_properties():
     assert not telepod.blocks_vision
     assert not telepod.blocks_movement
     assert telepod.color == color
-    assert not telepod.can_be_picked_up
+    assert not telepod.holdable
     assert telepod.state_index == 0
 
     assert telepod.can_be_represented_in_state()
@@ -300,7 +300,7 @@ def test_beacon_properties():
     assert not beacon.blocks_vision
     assert not beacon.blocks_movement
     assert beacon.color == color
-    assert not beacon.can_be_picked_up
+    assert not beacon.holdable
     assert beacon.state_index == 0
 
     assert beacon.can_be_represented_in_state()
@@ -318,7 +318,7 @@ def test_custom_object():
             self.color = color
             self.blocks_vision = False
             self.blocks_movement = False
-            self.can_be_picked_up = False
+            self.holdable = False
 
         @classmethod
         def can_be_represented_in_state(cls) -> bool:
@@ -336,7 +336,7 @@ def test_custom_object():
     assert not colored_floor.blocks_vision
     assert not colored_floor.blocks_movement
     assert colored_floor.color == Color.YELLOW
-    assert not colored_floor.can_be_picked_up
+    assert not colored_floor.holdable
     assert colored_floor.state_index == 0
 
     assert colored_floor.can_be_represented_in_state()

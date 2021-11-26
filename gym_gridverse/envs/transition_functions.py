@@ -255,7 +255,7 @@ def pickndrop(
 
     position_front = state.agent.front()
     obj_front = state.grid[position_front]
-    can_be_dropped = isinstance(obj_front, Floor) or obj_front.can_be_picked_up
+    can_be_dropped = isinstance(obj_front, Floor) or obj_front.holdable
 
     if not can_be_dropped:
         return
@@ -266,9 +266,7 @@ def pickndrop(
         else Floor()  # We know we are picking up if not dropping
     )
 
-    state.agent.obj = (
-        obj_front if obj_front.can_be_picked_up else NoneGridObject()
-    )
+    state.agent.obj = obj_front if obj_front.holdable else NoneGridObject()
 
 
 @transition_function_registry.register
