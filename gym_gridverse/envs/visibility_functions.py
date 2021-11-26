@@ -132,7 +132,7 @@ def _partially_occluded_make_visible(
 
     if grid.area.contains(position) and not visibility[position.y, position.x]:
         visibility[position.y, position.x] = True
-        if grid[position].transparent:
+        if not grid[position].blocks_vision:
             for next_position in next_positions(position):
                 _partially_occluded_make_visible(
                     visibility, grid, next_position, next_positions
@@ -207,7 +207,7 @@ def raytracing(
         for pos in ray:
             counts_num[pos.y, pos.x] += int(light)
             counts_den[pos.y, pos.x] += 1
-            light = light and grid[pos].transparent
+            light = light and not grid[pos].blocks_vision
 
     visibility = (
         counts_num >= threshold
@@ -236,7 +236,7 @@ def stochastic_raytracing(  # TODO: add test
         for pos in ray:
             counts_num[pos.y, pos.x] += int(light)
             counts_den[pos.y, pos.x] += 1
-            light = light and grid[pos].transparent
+            light = light and not grid[pos].blocks_vision
 
     probs = np.nan_to_num(counts_num / counts_den)
     visibility = rng.random(probs.shape) <= probs

@@ -33,19 +33,19 @@ def frontal_line_of_sight(
             observation_grid[position] = Hidden()
 
     # boolean flag to detect whether the line of sight has run into a
-    # non-transparent object
-    found_non_transparent = False
+    # vision-blocking object
+    found_blocks_vision = False
 
     # for every y-coordinate in front of the agent
     for y in range(observation_space.agent_position.y - 1, -1, -1):
         position = Position(y, observation_space.agent_position.x)
 
-        # hide object if we have already encountered a non-transparent object
-        if found_non_transparent:
+        # hide object if we have already encountered a vision-blocking object
+        if found_blocks_vision:
             observation_grid[position] = Hidden()
 
-        # update the boolean flag if object is non-transparent
-        found_non_transparent |= not observation_grid[position].transparent
+        # update the boolean flag if object blocks vision
+        found_blocks_vision |= observation_grid[position].blocks_vision
 
     observation_agent = Agent(
         observation_space.agent_position, Orientation.F, state.agent.obj

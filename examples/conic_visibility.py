@@ -15,7 +15,7 @@ def conic(
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> np.ndarray:
-    """cone-shaped visibility, passes through non-transparent objects"""
+    """cone-shaped visibility, passes through all objects"""
 
     # initialize visibility matrix to False
     visibility = np.zeros(grid.shape, dtype=bool)
