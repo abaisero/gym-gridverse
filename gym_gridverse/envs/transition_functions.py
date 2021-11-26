@@ -182,7 +182,7 @@ def move_agent(
     except IndexError:
         pass
     else:
-        if not obj.blocks:
+        if not obj.blocks_movement:
             state.agent.position = next_position
 
 

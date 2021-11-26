@@ -47,7 +47,7 @@ class GridObjectMeta(abc.ABCMeta):
         obj.color
         obj.transparent
         obj.can_be_picked_up
-        obj.blocks
+        obj.blocks_movement
         return obj
 
 
@@ -67,7 +67,7 @@ class GridObject(metaclass=GridObjectMeta):
         self.can_be_picked_up: bool
         """Whether the agent can see pick up the object"""
 
-        self.blocks: bool
+        self.blocks_movement: bool
         """Whether the object blocks the agent from moving on it"""
 
     def __init_subclass__(cls, *, register: bool = True, **kwargs):
@@ -112,7 +112,7 @@ class NoneGridObject(GridObject):
         self.color = Color.NONE
         self.transparent = False
         self.can_be_picked_up = False
-        self.blocks = False
+        self.blocks_movement = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -135,7 +135,7 @@ class Hidden(GridObject):
         self.color = Color.NONE
         self.transparent = False
         self.can_be_picked_up = False
-        self.blocks = False
+        self.blocks_movement = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -158,7 +158,7 @@ class Floor(GridObject):
         self.color = Color.NONE
         self.transparent = True
         self.can_be_picked_up = False
-        self.blocks = False
+        self.blocks_movement = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -181,7 +181,7 @@ class Wall(GridObject):
         self.color = Color.NONE
         self.transparent = False
         self.can_be_picked_up = False
-        self.blocks = True
+        self.blocks_movement = True
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -204,7 +204,7 @@ class Exit(GridObject):
         self.color = color
         self.transparent = True
         self.can_be_picked_up = False
-        self.blocks = False
+        self.blocks_movement = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -264,7 +264,7 @@ class Door(GridObject):
         return self.state is Door.Status.OPEN
 
     @property
-    def blocks(self) -> bool:
+    def blocks_movement(self) -> bool:
         return self.state is not Door.Status.OPEN
 
     @property
@@ -290,7 +290,7 @@ class Key(GridObject):
         self.color = color
         self.transparent = True
         self.can_be_picked_up = True
-        self.blocks = False
+        self.blocks_movement = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -313,7 +313,7 @@ class MovingObstacle(GridObject):
         self.color = Color.NONE
         self.transparent = True
         self.can_be_picked_up = False
-        self.blocks = False
+        self.blocks_movement = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -343,7 +343,7 @@ class Box(GridObject):
         self.color = Color.NONE
         self.transparent = True
         self.can_be_picked_up = False
-        self.blocks = True
+        self.blocks_movement = True
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -366,7 +366,7 @@ class Telepod(GridObject):
         self.color = color
         self.transparent = True
         self.can_be_picked_up = False
-        self.blocks = False
+        self.blocks_movement = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -388,7 +388,7 @@ class Beacon(GridObject):
         self.color = color
         self.transparent = True
         self.can_be_picked_up = False
-        self.blocks = False
+        self.blocks_movement = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:

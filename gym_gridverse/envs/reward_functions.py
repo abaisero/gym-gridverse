@@ -485,7 +485,7 @@ def getting_closer_shortest_path(
 
         layout = tuple(
             tuple(
-                not state.grid[y, x].blocks
+                not state.grid[y, x].blocks_movement
                 for x in range(state.grid.shape.width)
             )
             for y in range(state.grid.shape.height)

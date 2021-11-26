@@ -138,7 +138,7 @@ def test_floor_properties():
     floor = Floor()
 
     assert floor.transparent
-    assert not floor.blocks
+    assert not floor.blocks_movement
     assert floor.color == Color.NONE
     assert not floor.can_be_picked_up
     assert floor.state_index == 0
@@ -153,7 +153,7 @@ def test_wall_properties():
     wall = Wall()
 
     assert not wall.transparent
-    assert wall.blocks
+    assert wall.blocks_movement
     assert wall.color == Color.NONE
     assert not wall.can_be_picked_up
     assert wall.state_index == 0
@@ -168,7 +168,7 @@ def test_exit_properties():
     exit_ = Exit()
 
     assert exit_.transparent
-    assert not exit_.blocks
+    assert not exit_.blocks_movement
     assert exit_.color == Color.NONE
     assert not exit_.can_be_picked_up
     assert exit_.state_index == 0
@@ -189,7 +189,7 @@ def test_door_open_door_properties():
     assert open_door.state_index == Door.Status.OPEN.value
     assert open_door.is_open
     assert not open_door.locked
-    assert not open_door.blocks
+    assert not open_door.blocks_movement
 
     assert open_door.can_be_represented_in_state()
     assert open_door.num_states() == 3
@@ -207,7 +207,7 @@ def test_door_closed_door_properties():
     assert closed_door.state_index == Door.Status.CLOSED.value
     assert not closed_door.is_open
     assert not closed_door.locked
-    assert closed_door.blocks
+    assert closed_door.blocks_movement
 
     assert closed_door.can_be_represented_in_state()
 
@@ -224,7 +224,7 @@ def test_door_locked_door_properties():
     assert locked_door.state_index == Door.Status.LOCKED.value
     assert not locked_door.is_open
     assert locked_door.locked
-    assert locked_door.blocks
+    assert locked_door.blocks_movement
 
     assert locked_door.can_be_represented_in_state()
 
@@ -236,7 +236,7 @@ def test_key_properties():
     key = Key(color)
 
     assert key.transparent
-    assert not key.blocks
+    assert not key.blocks_movement
     assert key.color == color
     assert key.can_be_picked_up
     assert key.state_index == 0
@@ -251,7 +251,7 @@ def test_moving_obstacle_basic_properties():
     obstacle = MovingObstacle()
 
     assert obstacle.transparent
-    assert not obstacle.blocks
+    assert not obstacle.blocks_movement
     assert obstacle.color == Color.NONE
     assert not obstacle.can_be_picked_up
     assert obstacle.state_index == 0
@@ -266,7 +266,7 @@ def test_box_basic_properties():
     box = Box(Floor())
 
     assert box.transparent
-    assert box.blocks
+    assert box.blocks_movement
     assert box.color == Color.NONE
     assert not box.can_be_picked_up
     assert box.state_index == 0
@@ -282,7 +282,7 @@ def test_telepod_properties():
     telepod = Telepod(color)
 
     assert telepod.transparent
-    assert not telepod.blocks
+    assert not telepod.blocks_movement
     assert telepod.color == color
     assert not telepod.can_be_picked_up
     assert telepod.state_index == 0
@@ -298,7 +298,7 @@ def test_beacon_properties():
     beacon = Beacon(color)
 
     assert beacon.transparent
-    assert not beacon.blocks
+    assert not beacon.blocks_movement
     assert beacon.color == color
     assert not beacon.can_be_picked_up
     assert beacon.state_index == 0
@@ -318,7 +318,7 @@ def test_custom_object():
             self.color = color
             self.transparent = True
             self.can_be_picked_up = False
-            self.blocks = False
+            self.blocks_movement = False
 
         @classmethod
         def can_be_represented_in_state(cls) -> bool:
@@ -334,7 +334,7 @@ def test_custom_object():
     colored_floor = ColoredFloor(Color.YELLOW)
 
     assert colored_floor.transparent
-    assert not colored_floor.blocks
+    assert not colored_floor.blocks_movement
     assert colored_floor.color == Color.YELLOW
     assert not colored_floor.can_be_picked_up
     assert colored_floor.state_index == 0

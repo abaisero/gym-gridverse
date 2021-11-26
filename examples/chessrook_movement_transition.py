@@ -33,7 +33,7 @@ def chessrook_movement(
     # check positions until a blocking cell is found
     position = state.agent.position
     position_delta = Position.from_orientation(movement_orientation)
-    while not state.grid[position + position_delta].blocks:
+    while not state.grid[position + position_delta].blocks_movement:
         position = position + position_delta
 
     state.agent.position = position
