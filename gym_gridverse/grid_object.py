@@ -6,6 +6,8 @@ import enum
 from collections import UserList
 from typing import Callable, List, Type
 
+from typing_extensions import TypeAlias
+
 
 class Color(enum.Enum):
     """Color of grid objects"""
@@ -39,20 +41,19 @@ class GridObjectRegistry(UserList):
 grid_object_registry = GridObjectRegistry()
 
 
-# class GridObjectMeta(abc.ABCMeta):
-#     def __call__(self, *args, **kwargs):
-#         obj = super().__call__(*args, **kwargs)
-#         # checks attribute existence at object instantiation
-#         obj.state_index
-#         obj.color
-#         obj.blocks_movement
-#         obj.blocks_vision
-#         obj.holdable
-#         return obj
+class GridObjectMeta(abc.ABCMeta):
+    def __call__(self, *args, **kwargs):
+        obj = super().__call__(*args, **kwargs)
+        # checks attribute existence at object instantiation
+        obj.state_index
+        obj.color
+        obj.blocks_movement
+        obj.blocks_vision
+        obj.holdable
+        return obj
 
 
-# class GridObject(metaclass=GridObjectMeta):
-class GridObject(metaclass=abc.ABCMeta):
+class GridObject(metaclass=GridObjectMeta):
     """A cell in the grid"""
 
     @property
@@ -92,12 +93,30 @@ class GridObject(metaclass=abc.ABCMeta):
     @classmethod
     @abc.abstractmethod
     def can_be_represented_in_state(cls) -> bool:
-        """Returns whether the state_index fully represents the object state"""
+        """True iff :py:attr:`~gym_gridverse.grid_object.GridObject.state_index` fully represents the object state.
+
+        GridObjects may have an internal state which is not fully representable
+        by a single integer
+        :py:attr:`~gym_gridverse.grid_object.GridObject.state_index`, e.g., a
+        Box may contain a reference to another GridObject as its content.  The
+        unfortunate implication is that this GridObject (and, by extension, any
+        Grid/Environment which contains this type of GridObject) cannot produce
+        a truly fully observable State representation, which becomes
+        disallowed.  However, the GridObject, Grid, and Environment may still
+        be used to represent partially observable control tasks.
+        """
+        assert False
 
     @classmethod
     @abc.abstractmethod
     def num_states(cls) -> int:
-        """Number of states this class can take on"""
+        """Number of internal states.
+
+        GridObjects themselves can have internal states, e.g., a Door may be
+        ``open``, ``closed``, or ``locked``.  This classmethod return the
+        number of possible states that this GridObject may have.
+        """
+        assert False
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, GridObject):
@@ -114,7 +133,7 @@ class GridObject(metaclass=abc.ABCMeta):
 
 
 class NoneGridObject(GridObject):
-    """object representing the absence of an object"""
+    """An object which represents the complete absence of any other object."""
 
     state_index = 0
     color = Color.NONE
@@ -135,7 +154,7 @@ class NoneGridObject(GridObject):
 
 
 class Hidden(GridObject):
-    """object representing an unobservable cell"""
+    """An object which represents some other unobservable object."""
 
     state_index = 0
     color = Color.NONE
@@ -156,7 +175,7 @@ class Hidden(GridObject):
 
 
 class Floor(GridObject):
-    """Most basic object in the grid, represents empty cell"""
+    """An empty walkable spot"""
 
     state_index = 0
     color = Color.NONE
@@ -177,7 +196,7 @@ class Floor(GridObject):
 
 
 class Wall(GridObject):
-    """The (second) most basic object in the grid: blocking cell"""
+    """An object which obstructs movement and vision."""
 
     state_index = 0
     color = Color.NONE
@@ -223,7 +242,16 @@ class Exit(GridObject):
 
 
 class Door(GridObject):
-    """A door in a grid.
+    """A door which can be `open`, `closed` or `locked`.
+
+    The following dynamics (upon actuation) occur:
+
+    When not holding correct key with correct color:
+        `open` or `closed` -> `open`
+        `locked` -> `locked`
+
+    When holding correct key:
+        any state -> `open`
 
     Can be `OPEN`, `CLOSED` or `LOCKED`.
     """
@@ -276,7 +304,7 @@ class Door(GridObject):
 
 
 class Key(GridObject):
-    """A key opens a door with the same color"""
+    """A key to open locked doors."""
 
     state_index = 0
     color = Color.NONE
@@ -301,7 +329,7 @@ class Key(GridObject):
 
 
 class MovingObstacle(GridObject):
-    """An obstacle to be avoided that moves in the grid"""
+    """An obstacle to be avoided that moves in the grid."""
 
     state_index = 0
     color = Color.NONE
@@ -322,7 +350,7 @@ class MovingObstacle(GridObject):
 
 
 class Box(GridObject):
-    """A box which can be broken and may contain another object"""
+    """A box which can be broken and may contain another object."""
 
     state_index = 0
     color = Color.NONE
@@ -352,7 +380,7 @@ class Box(GridObject):
 
 
 class Telepod(GridObject):
-    """A teleportation pod"""
+    """A pod which teleports elsewhere."""
 
     state_index = 0
     color = Color.NONE
@@ -377,7 +405,7 @@ class Telepod(GridObject):
 
 
 class Beacon(GridObject):
-    """A beacon to attract attention"""
+    """A object to attract attention or convey information."""
 
     state_index = 0
     color = Color.NONE
@@ -400,5 +428,5 @@ class Beacon(GridObject):
         return f'{self.__class__.__name__}({self.color!s})'
 
 
-GridObjectFactory = Callable[[], GridObject]
-"""Signature for a function that instantiates grid objects on call"""
+GridObjectFactory: TypeAlias = Callable[[], GridObject]
+"""A callable which returns grid objects."""

@@ -5,22 +5,21 @@ from typing import List, Set, Tuple, Type, Union, cast
 from .geometry import Area, Orientation, Position, Shape
 from .grid_object import Floor, GridObject, GridObjectFactory, Hidden
 
-Pair = Tuple[int, int]
-
 
 class Grid:
-    """The state of the environment (minus the agent): a two-dimensional board of objects
+    """A two-dimensional grid of objects.
 
     A container of :py:class:`~gym_gridverse.grid_object.GridObject`. This is
-    basically a two-dimensional array, with some additional functions to
-    simplify interacting with the objects, such as getting areas
+    typically used to represent either the global state of the environment, or
+    a partial agent view.  This is basically a two-dimensional array, with some
+    additional methods which help in querying and manipulating its objects.
     """
 
     def __init__(self, objects: List[List[GridObject]]):
-        """Constructs a `height` x `width` grid of :py:class:`~gym_gridverse.grid_object.Floor`
+        """Constructs a grid from the given grid-objects
 
         Args:
-            objects (List[List[GridObject]]): grid of GridObjects
+            objects (List[List[~gym_gridverse.grid_object.GridObject]]): grid of GridObjects
         """
         self.objects = objects
         self.shape = Shape(len(objects), len(objects[0]))
@@ -28,15 +27,24 @@ class Grid:
 
     @staticmethod
     def from_shape(
-        shape: Union[Shape, Pair],
+        shape: Union[Shape, Tuple[int, int]],
         *,
         factory: GridObjectFactory = Floor,
     ) -> Grid:
+        """Constructs a grid with the given shape, with objects generated from the factory.
+
+        Args:
+            shape (Union[~gym_gridverse.geometry.Shape, Tuple[int, int]]):
+            factory (~gym_gridverse.grid_object.GridObjectFactory):
+        Returns:
+            Grid: The grid of the appropriate size, with generated objects
+        """
+
         try:
             shape = cast(Shape, shape)
             height, width = shape.height, shape.width
         except AttributeError:
-            shape = cast(Pair, shape)
+            shape = cast(Tuple[int, int], shape)
             height, width = shape
         objects = [[factory() for _ in range(width)] for _ in range(height)]
         return Grid(objects)
@@ -51,33 +59,52 @@ class Grid:
             return NotImplemented
 
     def object_types(self) -> Set[Type[GridObject]]:
-        """returns object types currently in the grid"""
+        """Returns the set of object types in the grid
+
+        Returns:
+            Set[Type[GridObject]]:
+        """
         return set(type(self[position]) for position in self.area.positions())
 
     def get(
-        self, position: Union[Position, Pair], *, factory: GridObjectFactory
-    ):
+        self,
+        position: Union[Position, Tuple[int, int]],
+        *,
+        factory: GridObjectFactory,
+    ) -> GridObject:
+        """Gets the grid object in the position, or generates one from the factory.
+
+        Args:
+            position (Union[~gym_gridverse.geometry.Position, Tuple[int, int]]):
+            factory (~gym_gridverse.grid_object.GridObjectFactory):
+        Returns:
+            GridObject:
+        """
         try:
             return self[position]
         except IndexError:
             return factory()
 
-    def __getitem__(self, position: Union[Position, Pair]) -> GridObject:
+    def __getitem__(
+        self, position: Union[Position, Tuple[int, int]]
+    ) -> GridObject:
         try:
             position = cast(Position, position)
             y, x = position.yx
         except AttributeError:
-            position = cast(Pair, position)
+            position = cast(Tuple[int, int], position)
             y, x = position
 
         return self.objects[y][x]
 
-    def __setitem__(self, position: Union[Position, Pair], obj: GridObject):
+    def __setitem__(
+        self, position: Union[Position, Tuple[int, int]], obj: GridObject
+    ):
         try:
             position = cast(Position, position)
             y, x = position.yx
         except AttributeError:
-            position = cast(Pair, position)
+            position = cast(Tuple[int, int], position)
             y, x = position
 
         if not isinstance(obj, GridObject):
@@ -86,16 +113,22 @@ class Grid:
         self.objects[y][x] = obj
 
     def swap(self, p: Position, q: Position):
+        """Swaps the grid objects at two positions.
+
+        Args:
+            p (~gym_gridverse.geometry.Position):
+            q (~gym_gridverse.geometry.Position):
+        """
         self[p], self[q] = self[q], self[p]
 
     def subgrid(self, area: Area) -> Grid:
-        """returns subgrid slice at given area
+        """Returns subgrid slice at given area.
 
         Cells included in the area but outside of the grid are represented as
         Hidden objects.
 
         Args:
-            area (Area): The area to be sliced
+            area (~gym_gridverse.geometry.Area): The area to be sliced
         Returns:
             Grid: New instance, sliced appropriately
         """
@@ -133,7 +166,7 @@ class Grid:
         AC
 
         Args:
-            orientation (Orientation): The rotation orientation
+            orientation (~gym_gridverse.geometry.Orientation): The rotation orientation
         Returns:
             Grid: New instance rotated appropriately
         """

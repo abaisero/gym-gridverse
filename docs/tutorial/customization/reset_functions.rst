@@ -33,8 +33,9 @@ pre-defined reset functions and the
 dictionary-like object through which to register and retrieve reset functions.
 Reset functions are registered using the
 :py:meth:`~gym_gridverse.utils.registry.FunctionRegistry.register` method,
-which can be used as a decorator (also see :ref:`guides/reset_functions:Custom
-Reset Functions`).  As a dictionary,
+which can be used as a decorator (also see
+:ref:`tutorial/customization/reset_functions:Custom Reset Functions`).  As a
+dictionary,
 :py:data:`~gym_gridverse.envs.reset_functions.reset_function_registry` has a
 :py:meth:`~dict.keys` method which returns the names of registered functions.
 

@@ -27,9 +27,6 @@ class DefaultObservationRepresentation(ObservationRepresentation):
     the agent in the agent aspect
     """
 
-    def __init__(self, observation_space: ObservationSpace):
-        self.observation_space = observation_space
-
     @property
     def space(self) -> Dict[str, Space]:
         max_type_index = self.observation_space.max_grid_object_type
@@ -74,9 +71,6 @@ class NoOverlapObservationRepresentation(ObservationRepresentation):
     """
 
     # TODO: test
-
-    def __init__(self, observation_space: ObservationSpace):
-        self.observation_space = observation_space
 
     @property
     def space(self) -> Dict[str, Space]:

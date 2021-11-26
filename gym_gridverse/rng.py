@@ -28,11 +28,14 @@ def get_gv_rng_if_none(rng: Optional[rnd.Generator]) -> rnd.Generator:
     return get_gv_rng() if rng is None else rng
 
 
+# auxiliary methods solve typing issues associated with rng sampling
+
 T = TypeVar('T')
+"""generic type"""
 
 
 def choice(rng: rnd.Generator, data: Sequence[T]) -> T:
-    """utility function to help typing, only valid for size 1"""
+    """randomly chooses one element from the input data"""
     i = rng.choice(len(data))
     return data[i]
 
@@ -40,12 +43,13 @@ def choice(rng: rnd.Generator, data: Sequence[T]) -> T:
 def choices(
     rng: rnd.Generator, data: Sequence[T], *, size: int, **kwargs
 ) -> List[T]:
-    """utility function to help typing"""
+    """randomly chooses multiple elements from the input data"""
     indices = rng.choice(len(data), size=size, **kwargs)
     return [data[i] for i in indices]
 
 
 def shuffle(rng: rnd.Generator, data: Sequence[T]) -> List[T]:
+    """randomly shuffles the data"""
     indices = list(range(len(data)))
     # NOTE: faster than rng.choice
     rng.shuffle(indices)

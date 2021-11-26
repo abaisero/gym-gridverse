@@ -11,6 +11,14 @@ from gym_gridverse.spaces import ActionSpace
 
 
 class OuterEnv:
+    """Outer environment
+
+    Outer environments provide an interface primarily based on numeric data,
+    with states and observations represented by :py:class:`~numpy.ndarray`, and
+    actions by :py:class:`~gym_gridverse.action.Action`.
+
+    """
+
     def __init__(
         self,
         env: InnerEnv,
@@ -24,7 +32,7 @@ class OuterEnv:
 
     @property
     def action_space(self) -> ActionSpace:
-        """Returns the action space of the problem
+        """Returns the action space of the problem.
 
         Returns:
             ActionSpace:
@@ -32,14 +40,14 @@ class OuterEnv:
         return self.inner_env.action_space
 
     def reset(self) -> None:
-        """Resets the state of the environment"""
+        """Resets the state"""
         self.inner_env.reset()
 
     def step(self, action: Action) -> Tuple[float, bool]:
-        """Updates the state according to the action
+        """Runs the dynamics for one timestep, and returns reward and done flag
 
         Args:
-            action: agent's action
+            action(~gym_gridverse.action.Action): agent's action
 
         Returns:
             Tuple[float, bool]: (reward, terminality)
@@ -48,7 +56,7 @@ class OuterEnv:
 
     @property
     def state(self) -> Dict[str, np.ndarray]:
-        """Returns the representation of the current state
+        """Returns the representation of the current state.
 
         Returns:
             Dict[str, numpy.ndarray]:
@@ -60,7 +68,7 @@ class OuterEnv:
 
     @property
     def observation(self) -> Dict[str, np.ndarray]:
-        """Returns the representation of the current observation
+        """Returns the representation of the current observation.
 
         Returns:
             Dict[str, numpy.ndarray]:

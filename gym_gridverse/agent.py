@@ -7,12 +7,11 @@ from .grid_object import GridObject, NoneGridObject
 
 
 class Agent:
-    """The agent part of the state in an environment
+    """Information relative to the agent.
 
-    A container for the:
-        - :py:class:`~gym_gridverse.geometry.Position` of the agent
-        - :py:class:`~gym_gridverse.geometry.Orientation` of the agent
-        - :py:class:`~gym_gridverse.grid_object.GridObject` held by the agent
+    NOTE:  This does not necessarily represent the true full state of the
+    agent;  e.g., the agent field of an observation objects, would only contain
+    the observable versions of the agent's state.
     """
 
     def __init__(
@@ -24,9 +23,9 @@ class Agent:
         """Creates the agent at `position` with `orientation` and holding `grid_object`.
 
         Args:
-            position (Position):
-            orientation (Orientation):
-            object (Optional[GridObject]):
+            position (Position): position of the agent relative to some area.
+            orientation (Orientation): orientation of the agent relative to some area.
+            grid_object (Optional[GridObject]): object held by the agent.
         """
 
         self.transform = Transform(position, orientation)

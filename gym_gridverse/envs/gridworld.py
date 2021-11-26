@@ -20,6 +20,8 @@ from gym_gridverse.state import State
 
 
 class GridWorld(InnerEnv):
+    """Implementation of the InnerEnv interface."""
+
     def __init__(
         self,
         state_space: StateSpace,
@@ -31,6 +33,18 @@ class GridWorld(InnerEnv):
         reward_function: RewardFunction,
         termination_function: TerminatingFunction,
     ):
+        """Initializes a GridWorld from the given components.
+
+        Args:
+            state_space (StateSpace):
+            action_space (ActionSpace):
+            observation_space (ObservationSpace):
+            reset_function: (ResetFunction):
+            step_function: (TransitionFunction),:
+            observation_function (ObservationFunction):
+            reward_function (RewardFunction):
+            termination_function (TerminatingFunction):
+        """
 
         # TODO: maybe add a parameter to avoid calls to `contain` everywhere
         # (or maybe a global setting)

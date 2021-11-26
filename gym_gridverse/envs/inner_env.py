@@ -10,6 +10,15 @@ __all__ = ['InnerEnv']
 
 
 class InnerEnv(metaclass=abc.ABCMeta):
+    """Inner environment
+
+    Inner environments provide an interface primarily based on python objects,
+    with states represented by :py:class:`~gym_gridverse.state.State`,
+    observations by :py:class:`~gym_gridverse.observation.Observation`, and
+    actions by :py:class:`~gym_gridverse.action.Action`.
+
+    """
+
     def __init__(
         self,
         state_space: StateSpace,
@@ -29,27 +38,36 @@ class InnerEnv(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def functional_reset(self) -> State:
+        """Returns a new state"""
         assert False, "Must be implemented by derived class"
 
     @abc.abstractmethod
     def functional_step(
         self, state: State, action: Action
     ) -> Tuple[State, float, bool]:
+        """Returns next state, reward, and done flag"""
         assert False, "Must be implemented by derived class"
 
     @abc.abstractmethod
     def functional_observation(self, state: State) -> Observation:
+        """Returns observation"""
         assert False, "Must be implemented by derived class"
 
     def reset(self):
+        """Resets the state
+
+        Internally calls :py:meth:`functional_reset` to reset the state;  also
+        resets the observation, so that an updated observation will be
+        generated upon request.
+        """
         self._state = self.functional_reset()
         self._observation = None
 
     def step(self, action: Action) -> Tuple[float, bool]:
-        """Updates the state by applying `action`
+        """Runs the dynamics for one timestep, and returns reward and done flag
 
-        Calls :py:meth:`functional_step` under the hood on :py:meth:`state` and
-        resets :py:meth:`observation` to ensure the next observation will be
+        Internally calls :py:meth:`functional_step` to update the state;  also
+        resets the observation, so that an updated observation will be
         generated upon request.
 
         Args:
@@ -65,16 +83,10 @@ class InnerEnv(metaclass=abc.ABCMeta):
 
     @property
     def state(self) -> State:
-        """Returns the current state
-
-        The state is the result of a sequence of
-        :py:class:`~gym_gridverse.action.Action` through the :py:meth:`step`
-        function.
-
-        To reset the state, see :py:meth:`reset`
+        """Return the current state
 
         Returns:
-            State: the current state of the environment
+            State:
         """
         if self._state is None:
             raise RuntimeError(
@@ -87,11 +99,12 @@ class InnerEnv(metaclass=abc.ABCMeta):
     def observation(self) -> Observation:
         """Returns the current observation
 
-        This implicitly calls :py:meth:`functional_observation`, which
-        generates an observation from the current :py:meth:`state`.
-
-        NOTE: even when using stochastic observation functions this call will
-        always return the same values.
+        Internally calls :py:meth:`functional_observation` to generate the
+        current observation based on the current state.  The observation is
+        generated lazily, such that at most one observation is generated for
+        each state.  As a consequence, this will return the same observation
+        until the state is reset/updated, even if the observation function is
+        stochastic.
 
         Returns:
             Observation:
