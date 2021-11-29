@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import time
 from functools import partial
 from typing import Callable, Dict, List, Optional
@@ -30,6 +32,13 @@ def outer_space_to_gym_space(space: Dict[str, Space]) -> gym.spaces.Space:
     )
 
 
+OuterEnvFactory = Callable[[], OuterEnv]
+
+
+def from_factory(factory: OuterEnvFactory):
+    return GymEnvironment(factory())
+
+
 class GymEnvironment(gym.Env):
     metadata = {
         'render.modes': ['human', 'human_state', 'human_observation'],
@@ -38,23 +47,21 @@ class GymEnvironment(gym.Env):
 
     # NOTE accepting an environment instance as input is a bad idea because it
     # would need to be instantiated during gym registration
-    def __init__(self, constructor: Callable[[], OuterEnv]):
+    def __init__(self, outer_env: OuterEnv):
         super().__init__()
-        self.outer_env = constructor()
 
+        self.outer_env = outer_env
         self.state_space = (
-            outer_space_to_gym_space(self.outer_env.state_representation.space)
-            if self.outer_env.state_representation is not None
+            outer_space_to_gym_space(outer_env.state_representation.space)
+            if outer_env.state_representation is not None
             else None
         )
         self.action_space = gym.spaces.Discrete(
-            self.outer_env.action_space.num_actions
+            outer_env.action_space.num_actions
         )
         self.observation_space = (
-            outer_space_to_gym_space(
-                self.outer_env.observation_representation.space
-            )
-            if self.outer_env.observation_representation is not None
+            outer_space_to_gym_space(outer_env.observation_representation.space)
+            if outer_env.observation_representation is not None
             else None
         )
 
@@ -87,11 +94,6 @@ class GymEnvironment(gym.Env):
         self.observation_space = outer_space_to_gym_space(
             self.outer_env.observation_representation.space
         )
-
-    @classmethod
-    def from_environment(cls, env: OuterEnv):
-        # TODO: test
-        return cls(lambda: env)
 
     @property
     def state(self) -> Dict[str, np.ndarray]:
@@ -241,28 +243,29 @@ STRING_TO_YAML_FILE: Dict[str, str] = {
     "GV-Teleport-7x7-v0": "gv_teleport.7x7.yaml",
 }
 
-env_ids = []
 
-for key, yaml_file_name_ in STRING_TO_YAML_FILE.items():
+def outer_env_factory(yaml_filename: str) -> OuterEnv:
+    env = factory_env_from_yaml(yaml_filename)
+    observation_representation = create_observation_representation(
+        'default', env.observation_space
+    )
+    return OuterEnv(
+        env,
+        observation_representation=observation_representation,
+    )
 
-    def outer_env_constructor(yaml_file_name: str) -> OuterEnv:
-        env = factory_env_from_yaml(yaml_file_name)
-        observation_representation = create_observation_representation(
-            'default', env.observation_space
-        )
-        return OuterEnv(
-            env,
-            observation_representation=observation_representation,
-        )
 
+for key, yaml_filename in STRING_TO_YAML_FILE.items():
+
+    # registering using factory to avoid allocation of outer envs
     gym.register(
         key,
-        entry_point='gym_gridverse.gym:GymEnvironment',
+        entry_point='gym_gridverse.gym:from_factory',
         kwargs={
-            'constructor': partial(
-                outer_env_constructor,
-                ".registered_environments/" + yaml_file_name_,
+            'factory': partial(
+                outer_env_factory, f'.registered_environments/{yaml_filename}'
             )
         },
     )
-    env_ids.append(key)
+
+env_ids = list(STRING_TO_YAML_FILE.keys())

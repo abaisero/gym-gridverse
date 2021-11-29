@@ -31,7 +31,7 @@ def make_env(id_or_path: str) -> GymEnvironment:
             state_representation=state_representation,
             observation_representation=observation_representation,
         )
-        env = GymEnvironment.from_environment(outer_env)
+        env = GymEnvironment(outer_env)
 
     else:
         if not isinstance(env, GymEnvironment):
