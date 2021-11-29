@@ -343,7 +343,7 @@ def actuate_door(
     if door.is_open:
         pass
 
-    elif not door.locked:
+    elif not door.is_locked:
         door.state = Door.Status.OPEN
 
     else:

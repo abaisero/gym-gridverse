@@ -188,7 +188,7 @@ def test_door_open_door_properties():
     assert not open_door.holdable
     assert open_door.state_index == Door.Status.OPEN.value
     assert open_door.is_open
-    assert not open_door.locked
+    assert not open_door.is_locked
     assert not open_door.blocks_movement
 
     assert open_door.can_be_represented_in_state()
@@ -206,7 +206,7 @@ def test_door_closed_door_properties():
     assert not closed_door.holdable
     assert closed_door.state_index == Door.Status.CLOSED.value
     assert not closed_door.is_open
-    assert not closed_door.locked
+    assert not closed_door.is_locked
     assert closed_door.blocks_movement
 
     assert closed_door.can_be_represented_in_state()
@@ -223,7 +223,7 @@ def test_door_locked_door_properties():
     assert not locked_door.holdable
     assert locked_door.state_index == Door.Status.LOCKED.value
     assert not locked_door.is_open
-    assert locked_door.locked
+    assert locked_door.is_locked
     assert locked_door.blocks_movement
 
     assert locked_door.can_be_represented_in_state()

@@ -219,24 +219,12 @@ class Exit(GridObject):
 
 
 class Door(GridObject):
-    """A door is a grid
+    """A door in a grid.
 
-    Can be `open`, `closed` or `locked`.
-
-    The following dynamics (upon actuation) occur:
-
-    When not holding correct key with correct color:
-        `open` or `closed` -> `open`
-        `locked` -> `locked`
-
-    When holding correct key:
-        any state -> `open`
-
+    Can be `OPEN`, `CLOSED` or `LOCKED`.
     """
 
     class Status(enum.Enum):
-        """open, closed or locked"""
-
         OPEN = 0
         CLOSED = enum.auto()
         LOCKED = enum.auto()
@@ -261,20 +249,20 @@ class Door(GridObject):
 
     @property
     def blocks_movement(self) -> bool:
-        return self.state is not Door.Status.OPEN
+        return not self.is_open
 
     @property
     def blocks_vision(self) -> bool:
-        return self.state is not Door.Status.OPEN
+        return not self.is_open
 
     @property
     def is_open(self) -> bool:
-        """returns whether the door is opened"""
+        """returns whether the door is opened."""
         return self.state is Door.Status.OPEN
 
     @property
-    def locked(self) -> bool:
-        """returns whether the door is locked"""
+    def is_locked(self) -> bool:
+        """returns whether the door is locked."""
         return self.state is Door.Status.LOCKED
 
     def __repr__(self):
