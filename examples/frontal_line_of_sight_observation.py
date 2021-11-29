@@ -48,6 +48,6 @@ def frontal_line_of_sight(
         found_blocks_vision |= observation_grid[position].blocks_vision
 
     observation_agent = Agent(
-        observation_space.agent_position, Orientation.F, state.agent.obj
+        observation_space.agent_position, Orientation.F, state.agent.grid_object
     )
     return Observation(observation_grid, observation_agent)

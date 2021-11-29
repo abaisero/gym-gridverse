@@ -91,9 +91,9 @@ def test_default_representation_convert(default_representation_fixture):
         0.0,
     ]
     expected_item_representation = [
-        agent.obj.type_index(),
-        agent.obj.state_index,
-        agent.obj.color.value,
+        agent.grid_object.type_index(),
+        agent.grid_object.state_index,
+        agent.grid_object.color.value,
     ]
 
     expected_grid_representation = np.array(

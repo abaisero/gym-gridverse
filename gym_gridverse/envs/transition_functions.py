@@ -261,12 +261,15 @@ def pickndrop(
         return
 
     state.grid[position_front] = (
-        state.agent.obj
-        if not isinstance(state.agent.obj, NoneGridObject) and can_be_dropped
+        state.agent.grid_object
+        if not isinstance(state.agent.grid_object, NoneGridObject)
+        and can_be_dropped
         else Floor()  # We know we are picking up if not dropping
     )
 
-    state.agent.obj = obj_front if obj_front.holdable else NoneGridObject()
+    state.agent.grid_object = (
+        obj_front if obj_front.holdable else NoneGridObject()
+    )
 
 
 @transition_function_registry.register
@@ -348,8 +351,8 @@ def actuate_door(
 
     else:
         if (
-            isinstance(state.agent.obj, Key)
-            and state.agent.obj.color == door.color
+            isinstance(state.agent.grid_object, Key)
+            and state.agent.grid_object.color == door.color
         ):
             door.state = Door.Status.OPEN
 

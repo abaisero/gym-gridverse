@@ -31,11 +31,11 @@ def _change_agent_orientation(state: State):
     state.agent.orientation *= Orientation.B
 
 
-def _change_agent_object(state: State):
-    """changes agent object"""
-    state.agent.obj = (
+def _change_agent_grid_object(state: State):
+    """changes agent grid object"""
+    state.agent.grid_object = (
         Key(Color.RED)
-        if isinstance(state.agent.obj, NoneGridObject)
+        if isinstance(state.agent.grid_object, NoneGridObject)
         else NoneGridObject()
     )
 
@@ -70,7 +70,7 @@ def test_state_eq(state: State):
     assert state != other_state
 
     other_state = fast_copy(state)
-    _change_agent_object(other_state)
+    _change_agent_grid_object(other_state)
     assert state != other_state
 
 
@@ -78,11 +78,11 @@ def test_state_hash():
     wall_position = Position(0, 0)
     agent_position = Position(0, 1)
     agent_orientation = Orientation.F
-    agent_object = None
+    agent_grid_object = None
 
     grid = Grid.from_shape((2, 2))
     grid[wall_position] = Wall()
-    agent = Agent(agent_position, agent_orientation, agent_object)
+    agent = Agent(agent_position, agent_orientation, agent_grid_object)
     state = State(grid, agent)
 
     hash(state)

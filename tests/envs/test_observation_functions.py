@@ -30,7 +30,7 @@ def test_partially_occluded_1(agent: Agent):
     observation = partially_occluded(state, area=observation_space.area)
     assert observation.agent.position == Position(5, 2)
     assert observation.agent.orientation == Orientation.F
-    assert observation.agent.obj == state.agent.obj
+    assert observation.agent.grid_object == state.agent.grid_object
     assert observation.grid.shape == Shape(6, 5)
     assert isinstance(observation.grid[3, 0], Wall)
 

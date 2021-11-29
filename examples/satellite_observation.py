@@ -40,7 +40,7 @@ def satellite(
     observation_agent = Agent(
         state.agent.position - (y0, x0),
         state.agent.orientation,
-        state.agent.obj,
+        state.agent.grid_object,
     )
 
     return Observation(observation_grid, observation_agent)

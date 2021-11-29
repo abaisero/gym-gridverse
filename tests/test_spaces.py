@@ -203,7 +203,7 @@ def test_observation_space_contains__shape(
 
 
 @pytest.mark.parametrize(
-    'space_object_types,observation_objects,agent_object,expected',
+    'space_object_types,observation_objects,agent_grid_object,expected',
     [
         ([Floor], [[Floor(), Floor(), Floor()]], None, True),
         ([Floor, Wall], [[Floor(), Floor(), Floor()]], None, True),
@@ -217,7 +217,7 @@ def test_observation_space_contains__shape(
 def test_observation_space_contains__object_types(
     space_object_types: Sequence[Type[GridObject]],
     observation_objects: Sequence[Sequence[GridObject]],
-    agent_object: Optional[GridObject],
+    agent_grid_object: Optional[GridObject],
     expected: bool,
 ):
     # NOTE:  observation_objects should have shape (1, 3)
@@ -226,14 +226,14 @@ def test_observation_space_contains__object_types(
     )
     observation = Observation(
         Grid(observation_objects),
-        Agent(Position(0, 1), Orientation.F, agent_object),
+        Agent(Position(0, 1), Orientation.F, agent_grid_object),
     )
 
     assert observation_space.contains(observation) == expected
 
 
 @pytest.mark.parametrize(
-    'space_colors,observation_objects,agent_object,expected',
+    'space_colors,observation_objects,agent_grid_object,expected',
     [
         ([Color.RED], [[Key(Color.RED)], [Key(Color.RED)]], None, True),
         (
@@ -261,14 +261,14 @@ def test_observation_space_contains__object_types(
 def test_observation_space_contains__colors(
     space_colors: Sequence[Color],
     observation_objects: Sequence[Sequence[GridObject]],
-    agent_object: Optional[GridObject],
+    agent_grid_object: Optional[GridObject],
     expected: bool,
 ):
     # NOTE:  observation_objects should have shape (2, 1)
     observation_space = ObservationSpace(Shape(2, 1), [Key], space_colors)
     observation = Observation(
         Grid(observation_objects),
-        Agent(Position(1, 0), Orientation.F, agent_object),
+        Agent(Position(1, 0), Orientation.F, agent_grid_object),
     )
 
     assert observation_space.contains(observation) == expected

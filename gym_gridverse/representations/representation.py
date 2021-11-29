@@ -170,7 +170,11 @@ def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
     """
 
     item_representation = np.array(
-        [agent.obj.type_index(), agent.obj.state_index, agent.obj.color.value]
+        [
+            agent.grid_object.type_index(),
+            agent.grid_object.state_index,
+            agent.grid_object.color.value,
+        ]
     )
 
     # need this to improve efficiency, because python3.7 does not have assignment operators

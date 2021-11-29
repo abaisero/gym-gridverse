@@ -612,8 +612,8 @@ def pickndrop(
         rng (`Generator, optional`)
     """
 
-    has_key = isinstance(state.agent.obj, object_type)
-    next_has_key = isinstance(next_state.agent.obj, object_type)
+    has_key = isinstance(state.agent.grid_object, object_type)
+    next_has_key = isinstance(next_state.agent.grid_object, object_type)
 
     return (
         reward_pick

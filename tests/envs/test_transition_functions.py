@@ -262,12 +262,12 @@ def test_pickup_mechanics_pickup():
 
     # Pick up works
     next_state = transition_with_copy(pickndrop, state, Action.PICK_N_DROP)
-    assert grid[item_position] == next_state.agent.obj
+    assert grid[item_position] == next_state.agent.grid_object
     assert isinstance(next_state.grid[item_position], Floor)
 
     # Pick up only works with correct action
     next_state = transition_with_copy(pickndrop, state, Action.MOVE_LEFT)
-    assert grid[item_position] != next_state.agent.obj
+    assert grid[item_position] != next_state.agent.grid_object
     assert next_state.grid[item_position] == grid[item_position]
 
 
@@ -276,20 +276,20 @@ def test_pickup_mechanics_drop():
     agent = Agent(Position(1, 2), Orientation.B)
     item_position = Position(2, 2)
 
-    agent.obj = Key(Color.BLUE)
+    agent.grid_object = Key(Color.BLUE)
     state = State(grid, agent)
 
     # Can drop:
     next_state = transition_with_copy(pickndrop, state, Action.PICK_N_DROP)
-    assert isinstance(next_state.agent.obj, NoneGridObject)
-    assert agent.obj == next_state.grid[item_position]
+    assert isinstance(next_state.agent.grid_object, NoneGridObject)
+    assert agent.grid_object == next_state.grid[item_position]
 
     # Cannot drop:
     state.grid[item_position] = Wall()
 
     next_state = transition_with_copy(pickndrop, state, Action.PICK_N_DROP)
     assert isinstance(next_state.grid[item_position], Wall)
-    assert agent.obj == next_state.agent.obj
+    assert agent.grid_object == next_state.agent.grid_object
 
 
 def test_pickup_mechanics_swap():
@@ -297,13 +297,13 @@ def test_pickup_mechanics_swap():
     agent = Agent(Position(1, 2), Orientation.B)
     item_position = Position(2, 2)
 
-    agent.obj = Key(Color.BLUE)
+    agent.grid_object = Key(Color.BLUE)
     grid[item_position] = Key(Color.GREEN)
     state = State(grid, agent)
 
     next_state = transition_with_copy(pickndrop, state, Action.PICK_N_DROP)
-    assert state.grid[item_position] == next_state.agent.obj
-    assert state.agent.obj == next_state.grid[item_position]
+    assert state.grid[item_position] == next_state.agent.grid_object
+    assert state.agent.grid_object == next_state.grid[item_position]
 
 
 # Tests each moving obstacle is moved exactly once.  A previous naive

@@ -35,9 +35,9 @@ def _change_agent_orientation(observation: Observation):
 
 def _change_agent_object(observation: Observation):
     """changes agent object"""
-    observation.agent.obj = (
+    observation.agent.grid_object = (
         Key(Color.RED)
-        if isinstance(observation.agent.obj, NoneGridObject)
+        if isinstance(observation.agent.grid_object, NoneGridObject)
         else NoneGridObject()
     )
 
@@ -80,11 +80,11 @@ def test_observation_hash():
     wall_position = Position(0, 0)
     agent_position = Position(0, 1)
     agent_orientation = Orientation.F
-    agent_object = None
+    agent_grid_object = None
 
     grid = Grid.from_shape((2, 2))
     grid[wall_position] = Wall()
-    agent = Agent(agent_position, agent_orientation, agent_object)
+    agent = Agent(agent_position, agent_orientation, agent_grid_object)
     observation = Observation(grid, agent)
 
     hash(observation)
