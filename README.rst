@@ -321,6 +321,21 @@ to browse all projects to get a clearer picture on which best suits your needs.
 .. _MiniGrid: https://github.com/maximecb/gym-minigrid
 .. _MiniWorld: https://github.com/maximecb/gym-miniworld
 
+Citation
+--------
+
+If you use `gym-gridsearch`, please cite it:
+
+```bibtex
+@misc{baisero2021gymgridverse,
+    author = {Andrea Baisero and Sammie Katt},
+    title = {gym-gridverse},
+    year = {2021},
+    publisher = {GitHub},
+    journal = {GitHub repository},
+    howpublished = {\url{https://github.com/abaisero/gym-gridverse}},
+}
+```
 
 Credits
 -------
