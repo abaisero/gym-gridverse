@@ -173,7 +173,7 @@ class Position:
     @staticmethod
     def euclidean_distance(p: Position, q: Position) -> float:
         diff = p - q
-        return math.sqrt(diff.y ** 2 + diff.x ** 2)
+        return math.sqrt(diff.y**2 + diff.x**2)
 
 
 class Orientation(enum.Enum):
