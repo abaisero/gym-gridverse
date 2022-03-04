@@ -50,7 +50,7 @@ setup(
     keywords='gym_gridverse',
     name='gym_gridverse',
     packages=find_packages(include=['gym_gridverse', 'gym_gridverse.*']),
-    package_data={'gym_gridverse': ['py.typed']},
+    package_data={'gym_gridverse': ['py.typed', 'registered_envs/*.yaml']},
     scripts=[
         'scripts/gv_control_loop_gym.py',
         'scripts/gv_control_loop_inner.py',

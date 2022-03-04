@@ -6,6 +6,7 @@ from typing import Callable, Dict, List, Optional
 
 import gym
 import numpy as np
+import pkg_resources
 from gym.utils import seeding
 
 from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
@@ -256,16 +257,16 @@ def outer_env_factory(yaml_filename: str) -> OuterEnv:
 
 
 for key, yaml_filename in STRING_TO_YAML_FILE.items():
+    yaml_filepath = pkg_resources.resource_filename(
+        'gym_gridverse', f'registered_envs/{yaml_filename}'
+    )
+    factory = partial(outer_env_factory, yaml_filepath)
 
     # registering using factory to avoid allocation of outer envs
     gym.register(
         key,
         entry_point='gym_gridverse.gym:from_factory',
-        kwargs={
-            'factory': partial(
-                outer_env_factory, f'.registered_environments/{yaml_filename}'
-            )
-        },
+        kwargs={'factory': factory},
     )
 
 env_ids = list(STRING_TO_YAML_FILE.keys())
