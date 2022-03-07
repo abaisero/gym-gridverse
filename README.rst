@@ -324,18 +324,18 @@ to browse all projects to get a clearer picture on which best suits your needs.
 Citation
 --------
 
-If you use `gym-gridsearch`, please cite it:
+If you use `gym-gridverse`, please cite it:
 
-```bibtex
-@misc{baisero2021gymgridverse,
-    author = {Andrea Baisero and Sammie Katt},
-    title = {gym-gridverse},
-    year = {2021},
-    publisher = {GitHub},
-    journal = {GitHub repository},
-    howpublished = {\url{https://github.com/abaisero/gym-gridverse}},
-}
-```
+.. code-block:: bibtex
+
+  @misc{baisero2021gym-gridverse,
+      author = {Andrea Baisero and Sammie Katt},
+      title = {gym-gridverse: Gridworld domains for fully and partially observable reinforcement learning},
+      year = {2021},
+      publisher = {GitHub},
+      journal = {GitHub repository},
+      howpublished = {\url{https://github.com/abaisero/gym-gridverse}},
+  }
 
 Credits
 -------
