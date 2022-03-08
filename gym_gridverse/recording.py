@@ -21,61 +21,61 @@ from gym_gridverse.rendering import GridVerseViewer
 from gym_gridverse.state import State
 from gym_gridverse.utils.rl import make_return_computer
 
-RecordingElement = TypeVar('RecordingElement', State, Observation, np.ndarray)
+FrameType = TypeVar('FrameType', State, Observation, np.ndarray)
 """A State, Observation, or image (np.ndarray)"""
 
 
 @dataclass(frozen=True)
-class Data(Generic[RecordingElement]):
+class Data(Generic[FrameType]):
     """Data for recordings of states or observations"""
 
-    elements: Sequence[RecordingElement]
+    frames: Sequence[FrameType]
     actions: Sequence[Action]
     rewards: Sequence[float]
     discount: float
 
     def __post_init__(self):
-        if not len(self.elements) - 1 == len(self.actions) == len(self.rewards):
+        if not len(self.frames) - 1 == len(self.actions) == len(self.rewards):
             raise ValueError('wrong lengths')
 
     @property
     def is_state_data(self):
-        return isinstance(self.elements[0], State)
+        return isinstance(self.frames[0], State)
 
     @property
     def is_observation_data(self):
-        return isinstance(self.elements[0], Observation)
+        return isinstance(self.frames[0], Observation)
 
     @property
     def is_image_data(self):
-        return isinstance(self.elements[0], np.ndarray)
+        return isinstance(self.frames[0], np.ndarray)
 
 
 @dataclass(frozen=True)
-class DataBuilder(Generic[RecordingElement]):
+class DataBuilder(Generic[FrameType]):
     """Builds Data object interactively"""
 
-    elements: List[RecordingElement] = field(init=False, default_factory=list)
+    frames: List[FrameType] = field(init=False, default_factory=list)
     actions: List[Action] = field(init=False, default_factory=list)
     rewards: List[float] = field(init=False, default_factory=list)
     discount: float
 
-    def append0(self, element: RecordingElement):
-        if len(self.elements) != 0:
+    def append0(self, frame: FrameType):
+        if len(self.frames) != 0:
             raise RuntimeError('cannot call DataBuilder.append0 at this point')
 
-        self.elements.append(element)
+        self.frames.append(frame)
 
-    def append(self, element: RecordingElement, action: Action, reward: float):
-        if len(self.elements) == 0:
+    def append(self, frame: FrameType, action: Action, reward: float):
+        if len(self.frames) == 0:
             raise RuntimeError('cannot call DataBuilder.append at this point')
 
-        self.elements.append(element)
+        self.frames.append(frame)
         self.actions.append(action)
         self.rewards.append(reward)
 
-    def build(self) -> Data[RecordingElement]:
-        return Data(self.elements, self.actions, self.rewards, self.discount)
+    def build(self) -> Data[FrameType]:
+        return Data(self.frames, self.actions, self.rewards, self.discount)
 
 
 class HUD_Info(TypedDict):
@@ -85,14 +85,14 @@ class HUD_Info(TypedDict):
     done: Optional[bool]
 
 
-def generate_images(data: Data[RecordingElement]) -> Iterator[np.ndarray]:
+def generate_images(data: Data[FrameType]) -> Iterator[np.ndarray]:
     """Generate images associated with the input data"""
 
     if data.is_image_data:
-        yield from data.elements
+        yield from data.frames
         return
 
-    shape = data.elements[0].grid.shape
+    shape = data.frames[0].grid.shape
     viewer = GridVerseViewer(shape)
     viewer.flip_hud()
 
@@ -103,12 +103,12 @@ def generate_images(data: Data[RecordingElement]) -> Iterator[np.ndarray]:
         'done': None,
     }
 
-    yield viewer.render(data.elements[0], return_rgb_array=True, **hud_info)
+    yield viewer.render(data.frames[0], return_rgb_array=True, **hud_info)
 
     return_computer = make_return_computer(data.discount)
 
-    for _, is_last, (element, action, reward) in mitt.mark_ends(
-        zip(data.elements[1:], data.actions, data.rewards)
+    for _, is_last, (frame, action, reward) in mitt.mark_ends(
+        zip(data.frames[1:], data.actions, data.rewards)
     ):
         hud_info = {
             'action': action,
@@ -117,7 +117,7 @@ def generate_images(data: Data[RecordingElement]) -> Iterator[np.ndarray]:
             'done': is_last,
         }
 
-        yield viewer.render(element, return_rgb_array=True, **hud_info)
+        yield viewer.render(frame, return_rgb_array=True, **hud_info)
 
     viewer.close()
 
