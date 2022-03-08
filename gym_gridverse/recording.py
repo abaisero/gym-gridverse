@@ -94,6 +94,7 @@ def generate_images(data: Data[RecordingElement]) -> Iterator[np.ndarray]:
 
     shape = data.elements[0].grid.shape
     viewer = GridVerseViewer(shape)
+    viewer.flip_hud()
 
     hud_info: HUD_Info = {
         'action': None,
