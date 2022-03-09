@@ -10,6 +10,9 @@ import imageio
 import numpy.random as rnd
 
 from gym_gridverse.envs.inner_env import InnerEnv
+from gym_gridverse.envs.observation_functions import (
+    factory as observation_function_factory,
+)
 from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 from gym_gridverse.observation import Observation
 from gym_gridverse.recording import Data, DataBuilder, generate_images, record
@@ -20,10 +23,19 @@ def main():
     args = get_args()
 
     env = factory_env_from_yaml(args.yaml)
+
+    if args.observation_function is not None:
+        env._functional_observation = observation_function_factory(
+            args.observation_function, observation_space=env.observation_space
+        )
+        env._observation = None
+
     env.set_seed(args.seed)
     rnd.seed(args.seed)
 
-    state_data, observation_data = make_data(env, args.discount)
+    state_data, observation_data = make_data(
+        env, args.discount, max_steps=args.max_steps
+    )
 
     if args.state:
         images = list(generate_images(state_data))
@@ -57,7 +69,7 @@ def main():
 
 
 def make_data(
-    env: InnerEnv, discount: float
+    env: InnerEnv, discount: float, *, max_steps: int
 ) -> Tuple[Data[State], Data[Observation]]:
 
     state_data_builder: DataBuilder[State] = DataBuilder(discount)
@@ -68,13 +80,15 @@ def make_data(
     state_data_builder.append0(env.state)
     observation_data_builder.append0(env.observation)
 
-    done = False
-    while not done:
+    for _ in range(max_steps):
         action = rnd.choice(env.action_space.actions)
         reward, done = env.step(action)
 
         state_data_builder.append(env.state, action, reward)
         observation_data_builder.append(env.observation, action, reward)
+
+        if done:
+            break
 
     return state_data_builder.build(), observation_data_builder.build()
 
@@ -98,13 +112,15 @@ def get_args():
         '--discount', type=float, default=1.0, help='discount factor'
     )
     parser.add_argument(
-        '--max-steps', type=int, default=100, help='maximum number of steps'
+        '--max-steps', type=int, default=99, help='maximum number of steps'
     )
 
     parser.add_argument('--state', default=None, help='state filename')
     parser.add_argument(
         '--observation', default=None, help='observation filename'
     )
+
+    parser.add_argument('--observation-function', default=None)
 
     imageio_help_sentinel = object()  # used to detect no argument given
     parser.add_argument(
