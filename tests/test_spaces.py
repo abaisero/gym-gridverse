@@ -1,5 +1,5 @@
 import glob
-from typing import Optional, Sequence, Type
+from typing import List, Optional, Sequence, Type
 
 import pytest
 
@@ -216,7 +216,7 @@ def test_observation_space_contains__shape(
 )
 def test_observation_space_contains__object_types(
     space_object_types: Sequence[Type[GridObject]],
-    observation_objects: Sequence[Sequence[GridObject]],
+    observation_objects: List[List[GridObject]],
     agent_grid_object: Optional[GridObject],
     expected: bool,
 ):
@@ -260,7 +260,7 @@ def test_observation_space_contains__object_types(
 )
 def test_observation_space_contains__colors(
     space_colors: Sequence[Color],
-    observation_objects: Sequence[Sequence[GridObject]],
+    observation_objects: List[List[GridObject]],
     agent_grid_object: Optional[GridObject],
     expected: bool,
 ):

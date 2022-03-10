@@ -4,9 +4,6 @@ from typing import Type
 
 import pytest
 
-from gym_gridverse.agent import Agent
-from gym_gridverse.geometry import Orientation, Position
-from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import (
     Beacon,
     Box,
@@ -23,7 +20,6 @@ from gym_gridverse.grid_object import (
     Wall,
     grid_object_registry,
 )
-from gym_gridverse.state import State
 
 
 class DummyNonRegisteredObject(GridObject, register=False):
@@ -96,15 +92,6 @@ def test_grid_object_registration():
         Beacon,
     ]:
         assert grid_object_registry[obj_cls.type_index()] is obj_cls
-
-
-def simple_state_without_object() -> State:
-    """Returns a 2x2 (empty) grid with an agent without an item"""
-    # TODO this should raise error, which means it is not being used anywhere
-    return State(
-        Grid(height=2, width=2),
-        Agent(Position(0, 0), Orientation.F, Floor()),
-    )
 
 
 def test_none_grid_object_properties():
@@ -313,12 +300,14 @@ def test_custom_object():
     class ColoredFloor(GridObject):
         """Most basic _colored_ object in the grid, represents empty cell"""
 
+        state_index = 0
+        color = Color.NONE
+        blocks_vision = False
+        blocks_movement = False
+        holdable = False
+
         def __init__(self, color: Color = Color.NONE):
-            self.state_index = 0
             self.color = color
-            self.blocks_vision = False
-            self.blocks_movement = False
-            self.holdable = False
 
         @classmethod
         def can_be_represented_in_state(cls) -> bool:

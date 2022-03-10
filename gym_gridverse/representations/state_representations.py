@@ -57,7 +57,7 @@ class NoOverlapStateRepresentation(StateRepresentation):
     """
 
     @property
-    def space(self) -> Dict[str, np.ndarray]:
+    def space(self) -> Dict[str, Space]:
         max_type_index = self.state_space.max_grid_object_type
         max_state_index = self.state_space.max_grid_object_status
         max_color_value = self.state_space.max_object_color

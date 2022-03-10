@@ -1,4 +1,4 @@
-from typing import Sequence, Type
+from typing import List, Type
 from unittest.mock import MagicMock
 
 import pytest
@@ -85,7 +85,7 @@ def test_partially_occluded_1(agent: Agent):
     ],
 )
 def test_artially_occluded_2(
-    agent: Agent, expected_objects: Sequence[Sequence[GridObject]]
+    agent: Agent, expected_objects: List[List[GridObject]]
 ):
     grid = Grid(
         [

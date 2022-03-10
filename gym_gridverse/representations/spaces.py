@@ -1,5 +1,5 @@
 import enum
-from typing import Tuple
+from typing import Tuple, cast
 
 import numpy as np
 
@@ -110,8 +110,8 @@ class Space:
         return (
             x.shape == self.shape
             and is_dtype_compatible(x, self.space_type)
-            and np.all(self.lower_bound <= x)
-            and np.all(x <= self.upper_bound)
+            and cast(bool, np.all(self.lower_bound <= x))
+            and cast(bool, np.all(x <= self.upper_bound))
         )
 
 

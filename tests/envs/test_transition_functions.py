@@ -1,7 +1,7 @@
 """ Tests state dynamics """
 
 import copy
-from typing import Sequence
+from typing import List
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
@@ -86,7 +86,7 @@ def make_moving_obstacle_state():
 )
 def test_turn_agent(
     orientation: Orientation,
-    actions: Sequence[Action],
+    actions: List[Action],
     expected: Orientation,
 ):
 
@@ -189,7 +189,7 @@ def test_turn_agent(
 def test_move_agent(
     position: Position,
     orientation: Orientation,
-    actions: Sequence[Action],
+    actions: List[Action],
     expected: Position,
 ):
     state = State(
@@ -352,8 +352,8 @@ def test_move_obstacles_once_per_obstacle(_):
     ],
 )
 def test_move_obstacles(
-    objects: Sequence[Sequence[GridObject]],
-    expected_objects: Sequence[Sequence[GridObject]],
+    objects: List[List[GridObject]],
+    expected_objects: List[List[GridObject]],
 ):
     state = State(Grid(objects), MagicMock())
     expected_state = State(Grid(expected_objects), MagicMock())

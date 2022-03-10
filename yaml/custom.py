@@ -19,13 +19,11 @@ from gym_gridverse.state import State
 
 
 class Coin(GridObject):
-    def __init__(self):
-        super().__init__()
-        self.state_index = 0
-        self.color = Color.NONE
-        self.blocks_movement = False
-        self.blocks_vision = False
-        self.holdable = False
+    state_index = 0
+    color = Color.NONE
+    blocks_movement = False
+    blocks_vision = False
+    holdable = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:

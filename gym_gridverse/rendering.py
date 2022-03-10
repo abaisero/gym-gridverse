@@ -262,7 +262,7 @@ def make_door(door: Door) -> rendering.Geom:
         _make_door_open(door)
         if door.is_open
         else _make_door_closed_locked(door)
-        if door.locked
+        if door.is_locked
         else _make_door_closed_unlocked(door)
     )
 

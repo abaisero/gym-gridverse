@@ -1,4 +1,4 @@
-from typing import Sequence, Type
+from typing import List, Type
 
 import pytest
 
@@ -28,7 +28,7 @@ from gym_gridverse.grid_object import Floor, GridObject, Wall
         ],
     ],
 )
-def test_full_visibility(objects: Sequence[Sequence[GridObject]]):
+def test_full_visibility(objects: List[List[GridObject]]):
     grid = Grid(objects)
     for position in grid.area.positions():
         visibility = fully_transparent(grid, position)
@@ -95,9 +95,9 @@ def test_full_visibility(objects: Sequence[Sequence[GridObject]]):
     ],
 )
 def test_partial_visibility(
-    objects: Sequence[Sequence[GridObject]],
+    objects: List[List[GridObject]],
     position: Position,
-    expected_int: Sequence[Sequence[int]],
+    expected_int: List[List[int]],
 ):
     grid = Grid(objects)
     visibility = partially_occluded(grid, position)
@@ -163,9 +163,9 @@ def test_partial_visibility(
     ],
 )
 def test_raytracing_visibility(
-    objects: Sequence[Sequence[GridObject]],
+    objects: List[List[GridObject]],
     position: Position,
-    expected_int: Sequence[Sequence[int]],
+    expected_int: List[List[int]],
 ):
     grid = Grid(objects)
     visibility = raytracing(grid, position)

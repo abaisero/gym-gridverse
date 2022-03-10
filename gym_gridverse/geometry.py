@@ -4,9 +4,7 @@ import enum
 import itertools as itt
 import math
 from dataclasses import dataclass
-from typing import Callable, Iterable, List, Sequence, Tuple, TypeVar
-
-T = TypeVar('T')
+from typing import Callable, Iterable, List, Sequence, Tuple, Union, overload
 
 
 @dataclass(frozen=True)
@@ -19,6 +17,10 @@ class Shape:
 
     height: int
     width: int
+
+    @property
+    def as_tuple(self) -> Tuple[int, int]:
+        return self.height, self.width
 
 
 @dataclass(frozen=True)
@@ -142,7 +144,15 @@ class Position:
                 'method expectes orientation {orientation}'
             ) from error
 
-    def __add__(self, other: T) -> T:
+    @overload
+    def __add__(self, other: Position) -> Position:
+        ...
+
+    @overload
+    def __add__(self, other: Area) -> Area:
+        ...
+
+    def __add__(self, other: Union[Position, Area]) -> Union[Position, Area]:
         if isinstance(other, Position):
             return Position(self.y + other.y, self.x + other.x)
 
@@ -188,7 +198,21 @@ class Orientation(enum.Enum):
     L = LEFT
     R = RIGHT
 
-    def __mul__(self, other: T) -> T:
+    @overload
+    def __mul__(self, other: Orientation) -> Orientation:
+        ...
+
+    @overload
+    def __mul__(self, other: Position) -> Position:
+        ...
+
+    @overload
+    def __mul__(self, other: Area) -> Area:
+        ...
+
+    def __mul__(
+        self, other: Union[Orientation, Position, Area]
+    ) -> Union[Orientation, Position, Area]:
         if isinstance(other, Orientation):
             return _orientation_rotations[self, other]
 
@@ -258,7 +282,25 @@ class Transform:
     position: Position
     orientation: Orientation
 
-    def __mul__(self, other: T) -> T:
+    @overload
+    def __mul__(self, other: Transform) -> Transform:
+        ...
+
+    @overload
+    def __mul__(self, other: Position) -> Position:
+        ...
+
+    @overload
+    def __mul__(self, other: Area) -> Area:
+        ...
+
+    @overload
+    def __mul__(self, other: Orientation) -> Orientation:
+        ...
+
+    def __mul__(
+        self, other: Union[Transform, Position, Area, Orientation]
+    ) -> Union[Transform, Position, Area, Orientation]:
         """Returns rigid body transformation of other geometric objects
 
         Implements the following behaviors:

@@ -31,7 +31,7 @@ from gym_gridverse.grid_object import (
     Telepod,
     Wall,
 )
-from gym_gridverse.rng import get_gv_rng_if_none
+from gym_gridverse.rng import choice, choices, get_gv_rng_if_none, shuffle
 from gym_gridverse.state import State
 from gym_gridverse.utils.custom import import_if_custom
 from gym_gridverse.utils.functions import checkraise_kwargs, select_kwargs
@@ -111,6 +111,9 @@ def empty(
     grid = Grid.from_shape((shape.height, shape.width))
     draw_wall_boundary(grid)
 
+    exit_y: int
+    exit_x: int
+
     if random_exit:
         exit_y = rng.integers(1, shape.height - 2, endpoint=True)
         exit_x = rng.integers(1, shape.width - 2, endpoint=True)
@@ -121,14 +124,13 @@ def empty(
     grid[exit_y, exit_x] = Exit()
 
     if random_agent:
-        agent_position = rng.choice(
-            [
-                position
-                for position in grid.area.positions()
-                if isinstance(grid[position], Floor)
-            ]
-        )
-        agent_orientation = rng.choice(list(Orientation))
+        positions = [
+            position
+            for position in grid.area.positions()
+            if isinstance(grid[position], Floor)
+        ]
+        agent_position = choice(rng, positions)
+        agent_orientation = choice(rng, list(Orientation))
     else:
         agent_position = Position(1, 1)
         agent_orientation = Orientation.R
@@ -191,16 +193,18 @@ def rooms(
             grid[y, x] = Floor()
 
     # sample agent and exit positions
-    agent_position, exit_position = rng.choice(
-        [
-            position
-            for position in grid.area.positions()
-            if isinstance(grid[position], Floor)
-        ],
+    positions = [
+        position
+        for position in grid.area.positions()
+        if isinstance(grid[position], Floor)
+    ]
+    agent_position, exit_position = choices(
+        rng,
+        positions,
         size=2,
         replace=False,
     )
-    agent_orientation = rng.choice(list(Orientation))
+    agent_orientation = choice(rng, list(Orientation))
 
     grid[exit_position] = Exit()
     agent = Agent(agent_position, agent_orientation)
@@ -238,8 +242,8 @@ def dynamic_obstacles(
     ]
 
     try:
-        sample_positions = rng.choice(
-            vacant_positions, size=num_obstacles, replace=False
+        sample_positions = choices(
+            rng, vacant_positions, size=num_obstacles, replace=False
         )
     except ValueError as e:
         raise ValueError(
@@ -291,7 +295,7 @@ def keydoor(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
     )
 
     # Place yellow, locked door
-    pos_wall = rng.choice(line_wall)
+    pos_wall = choice(rng, line_wall)
     state.grid[pos_wall] = Door(Door.Status.LOCKED, Color.YELLOW)
 
     # Place yellow key left of wall
@@ -305,7 +309,7 @@ def keydoor(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
     y_agent = rng.integers(1, shape.height - 2, endpoint=True)
     x_agent = rng.integers(1, x_wall - 1, endpoint=True)
     state.agent.position = Position(y_agent, x_agent)
-    state.agent.orientation = rng.choice(list(Orientation))
+    state.agent.orientation = choice(rng, list(Orientation))
 
     return state
 
@@ -368,7 +372,7 @@ def crossing(
     )
 
     # sample subset of random rivers
-    rng.shuffle(rivers)  # NOTE: faster than rng.choice
+    rivers = shuffle(rng, rivers)
     rivers = rivers[:num_rivers]
 
     # create horizontal rivers without crossings
@@ -387,7 +391,7 @@ def crossing(
 
     # sample path to exit
     path = [h] * len(rivers_v) + [v] * len(rivers_h)
-    rng.shuffle(path)
+    path = shuffle(rng, path)
 
     # create crossing
     limits_h = (
@@ -428,7 +432,7 @@ def teleport(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
 
     # Place agent on top left
     state.agent.position = Position(1, 1)
-    state.agent.orientation = rng.choice([Orientation.R, Orientation.B])
+    state.agent.orientation = choice(rng, [Orientation.R, Orientation.B])
 
     num_telepods = 2
     telepods = [Telepod(Color.RED) for _ in range(num_telepods)]
@@ -447,7 +451,7 @@ def teleport(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
 
     # Place agent on top left
     state.agent.position = Position(1, 1)
-    state.agent.orientation = rng.choice([Orientation.R, Orientation.B])
+    state.agent.orientation = choice(rng, [Orientation.R, Orientation.B])
 
     return state
 
@@ -481,9 +485,9 @@ def memory(
         grid, range(2, shape.height - 2), shape.width // 2, Floor
     )
 
-    color_good, color_bad = rng.choice(list(colors), size=2, replace=False)
-    x_exit_good, x_exit_bad = rng.choice(
-        [1, shape.width - 2], size=2, replace=False
+    color_good, color_bad = choices(rng, list(colors), size=2, replace=False)
+    x_exit_good, x_exit_bad = choices(
+        rng, [1, shape.width - 2], size=2, replace=False
     )
     grid[1, x_exit_good] = Exit(color_good)
     grid[1, x_exit_bad] = Exit(color_bad)
@@ -561,21 +565,23 @@ def memory_rooms(
             grid[y, x] = Floor()
 
     # sample agent, beacon, and exit positions
-    positions = rng.choice(
-        [
-            position
-            for position in grid.area.positions()
-            if isinstance(grid[position], Floor)
-        ],
+    positions = [
+        position
+        for position in grid.area.positions()
+        if isinstance(grid[position], Floor)
+    ]
+    positions = choices(
+        rng,
+        positions,
         size=1 + num_beacons + num_exits,
         replace=False,
     )
 
     agent_position = positions[0]
-    agent_orientation = rng.choice(list(Orientation))
+    agent_orientation = choice(rng, list(Orientation))
     agent = Agent(agent_position, agent_orientation)
 
-    sample_colors = rng.choice(list(colors), size=num_exits, replace=False)
+    sample_colors = choices(rng, list(colors), size=num_exits, replace=False)
 
     good_color = sample_colors[0]
     beacon_positions = positions[1 : 1 + num_beacons]

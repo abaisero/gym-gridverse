@@ -81,7 +81,8 @@ def make_data(
     observation_data_builder.append0(env.observation)
 
     for _ in range(max_steps):
-        action = rnd.choice(env.action_space.actions)
+        i = rnd.choice(len(env.action_space.actions))
+        action = env.action_space.actions[i]
         reward, done = env.step(action)
 
         state_data_builder.append(env.state, action, reward)

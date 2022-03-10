@@ -21,7 +21,7 @@ def coinflip(
     rng = get_gv_rng_if_none(rng)  # necessary to use rng object!
 
     # sample a random binary visibility matrix
-    visibility = rng.integers(2, size=grid.shape).astype(bool)
+    visibility = rng.integers(2, size=grid.shape.as_tuple).astype(bool)
     # the agent tile should always be visible regardless
     visibility[position.y, position.x] = True
 

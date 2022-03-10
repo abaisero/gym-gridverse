@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from dataclasses import dataclass, field
 from typing import (
@@ -8,18 +10,23 @@ from typing import (
     Optional,
     Sequence,
     TypeVar,
+    Union,
+    cast,
 )
 
 import imageio
 import more_itertools as mitt
 import numpy as np
-from typing_extensions import TypedDict
+from typing_extensions import TypedDict, TypeGuard
 
 from gym_gridverse.action import Action
 from gym_gridverse.observation import Observation
 from gym_gridverse.rendering import GridVerseViewer
 from gym_gridverse.state import State
 from gym_gridverse.utils.rl import make_return_computer
+
+Image = np.ndarray
+"""An image, alias to np.ndarray"""
 
 FrameType = TypeVar('FrameType', State, Observation, np.ndarray)
 """A State, Observation, or image (np.ndarray)"""
@@ -39,16 +46,22 @@ class Data(Generic[FrameType]):
             raise ValueError('wrong lengths')
 
     @property
-    def is_state_data(self):
+    def is_state_data(self: Data[FrameType]) -> TypeGuard[Data[State]]:
         return isinstance(self.frames[0], State)
 
     @property
-    def is_observation_data(self):
+    def is_observation_data(
+        self: Data[FrameType],
+    ) -> TypeGuard[Data[Observation]]:
         return isinstance(self.frames[0], Observation)
 
     @property
-    def is_image_data(self):
-        return isinstance(self.frames[0], np.ndarray)
+    def is_image_data(self: Data[FrameType]) -> TypeGuard[Data[Image]]:
+        return isinstance(self.frames[0], Image)
+
+
+def _is_image_data(data: Data) -> TypeGuard[Data[Image]]:
+    return isinstance(data.frames[0], Image)
 
 
 @dataclass(frozen=True)
@@ -85,13 +98,16 @@ class HUD_Info(TypedDict):
     done: Optional[bool]
 
 
-def generate_images(data: Data[FrameType]) -> Iterator[np.ndarray]:
+def generate_images(
+    data: Union[Data[State], Data[Observation], Data[Image]]
+) -> Iterator[Image]:
     """Generate images associated with the input data"""
 
-    if data.is_image_data:
+    if _is_image_data(data):
         yield from data.frames
         return
 
+    data = cast(Union[Data[State], Data[Observation]], data)
     shape = data.frames[0].grid.shape
     viewer = GridVerseViewer(shape)
     viewer.flip_hud()
@@ -117,6 +133,7 @@ def generate_images(data: Data[FrameType]) -> Iterator[np.ndarray]:
             'done': is_last,
         }
 
+        frame = cast(Union[State, Observation], frame)
         yield viewer.render(frame, return_rgb_array=True, **hud_info)
 
     viewer.close()

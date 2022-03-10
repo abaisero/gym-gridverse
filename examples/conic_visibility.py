@@ -18,7 +18,7 @@ def conic(
     """cone-shaped visibility, passes through all objects"""
 
     # initialize visibility matrix to False
-    visibility = np.zeros(grid.shape, dtype=bool)
+    visibility = np.zeros(grid.shape.as_tuple, dtype=bool)
 
     # for every y-coordinate in front of the agent
     for y in range(position.y, -1, -1):

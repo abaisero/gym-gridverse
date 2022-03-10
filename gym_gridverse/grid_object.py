@@ -39,35 +39,45 @@ class GridObjectRegistry(UserList):
 grid_object_registry = GridObjectRegistry()
 
 
-class GridObjectMeta(abc.ABCMeta):
-    def __call__(self, *args, **kwargs):
-        obj = super().__call__(*args, **kwargs)
-        # checks attribute existence at object instantiation
-        obj.state_index
-        obj.color
-        obj.blocks_movement
-        obj.blocks_vision
-        obj.holdable
-        return obj
+# class GridObjectMeta(abc.ABCMeta):
+#     def __call__(self, *args, **kwargs):
+#         obj = super().__call__(*args, **kwargs)
+#         # checks attribute existence at object instantiation
+#         obj.state_index
+#         obj.color
+#         obj.blocks_movement
+#         obj.blocks_vision
+#         obj.holdable
+#         return obj
 
 
-class GridObject(metaclass=GridObjectMeta):
+# class GridObject(metaclass=GridObjectMeta):
+class GridObject(metaclass=abc.ABCMeta):
     """A cell in the grid"""
 
-    def __init__(self):
-        self.state_index: int
+    @property
+    @abc.abstractmethod
+    def state_index(self) -> int:
         """State index of the object"""
 
-        self.color: Color
+    @property
+    @abc.abstractmethod
+    def color(self) -> Color:
         """Color of the object"""
 
-        self.blocks_movement: bool
+    @property
+    @abc.abstractmethod
+    def blocks_movement(self) -> bool:
         """Whether the object blocks the agent from moving on it"""
 
-        self.blocks_vision: bool
+    @property
+    @abc.abstractmethod
+    def blocks_vision(self) -> bool:
         """Whether the object blocks the agent's vision."""
 
-        self.holdable: bool
+    @property
+    @abc.abstractmethod
+    def holdable(self) -> bool:
         """Whether the agent can see pick up the object"""
 
     def __init_subclass__(cls, *, register: bool = True, **kwargs):
@@ -106,13 +116,11 @@ class GridObject(metaclass=GridObjectMeta):
 class NoneGridObject(GridObject):
     """object representing the absence of an object"""
 
-    def __init__(self):
-        super().__init__()
-        self.state_index = 0
-        self.color = Color.NONE
-        self.blocks_movement = False
-        self.blocks_vision = True
-        self.holdable = False
+    state_index = 0
+    color = Color.NONE
+    blocks_movement = False
+    blocks_vision = True
+    holdable = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -129,13 +137,11 @@ class NoneGridObject(GridObject):
 class Hidden(GridObject):
     """object representing an unobservable cell"""
 
-    def __init__(self):
-        super().__init__()
-        self.state_index = 0
-        self.color = Color.NONE
-        self.blocks_movement = False
-        self.blocks_vision = True
-        self.holdable = False
+    state_index = 0
+    color = Color.NONE
+    blocks_movement = False
+    blocks_vision = True
+    holdable = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -152,13 +158,11 @@ class Hidden(GridObject):
 class Floor(GridObject):
     """Most basic object in the grid, represents empty cell"""
 
-    def __init__(self):
-        super().__init__()
-        self.state_index = 0
-        self.color = Color.NONE
-        self.blocks_movement = False
-        self.blocks_vision = False
-        self.holdable = False
+    state_index = 0
+    color = Color.NONE
+    blocks_movement = False
+    blocks_vision = False
+    holdable = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -175,13 +179,11 @@ class Floor(GridObject):
 class Wall(GridObject):
     """The (second) most basic object in the grid: blocking cell"""
 
-    def __init__(self):
-        super().__init__()
-        self.state_index = 0
-        self.color = Color.NONE
-        self.blocks_movement = True
-        self.blocks_vision = True
-        self.holdable = False
+    state_index = 0
+    color = Color.NONE
+    blocks_movement = True
+    blocks_vision = True
+    holdable = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -198,13 +200,15 @@ class Wall(GridObject):
 class Exit(GridObject):
     """The (second) most basic object in the grid: blocking cell"""
 
+    state_index = 0
+    color = Color.NONE
+    blocks_movement = False
+    blocks_vision = False
+    holdable = False
+
     def __init__(self, color: Color = Color.NONE):
         super().__init__()
-        self.state_index = 0
         self.color = color
-        self.blocks_movement = False
-        self.blocks_vision = False
-        self.holdable = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -224,6 +228,9 @@ class Door(GridObject):
     Can be `OPEN`, `CLOSED` or `LOCKED`.
     """
 
+    color = Color.NONE
+    holdable = False
+
     class Status(enum.Enum):
         OPEN = 0
         CLOSED = enum.auto()
@@ -233,7 +240,6 @@ class Door(GridObject):
         super().__init__()
         self.state = state
         self.color = color
-        self.holdable = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -272,13 +278,15 @@ class Door(GridObject):
 class Key(GridObject):
     """A key opens a door with the same color"""
 
+    state_index = 0
+    color = Color.NONE
+    blocks_movement = False
+    blocks_vision = False
+    holdable = True
+
     def __init__(self, color: Color):
         super().__init__()
-        self.state_index = 0
         self.color = color
-        self.blocks_movement = False
-        self.blocks_vision = False
-        self.holdable = True
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -295,13 +303,11 @@ class Key(GridObject):
 class MovingObstacle(GridObject):
     """An obstacle to be avoided that moves in the grid"""
 
-    def __init__(self):
-        super().__init__()
-        self.state_index = 0
-        self.color = Color.NONE
-        self.blocks_movement = False
-        self.blocks_vision = False
-        self.holdable = False
+    state_index = 0
+    color = Color.NONE
+    blocks_movement = False
+    blocks_vision = False
+    holdable = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -318,6 +324,12 @@ class MovingObstacle(GridObject):
 class Box(GridObject):
     """A box which can be broken and may contain another object"""
 
+    state_index = 0
+    color = Color.NONE
+    blocks_movement = True
+    blocks_vision = False
+    holdable = False
+
     def __init__(self, content: GridObject):
         super().__init__()
 
@@ -326,12 +338,6 @@ class Box(GridObject):
             raise ValueError('Box cannot contain NoneGridObject or Hidden')
 
         self.content = content
-
-        self.state_index = 0
-        self.color = Color.NONE
-        self.blocks_movement = True
-        self.blocks_vision = False
-        self.holdable = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -348,13 +354,15 @@ class Box(GridObject):
 class Telepod(GridObject):
     """A teleportation pod"""
 
+    state_index = 0
+    color = Color.NONE
+    blocks_movement = False
+    blocks_vision = False
+    holdable = False
+
     def __init__(self, color: Color):
         super().__init__()
-        self.state_index = 0
         self.color = color
-        self.blocks_movement = False
-        self.blocks_vision = False
-        self.holdable = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:
@@ -371,12 +379,14 @@ class Telepod(GridObject):
 class Beacon(GridObject):
     """A beacon to attract attention"""
 
+    state_index = 0
+    color = Color.NONE
+    blocks_movement = False
+    blocks_vision = False
+    holdable = False
+
     def __init__(self, color: Color):
-        self.state_index = 0
         self.color = color
-        self.blocks_movement = False
-        self.blocks_vision = False
-        self.holdable = False
 
     @classmethod
     def can_be_represented_in_state(cls) -> bool:

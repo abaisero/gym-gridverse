@@ -29,10 +29,11 @@ def creeping_walls(
 
     try:
         # choose a random Floor position ...
-        position = rng.choice(floor_positions)
+        i = rng.choice(len(floor_positions))
     except ValueError:
         # (floor_positions was an empty list)
         pass
     else:
         # ... and turn it into a Wall
+        position = floor_positions[i]
         state.grid[position] = Wall()

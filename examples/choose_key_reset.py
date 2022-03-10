@@ -7,7 +7,7 @@ from gym_gridverse.envs.reset_functions import reset_function_registry
 from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.grid import Grid
 from gym_gridverse.grid_object import Color, Door, Exit, Floor, Key, Wall
-from gym_gridverse.rng import get_gv_rng_if_none
+from gym_gridverse.rng import choice, get_gv_rng_if_none, shuffle
 from gym_gridverse.state import State
 
 
@@ -21,11 +21,12 @@ def choose_key(*, rng: Optional[rnd.Generator] = None) -> State:
     colors = [Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW]
 
     # randomly select key locations
-    keys = rng.permuted([Key(color) for color in colors])
+    keys = shuffle(rng, [Key(color) for color in colors])
     # randomly select door color
-    door = Door(Door.Status.LOCKED, rng.choice(colors))
+    color = choice(rng, colors)
 
     # grids can be constructed directly from objects
+    door = Door(Door.Status.LOCKED, color)
     grid = Grid(
         [
             [Wall(), Wall(), Wall(), Wall(), Wall()],

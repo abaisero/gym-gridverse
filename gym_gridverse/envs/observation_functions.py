@@ -132,14 +132,66 @@ def from_visibility(
     return Observation(observation_grid, observation_agent)
 
 
-for (name, visibility_function) in visibility_function_registry.items():
-    observation_function = partial(
-        from_visibility, visibility_function=visibility_function
+@observation_function_registry.register
+def fully_transparent(
+    state: State,
+    *,
+    area: Area,
+    rng: Optional[rnd.Generator] = None,
+) -> Observation:
+    return from_visibility(
+        state,
+        area=area,
+        visibility_function=visibility_function_registry['fully_transparent'],
+        rng=rng,
     )
-    observation_function_registry.register(observation_function, name=name)
 
-    # XXX: HACK!!! look away!!!
-    globals()[name] = observation_function
+
+@observation_function_registry.register
+def partially_occluded(
+    state: State,
+    *,
+    area: Area,
+    rng: Optional[rnd.Generator] = None,
+) -> Observation:
+    return from_visibility(
+        state,
+        area=area,
+        visibility_function=visibility_function_registry['partially_occluded'],
+        rng=rng,
+    )
+
+
+@observation_function_registry.register
+def raytracing(
+    state: State,
+    *,
+    area: Area,
+    rng: Optional[rnd.Generator] = None,
+) -> Observation:
+    return from_visibility(
+        state,
+        area=area,
+        visibility_function=visibility_function_registry['raytracing'],
+        rng=rng,
+    )
+
+
+@observation_function_registry.register
+def stochastic_raytracing(
+    state: State,
+    *,
+    area: Area,
+    rng: Optional[rnd.Generator] = None,
+) -> Observation:
+    return from_visibility(
+        state,
+        area=area,
+        visibility_function=visibility_function_registry[
+            'stochastic_raytracing'
+        ],
+        rng=rng,
+    )
 
 
 def factory(name: str, **kwargs) -> ObservationFunction:

@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from typing import List, Set, Tuple, Type, Union
+from typing import List, Set, Tuple, Type, Union, cast
 
 from .geometry import Area, Orientation, Position, Shape
 from .grid_object import Floor, GridObject, GridObjectFactory, Hidden
 
-PositionOrTuple = Union[Position, Tuple[int, int]]
-ShapeOrTuple = Union[Shape, Tuple[int, int]]
+Pair = Tuple[int, int]
 
 
 class Grid:
@@ -29,13 +28,16 @@ class Grid:
 
     @staticmethod
     def from_shape(
-        shape: ShapeOrTuple,
+        shape: Union[Shape, Pair],
         *,
         factory: GridObjectFactory = Floor,
     ) -> Grid:
-        height, width = (
-            (shape.height, shape.width) if isinstance(shape, Shape) else shape
-        )
+        try:
+            shape = cast(Shape, shape)
+            height, width = shape.height, shape.width
+        except AttributeError:
+            shape = cast(Pair, shape)
+            height, width = shape
         objects = [[factory() for _ in range(width)] for _ in range(height)]
         return Grid(objects)
 
@@ -52,24 +54,30 @@ class Grid:
         """returns object types currently in the grid"""
         return set(type(self[position]) for position in self.area.positions())
 
-    def get(self, position: PositionOrTuple, *, factory: GridObjectFactory):
+    def get(
+        self, position: Union[Position, Pair], *, factory: GridObjectFactory
+    ):
         try:
             return self[position]
         except IndexError:
             return factory()
 
-    def __getitem__(self, position: PositionOrTuple) -> GridObject:
+    def __getitem__(self, position: Union[Position, Pair]) -> GridObject:
         try:
+            position = cast(Position, position)
             y, x = position.yx
         except AttributeError:
+            position = cast(Pair, position)
             y, x = position
 
         return self.objects[y][x]
 
-    def __setitem__(self, position: PositionOrTuple, obj: GridObject):
+    def __setitem__(self, position: Union[Position, Pair], obj: GridObject):
         try:
+            position = cast(Position, position)
             y, x = position.yx
         except AttributeError:
+            position = cast(Pair, position)
             y, x = position
 
         if not isinstance(obj, GridObject):

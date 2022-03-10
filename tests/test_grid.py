@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import List
 
 import pytest
 
@@ -181,9 +181,7 @@ def test_grid_swap():
         ),
     ],
 )
-def test_grid_subgrid(
-    area: Area, expected_objects: Sequence[Sequence[GridObject]]
-):
+def test_grid_subgrid(area: Area, expected_objects: List[List[GridObject]]):
     # checkerboard pattern
     grid = Grid(
         [
@@ -315,7 +313,7 @@ def test_grid_subgrid_references():
     ],
 )
 def test_grid_mul(
-    orientation: Orientation, expected_objects: Sequence[Sequence[GridObject]]
+    orientation: Orientation, expected_objects: List[List[GridObject]]
 ):
     # checkerboard pattern
     grid = Grid(

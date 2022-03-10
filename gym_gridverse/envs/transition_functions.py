@@ -305,10 +305,11 @@ def move_obstacles(
         ]
 
         try:
-            next_position = rng.choice(next_positions)
+            i = rng.choice(len(next_positions))
         except ValueError:
             pass
         else:
+            next_position = next_positions[i]
             state.grid.swap(position, next_position)
 
 
@@ -410,7 +411,8 @@ def teleport(
             and isinstance(state.grid[position], Telepod)
             and state.grid[position].color == telepod.color
         ]
-        state.agent.position = rng.choice(positions)
+        i = rng.choice(len(positions))
+        state.agent.position = positions[i]
 
 
 def factory(name: str, **kwargs) -> TransitionFunction:

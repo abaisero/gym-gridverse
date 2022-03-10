@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional, Sequence, TypeVar
 
 import numpy.random as rnd
 
@@ -26,3 +26,27 @@ def get_gv_rng() -> rnd.Generator:
 def get_gv_rng_if_none(rng: Optional[rnd.Generator]) -> rnd.Generator:
     """get gym-gridverse module rng if input is None"""
     return get_gv_rng() if rng is None else rng
+
+
+T = TypeVar('T')
+
+
+def choice(rng: rnd.Generator, data: Sequence[T]) -> T:
+    """utility function to help typing, only valid for size 1"""
+    i = rng.choice(len(data))
+    return data[i]
+
+
+def choices(
+    rng: rnd.Generator, data: Sequence[T], *, size: int, **kwargs
+) -> List[T]:
+    """utility function to help typing"""
+    indices = rng.choice(len(data), size=size, **kwargs)
+    return [data[i] for i in indices]
+
+
+def shuffle(rng: rnd.Generator, data: Sequence[T]) -> List[T]:
+    indices = list(range(len(data)))
+    # NOTE: faster than rng.choice
+    rng.shuffle(indices)
+    return [data[i] for i in indices]
