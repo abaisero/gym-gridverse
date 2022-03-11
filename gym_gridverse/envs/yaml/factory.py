@@ -20,7 +20,7 @@ from gym_gridverse.geometry import (
     distance_function_factory,
 )
 from gym_gridverse.grid_object import Color, GridObject, grid_object_registry
-from gym_gridverse.spaces import ActionSpace, DomainSpace
+from gym_gridverse.spaces import ActionSpace
 from gym_gridverse.utils.custom import import_if_custom
 from gym_gridverse.utils.space_builders import (
     ObservationSpaceBuilder,
@@ -228,10 +228,10 @@ def factory_env_from_data(data) -> InnerEnv:
     observation_space_builder.set_grid_shape(observation.grid.shape)
     observation_space = observation_space_builder.build()
 
-    domain_space = DomainSpace(state_space, action_space, observation_space)
-
     return GridWorld(
-        domain_space,
+        state_space,
+        action_space,
+        observation_space,
         reset_function,
         transition_function,
         observation_function,

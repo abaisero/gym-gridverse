@@ -15,14 +15,16 @@ from gym_gridverse.envs.transition_functions import (
 )
 from gym_gridverse.observation import Observation
 from gym_gridverse.rng import make_rng
-from gym_gridverse.spaces import DomainSpace
+from gym_gridverse.spaces import ActionSpace, ObservationSpace, StateSpace
 from gym_gridverse.state import State
 
 
 class GridWorld(InnerEnv):
     def __init__(
         self,
-        domain_space: DomainSpace,
+        state_space: StateSpace,
+        action_space: ActionSpace,
+        observation_space: ObservationSpace,
         reset_function: ResetFunction,
         step_function: TransitionFunction,
         observation_function: ObservationFunction,
@@ -41,11 +43,7 @@ class GridWorld(InnerEnv):
 
         self._rng: Optional[rnd.Generator] = None
 
-        super().__init__(
-            domain_space.state_space,
-            domain_space.action_space,
-            domain_space.observation_space,
-        )
+        super().__init__(state_space, action_space, observation_space)
 
     def set_seed(self, seed: Optional[int] = None):
         self._rng = make_rng(seed)

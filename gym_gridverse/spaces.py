@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Iterable, Sequence, Tuple, Type
 
 from gym_gridverse.action import Action
@@ -253,10 +252,3 @@ class ObservationSpace:
         # TODO: test
         # NOTE: Add Hidden as the default 'non' object the agent is holding
         return _max_object_status(self.object_types + [NoneGridObject])
-
-
-@dataclass(eq=True, frozen=True)
-class DomainSpace:
-    state_space: StateSpace
-    action_space: ActionSpace
-    observation_space: ObservationSpace
