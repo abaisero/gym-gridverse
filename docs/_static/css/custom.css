@@ -1,0 +1,4 @@
+#inner-environments img,
+#outer-environments img {
+  filter: invert(1) brightness(0.85) hue-rotate(-60deg); 
+}
