@@ -25,9 +25,11 @@ class GridObjectRegistry(UserList):
         return object_type
 
     def names(self) -> List[str]:
+        """Returns the names of registered grid-objects"""
         return [object_type.__name__ for object_type in self.data]
 
     def from_name(self, name: str) -> Type[GridObject]:
+        """Returns the grid-object class associated with a name"""
         try:
             return next(
                 object_type
@@ -39,6 +41,7 @@ class GridObjectRegistry(UserList):
 
 
 grid_object_registry = GridObjectRegistry()
+"""GridObject registry"""
 
 
 class GridObjectMeta(abc.ABCMeta):
@@ -54,32 +57,32 @@ class GridObjectMeta(abc.ABCMeta):
 
 
 class GridObject(metaclass=GridObjectMeta):
-    """A cell in the grid"""
+    """Represents the contents of a grid cell"""
 
     @property
     @abc.abstractmethod
     def state_index(self) -> int:
-        """State index of the object"""
+        """State index of this grid-object"""
 
     @property
     @abc.abstractmethod
     def color(self) -> Color:
-        """Color of the object"""
+        """Color of this grid-object"""
 
     @property
     @abc.abstractmethod
     def blocks_movement(self) -> bool:
-        """Whether the object blocks the agent from moving on it"""
+        """Whether this grid-object blocks the agent from moving on it"""
 
     @property
     @abc.abstractmethod
     def blocks_vision(self) -> bool:
-        """Whether the object blocks the agent's vision."""
+        """Whether this grid-object blocks the agent's vision."""
 
     @property
     @abc.abstractmethod
     def holdable(self) -> bool:
-        """Whether the agent can see pick up the object"""
+        """Whether the agent can pick up this grid-object"""
 
     def __init_subclass__(cls, *, register: bool = True, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -93,18 +96,20 @@ class GridObject(metaclass=GridObjectMeta):
     @classmethod
     @abc.abstractmethod
     def can_be_represented_in_state(cls) -> bool:
-        """True iff :py:attr:`~gym_gridverse.grid_object.GridObject.state_index` fully represents the object state.
+        """True iff :py:attr:`~gym_gridverse.grid_object.GridObject.state_index` fully represents the grid-object state.
 
         GridObjects may have an internal state which is not fully representable
         by a single integer
         :py:attr:`~gym_gridverse.grid_object.GridObject.state_index`, e.g., a
-        Box may contain a reference to another GridObject as its content.  The
-        unfortunate implication is that this GridObject (and, by extension, any
-        Grid/Environment which contains this type of GridObject) cannot produce
-        a truly fully observable State representation, which becomes
-        disallowed.  However, the GridObject, Grid, and Environment may still
-        be used to represent partially observable control tasks.
-        """
+        :py:class:`~gym_gridverse.grid_object.Box` contains a reference to
+        another :py:class:`~gym_gridverse.grid_object.GridObject` as its
+        content.  The unfortunate implication is that this
+        :py:class:`~gym_gridverse.grid_object.GridObject` (and, by extension,
+        any Grido or Environment which contains this type of
+        :py:class:`~gym_gridverse.grid_object.GridObject`) cannot produce a
+        truly fully observable State representation, which becomes disallowed.
+        However, the GridObject, Grid, and Environment may still be used to
+        represent partially observable control tasks."""
         assert False
 
     @classmethod
