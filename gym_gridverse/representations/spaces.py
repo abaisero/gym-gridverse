@@ -114,6 +114,15 @@ class Space:
             and cast(bool, np.all(x <= self.upper_bound))
         )
 
+    def __eq__(self, other):
+        if isinstance(other, Space):
+            return (
+                self.space_type == other.space_type
+                and np.array_equal(self.lower_bound, other.lower_bound)
+                and np.array_equal(self.upper_bound, other.upper_bound)
+            )
+        return NotImplemented
+
 
 class CategoricalSpace(Space):
     def __init__(self, upper_bound: np.ndarray):

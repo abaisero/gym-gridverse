@@ -12,11 +12,11 @@ from gym.utils import seeding
 from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
 from gym_gridverse.outer_env import OuterEnv
 from gym_gridverse.representations.observation_representations import (
-    create_observation_representation,
+    make_observation_representation,
 )
 from gym_gridverse.representations.spaces import Space, SpaceType
 from gym_gridverse.representations.state_representations import (
-    create_state_representation,
+    make_state_representation,
 )
 
 
@@ -82,7 +82,7 @@ class GymEnvironment(gym.Env):
     def set_state_representation(self, name: str):
         """Changes the state representation."""
         # TODO: test
-        self.outer_env.state_representation = create_state_representation(
+        self.outer_env.state_representation = make_state_representation(
             name, self.outer_env.inner_env.state_space
         )
         self.state_space = outer_space_to_gym_space(
@@ -93,7 +93,7 @@ class GymEnvironment(gym.Env):
         """Changes the observation representation."""
         # TODO: test
         self.outer_env.observation_representation = (
-            create_observation_representation(
+            make_observation_representation(
                 name, self.outer_env.inner_env.observation_space
             )
         )
@@ -254,7 +254,7 @@ STRING_TO_YAML_FILE: Dict[str, str] = {
 
 def outer_env_factory(yaml_filename: str) -> OuterEnv:
     env = factory_env_from_yaml(yaml_filename)
-    observation_representation = create_observation_representation(
+    observation_representation = make_observation_representation(
         'default', env.observation_space
     )
     return OuterEnv(

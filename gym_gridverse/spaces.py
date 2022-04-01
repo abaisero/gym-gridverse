@@ -102,6 +102,14 @@ class StateSpace:
 
     # Random getters you might be interested in
     @property
+    def max_type_index(self) -> int:
+        return max(self.max_grid_object_type, self.max_agent_object_type)
+
+    @property
+    def max_state_index(self) -> int:
+        return max(self.max_grid_object_status, self.max_agent_object_status)
+
+    @property
     def max_grid_object_type(self) -> int:
         return _max_object_type(self.object_types)
 
@@ -231,6 +239,14 @@ class ObservationSpace:
         return _max_color_index(self.colors)
 
     # Random getters you might be interested in
+    @property
+    def max_type_index(self) -> int:
+        return max(self.max_grid_object_type, self.max_agent_object_type)
+
+    @property
+    def max_state_index(self) -> int:
+        return max(self.max_grid_object_status, self.max_agent_object_status)
+
     @property
     def max_grid_object_type(self) -> int:
         # NOTE: Add Hidden as a potential object in any domain observation

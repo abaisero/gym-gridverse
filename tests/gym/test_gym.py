@@ -12,23 +12,23 @@ from gym_gridverse.gym import GymStateWrapper
     [
         "GV-Crossing-5x5-v0",
         "GV-Crossing-7x7-v0",
-        "GV-Dynamic-obstacles-5x5-v0",
-        "GV-Dynamic-obstacles-7x7-v0",
+        "GV-DynamicObstacles-5x5-v0",
+        "GV-DynamicObstacles-7x7-v0",
         "GV-Empty-4x4-v0",
         "GV-Empty-8x8-v0",
-        "GV-Four-rooms-7x7-v0",
-        "GV-Four-rooms-9x9-v0",
+        "GV-FourRooms-7x7-v0",
+        "GV-FourRooms-9x9-v0",
         "GV-Keydoor-5x5-v0",
         "GV-Keydoor-7x7-v0",
         "GV-Keydoor-9x9-v0",
         "GV-Memory-5x5-v0",
         "GV-Memory-9x9-v0",
-        "GV-Memory-four-rooms-7x7-v0",
-        "GV-Memory-four-rooms-9x9-v0",
-        "GV-Memory-nine-rooms-10x10-v0",
-        "GV-Memory-nine-rooms-13x13-v0",
-        "GV-Nine-rooms-10x10-v0",
-        "GV-Nine-rooms-13x13-v0",
+        "GV-MemoryFourRooms-7x7-v0",
+        "GV-MemoryFourRooms-9x9-v0",
+        "GV-MemoryNineRooms-10x10-v0",
+        "GV-MemoryNineRooms-13x13-v0",
+        "GV-NineRooms-10x10-v0",
+        "GV-NineRooms-13x13-v0",
         "GV-Teleport-5x5-v0",
         "GV-Teleport-7x7-v0",
     ],
@@ -42,8 +42,8 @@ def test_gym_registration(env_id: str):
     [
         "GV-Empty-4x4-v0",
         "GV-Empty-8x8-v0",
-        "GV-Dynamic-obstacles-5x5-v0",
-        "GV-Dynamic-obstacles-7x7-v0",
+        "GV-DynamicObstacles-5x5-v0",
+        "GV-DynamicObstacles-7x7-v0",
     ],
 )
 @pytest.mark.parametrize('seed', [1, 10, 1337, 0xDEADBEEF])
@@ -72,7 +72,7 @@ def test_gym_control_loop():
 
 
 @pytest.mark.parametrize('env_id', ['GV-Empty-4x4-v0', 'GV-Keydoor-9x9-v0'])
-@pytest.mark.parametrize('representation', ['default', 'no_overlap'])
+@pytest.mark.parametrize('representation', ['default', 'no-overlap'])
 def test_gym_state_wrapper(env_id: str, representation: str):
     env = gym.make(env_id)
     env.set_state_representation(representation)

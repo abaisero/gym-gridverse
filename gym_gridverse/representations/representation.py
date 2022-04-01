@@ -1,36 +1,18 @@
 import abc
-from typing import Dict, Tuple
+from typing import Dict, Generic, Set, Type, TypeVar
 
 import numpy as np
 
-from gym_gridverse.agent import Agent
-from gym_gridverse.grid import Grid
+from gym_gridverse.grid_object import Color, GridObject
 from gym_gridverse.observation import Observation
-from gym_gridverse.representations.spaces import (
-    CategoricalSpace,
-    ContinuousSpace,
-    DiscreteSpace,
-    Space,
-)
+from gym_gridverse.representations.spaces import CategoricalSpace, Space
 from gym_gridverse.spaces import ObservationSpace, StateSpace
 from gym_gridverse.state import State
 
 
-class Representation(abc.ABC):
-    """Base interface for state and observation representation
+class StateRepresentation:
+    """Converts a :py:class:`~gym_gridverse.state.State` into a dictionary of :py:class:`~numpy.ndarray`."""
 
-    Representations convert :py:class:`~gym_gridverse.state.State` and
-    :py:class:`~gym_gridverse.observation.Observation` objects into
-    dictionaries of :py:class:`~numpy.ndarray` values.
-    """
-
-    @property
-    @abc.abstractmethod
-    def space(self) -> Dict[str, Space]:
-        """dictionary of represented spaces"""
-
-
-class StateRepresentation(Representation):
     def __init__(self, state_space: StateSpace):
         if not state_space.can_be_represented:
             raise ValueError(
@@ -39,270 +21,258 @@ class StateRepresentation(Representation):
 
         self.state_space = state_space
 
+    @property
+    @abc.abstractmethod
+    def space(self) -> Dict[str, Space]:
+        """returns representation space as as dictionary of numpy arrays"""
+        assert False
+
     @abc.abstractmethod
     def convert(self, state: State) -> Dict[str, np.ndarray]:
         """returns state representation as dictionary of numpy arrays"""
+        assert False
 
 
-class ObservationRepresentation(Representation):
+class ObservationRepresentation:
+    """Converts a :py:class:`~gym_gridverse.observation.Observation` into a dictionary of :py:class:`~numpy.ndarray`."""
+
     def __init__(self, observation_space: ObservationSpace):
         self.observation_space = observation_space
+
+    @property
+    @abc.abstractmethod
+    def space(self) -> Dict[str, Space]:
+        """returns representation space as as dictionary of numpy arrays"""
+        assert False
 
     @abc.abstractmethod
     def convert(self, observation: Observation) -> Dict[str, np.ndarray]:
         """returns observation representation as dictionary of numpy arrays"""
+        assert False
 
 
-def default_representation_space(
-    max_type_index: int,
-    max_state_index: int,
-    max_color_value: int,
-    width: int,
-    height: int,
-) -> Dict[str, Space]:
-    """the naive space of the representation
+T = TypeVar('T', State, Observation, GridObject)
 
-    Values converted by the representation cannot be outside the space(s)
-    returned here
+
+class ArrayRepresentation(Generic[T]):
+    @property
+    @abc.abstractmethod
+    def space(self) -> Space:
+        assert False
+
+    @abc.abstractmethod
+    def convert(self, obj: T) -> np.ndarray:
+        assert False
+
+
+# grid-object representations
+
+
+def default_grid_object_representation_space(
+    grid_object_types: Set[Type[GridObject]],
+    grid_object_colors: Set[Color],
+) -> CategoricalSpace:
+    """The default space of the representation
+
+    Returns a :py:class:`~gym_gridverse.representations.spaces.Space`
+    representing the space of a grid-object represented using type-index,
+    status-index, and color-index.
 
     NOTE: used by
-    :class:`~gym_gridverse.representations.state_representations.DefaultStateRepresentation`
+    :class:`~gym_gridverse.representations.state_representations.DefaultGridObjectStateRepresentation`
     and
-    :class:`~gym_gridverse.representations.observation_representations.DefaultObservationRepresentation`,
-    refactored here since DRY
-
-    Returns a dictionary of
-    :py:class:`~gym_gridverse.representations.spaces.Space`, each representing
-    either a different aspect or in a different way:
-
-        - 'grid': (height x width x 3) categorical space of the grid of item
-          type/status/color
-        - 'agent_id_grid': (height x width) one-hot encoding of the agent's location
-        - 'agent': (y, x, 1, 1, 1, 1) continuous space, where the first 2
-          represent the normalized position and the last 4 ones represent the
-          one-hot encoding of the orientation
-        - 'item': the categorical item type, status and color (three values)
-
-    Args:
-        max_type_index (int): highest value the type of the objects can take
-        max_state_index (int): highest value the state of the objects can take
-        max_color_value (int): highest value colors can take
-        width (int): width of the grid
-        height (int): height of the grid
-
-    Returns:
-        Dict[str, Space]: keys {'grid', 'agent_id_grid', 'agent', 'item'}
+    :class:`~gym_gridverse.representations.observation_representations.DefaultGridObjectObservationRepresentation`,
+    refactored here because of DRY.
     """
-    if max_type_index < 0:
-        raise ValueError(f'negative max_type_index ({max_type_index})')
-    if height < 0 or width < 0:
-        raise ValueError(f'negative height or width ({height, width})')
-
-    grid_space = CategoricalSpace(
-        np.array(
-            [[[max_type_index, max_state_index, max_color_value]] * width]
-            * height
-        )
+    max_agent_object_type_index = max(
+        grid_object_type.type_index() for grid_object_type in grid_object_types
+    )
+    # TODO minor bug:  the max state index is -1 compared to the num-states
+    max_agent_object_state_index = max(
+        grid_object_type.num_states() for grid_object_type in grid_object_types
+    )
+    max_agent_object_color_index = max(
+        color.value for color in grid_object_colors
     )
 
-    # 4 (last) entries for a one-hot encoding of the orientation
-    agent_space = ContinuousSpace(
-        np.array([-1.0, -1.0, 0.0, 0.0, 0.0, 0.0]),
-        np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
-    )
-
-    agent_id_space = DiscreteSpace(
-        np.zeros((height, width), dtype=int),
-        np.ones((height, width), dtype=int),
-    )
-
-    item_space = CategoricalSpace(
+    return CategoricalSpace(
         np.array(
             [
-                max_type_index,
-                max_state_index,
-                max_color_value,
+                max_agent_object_type_index,
+                max_agent_object_state_index,
+                max_agent_object_color_index,
             ]
         )
     )
 
-    return {
-        'grid': grid_space,
-        'agent_id_grid': agent_id_space,
-        'agent': agent_space,
-        'item': item_space,
-    }
 
+def default_grid_object_representation_convert(
+    grid_object: GridObject,
+) -> np.ndarray:
+    """The default conversion of a grid-object
 
-def default_convert(grid: Grid, agent: Agent) -> Dict[str, np.ndarray]:
-    """Default naive convertion of a grid and agent
-
-    Converts grid to a 3 channel (of height x width) representation of:
+    Converts a grid-object into a 3-channel array of:
 
         - object type index
         - object state index
         - object color index
 
-    e.g. return['grid'][h,w,2] returns the color of object on grid position (h,w)
-
-    Converts agent into a feature values: (y, x, one-hot-encoding of orientation (4 values))
-
-    Converts item into it's three values: (type, status, color)
-
-    Returns 'agent_id_grid', a one-hot encoding of the agent ID (shape of the grid: h x w)
-
     NOTE: used by
-    :class:`~gym_gridverse.representations.state_representations.DefaultStateRepresentation`
+    :class:`~gym_gridverse.representations.state_representations.DefaultGridObjectStateRepresentation`
     and
-    :class:`~gym_gridverse.representations.observation_representations.DefaultObservationRepresentation`,
-    refactored here since DRY
-
-    Args:
-        grid (Grid):
-        agent (Agent):
-
-    Returns:
-        Dict[str, numpy.ndarray]: keys {'grid', 'agent_id_grid', 'agent', 'item'}
+    :class:`~gym_gridverse.representations.observation_representations.DefaultObservationGridObjectObservationRepresentation`,
+    refactored here because of DRY.
     """
 
-    item_representation = np.array(
+    return np.array(
         [
-            agent.grid_object.type_index(),
-            agent.grid_object.state_index,
-            agent.grid_object.color.value,
+            grid_object.type_index(),
+            grid_object.state_index,
+            grid_object.color.value,
         ]
     )
 
-    # need this to improve efficiency, because python3.7 does not have assignment operators
-    def get_obj_array(y: int, x: int) -> Tuple[int, int, int]:
-        obj = grid[y, x]
-        return obj.type_index(), obj.state_index, obj.color.value
 
-    grid_array_object_channels = np.array(
+def no_overlap_grid_object_representation_space(
+    grid_object_types: Set[Type[GridObject]],
+    grid_object_colors: Set[Color],
+) -> CategoricalSpace:
+    """The no-overlap space of the representation
+
+    Returns a :py:class:`~gym_gridverse.representations.spaces.Space`
+    representing the space of a grid-object represented using type-index,
+    status-index, and color-index.  Guarantees no overlap across channels,
+    meaning that each channel uses separate indices.
+
+    NOTE: used by
+    :class:`~gym_gridverse.representations.state_representations.NoOverlapGridObjectStateRepresentation`
+    and
+    :class:`~gym_gridverse.representations.observation_representations.NoOverlapGridObjectObservationRepresentation`,
+    refactored here because of DRY.
+    """
+    max_agent_object_type_index = max(
+        grid_object_type.type_index() for grid_object_type in grid_object_types
+    )
+    # TODO minor bug:  the max state index is -1 compared to the num-states
+    max_agent_object_state_index = max(
+        grid_object_type.num_states() for grid_object_type in grid_object_types
+    )
+    max_agent_object_color_index = max(
+        color.value for color in grid_object_colors
+    )
+
+    return CategoricalSpace(
+        np.array(
+            [
+                max_agent_object_type_index,
+                max_agent_object_type_index + max_agent_object_state_index + 1,
+                max_agent_object_type_index
+                + max_agent_object_state_index
+                + max_agent_object_color_index
+                + 2,
+            ]
+        )
+    )
+
+
+def no_overlap_grid_object_representation_convert(
+    grid_object_types: Set[Type[GridObject]],
+    grid_object_colors: Set[Color],
+    grid_object: GridObject,
+) -> np.ndarray:
+    """The no-overlap conversion of a grid-object
+
+    Converts a :py:class:`~gym_gridverse.grid_object.GridObject` into a
+    3-channel array of type-index, status-index, and color-index.  Guarantees
+    no overlap across channels, meaning that each channel uses separate
+    indices.
+
+    NOTE: used by
+    :class:`~gym_gridverse.representations.state_representations.NoOverlapGridObjectStateRepresentation`
+    and
+    :class:`~gym_gridverse.representations.observation_representations.NoOverlapGridObjectObservationRepresentation`,
+    refactored here because of DRY.
+    """
+
+    max_agent_object_type_index = max(
+        grid_object_type.type_index() for grid_object_type in grid_object_types
+    )
+    # TODO minor bug:  the max state index is -1 compared to the num-states
+    max_agent_object_state_index = max(
+        grid_object_type.num_states() for grid_object_type in grid_object_types
+    )
+
+    return np.array(
         [
-            [get_obj_array(y, x) for x in range(grid.shape.width)]
-            for y in range(grid.shape.height)
-        ],
-        int,
+            grid_object.type_index(),
+            max_agent_object_type_index + grid_object.state_index + 1,
+            max_agent_object_type_index
+            + max_agent_object_state_index
+            + grid_object.color.value
+            + 2,
+        ]
     )
-    grid_agent_position = np.zeros((grid.shape.height, grid.shape.width), int)
-    grid_agent_position[agent.position.y, agent.position.x] = 1
-
-    agent_array = np.zeros(6)
-    agent_array[0] = (2 * agent.position.y - grid.shape.height + 1) / (
-        grid.shape.height - 1
-    )
-    agent_array[1] = (2 * agent.position.x - grid.shape.width + 1) / (
-        grid.shape.width - 1
-    )
-    agent_array[2 + agent.orientation.value] = 1
-
-    return {
-        'grid': grid_array_object_channels,
-        'agent_id_grid': grid_agent_position,
-        'agent': agent_array,
-        'item': item_representation,
-    }
 
 
-def no_overlap_representation_space(
-    max_type_index: int,
-    max_state_index: int,
-    max_color_value: int,
-    width: int,
-    height: int,
-) -> Dict[str, Space]:
-    """A representation space where categorical data does not overlap
+def compact_grid_object_representation_space(
+    grid_object_type_map: np.ndarray,
+    grid_object_state_map: np.ndarray,
+    grid_object_color_map: np.ndarray,
+) -> CategoricalSpace:
+    """The compact space of the representation
 
-    Returns the same shape and info as :func:`default_representation_space` but
-    ensures that
-    :class:`~gym_gridverse.representations.spaces.CategoricalSpace` data have
-    no overlap. That means that each value maps uniquely to a construct, even
-    accross different returned items. As a result, the size of the spaces are
-    generally larger.  The
-    :class:`~gym_gridverse.representations.spaces.DiscreteSpace` values are
-    left unmodified.
-
-    Categorical data includes 'grid' and 'item'
-
-    Will return a dictionary that contains 'grid' and 'item':
+    Returns a :py:class:`~gym_gridverse.representations.spaces.Space`
+    representing the space of a grid-object represented using type-index,
+    status-index, and color-index.  Guarantees a compact no overlap
+    representation across channels, meaning that each channel uses separate
+    indices, and there are no gaps between the used indices.
 
     NOTE: used by
-    :class:`~gym_gridverse.representations.state_representations.NoOverlapStateRepresentation`
+    :class:`~gym_gridverse.representations.state_representations.CompactGridObjectStateRepresentation`
     and
-    :class:`~gym_gridverse.representations.observation_representations.NoOverlapObservationRepresentation`,
-    refactored here since DRY
-
-    Args:
-        max_type_index (int): highest value the type of the objects can take
-        max_state_index (int): highest value the state of the objects can take
-        max_color_value (int): highest value colors can take
-        width (int): width of the grid
-        height (int): height of the grid
-
-    Returns:
-        Dict[str, Space]: keys {'grid', 'agent_id_grid', 'item', 'agent'}
+    :class:`~gym_gridverse.representations.observation_representations.CompactGridObjectObservationRepresentation`,
+    refactored here because of DRY.
     """
 
-    rep = default_representation_space(
-        max_type_index, max_state_index, max_color_value, width, height
+    return CategoricalSpace(
+        np.array(
+            [
+                grid_object_type_map.max(),
+                grid_object_state_map.max(),
+                grid_object_color_map.max(),
+            ]
+        )
     )
 
-    # increment channels to ensure there is no overlap
-    no_overlap_grid_upper_bound = rep['grid'].upper_bound
-    no_overlap_grid_upper_bound[:, :, 1] += max_type_index + 1
-    no_overlap_grid_upper_bound[:, :, 2] += max_type_index + max_state_index + 2
 
-    # default also returns agent ids as fourth channel, which must be removed
-    no_overlap_grid_upper_bound = no_overlap_grid_upper_bound[:, :, :3]
-    rep['grid'] = CategoricalSpace(no_overlap_grid_upper_bound)
+def compact_grid_object_representation_convert(
+    grid_object_type_map: np.ndarray,
+    grid_object_state_map: np.ndarray,
+    grid_object_color_map: np.ndarray,
+    grid_object: GridObject,
+) -> np.ndarray:
+    """The no-overlap conversion of a grid-object
 
-    item_upper_bound = rep['item'].upper_bound
-    item_upper_bound[1] += max_type_index + 1
-    item_upper_bound[2] += max_type_index + max_state_index + 2
-    rep['item'] = CategoricalSpace(item_upper_bound)
-
-    return rep
-
-
-def no_overlap_convert(
-    grid: Grid, agent: Agent, max_type_index: int, max_state_index: int
-) -> Dict[str, np.ndarray]:
-    """Converts to a representation without overlapping categorical data
-
-    Returns the same shape and info as :func:`default_convert` but ensures that
-    categorical data have no overlap. That means that each value maps uniquely
-    to a construct, even accross different returned items. As a result, the
-    size of the spaces are generally larger.  The discrete data are left
-    unmodified.
-
-    Categorical data includes 'grid' and 'item' values
+    Converts a :py:class:`~gym_gridverse.grid_object.GridObject` into a
+    3-channel array of type-index, status-index, and color-index.  Guarantees a
+    compact no overlap representation across channels, meaning that each
+    channel uses separate indices, and there are no gaps between the used
+    indices.
 
     NOTE: used by
-    :class:`~gym_gridverse.representations.state_representations.NoOverlapStateRepresentation`
+    :class:`~gym_gridverse.representations.state_representations.CompactGridObjectStateRepresentation`
     and
-    :class:`~gym_gridverse.representations.observation_representations.NoOverlapObservationRepresentation`,
-    refactored here since DRY
-
-
-    Args:
-        max_type_index (int): highest value the type of the objects can take
-        max_state_index (int): highest value the state of the objects can take
-        max_color_value (int): highest value colors can take
-        width (int): width of the grid
-        height (int): height of the grid
-
-    Returns:
-        Dict[str, numpy.ndarray]: keys {'grid', 'agent_id_grid', 'item', 'agent'}
+    :class:`~gym_gridverse.representations.observation_representations.CompactGridObjectObservationRepresentation`,
+    refactored here because of DRY.
     """
 
-    rep = default_convert(grid, agent)
-
-    # increment channels to ensure there is no overlap
-    rep['grid'][:, :, 1] += max_type_index + 1
-    rep['grid'][:, :, 2] += max_type_index + max_state_index + 2
-
-    rep['item'][1] += max_type_index + 1
-    rep['item'][2] += max_type_index + max_state_index + 2
-
-    return rep
+    i = grid_object.type_index()
+    j = grid_object.state_index
+    k = grid_object.color.value
+    return np.array(
+        [
+            grid_object_type_map[i],
+            grid_object_state_map[i, j],
+            grid_object_color_map[k],
+        ]
+    )
