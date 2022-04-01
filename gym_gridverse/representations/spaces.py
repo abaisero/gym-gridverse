@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import enum
 from typing import Tuple, cast
 
@@ -123,9 +125,8 @@ class Space:
             )
         return NotImplemented
 
-
-class CategoricalSpace(Space):
-    def __init__(self, upper_bound: np.ndarray):
+    @staticmethod
+    def make_categorical_space(upper_bound: np.ndarray) -> Space:
         """initializes a bounded categorical space
 
         `upper_bound` must have an integer dtype.  Each element of
@@ -135,15 +136,17 @@ class CategoricalSpace(Space):
             upper_bound (numpy.ndarray): upper_bound
         """
         lower_bound = np.zeros_like(upper_bound)
-        super().__init__(
+        return Space(
             SpaceType.CATEGORICAL,
             lower_bound,
             upper_bound,
         )
 
-
-class DiscreteSpace(Space):
-    def __init__(self, lower_bound: np.ndarray, upper_bound: np.ndarray):
+    @staticmethod
+    def make_discrete_space(
+        lower_bound: np.ndarray,
+        upper_bound: np.ndarray,
+    ) -> Space:
         """initializes a bounded discrete space
 
         `lower_bound` and `upper_bound` must have the same shape, and an
@@ -155,15 +158,17 @@ class DiscreteSpace(Space):
             lower_bound (numpy.ndarray): lower_bound
             upper_bound (numpy.ndarray): upper_bound
         """
-        super().__init__(
+        return Space(
             SpaceType.DISCRETE,
             lower_bound,
             upper_bound,
         )
 
-
-class ContinuousSpace(Space):
-    def __init__(self, lower_bound: np.ndarray, upper_bound: np.ndarray):
+    @staticmethod
+    def make_continuous_space(
+        lower_bound: np.ndarray,
+        upper_bound: np.ndarray,
+    ) -> Space:
         """initializes a bounded continuous space
 
         `lower_bound` and `upper_bound` must have the same shape, and a
@@ -175,7 +180,7 @@ class ContinuousSpace(Space):
             lower_bound (numpy.ndarray): lower_bound
             upper_bound (numpy.ndarray): upper_bound
         """
-        super().__init__(
+        return Space(
             SpaceType.CONTINUOUS,
             lower_bound,
             upper_bound,

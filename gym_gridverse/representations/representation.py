@@ -5,7 +5,7 @@ import numpy as np
 
 from gym_gridverse.grid_object import Color, GridObject
 from gym_gridverse.observation import Observation
-from gym_gridverse.representations.spaces import CategoricalSpace, Space
+from gym_gridverse.representations.spaces import Space
 from gym_gridverse.spaces import ObservationSpace, StateSpace
 from gym_gridverse.state import State
 
@@ -71,7 +71,7 @@ class ArrayRepresentation(Generic[T]):
 def default_grid_object_representation_space(
     grid_object_types: Set[Type[GridObject]],
     grid_object_colors: Set[Color],
-) -> CategoricalSpace:
+) -> Space:
     """The default space of the representation
 
     Returns a :py:class:`~gym_gridverse.representations.spaces.Space`
@@ -95,7 +95,7 @@ def default_grid_object_representation_space(
         color.value for color in grid_object_colors
     )
 
-    return CategoricalSpace(
+    return Space.make_categorical_space(
         np.array(
             [
                 max_agent_object_type_index,
@@ -136,7 +136,7 @@ def default_grid_object_representation_convert(
 def no_overlap_grid_object_representation_space(
     grid_object_types: Set[Type[GridObject]],
     grid_object_colors: Set[Color],
-) -> CategoricalSpace:
+) -> Space:
     """The no-overlap space of the representation
 
     Returns a :py:class:`~gym_gridverse.representations.spaces.Space`
@@ -161,7 +161,7 @@ def no_overlap_grid_object_representation_space(
         color.value for color in grid_object_colors
     )
 
-    return CategoricalSpace(
+    return Space.make_categorical_space(
         np.array(
             [
                 max_agent_object_type_index,
@@ -218,7 +218,7 @@ def compact_grid_object_representation_space(
     grid_object_type_map: np.ndarray,
     grid_object_state_map: np.ndarray,
     grid_object_color_map: np.ndarray,
-) -> CategoricalSpace:
+) -> Space:
     """The compact space of the representation
 
     Returns a :py:class:`~gym_gridverse.representations.spaces.Space`
@@ -234,7 +234,7 @@ def compact_grid_object_representation_space(
     refactored here because of DRY.
     """
 
-    return CategoricalSpace(
+    return Space.make_categorical_space(
         np.array(
             [
                 grid_object_type_map.max(),

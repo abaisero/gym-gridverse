@@ -1,12 +1,7 @@
 import numpy as np
 import pytest
 
-from gym_gridverse.representations.spaces import (
-    CategoricalSpace,
-    ContinuousSpace,
-    DiscreteSpace,
-    SpaceType,
-)
+from gym_gridverse.representations.spaces import Space, SpaceType
 
 # CATEGORICAL
 
@@ -20,7 +15,7 @@ from gym_gridverse.representations.spaces import (
     ],
 )
 def test_categorical_space(upper_bound: np.ndarray):
-    space = CategoricalSpace(upper_bound)
+    space = Space.make_categorical_space(upper_bound)
     assert space.space_type is SpaceType.CATEGORICAL
     assert np.all(space.lower_bound == np.zeros_like(upper_bound))
     assert np.all(space.upper_bound == upper_bound)
@@ -41,7 +36,7 @@ def test_categorical_space(upper_bound: np.ndarray):
 )
 def test_categorical_space_fail(upper_bound: np.ndarray):
     with pytest.raises(ValueError):
-        CategoricalSpace(upper_bound)
+        Space.make_categorical_space(upper_bound)
 
 
 @pytest.mark.parametrize(
@@ -56,7 +51,7 @@ def test_categorical_space_fail(upper_bound: np.ndarray):
 def test_categorical_space_contains(
     upper_bound: np.ndarray, x: np.ndarray, expected: bool
 ):
-    space = CategoricalSpace(upper_bound)
+    space = Space.make_categorical_space(upper_bound)
     assert space.contains(x) == expected
 
 
@@ -72,7 +67,7 @@ def test_categorical_space_contains(
     ],
 )
 def test_discrete_space(lower_bound: np.ndarray, upper_bound: np.ndarray):
-    space = DiscreteSpace(lower_bound, upper_bound)
+    space = Space.make_discrete_space(lower_bound, upper_bound)
     assert space.space_type is SpaceType.DISCRETE
     assert np.all(space.lower_bound == lower_bound)
     assert np.all(space.upper_bound == upper_bound)
@@ -97,7 +92,7 @@ def test_discrete_space(lower_bound: np.ndarray, upper_bound: np.ndarray):
 )
 def test_discrete_space_fail(lower_bound: np.ndarray, upper_bound: np.ndarray):
     with pytest.raises(ValueError):
-        DiscreteSpace(lower_bound, upper_bound)
+        Space.make_discrete_space(lower_bound, upper_bound)
 
 
 @pytest.mark.parametrize(
@@ -116,7 +111,7 @@ def test_discrete_space_contains(
     x: np.ndarray,
     expected: bool,
 ):
-    space = DiscreteSpace(lower_bound, upper_bound)
+    space = Space.make_discrete_space(lower_bound, upper_bound)
     assert space.contains(x) == expected
 
 
@@ -132,7 +127,7 @@ def test_discrete_space_contains(
     ],
 )
 def test_continuous_space(lower_bound: np.ndarray, upper_bound: np.ndarray):
-    space = ContinuousSpace(lower_bound, upper_bound)
+    space = Space.make_continuous_space(lower_bound, upper_bound)
     assert space.space_type is SpaceType.CONTINUOUS
     assert np.all(space.lower_bound == lower_bound)
     assert np.all(space.upper_bound == upper_bound)
@@ -159,7 +154,7 @@ def test_continuous_space_fail(
     lower_bound: np.ndarray, upper_bound: np.ndarray
 ):
     with pytest.raises(ValueError):
-        ContinuousSpace(lower_bound, upper_bound)
+        Space.make_continuous_space(lower_bound, upper_bound)
 
 
 @pytest.mark.parametrize(
@@ -203,5 +198,5 @@ def test_continuous_space_contains(
     x: np.ndarray,
     expected: bool,
 ):
-    space = ContinuousSpace(lower_bound, upper_bound)
+    space = Space.make_continuous_space(lower_bound, upper_bound)
     assert space.contains(x) == expected

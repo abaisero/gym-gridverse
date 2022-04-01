@@ -14,12 +14,7 @@ from gym_gridverse.representations.representation import (
     no_overlap_grid_object_representation_convert,
     no_overlap_grid_object_representation_space,
 )
-from gym_gridverse.representations.spaces import (
-    CategoricalSpace,
-    ContinuousSpace,
-    DiscreteSpace,
-    Space,
-)
+from gym_gridverse.representations.spaces import Space
 from gym_gridverse.spaces import StateSpace
 from gym_gridverse.state import State
 
@@ -185,14 +180,14 @@ class ItemStateRepresentation(ArrayStateRepresentation):
 
 class AgentIDGridStateRepresentation(ArrayStateRepresentation):
     @property
-    def space(self) -> DiscreteSpace:
+    def space(self) -> Space:
         height = self.state_space.grid_shape.height
         width = self.state_space.grid_shape.width
 
         if height < 0 or width < 0:
             raise ValueError(f'negative height or width ({height, width})')
 
-        return DiscreteSpace(
+        return Space.make_discrete_space(
             np.zeros((height, width), dtype=int),
             np.ones((height, width), dtype=int),
         )
@@ -205,9 +200,9 @@ class AgentIDGridStateRepresentation(ArrayStateRepresentation):
 
 class AgentStateRepresentation(ArrayStateRepresentation):
     @property
-    def space(self) -> ContinuousSpace:
+    def space(self) -> Space:
         # 4 (last) entries for a one-hot encoding of the orientation
-        return ContinuousSpace(
+        return Space.make_continuous_space(
             np.array([-1.0, -1.0, 0.0, 0.0, 0.0, 0.0]),
             np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
         )
@@ -252,7 +247,7 @@ class DefaultGridObjectStateRepresentation(GridObjectStateRepresentation):
         self._grid_object_colors = set(self.state_space.colors)
 
     @property
-    def space(self) -> CategoricalSpace:
+    def space(self) -> Space:
         return default_grid_object_representation_space(
             self._grid_object_types,
             self._grid_object_colors,
@@ -280,7 +275,7 @@ class NoOverlapGridObjectStateRepresentation(GridObjectStateRepresentation):
         self._grid_object_colors = set(self.state_space.colors)
 
     @property
-    def space(self) -> CategoricalSpace:
+    def space(self) -> Space:
         return no_overlap_grid_object_representation_space(
             self._grid_object_types,
             self._grid_object_colors,
@@ -345,7 +340,7 @@ class CompactGridObjectStateRepresentation(GridObjectStateRepresentation):
             compact_index += 1
 
     @property
-    def space(self) -> CategoricalSpace:
+    def space(self) -> Space:
         return compact_grid_object_representation_space(
             self._grid_object_type_map,
             self._grid_object_status_map,
