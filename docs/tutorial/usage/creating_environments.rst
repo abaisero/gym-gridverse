@@ -16,7 +16,7 @@ Some predefined environments can be instantiated directly using
   import gym
   import gym_gridverse
 
-  env = gym.make('GridVerse-FourRooms-7x7-v0')
+  env = gym.make('GV-FourRooms-7x7-v0')
 
 The resulting environment object is an instance of
 :py:class:`~gym_gridverse.gym.GymEnvironment`, which not only satisfied the gym
@@ -47,16 +47,30 @@ To create an environment from YAML, you can use the factory function
 :py:meth:`~gym_gridverse.envs.yaml.factory.factory_env_from_yaml` returns an
 instance of :py:class:`~gym_gridverse.envs.inner_env.InnerEnv`, which does not
 provide the same interface as :py:class:`gym.Env`.  The
-:py:class:`~gym_gridverse.envs.inner_env.InnerEnv` environment will be
-explained later, in the design section;  for now, if you want to load a YAML
-environment and interact with it using the gym interface, you must wrap it with
-:py:class:`~gym_gridverse.gym.GymEnvironment` as follows::
+:py:class:`~gym_gridverse.envs.inner_env.InnerEnv` environment (and other
+relevant classes) will be explained later, in the design section;  for now, if
+you want to load a YAML environment and interact with it using the gym
+interface, you must wrap it with :py:class:`~gym_gridverse.gym.GymEnvironment`
+as follows::
 
   from gym_gridverse.envs.yaml.factory import factory_env_from_yaml
-  from gym_gridverse.gym import GymEnvironment
+  from gym_gridverse.gym import outer_env_factory, GymEnvironment
 
   inner_env = factory_env_from_yaml('path/to/env.yaml')
-  env = GymEnvironment.from_environment(inner_env)
+  state_representation = make_state_representation(
+      'default',
+      inner_env.state_space,
+  )
+  observation_representation = make_observation_representation(
+      'default',
+      inner_env.observation_space,
+  )
+  outer_env = OuterEnv(
+      inner_env,
+      state_representation=state_representation,
+      observation_representation=observation_representation,
+  )
+  env = GymEnvironment(outer_env)
 
 .. tip::
 

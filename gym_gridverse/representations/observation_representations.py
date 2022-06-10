@@ -35,8 +35,11 @@ def make_observation_representation(
 ) -> ObservationRepresentation:
     """Factory function for observation representations
 
+    Args:
+        name (str): name of the representation
+        observation_space (ObservationSpace): inner-environment observation space
     Returns:
-        Representation:
+        ObservationRepresentation:
     """
     # TODO: test
 

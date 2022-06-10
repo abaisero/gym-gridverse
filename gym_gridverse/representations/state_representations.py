@@ -35,8 +35,11 @@ def make_state_representation(
 ) -> StateRepresentation:
     """Factory function for state representations
 
+    Args:
+        name (str): name of the representation
+        state_space (StateSpace): inner-environment state space
     Returns:
-        Representation:
+        StateRepresentation:
     """
     # TODO: test
 

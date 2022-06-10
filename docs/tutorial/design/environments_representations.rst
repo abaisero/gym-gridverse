@@ -29,6 +29,11 @@ method:
   :noindex:
   :members: space, convert
 
+To create one of the representations defined in the GV library, you can use the respective function:
+
+.. autofunction:: gym_gridverse.representations.state_representations.make_state_representation
+   :noindex:
+
 Observation Representations
 ---------------------------
 
@@ -44,4 +49,9 @@ property and a
 .. autoclass:: gym_gridverse.representations.representation.ObservationRepresentation
   :noindex:
   :members: space, convert
+
+To create one of the representations defined in the GV library, you can use the respective function:
+
+.. autofunction:: gym_gridverse.representations.observation_representations.make_observation_representation
+   :noindex:
 
