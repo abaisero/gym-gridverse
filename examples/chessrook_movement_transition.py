@@ -7,6 +7,13 @@ from gym_gridverse.envs.transition_functions import transition_function_registry
 from gym_gridverse.geometry import Orientation, Position
 from gym_gridverse.state import State
 
+_action_orientations = {
+    Action.MOVE_FORWARD: Orientation.F,
+    Action.MOVE_LEFT: Orientation.L,
+    Action.MOVE_RIGHT: Orientation.R,
+    Action.MOVE_BACKWARD: Orientation.B,
+}
+
 
 @transition_function_registry.register
 def chessrook_movement(
@@ -18,21 +25,17 @@ def chessrook_movement(
     """moves the agent like a chess rook, until it hits an obstacle"""
 
     # get agent's movement direction
-    if action is Action.MOVE_FORWARD:
-        movement_orientation = state.agent.orientation * Orientation.F
-    elif action is Action.MOVE_LEFT:
-        movement_orientation = state.agent.orientation * Orientation.L
-    elif action is Action.MOVE_RIGHT:
-        movement_orientation = state.agent.orientation * Orientation.R
-    elif action is Action.MOVE_BACKWARD:
-        movement_orientation = state.agent.orientation * Orientation.F
-    else:
+    try:
+        action_orientation = _action_orientations[action]
+    except KeyError:
         # not a movement action
         return
 
+    movement_orientation = state.agent.orientation * action_orientation
+    position_delta = Position.from_orientation(movement_orientation)
+
     # check positions until a blocking cell is found
     position = state.agent.position
-    position_delta = Position.from_orientation(movement_orientation)
     while not state.grid[position + position_delta].blocks_movement:
         position = position + position_delta
 
