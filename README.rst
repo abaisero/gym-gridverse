@@ -113,157 +113,80 @@ Examples
 
 +---------------------------------------------------------------------------------------------------+
 | yaml/gv_crossing.7x7.yaml                                                                         |
-+===================================================================================================+
-| State                                                                                             |
-|                                                                                                   |
-| |gv_crossing.7x7.state.gif|                                                                       |
-+------------------------------------------------+--------------------------------------------------+
-| "Full" Observation                             | "Partial" Observation                            |
++================================================+==================================================+
+| State                                          | Observations                                     |
 |                                                |                                                  |
-| |gv_crossing.7x7.observation.full.gif|         | |gv_crossing.7x7.observation.partial.gif|        |
-+------------------------------------------------+--------------------------------------------------+
-| "MiniGrid" Observation                         | "Raytracing" Observation                         |
-|                                                |                                                  |
-| |gv_crossing.7x7.observation.minigrid.gif|     | |gv_crossing.7x7.observation.raytracing.gif|     |
+| |gv_crossing.7x7.state.gif|                    | |gv_crossing.7x7.observation.montage.gif|        |
 +------------------------------------------------+--------------------------------------------------+
 
 .. |gv_crossing.7x7.state.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_crossing.7x7.state.gif?raw=true
-.. |gv_crossing.7x7.observation.full.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_crossing.7x7.observation.full.gif?raw=true
-.. |gv_crossing.7x7.observation.partial.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_crossing.7x7.observation.partial.gif?raw=true
-.. |gv_crossing.7x7.observation.minigrid.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_crossing.7x7.observation.minigrid.gif?raw=true
-.. |gv_crossing.7x7.observation.raytracing.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_crossing.7x7.observation.raytracing.gif?raw=true
+.. |gv_crossing.7x7.observation.montage.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_crossing.7x7.observation.montage.gif?raw=true
 
-+-------------------------------------------------------------------------------------------------------------+
-| yaml/gv_dynamic_obstacles.7x7.yaml                                                                          |
-+=============================================================================================================+
-| State                                                                                                       |
-|                                                                                                             |
-| |gv_dynamic_obstacles.7x7.state.gif|                                                                        |
-+-----------------------------------------------------+-------------------------------------------------------+
-| "Full" Observation                                  | "Partial" Observation                                 |
-|                                                     |                                                       |
-| |gv_dynamic_obstacles.7x7.observation.full.gif|     | |gv_dynamic_obstacles.7x7.observation.partial.gif|    |
-+-----------------------------------------------------+-------------------------------------------------------+
-| "MiniGrid" Observation                              | "Raytracing" Observation                              |
-|                                                     |                                                       |
-| |gv_dynamic_obstacles.7x7.observation.minigrid.gif| | |gv_dynamic_obstacles.7x7.observation.raytracing.gif| |
-+-----------------------------------------------------+-------------------------------------------------------+
++--------------------------------------------------------------------------------------------------------+
+| yaml/gv_dynamic_obstacles.7x7.yaml                                                                     |
++================================================+=======================================================+
+| State                                          | Observations                                          |
+|                                                |                                                       |
+| |gv_dynamic_obstacles.7x7.state.gif|           | |gv_dynamic_obstacles.7x7.observation.montage.gif|    |
++------------------------------------------------+-------------------------------------------------------+
 
 .. |gv_dynamic_obstacles.7x7.state.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_dynamic_obstacles.7x7.state.gif?raw=true
-.. |gv_dynamic_obstacles.7x7.observation.full.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_dynamic_obstacles.7x7.observation.full.gif?raw=true
-.. |gv_dynamic_obstacles.7x7.observation.partial.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_dynamic_obstacles.7x7.observation.partial.gif?raw=true
-.. |gv_dynamic_obstacles.7x7.observation.minigrid.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_dynamic_obstacles.7x7.observation.minigrid.gif?raw=true
-.. |gv_dynamic_obstacles.7x7.observation.raytracing.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_dynamic_obstacles.7x7.observation.raytracing.gif?raw=true
+.. |gv_dynamic_obstacles.7x7.observation.montage.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_dynamic_obstacles.7x7.observation.montage.gif?raw=true
 
 +---------------------------------------------------------------------------------------------------+
 | yaml/gv_empty.8x8.yaml                                                                            |
-+===================================================================================================+
-| State                                                                                             |
-|                                                                                                   |
-| |gv_empty.8x8.state.gif|                                                                          |
-+------------------------------------------------+--------------------------------------------------+
-| "Full" Observation                             | "Partial" Observation                            |
++================================================+==================================================+
+| State                                          | Observations                                     |
 |                                                |                                                  |
-| |gv_empty.8x8.observation.full.gif|            | |gv_empty.8x8.observation.partial.gif|           |
-+------------------------------------------------+--------------------------------------------------+
-| "MiniGrid" Observation                         | "Raytracing" Observation                         |
-|                                                |                                                  |
-| |gv_empty.8x8.observation.minigrid.gif|        | |gv_empty.8x8.observation.raytracing.gif|        |
+| |gv_empty.8x8.state.gif|                       | |gv_empty.8x8.observation.montage.gif|           |
 +------------------------------------------------+--------------------------------------------------+
 
 .. |gv_empty.8x8.state.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_empty.8x8.state.gif?raw=true
-.. |gv_empty.8x8.observation.full.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_empty.8x8.observation.full.gif?raw=true
-.. |gv_empty.8x8.observation.partial.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_empty.8x8.observation.partial.gif?raw=true
-.. |gv_empty.8x8.observation.minigrid.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_empty.8x8.observation.minigrid.gif?raw=true
-.. |gv_empty.8x8.observation.raytracing.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_empty.8x8.observation.raytracing.gif?raw=true
+.. |gv_empty.8x8.observation.montage.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_empty.8x8.observation.montage.gif?raw=true
 
 +---------------------------------------------------------------------------------------------------+
 | yaml/gv_four_rooms.9x9.yaml                                                                       |
-+===================================================================================================+
-| State                                                                                             |
-|                                                                                                   |
-| |gv_four_rooms.9x9.state.gif|                                                                     |
-+------------------------------------------------+--------------------------------------------------+
-| "Full" Observation                             | "Partial" Observation                            |
++================================================+==================================================+
+| State                                          | Observations                                     |
 |                                                |                                                  |
-| |gv_four_rooms.9x9.observation.full.gif|       | |gv_four_rooms.9x9.observation.partial.gif|      |
-+------------------------------------------------+--------------------------------------------------+
-| "MiniGrid" Observation                         | "Raytracing" Observation                         |
-|                                                |                                                  |
-| |gv_four_rooms.9x9.observation.minigrid.gif|   | |gv_four_rooms.9x9.observation.raytracing.gif|   |
+| |gv_four_rooms.9x9.state.gif|                  | |gv_four_rooms.9x9.observation.montage.gif|      |
 +------------------------------------------------+--------------------------------------------------+
 
 .. |gv_four_rooms.9x9.state.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_four_rooms.9x9.state.gif?raw=true
-.. |gv_four_rooms.9x9.observation.full.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_four_rooms.9x9.observation.full.gif?raw=true
-.. |gv_four_rooms.9x9.observation.partial.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_four_rooms.9x9.observation.partial.gif?raw=true
-.. |gv_four_rooms.9x9.observation.minigrid.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_four_rooms.9x9.observation.minigrid.gif?raw=true
-.. |gv_four_rooms.9x9.observation.raytracing.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_four_rooms.9x9.observation.raytracing.gif?raw=true
+.. |gv_four_rooms.9x9.observation.montage.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_four_rooms.9x9.observation.montage.gif?raw=true
 
 +---------------------------------------------------------------------------------------------------+
 | yaml/gv_keydoor.5x5.yaml                                                                          |
-+===================================================================================================+
-| State                                                                                             |
-|                                                                                                   |
-| |gv_keydoor.5x5.state.gif|                                                                        |
-+------------------------------------------------+--------------------------------------------------+
-| "Full" Observation                             | "Partial" Observation                            |
++================================================+==================================================+
+| State                                          | Observations                                     |
 |                                                |                                                  |
-| |gv_keydoor.5x5.observation.full.gif|          | |gv_keydoor.5x5.observation.partial.gif|         |
-+------------------------------------------------+--------------------------------------------------+
-| "MiniGrid" Observation                         | "Raytracing" Observation                         |
-|                                                |                                                  |
-| |gv_keydoor.5x5.observation.minigrid.gif|      | |gv_keydoor.5x5.observation.raytracing.gif|      |
+| |gv_keydoor.5x5.state.gif|                     | |gv_keydoor.5x5.observation.montage.gif|         |
 +------------------------------------------------+--------------------------------------------------+
 
 .. |gv_keydoor.5x5.state.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_keydoor.5x5.state.gif?raw=true
-.. |gv_keydoor.5x5.observation.full.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_keydoor.5x5.observation.full.gif?raw=true
-.. |gv_keydoor.5x5.observation.partial.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_keydoor.5x5.observation.partial.gif?raw=true
-.. |gv_keydoor.5x5.observation.minigrid.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_keydoor.5x5.observation.minigrid.gif?raw=true
-.. |gv_keydoor.5x5.observation.raytracing.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_keydoor.5x5.observation.raytracing.gif?raw=true
+.. |gv_keydoor.5x5.observation.montage.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_keydoor.5x5.observation.montage.gif?raw=true
 
 +---------------------------------------------------------------------------------------------------+
 | yaml/gv_nine_rooms.13.13.yaml                                                                     |
-+===================================================================================================+
-| State                                                                                             |
-|                                                                                                   |
-| |gv_nine_rooms.13x13.state.gif|                                                                   |
-+------------------------------------------------+--------------------------------------------------+
-| "Full" Observation                             | "Partial" Observation                            |
++================================================+==================================================+
+| State                                          | Observations                                     |
 |                                                |                                                  |
-| |gv_nine_rooms.13x13.observation.full.gif|     | |gv_nine_rooms.13x13.observation.partial.gif|    |
-+------------------------------------------------+--------------------------------------------------+
-| "MiniGrid" Observation                         | "Raytracing" Observation                         |
-|                                                |                                                  |
-| |gv_nine_rooms.13x13.observation.minigrid.gif| | |gv_nine_rooms.13x13.observation.raytracing.gif| |
+| |gv_nine_rooms.13x13.state.gif|                | |gv_nine_rooms.13x13.observation.montage.gif|    |
 +------------------------------------------------+--------------------------------------------------+
 
 .. |gv_nine_rooms.13x13.state.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_nine_rooms.13x13.state.gif?raw=true
-.. |gv_nine_rooms.13x13.observation.full.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_nine_rooms.13x13.observation.full.gif?raw=true
-.. |gv_nine_rooms.13x13.observation.partial.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_nine_rooms.13x13.observation.partial.gif?raw=true
-.. |gv_nine_rooms.13x13.observation.minigrid.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_nine_rooms.13x13.observation.minigrid.gif?raw=true
-.. |gv_nine_rooms.13x13.observation.raytracing.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_nine_rooms.13x13.observation.raytracing.gif?raw=true
+.. |gv_nine_rooms.13x13.observation.montage.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_nine_rooms.13x13.observation.montage.gif?raw=true
 
 +---------------------------------------------------------------------------------------------------+
 | yaml/gv_teleport.7x7.yaml                                                                         |
-+===================================================================================================+
-| State                                                                                             |
-|                                                                                                   |
-| |gv_teleport.7x7.state.gif|                                                                       |
-+------------------------------------------------+--------------------------------------------------+
-| "Full" Observation                             | "Partial" Observation                            |
++================================================+==================================================+
+| State                                          | Observations                                     |
 |                                                |                                                  |
-| |gv_teleport.7x7.observation.full.gif|         | |gv_teleport.7x7.observation.partial.gif|        |
-+------------------------------------------------+--------------------------------------------------+
-| "MiniGrid" Observation                         | "Raytracing" Observation                         |
-|                                                |                                                  |
-| |gv_teleport.7x7.observation.minigrid.gif|     | |gv_teleport.7x7.observation.raytracing.gif|     |
+| |gv_teleport.7x7.state.gif|                    | |gv_teleport.7x7.observation.montage.gif|        |
 +------------------------------------------------+--------------------------------------------------+
 
 .. |gv_teleport.7x7.state.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_teleport.7x7.state.gif?raw=true
-.. |gv_teleport.7x7.observation.full.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_teleport.7x7.observation.full.gif?raw=true
-.. |gv_teleport.7x7.observation.partial.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_teleport.7x7.observation.partial.gif?raw=true
-.. |gv_teleport.7x7.observation.minigrid.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_teleport.7x7.observation.minigrid.gif?raw=true
-.. |gv_teleport.7x7.observation.raytracing.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_teleport.7x7.observation.raytracing.gif?raw=true
+.. |gv_teleport.7x7.observation.montage.gif| image:: https://github.com/abaisero/gym-gridverse/blob/master/images/yaml/gv_teleport.7x7.observation.montage.gif?raw=true
 
 
 Similar Projects
