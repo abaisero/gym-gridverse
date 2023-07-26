@@ -154,7 +154,6 @@ class GymEnvironment(gym.Env):
             return
 
         if mode in ['human', 'human_state']:
-
             if self._state_viewer is None:
                 self._state_viewer = GridVerseViewer(
                     self.outer_env.inner_env.state_space.grid_shape,
@@ -167,7 +166,6 @@ class GymEnvironment(gym.Env):
             self._state_viewer.render(self.outer_env.inner_env.state)
 
         if mode in ['human', 'human_observation']:
-
             if self._observation_viewer is None:
                 self._observation_viewer = GridVerseViewer(
                     self.outer_env.inner_env.observation_space.grid_shape,
@@ -184,7 +182,6 @@ class GymEnvironment(gym.Env):
         rgb_arrays = []
 
         if mode in ['rgb_array', 'rgb_array_state']:
-
             if self._state_viewer is None:
                 self._state_viewer = GridVerseViewer(
                     self.outer_env.inner_env.state_space.grid_shape,
@@ -201,7 +198,6 @@ class GymEnvironment(gym.Env):
             rgb_arrays.append(rgb_array_state)
 
         if mode in ['rgb_array', 'rgb_array_observation']:
-
             if self._observation_viewer is None:
                 self._observation_viewer = GridVerseViewer(
                     self.outer_env.inner_env.observation_space.grid_shape,

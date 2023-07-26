@@ -1,3 +1,4 @@
+-r requirements-setup.txt
 -r requirements-black.txt
 -r requirements-flake8.txt
 -r requirements-isort.txt

@@ -1,5 +1,5 @@
 import glob
-from typing import List, Optional, Sequence, Type
+from typing import List, Optional, Sequence, Type, Union
 
 import pytest
 
@@ -164,7 +164,7 @@ def space_contains_observation(
     space_objs: Sequence[Type[GridObject]] = [Floor],
     space_colors: Sequence[Color] = [],
     grid: Grid = Grid.from_shape((2, 5)),
-    agent_obj: GridObject = None,
+    agent_obj: Union[GridObject, None] = None,
     agent_pos: Position = Position(0, 0),
     orientation: Orientation = Orientation.F,
 ):

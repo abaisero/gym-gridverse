@@ -9,12 +9,13 @@ from typing import (
     List,
     Optional,
     Sequence,
+    TypeAlias,
     TypeVar,
     Union,
     cast,
 )
 
-import imageio
+import imageio.v2 as iio
 import more_itertools as mitt
 import numpy as np
 from typing_extensions import TypedDict
@@ -25,7 +26,7 @@ from gym_gridverse.rendering import GridVerseViewer
 from gym_gridverse.state import State
 from gym_gridverse.utils.rl import make_return_computer
 
-Image = np.ndarray
+Image: TypeAlias = np.ndarray
 """An image, alias to np.ndarray"""
 
 FrameType = TypeVar('FrameType', State, Observation, np.ndarray)
@@ -172,10 +173,10 @@ def record_images(
     for filename, image in zip(filenames, images):
         print(f'creating {filename}')
         try:
-            imageio.imwrite(filename, image)
+            iio.imwrite(filename, image)
         except FileNotFoundError:
             os.makedirs(os.path.dirname(filename), exist_ok=True)
-            imageio.imwrite(filename, image)
+            iio.imwrite(filename, image)
 
 
 def record_gif(
@@ -201,10 +202,10 @@ def record_gif(
 
     print(f'creating {filename} ({len(images)} frames)')
     try:
-        imageio.mimwrite(filename, images, **kwargs)
+        iio.mimwrite(filename, images, **kwargs)
     except FileNotFoundError:
         os.makedirs(os.path.dirname(filename), exist_ok=True)
-        imageio.mimwrite(filename, images, **kwargs)
+        iio.mimwrite(filename, images, **kwargs)
 
 
 def record_mp4(
@@ -227,7 +228,7 @@ def record_mp4(
 
     print(f'creating {filename} ({len(images)} frames)')
     try:
-        imageio.mimwrite(filename, images, **kwargs)
+        iio.mimwrite(filename, images, **kwargs)
     except FileNotFoundError:
         os.makedirs(os.path.dirname(filename), exist_ok=True)
-        imageio.mimwrite(filename, images, **kwargs)
+        iio.mimwrite(filename, images, **kwargs)
