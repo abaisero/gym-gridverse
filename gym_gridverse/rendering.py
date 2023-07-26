@@ -6,9 +6,9 @@ from typing import Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pyglet
-from gym.envs.classic_control import rendering
 from pyglet.gl import glClearColor
 
+from gym_gridverse import rendering_gym as rendering
 from gym_gridverse.action import Action
 from gym_gridverse.geometry import Orientation, Position, Shape
 from gym_gridverse.grid_object import (
@@ -46,7 +46,6 @@ def make_grid(
     num_rows: int,
     num_cols: int,
 ) -> rendering.Geom:
-
     start_x, start_y = start
     end_x, end_y = end
 
@@ -144,7 +143,6 @@ def make_exit(exit_: Exit) -> rendering.Geom:
 
 
 def make_hidden(hidden: Hidden) -> rendering.Geom:
-
     geom = rendering.make_polygon(
         [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)],
         filled=True,
@@ -209,7 +207,6 @@ def _make_door_open(door: Door) -> rendering.Geom:
 
 
 def _make_door_closed_locked(door: Door) -> rendering.Geom:
-
     geom_door = rendering.make_polygon(
         # [(-0.8, -0.8), (-0.8, 0.8), (0.8, 0.8), (0.8, -0.8)], filled=True,
         [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)],
@@ -237,7 +234,6 @@ def _make_door_closed_locked(door: Door) -> rendering.Geom:
 
 
 def _make_door_closed_unlocked(door: Door) -> rendering.Geom:
-
     geom_door = rendering.make_polygon(
         # [(-0.8, -0.8), (-0.8, 0.8), (0.8, 0.8), (0.8, -0.8)], filled=True,
         [(-1.0, -1.0), (-1.0, 1.0), (1.0, 1.0), (1.0, -1.0)],
@@ -354,7 +350,6 @@ def make_key(key: Key) -> rendering.Geom:
 
 
 def make_moving_obstacle(obstacle: MovingObstacle) -> rendering.Geom:
-
     pad = 0.8
     geom = rendering.make_polygon(
         [
@@ -382,7 +377,6 @@ def make_moving_obstacle(obstacle: MovingObstacle) -> rendering.Geom:
 
 
 def make_telepod(telepod: Telepod) -> rendering.Geom:
-
     res = 100
     geom_circle = rendering.make_circle(0.8, res=res, filled=True)
     geom_circle.set_color(*colormap[telepod.color])
