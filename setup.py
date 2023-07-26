@@ -11,7 +11,7 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'pyglet',
+    'pyglet==1.5.27',
     'gym[classic_control]<=0.21.0',
     'imageio',
     'imageio-ffmpeg',
