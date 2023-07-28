@@ -86,6 +86,7 @@ def test_observation_space_schema(data, expected: bool):
 # NOTE: individual xxx_function_schema are annoying to test comprehensively;
 # they are tested indirectly by testing the entire format in the following test
 
+
 # NOTE testing all yaml files in yaml/
 @pytest.mark.parametrize('path', glob.glob('yaml/*.yaml'))
 def test_env_schema(path: str):

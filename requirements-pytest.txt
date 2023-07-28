@@ -1,2 +1,2 @@
 -r requirements-setup.txt
-pytest==6.2.5
+pytest==7.4.0

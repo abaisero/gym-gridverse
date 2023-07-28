@@ -19,7 +19,6 @@ def satellite(
     shape: Shape,
     rng: Optional[rnd.Generator] = None,
 ) -> Observation:
-
     rng = get_gv_rng_if_none(rng)  # necessary to use rng object!
 
     # randomly sample an area of the given shape which includes the agent

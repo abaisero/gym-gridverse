@@ -122,14 +122,12 @@ visibility_function_registry = VisibilityFunctionRegistry()
 def fully_transparent(
     grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
 ) -> np.ndarray:
-
     return np.ones((grid.shape.height, grid.shape.width), dtype=bool)
 
 
 def _partially_occluded_make_visible(
     visibility, grid, position, next_positions
 ):
-
     if grid.area.contains(position) and not visibility[position.y, position.x]:
         visibility[position.y, position.x] = True
         if not grid[position].blocks_vision:
@@ -159,7 +157,6 @@ def _partially_occluded_next_positions_front_right(position):
 def partially_occluded(
     grid: Grid, position: Position, *, rng: Optional[rnd.Generator] = None
 ) -> np.ndarray:
-
     if position.y != grid.shape.height - 1:
         # TODO generalize for this case
         raise NotImplementedError
@@ -197,7 +194,6 @@ def raytracing(
     threshold: Union[int, float] = 1,
     rng: Optional[rnd.Generator] = None,
 ) -> np.ndarray:
-
     rays = cached_compute_rays_fancy(position, grid.area)
     counts_num = np.zeros((grid.shape.height, grid.shape.width), dtype=int)
     counts_den = np.zeros((grid.shape.height, grid.shape.width), dtype=int)
@@ -224,7 +220,6 @@ def stochastic_raytracing(  # TODO: add test
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> np.ndarray:
-
     rng = get_gv_rng_if_none(rng)
 
     rays = cached_compute_rays_fancy(position, grid.area)

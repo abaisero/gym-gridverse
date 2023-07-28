@@ -72,7 +72,6 @@ class GridWorld(InnerEnv):
     def functional_step(
         self, state: State, action: Action
     ) -> Tuple[State, float, bool]:
-
         if gv_debug() and not self.state_space.contains(state):
             raise ValueError('state does not satisfy state_space')
         if not self.action_space.contains(action):

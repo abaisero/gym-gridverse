@@ -148,7 +148,6 @@ def rooms(
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> State:
-
     rng = get_gv_rng_if_none(rng)
 
     # TODO: test creation (e.g. count number of walls, exits, check held item)
@@ -426,7 +425,6 @@ def crossing(
 
 @reset_function_registry.register
 def teleport(shape: Shape, *, rng: Optional[rnd.Generator] = None) -> State:
-
     rng = get_gv_rng_if_none(rng)
 
     state = empty(shape)
@@ -465,7 +463,6 @@ def memory(
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> State:
-
     if shape.height < 5:
         raise ValueError(f'height ({shape.height}) must be >= 5')
     if shape.width < 5 or shape.width % 2 == 0:
@@ -513,7 +510,6 @@ def memory_rooms(
     *,
     rng: Optional[rnd.Generator] = None,
 ) -> State:
-
     if Color.NONE in colors:
         raise ValueError(f'colors ({colors}) must not include NONE')
     if len(colors) < 2:

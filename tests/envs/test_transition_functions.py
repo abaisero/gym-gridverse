@@ -89,7 +89,6 @@ def test_turn_agent(
     actions: List[Action],
     expected: Orientation,
 ):
-
     state = Mock(agent=Mock(orientation=orientation))
     for action in actions:
         turn_agent(state, action)

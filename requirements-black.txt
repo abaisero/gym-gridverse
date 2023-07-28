@@ -1,2 +1,2 @@
 -r requirements-setup.txt
-black==22.3
+black==23.7.0

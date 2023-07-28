@@ -71,7 +71,6 @@ def main():
 def make_data(
     env: InnerEnv, discount: float, *, max_steps: int
 ) -> Tuple[Data[State], Data[Observation]]:
-
     state_data_builder: DataBuilder[State] = DataBuilder(discount)
     observation_data_builder: DataBuilder[Observation] = DataBuilder(discount)
 

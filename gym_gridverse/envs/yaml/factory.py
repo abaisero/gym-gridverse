@@ -29,7 +29,6 @@ from gym_gridverse.utils.space_builders import (
 
 
 def process_reserved_keys(data):
-
     if 'transition_functions' in data:
         data['transition_functions'] = [
             factory_transition_function(d) for d in data['transition_functions']
