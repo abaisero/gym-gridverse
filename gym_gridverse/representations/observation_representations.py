@@ -1,9 +1,9 @@
-from typing import Dict, Tuple
+from typing import Dict, Iterable, Sequence, Tuple, Type
 
 import numpy as np
 
 from gym_gridverse.debugging import gv_debug
-from gym_gridverse.grid_object import GridObject, Hidden, NoneGridObject
+from gym_gridverse.grid_object import Color, GridObject, Hidden, NoneGridObject
 from gym_gridverse.observation import Observation
 from gym_gridverse.representations.representation import (
     ArrayRepresentation,
@@ -17,6 +17,32 @@ from gym_gridverse.representations.representation import (
 )
 from gym_gridverse.representations.spaces import Space
 from gym_gridverse.spaces import ObservationSpace
+
+
+def _sorted_object_types(
+    object_types: Iterable[Type[GridObject]],
+) -> Sequence[Type[GridObject]]:
+    """Returns the object types sorted by their index
+
+    Args:
+        object_types (`Iterable[Type[GridObject]]`):
+
+    Returns:
+        Sequence[Type[GridObject]]:
+    """
+    return sorted(object_types, key=lambda obj_type: obj_type.type_index())
+
+
+def _sorted_colors(colors: Iterable[Color]) -> Sequence[Color]:
+    """Returns the colors sorted by their index
+
+    Args:
+        colors (`Iterable[Color]`):
+
+    Returns:
+        Sequence[Color]:
+    """
+    return sorted(colors, key=lambda color: color.value)
 
 
 class ArrayObservationRepresentation(ArrayRepresentation[Observation]):
@@ -304,12 +330,16 @@ class CompactGridObjectObservationRepresentation(
         shape = (max_color_index + 1,)
         self._grid_object_color_map = -np.ones(shape, int)
 
-        compact_index = 0
+        grid_object_types = _sorted_object_types(
+            set(self.observation_space.object_types)
+            | {
+                Hidden,
+                NoneGridObject,
+            }
+        )
+        grid_object_colors = _sorted_colors(self.observation_space.colors)
 
-        grid_object_types = set(self.observation_space.object_types) | {
-            Hidden,
-            NoneGridObject,
-        }
+        compact_index = 0
 
         for grid_object in grid_object_types:
             i = grid_object.type_index()
@@ -322,7 +352,7 @@ class CompactGridObjectObservationRepresentation(
                 self._grid_object_status_map[i, j] = compact_index
                 compact_index += 1
 
-        for color in self.observation_space.colors:
+        for color in grid_object_colors:
             k = color.value
             self._grid_object_color_map[k] = compact_index
             compact_index += 1

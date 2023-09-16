@@ -29,13 +29,14 @@ def make_env(id_or_path: str) -> GymEnvironment:
         print('Loading using YAML')
         inner_env = factory_env_from_yaml(id_or_path)
         state_representation = make_state_representation(
-            'default',
+            'compact',
             inner_env.state_space,
         )
         observation_representation = make_observation_representation(
-            'default',
+            'compact',
             inner_env.observation_space,
         )
+
         outer_env = OuterEnv(
             inner_env,
             state_representation=state_representation,
